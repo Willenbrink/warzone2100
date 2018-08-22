@@ -290,72 +290,64 @@ static GAMECODE renderLoop()
 	}
 
 	/* Check for quit */
-	bool quitting = false;
+	bool quitting = intRetVal == INT_QUIT && !loop_GetVideoStatus();
 
-	if(intRetVal == INT_QUIT)
+	if(quitting)
 	{
-		if(!loop_GetVideoStatus())
-		{
-			//quitting from the game to the front end
-			//so get a new backdrop
-			quitting = true;
-
-			pie_LoadBackDrop(SCREEN_RANDOMBDROP);
-		}
+		//quitting from the game to the front end
+		//so get a new backdrop
+		pie_LoadBackDrop(SCREEN_RANDOMBDROP);
 	}
-
-	if(!loop_GetVideoStatus() && !quitting)
-	{
-		if(!gameUpdatePaused())
-		{
-			if(dragBox3D.status != DRAG_DRAGGING
-			        && wallDrag.status != DRAG_DRAGGING
-			        && intRetVal != INT_INTERCEPT)
-			{
-				ProcessRadarInput();
-			}
-
-			processInput();
-
-			//no key clicks or in Intelligence Screen
-			if(!isMouseOverRadar() && intRetVal == INT_NONE && !InGameOpUp && !isInGamePopupUp)
-			{
-				CURSOR cursor2 = processMouseClickInput();
-				cursor = cursor2 == CURSOR_DEFAULT ? cursor : cursor2;
-			}
-
-			displayWorld();
-		}
-
-		wzPerfBegin(PERF_GUI, "User interface");
-		/* Display the in game interface */
-		pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
-		pie_SetFogStatus(false);
-
-		if(bMultiPlayer && bDisplayMultiJoiningStatus)
-		{
-			intDisplayMultiJoiningStatus(bDisplayMultiJoiningStatus);
-			setWidgetsStatus(false);
-		}
-
-		if(getWidgetsStatus())
-		{
-			intDisplayWidgets();
-		}
-
-		pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
-		pie_SetFogStatus(true);
-		wzPerfEnd(PERF_GUI);
-	}
-
-	wzSetCursor(cursor);
-
-	pie_GetResetCounts(&loopPieCount, &loopPolyCount);
 
 	if(!quitting)
 	{
-		/* Check for toggling display mode */
-		if((keyDown(KEY_LALT) || keyDown(KEY_RALT)) && keyPressed(KEY_RETURN))
+		if(!loop_GetVideoStatus())
+		{
+			if(!gameUpdatePaused())
+			{
+				if(dragBox3D.status != DRAG_DRAGGING
+				        && wallDrag.status != DRAG_DRAGGING
+				        && intRetVal != INT_INTERCEPT)
+				{
+					ProcessRadarInput();
+				}
+
+				processInput();
+
+				//no key clicks or in Intelligence Screen
+				if(!isMouseOverRadar() && intRetVal == INT_NONE && !InGameOpUp && !isInGamePopupUp)
+				{
+					CURSOR cursor2 = processMouseClickInput();
+					cursor = cursor2 == CURSOR_DEFAULT ? cursor : cursor2;
+				}
+
+				displayWorld();
+			}
+
+			wzPerfBegin(PERF_GUI, "User interface");
+			/* Display the in game interface */
+			pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
+			pie_SetFogStatus(false);
+
+			if(bMultiPlayer && bDisplayMultiJoiningStatus)
+			{
+				intDisplayMultiJoiningStatus(bDisplayMultiJoiningStatus);
+				setWidgetsStatus(false);
+			}
+
+			if(getWidgetsStatus())
+			{
+				intDisplayWidgets();
+			}
+
+			pie_SetDepthBufferStatus(DEPTH_CMP_LEQ_WRT_ON);
+			pie_SetFogStatus(true);
+			wzPerfEnd(PERF_GUI);
+		}
+
+		wzSetCursor(cursor);
+
+		pie_GetResetCounts(&loopPieCount, &loopPolyCount);		/* Check for toggling display mode */		if((keyDown(KEY_LALT) || keyDown(KEY_RALT)) && keyPressed(KEY_RETURN))
 		{
 			war_setFullscreen(!war_getFullscreen());
 			wzToggleFullscreen();
