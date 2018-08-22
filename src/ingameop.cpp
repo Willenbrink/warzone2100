@@ -80,7 +80,8 @@ static bool addIGTextButton(UDWORD id, UWORD x, UWORD y, UWORD width, const char
 	sButInit.pDisplay	= displayTextOption;
 	sButInit.pText		= string;
 	sButInit.pUserData = new DisplayTextOptionCache();
-	sButInit.onDelete = [](WIDGET *psWidget) {
+	sButInit.onDelete = [](WIDGET * psWidget)
+	{
 		assert(psWidget->pUserData != nullptr);
 		delete static_cast<DisplayTextOptionCache *>(psWidget->pUserData);
 		psWidget->pUserData = nullptr;
@@ -101,21 +102,23 @@ static bool addQuitOptions()
 	// add form
 	auto inGameOp = new IntFormAnimated(parent);
 	inGameOp->id = INTINGAMEOP;
-	inGameOp->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+	inGameOp->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+	{
 		psWidget->setGeometry(INTINGAMEOP3_X, INTINGAMEOP3_Y, INTINGAMEOP3_W, INTINGAMEOP3_H);
 	}));
 
 	addIGTextButton(INTINGAMEOP_RESUME, INTINGAMEOP_1_X, INTINGAMEOP_1_Y, INTINGAMEOP_OP_W, _("Resume Game"), OPALIGN);
 
-	if (NetPlay.isHost && bMultiPlayer && NetPlay.bComms)		// only show for real MP games
+	if(NetPlay.isHost && bMultiPlayer && NetPlay.bComms)		// only show for real MP games
 	{
 		auto inGamePopup = new IntFormAnimated(parent);
 		inGamePopup->id = INTINGAMEPOPUP;
-		inGamePopup->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+		inGamePopup->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+		{
 			assert(psWScreen != nullptr);
 			WIDGET * inGameOp = widgGetFromID(psWScreen, INTINGAMEOP);
 			assert(inGameOp != nullptr);
-			psWidget->setGeometry((pie_GetVideoBufferWidth() - 600)/2, inGameOp->y() - 26 - 20, 600, 26);
+			psWidget->setGeometry((pie_GetVideoBufferWidth() - 600) / 2, inGameOp->y() - 26 - 20, 600, 26);
 		}));
 
 		auto label = new W_LABEL(inGamePopup);
@@ -144,7 +147,8 @@ static bool addSlideOptions()
 	// add form
 	IntFormAnimated *ingameOp = new IntFormAnimated(parent);
 	ingameOp->id = INTINGAMEOP;
-	ingameOp->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+	ingameOp->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+	{
 		psWidget->setGeometry(INTINGAMEOP2_X, INTINGAMEOP2_Y, INTINGAMEOP2_W, INTINGAMEOP2_H);
 	}));
 
@@ -164,8 +168,9 @@ static bool addSlideOptions()
 	            AUDIO_VOL_MAX, (int)(sound_GetMusicVolume() * 100));
 
 #ifdef DEBUG
+
 	// Tactical UI: Target Origin
-	if (tuiTargetOrigin)
+	if(tuiTargetOrigin)
 	{
 		addIGTextButton(INTINGAMEOP_TUI_TARGET_ORIGIN_SW, INTINGAMEOP_2_X, INTINGAMEOP_4_Y, INTINGAMEOP_SW_W,
 		                _("Tactical UI (Target Origin Icon): Show"), WBUT_PLAIN);
@@ -175,6 +180,7 @@ static bool addSlideOptions()
 		addIGTextButton(INTINGAMEOP_TUI_TARGET_ORIGIN_SW, INTINGAMEOP_2_X, INTINGAMEOP_4_Y, INTINGAMEOP_SW_W,
 		                _("Tactical UI (Target Origin Icon): Hide"), WBUT_PLAIN);
 	}
+
 #endif
 
 	addIGTextButton(INTINGAMEOP_RESUME, INTINGAMEOP_1_X, INTINGAMEOP_5_Y, INTINGAMEOP_SW_W, _("Resume Game"), OPALIGN);
@@ -196,7 +202,7 @@ static bool _intAddInGameOptions()
 	setWidgetsStatus(true);
 
 	//if already open, then close!
-	if (widgGetFromID(psWScreen, INTINGAMEOP))
+	if(widgGetFromID(psWScreen, INTINGAMEOP))
 	{
 		intCloseInGameOptions(false, true);
 		return true;
@@ -206,7 +212,7 @@ static bool _intAddInGameOptions()
 
 
 	// Pause the game.
-	if (!gamePaused())
+	if(!gamePaused())
 	{
 		kf_TogglePauseMode();
 	}
@@ -218,13 +224,14 @@ static bool _intAddInGameOptions()
 	// add form
 	IntFormAnimated *ingameOp = new IntFormAnimated(parent);
 	ingameOp->id = INTINGAMEOP;
-	ingameOp->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+	ingameOp->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+	{
 		bool s = (bMultiPlayer && NetPlay.bComms != 0) || bInTutorial;
 		psWidget->setGeometry(INTINGAMEOP_X, INTINGAMEOP_Y, INTINGAMEOP_W, s ? INTINGAMEOP_HS : INTINGAMEOP_H);
 	}));
 
 	// add 'quit' text
-	if (NetPlay.isHost && bMultiPlayer && NetPlay.bComms)
+	if(NetPlay.isHost && bMultiPlayer && NetPlay.bComms)
 	{
 		addIGTextButton(quitConfirmation ? INTINGAMEOP_QUIT : INTINGAMEOP_QUIT_CONFIRM, INTINGAMEOP_1_X, s ? INTINGAMEOP_3_Y : INTINGAMEOP_5_Y, INTINGAMEOP_OP_W, _("Host Quit"), OPALIGN);
 	}
@@ -239,9 +246,9 @@ static bool _intAddInGameOptions()
 	// add 'options'
 	addIGTextButton(INTINGAMEOP_OPTIONS, INTINGAMEOP_1_X, INTINGAMEOP_2_Y, INTINGAMEOP_OP_W, _("Audio Options"), OPALIGN);
 
-	if (!s)
+	if(!s)
 	{
-		if (!bMultiPlayer)
+		if(!bMultiPlayer)
 		{
 			// add 'load'
 			addIGTextButton(INTINGAMEOP_LOAD_MISSION, INTINGAMEOP_1_X, INTINGAMEOP_3_Y, INTINGAMEOP_OP_W, _("Load Game"), OPALIGN);
@@ -282,14 +289,14 @@ void intAddInGamePopup()
 	setWidgetsStatus(true);
 	intResetScreen(false);
 
-	if (isInGamePopupUp)
+	if(isInGamePopupUp)
 	{
 		return;
 	}
 
 	audio_StopAll();
 
-	if (!gamePaused())
+	if(!gamePaused())
 	{
 		kf_TogglePauseMode();	// Pause the game.
 	}
@@ -298,7 +305,8 @@ void intAddInGamePopup()
 
 	IntFormAnimated *ingamePopup = new IntFormAnimated(parent);
 	ingamePopup->id = INTINGAMEPOPUP;
-	ingamePopup->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+	ingamePopup->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+	{
 		psWidget->setGeometry(20 + D_W, (240 - 160 / 2) + D_H, 600, 160);
 	}));
 
@@ -313,7 +321,8 @@ void intAddInGamePopup()
 	sButInit.height		= 10;
 	sButInit.pDisplay	= displayTextOption;
 	sButInit.initPUserDataFunc = []() -> void * { return new DisplayTextOptionCache(); };
-	sButInit.onDelete = [](WIDGET *psWidget) {
+	sButInit.onDelete = [](WIDGET * psWidget)
+	{
 		assert(psWidget->pUserData != nullptr);
 		delete static_cast<DisplayTextOptionCache *>(psWidget->pUserData);
 		psWidget->pUserData = nullptr;
@@ -350,7 +359,7 @@ static void ProcessOptionFinished()
 
 
 	//unpause.
-	if (gamePaused())
+	if(gamePaused())
 	{
 		kf_TogglePauseMode();
 	}
@@ -360,17 +369,18 @@ static void ProcessOptionFinished()
 
 void intCloseInGameOptionsNoAnim(bool bResetMissionWidgets)
 {
-	if (NetPlay.isHost)
+	if(NetPlay.isHost)
 	{
 		widgDelete(psWScreen, INTINGAMEPOPUP);
 	}
+
 	widgDelete(psWScreen, INTINGAMEOP);
 	InGameOpUp = false;
 
 	ProcessOptionFinished();
 
 	//don't add the widgets if the load/save screen is put up or exiting to front end
-	if (bResetMissionWidgets)
+	if(bResetMissionWidgets)
 	{
 		//put any widgets back on for the missions
 		resetMissionWidgets();
@@ -382,15 +392,16 @@ void intCloseInGameOptionsNoAnim(bool bResetMissionWidgets)
 bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 {
 
-	if (NetPlay.isHost)
+	if(NetPlay.isHost)
 	{
 		widgDelete(psWScreen, INTINGAMEPOPUP);
 	}
 
-	if (bPutUpLoadSave)
+	if(bPutUpLoadSave)
 	{
 		WIDGET *widg = widgGetFromID(psWScreen, INTINGAMEOP);
-		if (widg)
+
+		if(widg)
 		{
 			widgDelete(psWScreen, INTINGAMEOP);
 		}
@@ -402,7 +413,8 @@ bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 		// close the form.
 		// Start the window close animation.
 		IntFormAnimated *form;
-		if (isInGamePopupUp)	// FIXME: we hijack this routine for the popup close.
+
+		if(isInGamePopupUp)	// FIXME: we hijack this routine for the popup close.
 		{
 			form = (IntFormAnimated *)widgGetFromID(psWScreen, INTINGAMEPOPUP);
 			isInGamePopupUp = false;
@@ -412,7 +424,7 @@ bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 			form = (IntFormAnimated *)widgGetFromID(psWScreen, INTINGAMEOP);
 		}
 
-		if (form)
+		if(form)
 		{
 			form->closeAnimateDelete();
 			InGameOpUp			 = false;
@@ -422,7 +434,7 @@ bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 	ProcessOptionFinished();
 
 	//don't add the widgets if the load/save screen is put up or exiting to front end
-	if (bResetMissionWidgets)
+	if(bResetMissionWidgets)
 	{
 		//put any widgets back on for the missions
 		resetMissionWidgets();
@@ -436,25 +448,25 @@ bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 // process clicks made by user.
 void intProcessInGameOptions(UDWORD id)
 {
-	switch (id)
+	switch(id)
 	{
-	// NORMAL KEYS
-	case INTINGAMEOP_QUIT:				//quit was pressed
-		addQuitOptions();
-		break;
+		// NORMAL KEYS
+		case INTINGAMEOP_QUIT:				//quit was pressed
+			addQuitOptions();
+			break;
 
-	case INTINGAMEOP_POPUP_QUIT:
-	case INTINGAMEOP_QUIT_CONFIRM:		//quit was confirmed.
-		intCloseInGameOptions(false, false);
-		break;
+		case INTINGAMEOP_POPUP_QUIT:
+		case INTINGAMEOP_QUIT_CONFIRM:		//quit was confirmed.
+			intCloseInGameOptions(false, false);
+			break;
 
-	case INTINGAMEOP_OPTIONS:			//game options  was pressed
-		addSlideOptions();
-		break;
+		case INTINGAMEOP_OPTIONS:			//game options  was pressed
+			addSlideOptions();
+			break;
 
-	case INTINGAMEOP_RESUME:			//resume was pressed.
-		intCloseInGameOptions(false, true);
-		break;
+		case INTINGAMEOP_RESUME:			//resume was pressed.
+			intCloseInGameOptions(false, true);
+			break;
 
 
 //	case INTINGAMEOP_REPLAY:
@@ -466,52 +478,59 @@ void intProcessInGameOptions(UDWORD id)
 //			addConsoleMessage(_("GAME SAVED!"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
 //		}
 //		break;
-	case INTINGAMEOP_LOAD_MISSION:
-		intCloseInGameOptions(true, false);
-		addLoadSave(LOAD_INGAME_MISSION, _("Load Campaign Saved Game"));	// change mode when loadsave returns
-		break;
-	case INTINGAMEOP_LOAD_SKIRMISH:
-		intCloseInGameOptions(true, false);
-		addLoadSave(LOAD_INGAME_SKIRMISH, _("Load Skirmish Saved Game"));	// change mode when loadsave returns
-		break;
-	case INTINGAMEOP_SAVE_MISSION:
-		intCloseInGameOptions(true, false);
-		addLoadSave(SAVE_INGAME_MISSION, _("Save Campaign Game"));
-		break;
-	case INTINGAMEOP_SAVE_SKIRMISH:
-		intCloseInGameOptions(true, false);
-		addLoadSave(SAVE_INGAME_SKIRMISH, _("Save Skirmish Game"));
-	// GAME OPTIONS KEYS
-	case INTINGAMEOP_FXVOL:
-	case INTINGAMEOP_3DFXVOL:
-	case INTINGAMEOP_CDVOL:
-		break;
+		case INTINGAMEOP_LOAD_MISSION:
+			intCloseInGameOptions(true, false);
+			addLoadSave(LOAD_INGAME_MISSION, _("Load Campaign Saved Game"));	// change mode when loadsave returns
+			break;
+
+		case INTINGAMEOP_LOAD_SKIRMISH:
+			intCloseInGameOptions(true, false);
+			addLoadSave(LOAD_INGAME_SKIRMISH, _("Load Skirmish Saved Game"));	// change mode when loadsave returns
+			break;
+
+		case INTINGAMEOP_SAVE_MISSION:
+			intCloseInGameOptions(true, false);
+			addLoadSave(SAVE_INGAME_MISSION, _("Save Campaign Game"));
+			break;
+
+		case INTINGAMEOP_SAVE_SKIRMISH:
+			intCloseInGameOptions(true, false);
+			addLoadSave(SAVE_INGAME_SKIRMISH, _("Save Skirmish Game"));
+
+		// GAME OPTIONS KEYS
+		case INTINGAMEOP_FXVOL:
+		case INTINGAMEOP_3DFXVOL:
+		case INTINGAMEOP_CDVOL:
+			break;
 
 
-	case INTINGAMEOP_FXVOL_S:
-		sound_SetUIVolume((float)widgGetSliderPos(psWScreen, INTINGAMEOP_FXVOL_S) / 100.0);
-		break;
-	case INTINGAMEOP_3DFXVOL_S:
-		sound_SetEffectsVolume((float)widgGetSliderPos(psWScreen, INTINGAMEOP_3DFXVOL_S) / 100.0);
-		break;
-	case INTINGAMEOP_CDVOL_S:
-		sound_SetMusicVolume((float)widgGetSliderPos(psWScreen, INTINGAMEOP_CDVOL_S) / 100.0);
-		break;
+		case INTINGAMEOP_FXVOL_S:
+			sound_SetUIVolume((float)widgGetSliderPos(psWScreen, INTINGAMEOP_FXVOL_S) / 100.0);
+			break;
 
-	case INTINGAMEOP_TUI_TARGET_ORIGIN_SW:
-		tuiTargetOrigin = !tuiTargetOrigin;
-		if (tuiTargetOrigin)
-		{
-			widgSetString(psWScreen, INTINGAMEOP_TUI_TARGET_ORIGIN_SW, _("Tactical UI (Target Origin Icon): Show"));
-		}
-		else
-		{
-			widgSetString(psWScreen, INTINGAMEOP_TUI_TARGET_ORIGIN_SW, _("Tactical UI (Target Origin Icon): Hide"));
-		}
+		case INTINGAMEOP_3DFXVOL_S:
+			sound_SetEffectsVolume((float)widgGetSliderPos(psWScreen, INTINGAMEOP_3DFXVOL_S) / 100.0);
+			break;
 
-		break;
+		case INTINGAMEOP_CDVOL_S:
+			sound_SetMusicVolume((float)widgGetSliderPos(psWScreen, INTINGAMEOP_CDVOL_S) / 100.0);
+			break;
 
-	default:
-		break;
+		case INTINGAMEOP_TUI_TARGET_ORIGIN_SW:
+			tuiTargetOrigin = !tuiTargetOrigin;
+
+			if(tuiTargetOrigin)
+			{
+				widgSetString(psWScreen, INTINGAMEOP_TUI_TARGET_ORIGIN_SW, _("Tactical UI (Target Origin Icon): Show"));
+			}
+			else
+			{
+				widgSetString(psWScreen, INTINGAMEOP_TUI_TARGET_ORIGIN_SW, _("Tactical UI (Target Origin Icon): Hide"));
+			}
+
+			break;
+
+		default:
+			break;
 	}
 }

@@ -45,30 +45,35 @@ static int              fDifEnemyModifier;
 void	setDifficultyLevel(DIFFICULTY_LEVEL lev)
 {
 
-	switch (lev)
+	switch(lev)
 	{
-	case	DL_EASY:
-		fDifPlayerModifier = 120;
-		fDifEnemyModifier = 100;
-		break;
-	case	DL_NORMAL:
-		fDifPlayerModifier = 100;
-		fDifEnemyModifier = 100;
-		break;
-	case	DL_HARD:
-	case	DL_INSANE:
-		fDifPlayerModifier = 80;
-		fDifEnemyModifier = 100;
-		break;
-	case	DL_TOUGH:
-		fDifPlayerModifier = 100;
-		fDifEnemyModifier = 50;    // they do less damage!
-		break;
-	case	DL_KILLER:
-		fDifPlayerModifier = 999;  // 10 times
-		fDifEnemyModifier = 1;     // almost nothing
-		break;
+		case	DL_EASY:
+			fDifPlayerModifier = 120;
+			fDifEnemyModifier = 100;
+			break;
+
+		case	DL_NORMAL:
+			fDifPlayerModifier = 100;
+			fDifEnemyModifier = 100;
+			break;
+
+		case	DL_HARD:
+		case	DL_INSANE:
+			fDifPlayerModifier = 80;
+			fDifEnemyModifier = 100;
+			break;
+
+		case	DL_TOUGH:
+			fDifPlayerModifier = 100;
+			fDifEnemyModifier = 50;    // they do less damage!
+			break;
+
+		case	DL_KILLER:
+			fDifPlayerModifier = 999;  // 10 times
+			fDifEnemyModifier = 1;     // almost nothing
+			break;
 	}
+
 	presDifLevel = lev;
 }
 
@@ -82,11 +87,12 @@ DIFFICULTY_LEVEL	getDifficultyLevel()
 // ------------------------------------------------------------------------------------
 int modifyForDifficultyLevel(int basicVal, bool IsPlayer)
 {
-	if (bMultiPlayer && presDifLevel != DL_KILLER && presDifLevel != DL_TOUGH)  // ignore multiplayer or skirmish (unless using biffer baker) games
+	if(bMultiPlayer && presDifLevel != DL_KILLER && presDifLevel != DL_TOUGH)   // ignore multiplayer or skirmish (unless using biffer baker) games
 	{
 		return basicVal;
 	}
-	if (IsPlayer)
+
+	if(IsPlayer)
 	{
 		return basicVal * fDifPlayerModifier / 100;
 	}

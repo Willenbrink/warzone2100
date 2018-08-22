@@ -54,7 +54,7 @@ bool scrGroupAddDroid()
 	DROID_GROUP		*psGroup;
 	DROID			*psDroid;
 
-	if (!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
+	if(!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
 	{
 		return false;
 	}
@@ -63,17 +63,20 @@ bool scrGroupAddDroid()
 	       "scrGroupAdd: Invalid group pointer");
 	ASSERT(psDroid != nullptr,
 	       "scrGroupAdd: Invalid droid pointer");
-	if (psDroid == nullptr)
+
+	if(psDroid == nullptr)
 	{
 		return false;
 	}
-	if (psDroid->droidType == DROID_COMMAND)
+
+	if(psDroid->droidType == DROID_COMMAND)
 	{
 		debug(LOG_ERROR,
 		      "scrGroupAdd: cannot add a command droid to a group");
 		return false;
 	}
-	if (isTransporter(psDroid))
+
+	if(isTransporter(psDroid))
 	{
 		debug(LOG_ERROR,
 		      "scrGroupAdd: cannot add a transporter to a group");
@@ -93,8 +96,8 @@ bool scrGroupAddArea()
 	DROID			*psDroid;
 	SDWORD			x1, y1, x2, y2, player;
 
-	if (!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player,
-	                    VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+	if(!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player,
+	                   VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
 	{
 		return false;
 	}
@@ -102,18 +105,18 @@ bool scrGroupAddArea()
 	ASSERT(psGroup != nullptr,
 	       "scrGroupAdd: Invalid group pointer");
 
-	if (player < 0 || player >= MAX_PLAYERS)
+	if(player < 0 || player >= MAX_PLAYERS)
 	{
 		ASSERT(false, "scrGroupAddArea: invalid player");
 		return false;
 	}
 
-	for (psDroid = apsDroidLists[player]; psDroid; psDroid = psDroid->psNext)
+	for(psDroid = apsDroidLists[player]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (((SDWORD)psDroid->pos.x >= x1) && ((SDWORD)psDroid->pos.x <= x2) &&
-		    ((SDWORD)psDroid->pos.y >= y1) && ((SDWORD)psDroid->pos.y <= y2) &&
-		    psDroid->droidType != DROID_COMMAND &&
-		    !isTransporter(psDroid))
+		if(((SDWORD)psDroid->pos.x >= x1) && ((SDWORD)psDroid->pos.x <= x2) &&
+		        ((SDWORD)psDroid->pos.y >= y1) && ((SDWORD)psDroid->pos.y <= y2) &&
+		        psDroid->droidType != DROID_COMMAND &&
+		        !isTransporter(psDroid))
 
 		{
 			psGroup->add(psDroid);
@@ -131,8 +134,8 @@ bool scrGroupAddAreaNoGroup()
 	DROID			*psDroid;
 	SDWORD			x1, y1, x2, y2, player;
 
-	if (!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player,
-	                    VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+	if(!stackPopParams(6, ST_GROUP, &psGroup, VAL_INT, &player,
+	                   VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
 	{
 		return false;
 	}
@@ -140,19 +143,19 @@ bool scrGroupAddAreaNoGroup()
 	ASSERT(psGroup != nullptr,
 	       "scrGroupAddNoGroup: Invalid group pointer");
 
-	if (player < 0 || player >= MAX_PLAYERS)
+	if(player < 0 || player >= MAX_PLAYERS)
 	{
 		ASSERT(false, "scrGroupAddAreaNoGroup: invalid player");
 		return false;
 	}
 
-	for (psDroid = apsDroidLists[player]; psDroid; psDroid = psDroid->psNext)
+	for(psDroid = apsDroidLists[player]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (((SDWORD)psDroid->pos.x >= x1) && ((SDWORD)psDroid->pos.x <= x2) &&
-		    ((SDWORD)psDroid->pos.y >= y1) && ((SDWORD)psDroid->pos.y <= y2) &&
-		    psDroid->droidType != DROID_COMMAND &&
-		    !isTransporter(psDroid) &&
-		    psDroid->psGroup   == nullptr)
+		if(((SDWORD)psDroid->pos.x >= x1) && ((SDWORD)psDroid->pos.x <= x2) &&
+		        ((SDWORD)psDroid->pos.y >= y1) && ((SDWORD)psDroid->pos.y <= y2) &&
+		        psDroid->droidType != DROID_COMMAND &&
+		        !isTransporter(psDroid) &&
+		        psDroid->psGroup   == nullptr)
 		{
 			psGroup->add(psDroid);
 		}
@@ -168,7 +171,7 @@ bool scrGroupAddGroup()
 	DROID_GROUP		*psTo, *psFrom;
 	DROID			*psDroid, *psNext;
 
-	if (!stackPopParams(2, ST_GROUP, &psTo, ST_GROUP, &psFrom))
+	if(!stackPopParams(2, ST_GROUP, &psTo, ST_GROUP, &psFrom))
 	{
 		return false;
 	}
@@ -176,7 +179,7 @@ bool scrGroupAddGroup()
 	ASSERT_OR_RETURN(false, psTo != nullptr, "Invalid group pointer");
 	ASSERT_OR_RETURN(false, psFrom != nullptr, "Invalid group pointer");
 
-	for (psDroid = psFrom->psList; psDroid; psDroid = psNext)
+	for(psDroid = psFrom->psList; psDroid; psDroid = psNext)
 	{
 		psNext = psDroid->psGrpNext;
 		psTo->add(psDroid);
@@ -193,7 +196,7 @@ bool scrGroupMember()
 	DROID			*psDroid;
 	bool			retval;
 
-	if (!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
+	if(!stackPopParams(2, ST_GROUP, &psGroup, ST_DROID, &psDroid))
 	{
 		return false;
 	}
@@ -202,12 +205,13 @@ bool scrGroupMember()
 	       "scrGroupMember: Invalid group pointer");
 	ASSERT(psDroid != nullptr,
 	       "scrGroupMember: Invalid droid pointer");
-	if (psDroid == nullptr)
+
+	if(psDroid == nullptr)
 	{
 		return false;
 	}
 
-	if (psDroid->psGroup == psGroup)
+	if(psDroid->psGroup == psGroup)
 	{
 		retval = true;
 	}
@@ -217,7 +221,8 @@ bool scrGroupMember()
 	}
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -233,25 +238,28 @@ bool scrIdleGroup()
 	DROID		*psDroid;
 	UDWORD		count = 0;
 
-	if (!stackPopParams(1, ST_GROUP, &psGroup))
+	if(!stackPopParams(1, ST_GROUP, &psGroup))
 	{
 		return false;
 	}
+
 	ASSERT_OR_RETURN(false, psGroup != nullptr, "Invalid group pointer");
 
-	for (psDroid = psGroup->psList; psDroid; psDroid = psDroid->psGrpNext)
+	for(psDroid = psGroup->psList; psDroid; psDroid = psDroid->psGrpNext)
 	{
-		if (psDroid->order.type == DORDER_NONE || (psDroid->order.type == DORDER_GUARD && psDroid->order.psObj == nullptr))
+		if(psDroid->order.type == DORDER_NONE || (psDroid->order.type == DORDER_GUARD && psDroid->order.psObj == nullptr))
 		{
 			count++;
 		}
 	}
 
 	scrFunctionResult.v.ival = (SDWORD)count;
-	if (!stackPushResult(VAL_INT, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_INT, &scrFunctionResult))
 	{
 		return false;
 	}
+
 	return true;
 }
 
@@ -264,7 +272,7 @@ bool scrInitIterateGroup()
 {
 	DROID_GROUP	*psGroup;
 
-	if (!stackPopParams(1, ST_GROUP, &psGroup))
+	if(!stackPopParams(1, ST_GROUP, &psGroup))
 	{
 		return false;
 	}
@@ -284,18 +292,18 @@ bool scrIterateGroup()
 	DROID_GROUP	*psGroup;
 	DROID		*psDroid;
 
-	if (!stackPopParams(1, ST_GROUP, &psGroup))
+	if(!stackPopParams(1, ST_GROUP, &psGroup))
 	{
 		return false;
 	}
 
-	if (psGroup != psScrIterateGroup)
+	if(psGroup != psScrIterateGroup)
 	{
 		debug(LOG_ERROR, "scrIterateGroup: invalid group, InitGroupIterate not called?");
 		return false;
 	}
 
-	if (psScrIterateGroupDroid != nullptr)
+	if(psScrIterateGroupDroid != nullptr)
 	{
 		psDroid = psScrIterateGroupDroid;
 		psScrIterateGroupDroid = psScrIterateGroupDroid->psGrpNext;
@@ -306,7 +314,8 @@ bool scrIterateGroup()
 	}
 
 	scrFunctionResult.v.oval = psDroid;
-	if (!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
+
+	if(!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -320,12 +329,12 @@ bool scrDroidLeaveGroup()
 {
 	DROID			*psDroid;
 
-	if (!stackPopParams(1, ST_DROID, &psDroid))
+	if(!stackPopParams(1, ST_DROID, &psDroid))
 	{
 		return false;
 	}
 
-	if (psDroid->psGroup != nullptr)
+	if(psDroid->psGroup != nullptr)
 	{
 		psDroid->psGroup->remove(psDroid);
 	}
@@ -340,7 +349,7 @@ bool scrOrderGroup()
 	DROID_GROUP		*psGroup;
 	DROID_ORDER		order;
 
-	if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &order))
+	if(!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &order))
 	{
 		return false;
 	}
@@ -348,11 +357,11 @@ bool scrOrderGroup()
 	ASSERT(psGroup != nullptr,
 	       "scrOrderGroup: Invalid group pointer");
 
-	if (order != DORDER_STOP &&
-	    order != DORDER_RETREAT &&
-	    order != DORDER_RTR &&
-	    order != DORDER_RTB &&
-	    order != DORDER_RUN)
+	if(order != DORDER_STOP &&
+	        order != DORDER_RETREAT &&
+	        order != DORDER_RTR &&
+	        order != DORDER_RTB &&
+	        order != DORDER_RUN)
 	{
 		ASSERT(false,
 		       "scrOrderGroup: Invalid order");
@@ -373,7 +382,7 @@ bool scrOrderGroupLoc()
 	DROID_ORDER		order;
 	SDWORD			x, y;
 
-	if (!stackPopParams(4, ST_GROUP, &psGroup, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
+	if(!stackPopParams(4, ST_GROUP, &psGroup, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
 	{
 		return false;
 	}
@@ -381,17 +390,18 @@ bool scrOrderGroupLoc()
 	ASSERT(psGroup != nullptr,
 	       "scrOrderGroupLoc: Invalid group pointer");
 
-	if (order != DORDER_MOVE &&
-	    order != DORDER_SCOUT)
+	if(order != DORDER_MOVE &&
+	        order != DORDER_SCOUT)
 	{
 		ASSERT(false,
 		       "scrOrderGroupLoc: Invalid order");
 		return false;
 	}
-	if (x < 0
-	    || x > world_coord(mapWidth)
-	    || y < 0
-	    || y > world_coord(mapHeight))
+
+	if(x < 0
+	        || x > world_coord(mapWidth)
+	        || y < 0
+	        || y > world_coord(mapHeight))
 	{
 		ASSERT(false, "Invalid map location (%d, %d), max is (%d, %d)", x, y, world_coord(mapWidth), world_coord(mapHeight));
 		return false;
@@ -412,7 +422,7 @@ bool scrOrderGroupObj()
 	DROID_ORDER		order;
 	BASE_OBJECT		*psObj;
 
-	if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &order, ST_BASEOBJECT, &psObj))
+	if(!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &order, ST_BASEOBJECT, &psObj))
 	{
 		return false;
 	}
@@ -420,14 +430,14 @@ bool scrOrderGroupObj()
 	ASSERT_OR_RETURN(false, psGroup != nullptr, "Invalid group pointer");
 	ASSERT_OR_RETURN(false, psObj != nullptr, "Invalid object pointer");
 
-	if (order != DORDER_ATTACK &&
-	    order != DORDER_HELPBUILD &&
-	    order != DORDER_DEMOLISH &&
-	    order != DORDER_REPAIR &&
-	    order != DORDER_OBSERVE &&
-	    order != DORDER_EMBARK &&
-	    order != DORDER_FIRESUPPORT &&
-	    order != DORDER_DROIDREPAIR)
+	if(order != DORDER_ATTACK &&
+	        order != DORDER_HELPBUILD &&
+	        order != DORDER_DEMOLISH &&
+	        order != DORDER_REPAIR &&
+	        order != DORDER_OBSERVE &&
+	        order != DORDER_EMBARK &&
+	        order != DORDER_FIRESUPPORT &&
+	        order != DORDER_DROIDREPAIR)
 	{
 		ASSERT(false, "Invalid order");
 		return false;
@@ -447,24 +457,25 @@ bool scrOrderDroid()
 	DROID			*psDroid;
 	DROID_ORDER		order;
 
-	if (!stackPopParams(2, ST_DROID, &psDroid, VAL_INT, &order))
+	if(!stackPopParams(2, ST_DROID, &psDroid, VAL_INT, &order))
 	{
 		return false;
 	}
 
 	ASSERT(psDroid != nullptr,
 	       "scrOrderUnit: Invalid unit pointer");
-	if (psDroid == nullptr)
+
+	if(psDroid == nullptr)
 	{
 		return false;
 	}
 
-	if (order != DORDER_STOP &&
-	    order != DORDER_RETREAT &&
-	    order != DORDER_RTR &&
-	    order != DORDER_RTB &&
-	    order != DORDER_RUN &&
-	    order != DORDER_NONE)
+	if(order != DORDER_STOP &&
+	        order != DORDER_RETREAT &&
+	        order != DORDER_RTR &&
+	        order != DORDER_RTB &&
+	        order != DORDER_RUN &&
+	        order != DORDER_NONE)
 	{
 		ASSERT(false,
 		       "scrOrderUnit: Invalid order %d", order);
@@ -484,29 +495,31 @@ bool scrOrderDroidLoc()
 	DROID_ORDER		order;
 	SDWORD			x, y;
 
-	if (!stackPopParams(4, ST_DROID, &psDroid, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
+	if(!stackPopParams(4, ST_DROID, &psDroid, VAL_INT, &order, VAL_INT, &x, VAL_INT, &y))
 	{
 		return false;
 	}
 
 	ASSERT(psDroid != nullptr,
 	       "scrOrderUnitLoc: Invalid unit pointer");
-	if (psDroid == nullptr)
+
+	if(psDroid == nullptr)
 	{
 		return false;
 	}
 
-	if (order != DORDER_MOVE &&
-	    order != DORDER_SCOUT)
+	if(order != DORDER_MOVE &&
+	        order != DORDER_SCOUT)
 	{
 		ASSERT(false,
 		       "scrOrderUnitLoc: Invalid order");
 		return false;
 	}
-	if (x < 0
-	    || x > world_coord(mapWidth)
-	    || y < 0
-	    || y > world_coord(mapHeight))
+
+	if(x < 0
+	        || x > world_coord(mapWidth)
+	        || y < 0
+	        || y > world_coord(mapHeight))
 	{
 		ASSERT(false,
 		       "scrOrderUnitLoc: Invalid location");
@@ -526,7 +539,7 @@ bool scrOrderDroidObj()
 	DROID_ORDER		order;
 	BASE_OBJECT		*psObj;
 
-	if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &order, ST_BASEOBJECT, &psObj))
+	if(!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &order, ST_BASEOBJECT, &psObj))
 	{
 		return false;
 	}
@@ -535,19 +548,20 @@ bool scrOrderDroidObj()
 	       "scrOrderUnitObj: Invalid unit pointer");
 	ASSERT(psObj != nullptr,
 	       "scrOrderUnitObj: Invalid object pointer");
-	if (psDroid == nullptr || psObj == nullptr)
+
+	if(psDroid == nullptr || psObj == nullptr)
 	{
 		return false;
 	}
 
-	if (order != DORDER_ATTACK &&
-	    order != DORDER_HELPBUILD &&
-	    order != DORDER_DEMOLISH &&
-	    order != DORDER_REPAIR &&
-	    order != DORDER_OBSERVE &&
-	    order != DORDER_EMBARK &&
-	    order != DORDER_FIRESUPPORT &&
-	    order != DORDER_DROIDREPAIR)
+	if(order != DORDER_ATTACK &&
+	        order != DORDER_HELPBUILD &&
+	        order != DORDER_DEMOLISH &&
+	        order != DORDER_REPAIR &&
+	        order != DORDER_OBSERVE &&
+	        order != DORDER_EMBARK &&
+	        order != DORDER_FIRESUPPORT &&
+	        order != DORDER_DROIDREPAIR)
 	{
 		ASSERT(false,
 		       "scrOrderUnitObj: Invalid order");
@@ -566,13 +580,13 @@ bool scrOrderDroidStatsLoc()
 	DROID_ORDER		order;
 	SDWORD			x, y, statIndex;
 
-	if (!stackPopParams(5, ST_DROID, &psDroid, VAL_INT, &order, ST_STRUCTURESTAT, &statIndex,
-	                    VAL_INT, &x, VAL_INT, &y))
+	if(!stackPopParams(5, ST_DROID, &psDroid, VAL_INT, &order, ST_STRUCTURESTAT, &statIndex,
+	                   VAL_INT, &x, VAL_INT, &y))
 	{
 		return false;
 	}
 
-	if (statIndex < 0 || statIndex >= (SDWORD)numStructureStats)
+	if(statIndex < 0 || statIndex >= (SDWORD)numStructureStats)
 	{
 		ASSERT(false, "Invalid structure stat");
 		return false;
@@ -584,22 +598,23 @@ bool scrOrderDroidStatsLoc()
 	ASSERT_OR_RETURN(false, psDroid != nullptr, "Invalid Unit pointer");
 	ASSERT_OR_RETURN(false, psStats != nullptr, "Invalid object pointer");
 
-	if ((x < 0) || (x > (SDWORD)mapWidth * TILE_UNITS) ||
-	    (y < 0) || (y > (SDWORD)mapHeight * TILE_UNITS))
+	if((x < 0) || (x > (SDWORD)mapWidth * TILE_UNITS) ||
+	        (y < 0) || (y > (SDWORD)mapHeight * TILE_UNITS))
 	{
 		ASSERT(false, "Invalid location");
 		return false;
 	}
 
-	if (order != DORDER_BUILD)
+	if(order != DORDER_BUILD)
 	{
 		ASSERT(false, "Invalid order");
 		return false;
 	}
+
 	// HACK: FIXME: Looks like a script error in the player*.slo files
 	// buildOnExactLocation() which references previously destroyed buildings from
 	// _stat = rebuildStructStat[_count]  causes this.
-	if (psStats->id.compare("A0ADemolishStructure") == 0)
+	if(psStats->id.compare("A0ADemolishStructure") == 0)
 	{
 		// I don't feel like spamming a ASSERT here, we *know* it is a issue.
 		return true;
@@ -618,14 +633,15 @@ bool scrSetDroidSecondary()
 	SECONDARY_ORDER	sec;
 	SECONDARY_STATE	state;
 
-	if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &sec, VAL_INT, &state))
+	if(!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &sec, VAL_INT, &state))
 	{
 		return false;
 	}
 
 	ASSERT(psDroid != nullptr,
 	       "scrSetUnitSecondary: invalid unit pointer");
-	if (psDroid == nullptr)
+
+	if(psDroid == nullptr)
 	{
 		return false;
 	}
@@ -642,7 +658,7 @@ bool scrSetGroupSecondary()
 	SECONDARY_ORDER		sec;
 	SECONDARY_STATE		state;
 
-	if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &sec, VAL_INT, &state))
+	if(!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &sec, VAL_INT, &state))
 	{
 		return false;
 	}
@@ -661,7 +677,7 @@ bool scrCmdDroidAddDroid()
 {
 	DROID		*psDroid, *psCommander;
 
-	if (!stackPopParams(2, ST_DROID, &psCommander, ST_DROID, &psDroid))
+	if(!stackPopParams(2, ST_DROID, &psCommander, ST_DROID, &psDroid))
 	{
 		return false;
 	}
@@ -676,7 +692,7 @@ bool scrCmdDroidMaxGroup()
 {
 	DROID		*psCommander;
 
-	if (!stackPopParams(1, ST_DROID, &psCommander))
+	if(!stackPopParams(1, ST_DROID, &psCommander))
 	{
 		return false;
 	}
@@ -685,7 +701,8 @@ bool scrCmdDroidMaxGroup()
 	       "scrCmdDroidMaxGroup: NULL pointer passed");
 
 	scrFunctionResult.v.ival = cmdDroidMaxGroup(psCommander);
-	if (!stackPushResult(VAL_INT, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_INT, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -723,7 +740,7 @@ bool scrSetStructTarPref()
 {
 	UDWORD	pref;
 
-	if (!stackPopParams(1, VAL_INT, &pref))
+	if(!stackPopParams(1, VAL_INT, &pref))
 	{
 		return false;
 	}
@@ -743,7 +760,7 @@ bool scrSetStructTarPref()
 	       (SCR_ST_DEF_GROUND			== pref) ||
 	       (SCR_ST_DEF_AIR			== pref) ||
 	       (SCR_ST_DEF_IDF			== pref) ||
-	       (SCR_ST_DEF_ALL			== pref) ,
+	       (SCR_ST_DEF_ALL			== pref),
 	       "scrSetStructTarPref: unknown target preference");
 
 	scrStructPref |= pref;
@@ -757,7 +774,7 @@ bool scrSetStructTarIgnore()
 {
 	UDWORD	pref;
 
-	if (!stackPopParams(1, VAL_INT, &pref))
+	if(!stackPopParams(1, VAL_INT, &pref))
 	{
 		return false;
 	}
@@ -777,7 +794,7 @@ bool scrSetStructTarIgnore()
 	       (SCR_ST_DEF_GROUND			== pref) ||
 	       (SCR_ST_DEF_AIR			== pref) ||
 	       (SCR_ST_DEF_IDF			== pref) ||
-	       (SCR_ST_DEF_ALL			== pref) ,
+	       (SCR_ST_DEF_ALL			== pref),
 	       "scrSetStructTarIgnore: unknown ignore target");
 
 	scrStructIgnore |= pref;
@@ -791,7 +808,7 @@ bool scrSetDroidTarPref()
 {
 	UDWORD	pref;
 
-	if (!stackPopParams(1, VAL_INT, &pref))
+	if(!stackPopParams(1, VAL_INT, &pref))
 	{
 		return false;
 	}
@@ -814,7 +831,7 @@ bool scrSetDroidTarPref()
 	       (SCR_DT_LEGS			== pref) ||
 	       (SCR_DT_GROUND			== pref) ||
 	       (SCR_DT_VTOL			== pref) ||
-	       (SCR_DT_HOVER			== pref) ,
+	       (SCR_DT_HOVER			== pref),
 	       "scrSetUnitTarPref: unknown target preference");
 
 
@@ -828,7 +845,7 @@ bool scrSetDroidTarIgnore()
 {
 	UDWORD	pref;
 
-	if (!stackPopParams(1, VAL_INT, &pref))
+	if(!stackPopParams(1, VAL_INT, &pref))
 	{
 		return false;
 	}
@@ -851,7 +868,7 @@ bool scrSetDroidTarIgnore()
 	       (SCR_DT_LEGS			== pref) ||
 	       (SCR_DT_GROUND			== pref) ||
 	       (SCR_DT_VTOL			== pref) ||
-	       (SCR_DT_HOVER			== pref) ,
+	       (SCR_DT_HOVER			== pref),
 	       "scrSetUnitTarIgnore: unknown ignore target");
 
 	scrDroidIgnore |= pref;
@@ -868,83 +885,100 @@ static UDWORD scrStructTargetMask(STRUCTURE *psStruct)
 	WEAPON_STATS		*psWStats;
 
 	psStats = psStruct->pStructureType;
-	switch (psStats->type)
+
+	switch(psStats->type)
 	{
-	case REF_HQ:
-		mask = SCR_ST_HQ;
-		break;
-	case REF_FACTORY:
-	case REF_FACTORY_MODULE:
-		mask = SCR_ST_FACTORY;
-		break;
-	case REF_POWER_GEN:
-	case REF_POWER_MODULE:
-		mask = SCR_ST_POWER_GEN;
-		break;
-	case REF_RESOURCE_EXTRACTOR:
-		mask = SCR_ST_RESOURCE_EXTRACTOR;
-		break;
-	case REF_DEFENSE:
-		//if (psStats->numWeaps == 0 && psStats->pSensor != NULL)
-		if (psStats->psWeapStat[0] == nullptr && psStats->pSensor != nullptr)
-		{
-			mask = SCR_ST_SENSOR;
-		}
-		//else if (psStats->numWeaps > 0)
-		else if (psStats->psWeapStat[0] != nullptr)
-		{
-			psWStats = psStats->psWeapStat[0];
-			if (!proj_Direct(psWStats))
+		case REF_HQ:
+			mask = SCR_ST_HQ;
+			break;
+
+		case REF_FACTORY:
+		case REF_FACTORY_MODULE:
+			mask = SCR_ST_FACTORY;
+			break;
+
+		case REF_POWER_GEN:
+		case REF_POWER_MODULE:
+			mask = SCR_ST_POWER_GEN;
+			break;
+
+		case REF_RESOURCE_EXTRACTOR:
+			mask = SCR_ST_RESOURCE_EXTRACTOR;
+			break;
+
+		case REF_DEFENSE:
+
+			//if (psStats->numWeaps == 0 && psStats->pSensor != NULL)
+			if(psStats->psWeapStat[0] == nullptr && psStats->pSensor != nullptr)
 			{
-				mask = SCR_ST_DEF_IDF;
+				mask = SCR_ST_SENSOR;
 			}
-			else if (psWStats->surfaceToAir & SHOOT_IN_AIR)
+			//else if (psStats->numWeaps > 0)
+			else if(psStats->psWeapStat[0] != nullptr)
 			{
-				mask = SCR_ST_DEF_AIR;
+				psWStats = psStats->psWeapStat[0];
+
+				if(!proj_Direct(psWStats))
+				{
+					mask = SCR_ST_DEF_IDF;
+				}
+				else if(psWStats->surfaceToAir & SHOOT_IN_AIR)
+				{
+					mask = SCR_ST_DEF_AIR;
+				}
+				else
+				{
+					mask = SCR_ST_DEF_GROUND;
+				}
 			}
-			else
-			{
-				mask = SCR_ST_DEF_GROUND;
-			}
-		}
-		break;
-	case REF_WALL:
-	case REF_WALLCORNER:
-		mask = 0;	// ignore walls for now
-		break;
-	case REF_RESEARCH:
-	case REF_RESEARCH_MODULE:
-		mask = SCR_ST_RESEARCH;
-		break;
-	case REF_REPAIR_FACILITY:
-		mask = SCR_ST_REPAIR_FACILITY;
-		break;
-	case REF_COMMAND_CONTROL:
-		mask = SCR_ST_COMMAND_CONTROL;
-		break;
-	case REF_CYBORG_FACTORY:
-		mask = SCR_ST_CYBORG_FACTORY;
-		break;
-	case REF_VTOL_FACTORY:
-		mask = SCR_ST_VTOL_FACTORY;
-		break;
-	case REF_REARM_PAD:
-		mask = SCR_ST_REARM_PAD;
-		break;
-	case REF_MISSILE_SILO:
-		//don't want the assert!
-		mask = 0;
-		break;
-	case REF_LAB:
-	case REF_BRIDGE:
-	case REF_DEMOLISH:
-	case REF_GENERIC:
-	case REF_GATE:
-	default:
-		ASSERT(false,
-		       "scrStructTargetMask: unknown or invalid target structure type");
-		mask = 0;
-		break;
+
+			break;
+
+		case REF_WALL:
+		case REF_WALLCORNER:
+			mask = 0;	// ignore walls for now
+			break;
+
+		case REF_RESEARCH:
+		case REF_RESEARCH_MODULE:
+			mask = SCR_ST_RESEARCH;
+			break;
+
+		case REF_REPAIR_FACILITY:
+			mask = SCR_ST_REPAIR_FACILITY;
+			break;
+
+		case REF_COMMAND_CONTROL:
+			mask = SCR_ST_COMMAND_CONTROL;
+			break;
+
+		case REF_CYBORG_FACTORY:
+			mask = SCR_ST_CYBORG_FACTORY;
+			break;
+
+		case REF_VTOL_FACTORY:
+			mask = SCR_ST_VTOL_FACTORY;
+			break;
+
+		case REF_REARM_PAD:
+			mask = SCR_ST_REARM_PAD;
+			break;
+
+		case REF_MISSILE_SILO:
+			//don't want the assert!
+			mask = 0;
+			break;
+
+		case REF_LAB:
+		case REF_BRIDGE:
+		case REF_DEMOLISH:
+		case REF_GENERIC:
+		case REF_GATE:
+		default:
+			ASSERT(false,
+			       "scrStructTargetMask: unknown or invalid target structure type");
+			mask = 0;
+			break;
 	}
 
 	return mask;
@@ -955,9 +989,9 @@ static UDWORD scrStructTargetMask(STRUCTURE *psStruct)
 static void scrStructTargetPriority(STRUCTURE **ppsTarget, STRUCTURE *psCurr)
 {
 	// skip walls unless they are explicitly asked for
-	if ((scrStructPref & SCR_ST_WALL) ||
-	    ((psCurr->pStructureType->type != REF_WALL) &&
-	     (psCurr->pStructureType->type != REF_WALLCORNER)))
+	if((scrStructPref & SCR_ST_WALL) ||
+	        ((psCurr->pStructureType->type != REF_WALL) &&
+	         (psCurr->pStructureType->type != REF_WALLCORNER)))
 	{
 		*ppsTarget = psCurr;
 	}
@@ -972,111 +1006,133 @@ static UDWORD scrDroidTargetMask(DROID *psDroid)
 	PROPULSION_STATS	*psPStats;
 
 	// get the turret type
-	switch (psDroid->droidType)
+	switch(psDroid->droidType)
 	{
-	case DROID_PERSON:
-	case DROID_CYBORG:
-	case DROID_CYBORG_SUPER:
-	case DROID_WEAPON:
-		//if (psDroid->numWeaps > 0)
-		if (psDroid->asWeaps[0].nStat > 0)
-		{
-			psWStats = asWeaponStats + psDroid->asWeaps[0].nStat;
-			if (!proj_Direct(psWStats))
+		case DROID_PERSON:
+		case DROID_CYBORG:
+		case DROID_CYBORG_SUPER:
+		case DROID_WEAPON:
+
+			//if (psDroid->numWeaps > 0)
+			if(psDroid->asWeaps[0].nStat > 0)
 			{
-				mask |= SCR_DT_WEAP_IDF;
-			}
-			else if (psWStats->surfaceToAir & SHOOT_IN_AIR)
-			{
-				mask |= SCR_DT_WEAP_AIR;
+				psWStats = asWeaponStats + psDroid->asWeaps[0].nStat;
+
+				if(!proj_Direct(psWStats))
+				{
+					mask |= SCR_DT_WEAP_IDF;
+				}
+				else if(psWStats->surfaceToAir & SHOOT_IN_AIR)
+				{
+					mask |= SCR_DT_WEAP_AIR;
+				}
+				else
+				{
+					mask |= SCR_DT_WEAP_GROUND;
+				}
 			}
 			else
 			{
-				mask |= SCR_DT_WEAP_GROUND;
+				mask |= SCR_DT_SENSOR;
 			}
-		}
-		else
-		{
+
+			break;
+
+		case DROID_SENSOR:
+		case DROID_ECM:
 			mask |= SCR_DT_SENSOR;
-		}
-		break;
-	case DROID_SENSOR:
-	case DROID_ECM:
-		mask |= SCR_DT_SENSOR;
-		break;
-	case DROID_CONSTRUCT:
-	case DROID_CYBORG_CONSTRUCT:
-		mask |= SCR_DT_CONSTRUCT;
-		break;
-	case DROID_COMMAND:
-		mask |= SCR_DT_COMMAND;
-		break;
-	case DROID_REPAIR:
-	case DROID_CYBORG_REPAIR:
-		mask |= SCR_DT_REPAIR;
-		break;
-	case DROID_TRANSPORTER:
-	case DROID_SUPERTRANSPORTER:
-		break;
-	case DROID_DEFAULT:
-	case DROID_ANY:
-	default:
-		ASSERT(false,
-		       "scrUnitTargetMask: unknown or invalid target unit type");
-		break;
+			break;
+
+		case DROID_CONSTRUCT:
+		case DROID_CYBORG_CONSTRUCT:
+			mask |= SCR_DT_CONSTRUCT;
+			break;
+
+		case DROID_COMMAND:
+			mask |= SCR_DT_COMMAND;
+			break;
+
+		case DROID_REPAIR:
+		case DROID_CYBORG_REPAIR:
+			mask |= SCR_DT_REPAIR;
+			break;
+
+		case DROID_TRANSPORTER:
+		case DROID_SUPERTRANSPORTER:
+			break;
+
+		case DROID_DEFAULT:
+		case DROID_ANY:
+		default:
+			ASSERT(false,
+			       "scrUnitTargetMask: unknown or invalid target unit type");
+			break;
 	}
 
 	// get the body type
 	psBStats = asBodyStats + psDroid->asBits[COMP_BODY];
-	switch (psBStats->size)
+
+	switch(psBStats->size)
 	{
-	case SIZE_LIGHT:
-		mask |= SCR_DT_LIGHT;
-		break;
-	case SIZE_MEDIUM:
-		mask |= SCR_DT_MEDIUM;
-		break;
-	case SIZE_HEAVY:
-		mask |= SCR_DT_HEAVY;
-		break;
-	case SIZE_SUPER_HEAVY:
-		mask |= SCR_DT_SUPER_HEAVY;
-		break;
-	default:
-		ASSERT(false,
-		       "scrUnitTargetMask: unknown or invalid target body size");
-		break;
+		case SIZE_LIGHT:
+			mask |= SCR_DT_LIGHT;
+			break;
+
+		case SIZE_MEDIUM:
+			mask |= SCR_DT_MEDIUM;
+			break;
+
+		case SIZE_HEAVY:
+			mask |= SCR_DT_HEAVY;
+			break;
+
+		case SIZE_SUPER_HEAVY:
+			mask |= SCR_DT_SUPER_HEAVY;
+			break;
+
+		default:
+			ASSERT(false,
+			       "scrUnitTargetMask: unknown or invalid target body size");
+			break;
 	}
 
 	// get the propulsion type
 	psPStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION];
-	switch (psPStats->propulsionType)
+
+	switch(psPStats->propulsionType)
 	{
-	case PROPULSION_TYPE_WHEELED:
-		mask |= SCR_DT_WHEEL;
-		break;
-	case PROPULSION_TYPE_TRACKED:
-		mask |= SCR_DT_TRACK;
-		break;
-	case PROPULSION_TYPE_LEGGED:
-		mask |= SCR_DT_LEGS;
-		break;
-	case PROPULSION_TYPE_HOVER:
-		mask |= SCR_DT_HOVER;
-		break;
-	case PROPULSION_TYPE_LIFT:
-		mask |= SCR_DT_VTOL;
-		break;
-	case PROPULSION_TYPE_HALF_TRACKED:
-		mask |= SCR_DT_HTRACK;
-		break;
-	case PROPULSION_TYPE_PROPELLOR:
-		mask |= SCR_DT_PROPELLOR;
-		break;
-	default:
-		ASSERT(false,
-		       "scrUnitTargetMask: unknown or invalid target unit propulsion type");
-		break;
+		case PROPULSION_TYPE_WHEELED:
+			mask |= SCR_DT_WHEEL;
+			break;
+
+		case PROPULSION_TYPE_TRACKED:
+			mask |= SCR_DT_TRACK;
+			break;
+
+		case PROPULSION_TYPE_LEGGED:
+			mask |= SCR_DT_LEGS;
+			break;
+
+		case PROPULSION_TYPE_HOVER:
+			mask |= SCR_DT_HOVER;
+			break;
+
+		case PROPULSION_TYPE_LIFT:
+			mask |= SCR_DT_VTOL;
+			break;
+
+		case PROPULSION_TYPE_HALF_TRACKED:
+			mask |= SCR_DT_HTRACK;
+			break;
+
+		case PROPULSION_TYPE_PROPELLOR:
+			mask |= SCR_DT_PROPELLOR;
+			break;
+
+		default:
+			ASSERT(false,
+			       "scrUnitTargetMask: unknown or invalid target unit propulsion type");
+			break;
 	}
 
 
@@ -1087,8 +1143,8 @@ static UDWORD scrDroidTargetMask(DROID *psDroid)
 static void scrDroidTargetPriority(DROID **ppsTarget, DROID *psCurr)
 {
 	// priority to things with weapons
-	if (((*ppsTarget) == nullptr) ||
-	    ((*ppsTarget)->asWeaps[0].nStat == 0))
+	if(((*ppsTarget) == nullptr) ||
+	        ((*ppsTarget)->asWeaps[0].nStat == 0))
 	{
 		*ppsTarget = psCurr;
 	}
@@ -1119,20 +1175,21 @@ static BASE_OBJECT *scrTargetInArea(SDWORD tarPlayer, SDWORD visPlayer, SDWORD t
 	TARGET_PREF		targetPriority;
 	UDWORD			prefer, ignore;
 
-	if (tarPlayer < 0 || tarPlayer >= MAX_PLAYERS)
+	if(tarPlayer < 0 || tarPlayer >= MAX_PLAYERS)
 	{
 		ASSERT(false,
 		       "scrTargetInArea: invalid target player number");
 		return nullptr;
 	}
 
-	if (x1 > x2)
+	if(x1 > x2)
 	{
 		temp = x2;
 		x2 = x1;
 		x1 = temp;
 	}
-	if (y1 > y2)
+
+	if(y1 > y2)
 	{
 		temp = y2;
 		y2 = y1;
@@ -1140,42 +1197,46 @@ static BASE_OBJECT *scrTargetInArea(SDWORD tarPlayer, SDWORD visPlayer, SDWORD t
 	}
 
 	// see which target type to use
-	switch (tarType)
+	switch(tarType)
 	{
-	case SCR_TAR_STRUCT:
-		getTargetMask = (TARGET_MASK)scrStructTargetMask;
-		targetPriority = (TARGET_PREF)scrStructTargetPriority;
-		prefer = scrStructPref;
-		ignore = scrStructIgnore;
-		psCurr = apsStructLists[tarPlayer];
-		break;
-	case SCR_TAR_DROID:
-		getTargetMask = (TARGET_MASK)scrDroidTargetMask;
-		targetPriority = (TARGET_PREF)scrDroidTargetPriority;
-		prefer = scrDroidPref;
-		ignore = scrDroidIgnore;
-		psCurr = apsDroidLists[tarPlayer];
-		break;
-	default:
-		ASSERT(false, "scrTargetInArea: invalid target type");
-		return nullptr;
+		case SCR_TAR_STRUCT:
+			getTargetMask = (TARGET_MASK)scrStructTargetMask;
+			targetPriority = (TARGET_PREF)scrStructTargetPriority;
+			prefer = scrStructPref;
+			ignore = scrStructIgnore;
+			psCurr = apsStructLists[tarPlayer];
+			break;
+
+		case SCR_TAR_DROID:
+			getTargetMask = (TARGET_MASK)scrDroidTargetMask;
+			targetPriority = (TARGET_PREF)scrDroidTargetPriority;
+			prefer = scrDroidPref;
+			ignore = scrDroidIgnore;
+			psCurr = apsDroidLists[tarPlayer];
+			break;
+
+		default:
+			ASSERT(false, "scrTargetInArea: invalid target type");
+			return nullptr;
 	}
 
 	psTarget = nullptr;
-	for (; psCurr; psCurr = psCurr->psNext)
+
+	for(; psCurr; psCurr = psCurr->psNext)
 	{
-		if (((SDWORD)psCurr->pos.x >= x1) &&
-		    ((SDWORD)psCurr->pos.x <= x2) &&
-		    ((SDWORD)psCurr->pos.y >= y1) &&
-		    ((SDWORD)psCurr->pos.y <= y2))
+		if(((SDWORD)psCurr->pos.x >= x1) &&
+		        ((SDWORD)psCurr->pos.x <= x2) &&
+		        ((SDWORD)psCurr->pos.y >= y1) &&
+		        ((SDWORD)psCurr->pos.y <= y2))
 		{
 			tarMask = getTargetMask(psCurr);
-			if (tarMask & ignore)
+
+			if(tarMask & ignore)
 			{
 				// skip any that match ignore
 				continue;
 			}
-			else if (tarMask & prefer)
+			else if(tarMask & prefer)
 			{
 				// got a prefered target - go with that
 				psTarget = psCurr;
@@ -1199,15 +1260,15 @@ bool scrStructTargetInArea()
 	SDWORD		x1, y1, x2, y2;
 	SDWORD		tarPlayer, visPlayer;
 
-	if (!stackPopParams(6, VAL_INT, &tarPlayer, VAL_INT, &visPlayer,
-	                    VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+	if(!stackPopParams(6, VAL_INT, &tarPlayer, VAL_INT, &visPlayer,
+	                   VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
 	{
 		return false;
 	}
 
 	scrFunctionResult.v.oval = (STRUCTURE *)scrTargetInArea(tarPlayer, visPlayer, SCR_TAR_STRUCT, 0, x1, y1, x2, y2);
 
-	if (!stackPushResult((INTERP_TYPE)ST_STRUCTURE, &scrFunctionResult))
+	if(!stackPushResult((INTERP_TYPE)ST_STRUCTURE, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -1221,7 +1282,7 @@ bool scrStructTargetOnMap()
 	SDWORD		tarPlayer, visPlayer;
 	STRUCTURE	*psTarget;
 
-	if (!stackPopParams(2, VAL_INT, &tarPlayer, VAL_INT, &visPlayer))
+	if(!stackPopParams(2, VAL_INT, &tarPlayer, VAL_INT, &visPlayer))
 	{
 		return false;
 	}
@@ -1231,7 +1292,8 @@ bool scrStructTargetOnMap()
 	                                        scrollMaxX * TILE_UNITS, scrollMaxY * TILE_UNITS);
 
 	scrFunctionResult.v.oval = psTarget;
-	if (!stackPushResult((INTERP_TYPE)ST_STRUCTURE, &scrFunctionResult))
+
+	if(!stackPushResult((INTERP_TYPE)ST_STRUCTURE, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -1246,8 +1308,8 @@ bool scrDroidTargetInArea()
 	SDWORD		tarPlayer, visPlayer;
 	DROID		*psTarget;
 
-	if (!stackPopParams(6, VAL_INT, &tarPlayer, VAL_INT, &visPlayer,
-	                    VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
+	if(!stackPopParams(6, VAL_INT, &tarPlayer, VAL_INT, &visPlayer,
+	                   VAL_INT, &x1, VAL_INT, &y1, VAL_INT, &x2, VAL_INT, &y2))
 	{
 		return false;
 	}
@@ -1255,7 +1317,8 @@ bool scrDroidTargetInArea()
 	psTarget = (DROID *)scrTargetInArea(tarPlayer, visPlayer, SCR_TAR_DROID, 0, x1, y1, x2, y2);
 
 	scrFunctionResult.v.oval = psTarget;
-	if (!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
+
+	if(!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -1269,7 +1332,7 @@ bool scrDroidTargetOnMap()
 	SDWORD		tarPlayer, visPlayer;
 	DROID		*psTarget;
 
-	if (!stackPopParams(2, VAL_INT, &tarPlayer, VAL_INT, &visPlayer))
+	if(!stackPopParams(2, VAL_INT, &tarPlayer, VAL_INT, &visPlayer))
 	{
 		return false;
 	}
@@ -1279,7 +1342,8 @@ bool scrDroidTargetOnMap()
 	                                    scrollMaxX * TILE_UNITS, scrollMaxY * TILE_UNITS);
 
 	scrFunctionResult.v.oval = psTarget;
-	if (!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
+
+	if(!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -1292,7 +1356,7 @@ bool scrTargetInCluster()
 {
 	int visPlayer, clusterID;
 
-	if (!stackPopParams(2, VAL_INT, &clusterID, VAL_INT, &visPlayer))
+	if(!stackPopParams(2, VAL_INT, &clusterID, VAL_INT, &visPlayer))
 	{
 		return false;
 	}
@@ -1300,7 +1364,8 @@ bool scrTargetInCluster()
 	ASSERT(false, "unsupported function");
 
 	scrFunctionResult.v.oval = nullptr;
-	if (!stackPushResult((INTERP_TYPE)ST_BASEOBJECT, &scrFunctionResult))
+
+	if(!stackPushResult((INTERP_TYPE)ST_BASEOBJECT, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -1321,53 +1386,57 @@ bool scrSkCanBuildTemplate()
 
 	SDWORD player;
 
-	if (!stackPopParams(3, VAL_INT, &player, ST_STRUCTURE, &psStructure, ST_TEMPLATE, &psTempl))
+	if(!stackPopParams(3, VAL_INT, &player, ST_STRUCTURE, &psStructure, ST_TEMPLATE, &psTempl))
 	{
 		return false;
 	}
 
 	// is factory big enough?
-	if (!validTemplateForFactory(psTempl, psStructure, false))
+	if(!validTemplateForFactory(psTempl, psStructure, false))
 	{
 		goto failTempl;
 	}
 
-	if ((asBodyStats + psTempl->asParts[COMP_BODY])->size > psStructure->capacity)
+	if((asBodyStats + psTempl->asParts[COMP_BODY])->size > psStructure->capacity)
 	{
 		goto failTempl;
 	}
 
 	// is every component from template available?
 	// body available.
-	if (apCompLists[player][COMP_BODY][psTempl->asParts[COMP_BODY]] != AVAILABLE)
+	if(apCompLists[player][COMP_BODY][psTempl->asParts[COMP_BODY]] != AVAILABLE)
 	{
 		goto failTempl;
 	}
 
 	// propulsion method available.
-	if (apCompLists[player][COMP_PROPULSION][psTempl->asParts[COMP_PROPULSION]] != AVAILABLE)
+	if(apCompLists[player][COMP_PROPULSION][psTempl->asParts[COMP_PROPULSION]] != AVAILABLE)
 	{
 		goto failTempl;
 	}
 
-	if (!researchedTemplate(psTempl, player, true, false))
+	if(!researchedTemplate(psTempl, player, true, false))
 	{
 		goto failTempl;
 	}
 
 	scrFunctionResult.v.bval = true;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))		// yes
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))		// yes
 	{
 		return false;
 	}
+
 	return true;
 
 failTempl:
 	scrFunctionResult.v.bval = false;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))		// no
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))		// no
 	{
 		return false;
 	}
+
 	return true;
 }
 
@@ -1379,26 +1448,27 @@ bool scrSkLocateEnemy()
 	SDWORD		player;//,*x,*y;
 	STRUCTURE	*psStruct;
 
-	if (!stackPopParams(1, VAL_INT, &player))
+	if(!stackPopParams(1, VAL_INT, &player))
 	{
 		return false;
 	}
 
 	// find where the player has some structures..	// factories or hq.
-	for (psStruct = apsStructLists[player];
-	     psStruct &&
-	     !(psStruct->pStructureType->type == REF_HQ
-	       || psStruct->pStructureType->type == REF_FACTORY
-	       || psStruct->pStructureType->type == REF_CYBORG_FACTORY
-	       || psStruct->pStructureType->type == REF_VTOL_FACTORY
-	      );
-	     psStruct = psStruct->psNext) {}
+	for(psStruct = apsStructLists[player];
+	        psStruct &&
+	        !(psStruct->pStructureType->type == REF_HQ
+	          || psStruct->pStructureType->type == REF_FACTORY
+	          || psStruct->pStructureType->type == REF_CYBORG_FACTORY
+	          || psStruct->pStructureType->type == REF_VTOL_FACTORY
+	         );
+	        psStruct = psStruct->psNext) {}
 
 	// set the x and y accordingly..
-	if (psStruct)
+	if(psStruct)
 	{
 		scrFunctionResult.v.oval = psStruct;
-		if (!stackPushResult((INTERP_TYPE)ST_BASEOBJECT, &scrFunctionResult))		// success!
+
+		if(!stackPushResult((INTERP_TYPE)ST_BASEOBJECT, &scrFunctionResult))		// success!
 		{
 			return false;
 		}
@@ -1406,11 +1476,13 @@ bool scrSkLocateEnemy()
 	else
 	{
 		scrFunctionResult.v.oval = nullptr;
-		if (!stackPushResult((INTERP_TYPE)ST_BASEOBJECT, &scrFunctionResult))		// part success
+
+		if(!stackPushResult((INTERP_TYPE)ST_BASEOBJECT, &scrFunctionResult))		// part success
 		{
 			return false;
 		}
 	}
+
 	return true;
 }
 
@@ -1423,39 +1495,41 @@ bool skTopicAvail(UWORD inc, UDWORD player)
 
 
 	//if the topic is possible and has not already been researched - add to list
-	if ((IsResearchPossible(&asPlayerResList[player][inc])))
+	if((IsResearchPossible(&asPlayerResList[player][inc])))
 	{
-		if (!IsResearchCompleted(&asPlayerResList[player][inc])
-		    && !IsResearchStartedPending(&asPlayerResList[player][inc]))
+		if(!IsResearchCompleted(&asPlayerResList[player][inc])
+		        && !IsResearchStartedPending(&asPlayerResList[player][inc]))
 		{
 			return true;
 		}
 	}
 
 	// make sure that the research is not completed  or started by another researchfac
-	if (!IsResearchCompleted(&asPlayerResList[player][inc])
-	    && !IsResearchStartedPending(&asPlayerResList[player][inc]))
+	if(!IsResearchCompleted(&asPlayerResList[player][inc])
+	        && !IsResearchStartedPending(&asPlayerResList[player][inc]))
 	{
 		// Research is not completed  ... also  it has not been started by another researchfac
 
 		//if there aren't any PR's - go to next topic
-		if (asResearch[inc].pPRList.empty())
+		if(asResearch[inc].pPRList.empty())
 		{
 			return false;
 		}
 
 		//check for pre-requisites
 		bPRFound = true;
-		for (incPR = 0; incPR < asResearch[inc].pPRList.size(); incPR++)
+
+		for(incPR = 0; incPR < asResearch[inc].pPRList.size(); incPR++)
 		{
-			if (IsResearchCompleted(&asPlayerResList[player][asResearch[inc].pPRList[incPR]]) == 0)
+			if(IsResearchCompleted(&asPlayerResList[player][asResearch[inc].pPRList[incPR]]) == 0)
 			{
 				//if haven't pre-requisite - quit checking rest
 				bPRFound = false;
 				break;
 			}
 		}
-		if (!bPRFound)
+
+		if(!bPRFound)
 		{
 			//if haven't pre-requisites, skip the rest of the checks
 			return false;
@@ -1463,19 +1537,21 @@ bool skTopicAvail(UWORD inc, UDWORD player)
 
 		//check for structure effects
 		bStructFound = true;
-		for (incS = 0; incS < asResearch[inc].pStructList.size(); incS++)
+
+		for(incS = 0; incS < asResearch[inc].pStructList.size(); incS++)
 		{
 			//if (!checkStructureStatus(asStructureStats + asResearch[inc].
 			//	pStructList[incS], playerID, SS_BUILT))
-			if (!checkSpecificStructExists(asResearch[inc].pStructList[incS],
-			                               player))
+			if(!checkSpecificStructExists(asResearch[inc].pStructList[incS],
+			                              player))
 			{
 				//if not built, quit checking
 				bStructFound = false;
 				break;
 			}
 		}
-		if (!bStructFound)
+
+		if(!bStructFound)
 		{
 			//if haven't all structs built, skip to next topic
 			return false;
@@ -1483,6 +1559,7 @@ bool skTopicAvail(UWORD inc, UDWORD player)
 
 		return true;
 	}
+
 	return false;
 }
 
@@ -1494,29 +1571,29 @@ bool scrSkDoResearch()
 	STRUCTURE			*psBuilding;
 	RESEARCH_FACILITY	*psResFacilty;
 
-	if (!stackPopParams(3, ST_STRUCTURE, &psBuilding, VAL_INT, &player, VAL_INT, &bias))
+	if(!stackPopParams(3, ST_STRUCTURE, &psBuilding, VAL_INT, &player, VAL_INT, &bias))
 	{
 		return false;
 	}
 
 	psResFacilty =	(RESEARCH_FACILITY *)psBuilding->pFunctionality;
 
-	if (psResFacilty->psSubject != nullptr)
+	if(psResFacilty->psSubject != nullptr)
 	{
 		// not finished yet..
 		return true;
 	}
 
 	// choose a topic to complete.
-	for (i = 0; i < asResearch.size(); i++)
+	for(i = 0; i < asResearch.size(); i++)
 	{
-		if (skTopicAvail(i, player) && (!bMultiPlayer || !beingResearchedByAlly(i, player)))
+		if(skTopicAvail(i, player) && (!bMultiPlayer || !beingResearchedByAlly(i, player)))
 		{
 			break;
 		}
 	}
 
-	if (i != asResearch.size())
+	if(i != asResearch.size())
 	{
 		sendResearchStatus(psBuilding, i, player, true);			// inform others, I'm researching this.
 #if defined (DEBUG)
@@ -1537,37 +1614,42 @@ bool scrSkVtolEnableCheck()
 	SDWORD player;
 	UDWORD i;
 
-	if (!stackPopParams(1, VAL_INT, &player))
+	if(!stackPopParams(1, VAL_INT, &player))
 	{
 		return false;
 	}
 
 
 	// vtol factory
-	for (i = 0; (i < numStructureStats) && (asStructureStats[i].type != REF_VTOL_FACTORY); i++) {}
-	if ((i < numStructureStats) && (apStructTypeLists[player][i] == AVAILABLE))
+	for(i = 0; (i < numStructureStats) && (asStructureStats[i].type != REF_VTOL_FACTORY); i++) {}
+
+	if((i < numStructureStats) && (apStructTypeLists[player][i] == AVAILABLE))
 	{
 		// vtol propulsion
-		for (i = 0; (i < numPropulsionStats); i++)
+		for(i = 0; (i < numPropulsionStats); i++)
 		{
-			if ((asPropulsionStats[i].propulsionType == PROPULSION_TYPE_LIFT)
-			    && apCompLists[player][COMP_PROPULSION][i] == AVAILABLE)
+			if((asPropulsionStats[i].propulsionType == PROPULSION_TYPE_LIFT)
+			        && apCompLists[player][COMP_PROPULSION][i] == AVAILABLE)
 			{
 				scrFunctionResult.v.bval = true;
-				if (!stackPushResult(VAL_BOOL, &scrFunctionResult))		// success!
+
+				if(!stackPushResult(VAL_BOOL, &scrFunctionResult))		// success!
 				{
 					return false;
 				}
+
 				return true;
 			}
 		}
 	}
 
 	scrFunctionResult.v.bval = false;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))		// success!
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))		// success!
 	{
 		return false;
 	}
+
 	return true;
 }
 
@@ -1577,21 +1659,23 @@ bool scrSkGetFactoryCapacity()
 	SDWORD count = 0;
 	STRUCTURE *psStructure;
 
-	if (!stackPopParams(1, ST_STRUCTURE, &psStructure))
+	if(!stackPopParams(1, ST_STRUCTURE, &psStructure))
 	{
 		return false;
 	}
 
-	if (psStructure && StructIsFactory(psStructure))
+	if(psStructure && StructIsFactory(psStructure))
 	{
 		count = psStructure->capacity;
 	}
 
 	scrFunctionResult.v.ival = count;
-	if (!stackPushResult(VAL_INT, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_INT, &scrFunctionResult))
 	{
 		return false;
 	}
+
 	return true;
 }
 // ********************************************************************************************
@@ -1602,7 +1686,7 @@ bool scrSkDifficultyModifier()
 	STRUCTURE		*psStr;
 	PLAYER_RESEARCH		*pPlayerRes;
 
-	if (!stackPopParams(1, VAL_INT, &player))
+	if(!stackPopParams(1, VAL_INT, &player))
 	{
 		return false;
 	}
@@ -1610,7 +1694,7 @@ bool scrSkDifficultyModifier()
 	/* Skip cheats if difficulty modifier slider is set to minimum or this is a true multiplayer game.
 	 * (0 - player disabled, 20 - max value, UBYTE_MAX - autogame)
 	 */
-	if (game.skDiff[player] <= 1 || game.skDiff[player] == UBYTE_MAX || NetPlay.bComms)
+	if(game.skDiff[player] <= 1 || game.skDiff[player] == UBYTE_MAX || NetPlay.bComms)
 	{
 		return true;
 	}
@@ -1619,14 +1703,14 @@ bool scrSkDifficultyModifier()
 	giftPower(ANYPLAYER, player, game.skDiff[player] * 50, true);
 
 	//research modifier
-	for (psStr = apsStructLists[player]; psStr; psStr = psStr->psNext)
+	for(psStr = apsStructLists[player]; psStr; psStr = psStr->psNext)
 	{
-		if (psStr->pStructureType->type == REF_RESEARCH)
+		if(psStr->pStructureType->type == REF_RESEARCH)
 		{
 			psResFacility =	(RESEARCH_FACILITY *)psStr->pFunctionality;
 
 			// subtract 0 - 80% off the time to research.
-			if (psResFacility->psSubject)
+			if(psResFacility->psSubject)
 			{
 				RESEARCH	*psResearch = (RESEARCH *)psResFacility->psSubject;
 
@@ -1655,19 +1739,19 @@ static bool defenseLocation(bool variantB)
 	UDWORD      minCount;
 	UDWORD      offset;
 
-	if (!stackPopParams(6,
-	                    VAL_REF | VAL_INT, &pX,
-	                    VAL_REF | VAL_INT, &pY,
-	                    ST_STRUCTURESTAT, &statIndex,
-	                    ST_STRUCTURESTAT, &statIndex2,
-	                    ST_DROID, &psDroid,
-	                    VAL_INT, &player))
+	if(!stackPopParams(6,
+	                   VAL_REF | VAL_INT, &pX,
+	                   VAL_REF | VAL_INT, &pY,
+	                   ST_STRUCTURESTAT, &statIndex,
+	                   ST_STRUCTURESTAT, &statIndex2,
+	                   ST_DROID, &psDroid,
+	                   VAL_INT, &player))
 	{
 		debug(LOG_ERROR, "defenseLocation: failed to pop");
 		return false;
 	}
 
-	if (player >= MAX_PLAYERS)
+	if(player >= MAX_PLAYERS)
 	{
 		ASSERT(false, "defenseLocation:player number is too high");
 		return false;
@@ -1679,11 +1763,11 @@ static bool defenseLocation(bool variantB)
 	STRUCTURE_STATS *psWStats = (asStructureStats + statIndex2);
 
 	// check for wacky coords.
-	if (*pX < 0
-	    ||	*pX > world_coord(mapWidth)
-	    ||	*pY < 0
-	    ||	*pY > world_coord(mapHeight)
-	   )
+	if(*pX < 0
+	        ||	*pX > world_coord(mapWidth)
+	        ||	*pY < 0
+	        ||	*pY > world_coord(mapHeight)
+	  )
 	{
 		goto failed;
 	}
@@ -1694,31 +1778,37 @@ static bool defenseLocation(bool variantB)
 	// go down the gateways, find the nearest gateway with >1 empty tiles
 	nearestSoFar = UDWORD_MAX;
 	psChosenGate = nullptr;
-	for (auto psGate : gwGetGateways())
+
+	for(auto psGate : gwGetGateways())
 	{
-		if (auxTile(psGate->x1, psGate->y1, player) & AUXBITS_THREAT)
+		if(auxTile(psGate->x1, psGate->y1, player) & AUXBITS_THREAT)
 		{
 			continue;	// enemy can shoot there, not safe to build
 		}
+
 		count = 0;
 		noWater = true;
+
 		// does it have >1 tile unoccupied.
-		if (psGate->x1 == psGate->x2)
+		if(psGate->x1 == psGate->x2)
 		{
 			// vert
 			//skip gates that are too short
-			if (variantB && (psGate->y2 - psGate->y1) <= 2)
+			if(variantB && (psGate->y2 - psGate->y1) <= 2)
 			{
 				continue;
 			}
+
 			gX = psGate->x1;
-			for (gY = psGate->y1; gY <= psGate->y2; gY++)
+
+			for(gY = psGate->y1; gY <= psGate->y2; gY++)
 			{
-				if (! TileIsOccupied(mapTile(gX, gY)))
+				if(! TileIsOccupied(mapTile(gX, gY)))
 				{
 					count++;
 				}
-				if (terrainType(mapTile(gX, gY)) == TER_WATER)
+
+				if(terrainType(mapTile(gX, gY)) == TER_WATER)
 				{
 					noWater = false;
 				}
@@ -1728,24 +1818,28 @@ static bool defenseLocation(bool variantB)
 		{
 			// horiz
 			//skip gates that are too short
-			if (variantB && (psGate->x2 - psGate->x1) <= 2)
+			if(variantB && (psGate->x2 - psGate->x1) <= 2)
 			{
 				continue;
 			}
+
 			gY = psGate->y1;
-			for (gX = psGate->x1; gX <= psGate->x2; gX++)
+
+			for(gX = psGate->x1; gX <= psGate->x2; gX++)
 			{
-				if (! TileIsOccupied(mapTile(gX, gY)))
+				if(! TileIsOccupied(mapTile(gX, gY)))
 				{
 					count++;
 				}
-				if (terrainType(mapTile(gX, gY)) == TER_WATER)
+
+				if(terrainType(mapTile(gX, gY)) == TER_WATER)
 				{
 					noWater = false;
 				}
 			}
 		}
-		if (variantB)
+
+		if(variantB)
 		{
 			minCount = 2;
 		}
@@ -1753,7 +1847,8 @@ static bool defenseLocation(bool variantB)
 		{
 			minCount = 1;
 		}
-		if (count > minCount && noWater)	//<NEW> min 2 tiles
+
+		if(count > minCount && noWater)	//<NEW> min 2 tiles
 		{
 			// ok it's free. Is it the nearest one yet?
 			/* Get gateway midpoint */
@@ -1761,8 +1856,9 @@ static bool defenseLocation(bool variantB)
 			gY = (psGate->y1 + psGate->y2) / 2;
 			/* Estimate the distance to it */
 			dist = iHypot(x - gX, y - gY);
+
 			/* Is it best we've found? */
-			if (dist < nearestSoFar && dist < 30)
+			if(dist < nearestSoFar && dist < 30)
 			{
 				/* Yes, then keep a record of it */
 				nearestSoFar = dist;
@@ -1771,19 +1867,20 @@ static bool defenseLocation(bool variantB)
 		}
 	}
 
-	if (!psChosenGate)	// we have a gateway.
+	if(!psChosenGate)	// we have a gateway.
 	{
 		goto failed;
 	}
 
 	// find an unnocupied tile on that gateway.
-	if (psChosenGate->x1 == psChosenGate->x2)
+	if(psChosenGate->x1 == psChosenGate->x2)
 	{
 		// vert
 		gX = psChosenGate->x1;
-		for (gY = psChosenGate->y1; gY <= psChosenGate->y2; gY++)
+
+		for(gY = psChosenGate->y1; gY <= psChosenGate->y2; gY++)
 		{
-			if (! TileIsOccupied(mapTile(gX, gY)))
+			if(! TileIsOccupied(mapTile(gX, gY)))
 			{
 				y = gY;
 				x = gX;
@@ -1795,9 +1892,10 @@ static bool defenseLocation(bool variantB)
 	{
 		// horiz
 		gY = psChosenGate->y1;
-		for (gX = psChosenGate->x1; gX <= psChosenGate->x2; gX++)
+
+		for(gX = psChosenGate->x1; gX <= psChosenGate->x2; gX++)
 		{
-			if (! TileIsOccupied(mapTile(gX, gY)))
+			if(! TileIsOccupied(mapTile(gX, gY)))
 			{
 				y = gY;
 				x = gX;
@@ -1811,7 +1909,8 @@ static bool defenseLocation(bool variantB)
 	*pY = world_coord(y) + (TILE_UNITS / 2);
 
 	scrFunctionResult.v.bval = true;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))		// success
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))		// success
 	{
 		return false;
 	}
@@ -1828,7 +1927,7 @@ static bool defenseLocation(bool variantB)
 	x1 = world_coord(psChosenGate->x1) + (TILE_UNITS / 2);
 	y1 = world_coord(psChosenGate->y1) + (TILE_UNITS / 2);
 
-	if (variantB)
+	if(variantB)
 	{
 		offset = 2;
 	}
@@ -1836,7 +1935,8 @@ static bool defenseLocation(bool variantB)
 	{
 		offset = 1;
 	}
-	if (psChosenGate->x1 == psChosenGate->x2)	//vert
+
+	if(psChosenGate->x1 == psChosenGate->x2)	//vert
 	{
 		x2 = x1;	//vert: end x pos of the first section = start x pos
 		y2 = world_coord(y - 1) + TILE_UNITS / 2;	//start y loc of the first sec
@@ -1851,12 +1951,13 @@ static bool defenseLocation(bool variantB)
 		y3 = y1;
 
 	}
+
 	//end coords of the second section
 	x4 = world_coord(psChosenGate->x2) + TILE_UNITS / 2;
 	y4 = world_coord(psChosenGate->y2) + TILE_UNITS / 2;
 
 	// first section.
-	if (x1 == x2 && y1 == y2)	//first sec is 1 tile only: ((2 tile gate) or (3 tile gate and first sec))
+	if(x1 == x2 && y1 == y2)	//first sec is 1 tile only: ((2 tile gate) or (3 tile gate and first sec))
 	{
 		orderDroidStatsLocDir(psDroid, DORDER_BUILD, psWStats, x1, y1, 0, ModeQueue);
 	}
@@ -1866,7 +1967,7 @@ static bool defenseLocation(bool variantB)
 	}
 
 	// second section
-	if (x3 == x4 && y3 == y4)
+	if(x3 == x4 && y3 == y4)
 	{
 		orderDroidStatsLocDirAdd(psDroid, DORDER_BUILD, psWStats, x3, y3, 0);
 	}
@@ -1879,10 +1980,12 @@ static bool defenseLocation(bool variantB)
 
 failed:
 	scrFunctionResult.v.bval = false;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))		// failed!
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))		// failed!
 	{
 		return false;
 	}
+
 	return true;
 }
 
@@ -1905,12 +2008,12 @@ bool scrSkFireLassat()
 	SDWORD	player;
 	BASE_OBJECT *psObj;
 
-	if (!stackPopParams(2,  VAL_INT, &player, ST_BASEOBJECT, &psObj))
+	if(!stackPopParams(2,  VAL_INT, &player, ST_BASEOBJECT, &psObj))
 	{
 		return false;
 	}
 
-	if (psObj)
+	if(psObj)
 	{
 		orderStructureObj(player, psObj);
 	}
@@ -1927,7 +2030,7 @@ bool scrActionDroidObj()
 	DROID_ACTION		action;
 	BASE_OBJECT		*psObj;
 
-	if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &action, ST_BASEOBJECT, &psObj))
+	if(!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &action, ST_BASEOBJECT, &psObj))
 	{
 		debug(LOG_ERROR, "scrActionDroidObj: failed to pop");
 		return false;
@@ -1938,12 +2041,12 @@ bool scrActionDroidObj()
 	ASSERT(psObj != nullptr,
 	       "scrOrderUnitObj: Invalid object pointer");
 
-	if (psDroid == nullptr || psObj == nullptr)
+	if(psDroid == nullptr || psObj == nullptr)
 	{
 		return false;
 	}
 
-	if (action != DACTION_DROIDREPAIR)
+	if(action != DACTION_DROIDREPAIR)
 	{
 		debug(LOG_ERROR, "scrActionDroidObj: this action is not supported");
 		return false;
@@ -1966,7 +2069,7 @@ bool scrInitIterateGroupB()
 	DROID_GROUP	*psGroup;
 	SDWORD		bucket;
 
-	if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &bucket))
+	if(!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &bucket))
 	{
 		debug(LOG_ERROR, "scrInitIterateGroupB: stackPopParams failed");
 		return false;
@@ -1989,7 +2092,7 @@ bool scrIterateGroupB()
 	DROID		*psDroid;
 	SDWORD		bucket;
 
-	if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &bucket))
+	if(!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &bucket))
 	{
 		debug(LOG_ERROR, "scrIterateGroupB: stackPopParams failed");
 		return false;
@@ -1997,13 +2100,13 @@ bool scrIterateGroupB()
 
 	ASSERT_OR_RETURN(false, bucket < MAX_PLAYERS, "Invalid bucket");
 
-	if (psGroup != psScrIterateGroupB[bucket])
+	if(psGroup != psScrIterateGroupB[bucket])
 	{
 		ASSERT(false, "scrIterateGroupB: invalid group, InitGroupIterateB not called?");
 		return false;
 	}
 
-	if (psScrIterateGroupDroidB[bucket] != nullptr)
+	if(psScrIterateGroupDroidB[bucket] != nullptr)
 	{
 		psDroid = psScrIterateGroupDroidB[bucket];
 		psScrIterateGroupDroidB[bucket] = psScrIterateGroupDroidB[bucket]->psGrpNext;
@@ -2014,7 +2117,8 @@ bool scrIterateGroupB()
 	}
 
 	scrFunctionResult.v.oval = psDroid;
-	if (!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
+
+	if(!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
 	{
 		debug(LOG_ERROR, "scrIterateGroupB: stackPushResult failed");
 		return false;
@@ -2028,24 +2132,28 @@ bool scrDroidCanReach()
 	DROID			*psDroid;
 	int			x, y;
 
-	if (!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &x, VAL_INT, &y))
+	if(!stackPopParams(3, ST_DROID, &psDroid, VAL_INT, &x, VAL_INT, &y))
 	{
 		debug(LOG_ERROR, "Failed to pop parameters");
 		return false;
 	}
-	if (psDroid)
+
+	if(psDroid)
 	{
 		const PROPULSION_STATS *psPropStats = asPropulsionStats + psDroid->asBits[COMP_PROPULSION];
 		const Vector3i rPos(x, y, 0);
 
 		scrFunctionResult.v.bval = fpathCheck(psDroid->pos, rPos, psPropStats->propulsionType);
-		if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+		if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 		{
 			debug(LOG_ERROR, "stackPushResult failed");
 			return false;
 		}
+
 		return true;
 	}
+
 	return false;
 }
 

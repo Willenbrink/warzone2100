@@ -39,11 +39,12 @@ bool mechanicsShutdown()
 {
 	BASE_OBJECT *psObj, *psNext;
 
-	for (psObj = psDestroyedObj; psObj != nullptr; psObj = psNext)
+	for(psObj = psDestroyedObj; psObj != nullptr; psObj = psNext)
 	{
 		psNext = psObj->psNext;
 		delete psObj;
 	}
+
 	psDestroyedObj = nullptr;
 
 	return true;
@@ -56,9 +57,9 @@ bool allocComponentList(COMPONENT_TYPE	type, SDWORD number)
 	SDWORD	inc, comp;
 
 	//allocate the space for the Players' component lists
-	for (inc = 0; inc < MAX_PLAYERS; inc++)
+	for(inc = 0; inc < MAX_PLAYERS; inc++)
 	{
-		if (apCompLists[inc][type])
+		if(apCompLists[inc][type])
 		{
 			free(apCompLists[inc][type]);
 		}
@@ -66,7 +67,7 @@ bool allocComponentList(COMPONENT_TYPE	type, SDWORD number)
 		apCompLists[inc][type] = (UBYTE *) malloc(sizeof(UBYTE) * number);
 
 		//initialise the players' lists
-		for (comp = 0; comp < number; comp++)
+		for(comp = 0; comp < number; comp++)
 		{
 			apCompLists[inc][type][comp] = UNAVAILABLE;
 		}
@@ -80,45 +81,52 @@ void freeComponentLists()
 {
 	UDWORD	inc;
 
-	for (inc = 0; inc < MAX_PLAYERS; inc++)
+	for(inc = 0; inc < MAX_PLAYERS; inc++)
 	{
 		//free the component lists
-		if (apCompLists[inc][COMP_BODY])
+		if(apCompLists[inc][COMP_BODY])
 		{
 			free(apCompLists[inc][COMP_BODY]);
 			apCompLists[inc][COMP_BODY] = nullptr;
 		}
-		if (apCompLists[inc][COMP_BRAIN])
+
+		if(apCompLists[inc][COMP_BRAIN])
 		{
 			free(apCompLists[inc][COMP_BRAIN]);
 			apCompLists[inc][COMP_BRAIN] = nullptr;
 		}
-		if (apCompLists[inc][COMP_PROPULSION])
+
+		if(apCompLists[inc][COMP_PROPULSION])
 		{
 			free(apCompLists[inc][COMP_PROPULSION]);
 			apCompLists[inc][COMP_PROPULSION] = nullptr;
 		}
-		if (apCompLists[inc][COMP_SENSOR])
+
+		if(apCompLists[inc][COMP_SENSOR])
 		{
 			free(apCompLists[inc][COMP_SENSOR]);
 			apCompLists[inc][COMP_SENSOR] = nullptr;
 		}
-		if (apCompLists[inc][COMP_ECM])
+
+		if(apCompLists[inc][COMP_ECM])
 		{
 			free(apCompLists[inc][COMP_ECM]);
 			apCompLists[inc][COMP_ECM] = nullptr;
 		}
-		if (apCompLists[inc][COMP_REPAIRUNIT])
+
+		if(apCompLists[inc][COMP_REPAIRUNIT])
 		{
 			free(apCompLists[inc][COMP_REPAIRUNIT]);
 			apCompLists[inc][COMP_REPAIRUNIT] = nullptr;
 		}
-		if (apCompLists[inc][COMP_CONSTRUCT])
+
+		if(apCompLists[inc][COMP_CONSTRUCT])
 		{
 			free(apCompLists[inc][COMP_CONSTRUCT]);
 			apCompLists[inc][COMP_CONSTRUCT] = nullptr;
 		}
-		if (apCompLists[inc][COMP_WEAPON])
+
+		if(apCompLists[inc][COMP_WEAPON])
 		{
 			free(apCompLists[inc][COMP_WEAPON]);
 			apCompLists[inc][COMP_WEAPON] = nullptr;
@@ -131,12 +139,13 @@ bool allocStructLists()
 {
 	SDWORD	inc, stat;
 
-	for (inc = 0; inc < MAX_PLAYERS; inc++)
+	for(inc = 0; inc < MAX_PLAYERS; inc++)
 	{
-		if (numStructureStats)
+		if(numStructureStats)
 		{
 			apStructTypeLists[inc] = (UBYTE *) malloc(sizeof(UBYTE) * numStructureStats);
-			for (stat = 0; stat < (SDWORD)numStructureStats; stat++)
+
+			for(stat = 0; stat < (SDWORD)numStructureStats; stat++)
 			{
 				apStructTypeLists[inc][stat] = UNAVAILABLE;
 			}
@@ -156,10 +165,10 @@ void freeStructureLists()
 {
 	UDWORD	inc;
 
-	for (inc = 0; inc < MAX_PLAYERS; inc++)
+	for(inc = 0; inc < MAX_PLAYERS; inc++)
 	{
 		//free the structure lists
-		if (apStructTypeLists[inc])
+		if(apStructTypeLists[inc])
 		{
 			free(apStructTypeLists[inc]);
 			apStructTypeLists[inc] = nullptr;
@@ -173,48 +182,56 @@ void makeAllAvailable()
 {
 	UDWORD	comp, i;
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
-		for (comp = 0; comp < numWeaponStats; comp++)
+		for(comp = 0; comp < numWeaponStats; comp++)
 		{
 			apCompLists[i][COMP_WEAPON][comp] = AVAILABLE;
 		}
-		for (comp = 0; comp < numBodyStats; comp++)
+
+		for(comp = 0; comp < numBodyStats; comp++)
 		{
 			apCompLists[i][COMP_BODY][comp] = AVAILABLE;
 		}
-		for (comp = 0; comp < numPropulsionStats; comp++)
+
+		for(comp = 0; comp < numPropulsionStats; comp++)
 		{
 			apCompLists[i][COMP_PROPULSION][comp] = AVAILABLE;
 		}
-		for (comp = 0; comp < numSensorStats; comp++)
+
+		for(comp = 0; comp < numSensorStats; comp++)
 		{
 			apCompLists[i][COMP_SENSOR][comp] = AVAILABLE;
 		}
-		for (comp = 0; comp < numECMStats; comp++)
+
+		for(comp = 0; comp < numECMStats; comp++)
 		{
 			apCompLists[i][COMP_ECM][comp] = AVAILABLE;
 		}
-		for (comp = 0; comp < numConstructStats; comp++)
+
+		for(comp = 0; comp < numConstructStats; comp++)
 		{
 			apCompLists[i][COMP_CONSTRUCT][comp] = AVAILABLE;
 		}
-		for (comp = 0; comp < numBrainStats; comp++)
+
+		for(comp = 0; comp < numBrainStats; comp++)
 		{
 			apCompLists[i][COMP_BRAIN][comp] = AVAILABLE;
 		}
-		for (comp = 0; comp < numRepairStats; comp++)
+
+		for(comp = 0; comp < numRepairStats; comp++)
 		{
 			apCompLists[i][COMP_REPAIRUNIT][comp] = AVAILABLE;
 		}
 
 		//make all the structures available
-		for (comp = 0; comp < numStructureStats; comp++)
+		for(comp = 0; comp < numStructureStats; comp++)
 		{
 			apStructTypeLists[i][comp] = AVAILABLE;
 		}
+
 		//make all research availble to be performed
-		for (comp = 0; comp < asResearch.size(); comp++)
+		for(comp = 0; comp < asResearch.size(); comp++)
 		{
 			enableResearch(&asResearch[comp], i);
 		}

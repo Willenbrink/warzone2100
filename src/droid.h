@@ -198,7 +198,7 @@ bool zonedPAT(UDWORD x, UDWORD y);
 bool pickATileGen(UDWORD *x, UDWORD *y, UBYTE numIterations, bool (*function)(UDWORD x, UDWORD y));
 bool pickATileGen(Vector2i *pos, unsigned numIterations, bool (*function)(UDWORD x, UDWORD y));
 bool pickATileGenThreat(UDWORD *x, UDWORD *y, UBYTE numIterations, SDWORD threatRange,
-                                   SDWORD player, bool (*function)(UDWORD x, UDWORD y));
+                        SDWORD player, bool (*function)(UDWORD x, UDWORD y));
 
 
 //initialises the droid movement model
@@ -231,7 +231,7 @@ bool droidUnderRepair(const DROID *psDroid);
 UBYTE checkCommandExist(UBYTE player);
 
 /// For a given repair droid, check if there are any damaged droids within a defined range
- BASE_OBJECT *checkForRepairRange(DROID *psDroid, DROID *psTarget);
+BASE_OBJECT *checkForRepairRange(DROID *psDroid, DROID *psTarget);
 
 // Returns true if the droid is a transporter.
 bool isTransporter(DROID const *psDroid);
@@ -273,7 +273,7 @@ bool cbSensorDroid(const DROID *psDroid);
 bool standardSensorDroid(const DROID *psDroid);
 
 // give a droid from one player to another - used in Electronic Warfare and multiplayer
- DROID *giftSingleDroid(DROID *psD, UDWORD to);
+DROID *giftSingleDroid(DROID *psD, UDWORD to);
 
 /// Calculates the electronic resistance of a droid based on its experience level
 SWORD droidResistance(const DROID *psDroid);

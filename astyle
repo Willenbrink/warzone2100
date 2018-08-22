@@ -1,0 +1,10 @@
+suffix=none
+style=allman
+attach-closing-while
+break-blocks
+indent=tab
+indent-switches
+pad-oper
+unpad-paren
+mode=c
+indent-preprocessor

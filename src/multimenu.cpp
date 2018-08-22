@@ -158,16 +158,16 @@ static bool		giftsUp[MAX_PLAYERS] = {true};		//gift buttons for player are up.
 static PIELIGHT GetPlayerTextColor(int mode, UDWORD player)
 {
 	// override color if they are dead...
-	if (!apsDroidLists[player] && !apsStructLists[player])
+	if(!apsDroidLists[player] && !apsStructLists[player])
 	{
 		return WZCOL_GREY;			// dead text color
 	}
 	// the colors were chosen to match the FRIEND/FOE radar map colors.
-	else if (mode == ALLIANCE_FORMED)
+	else if(mode == ALLIANCE_FORMED)
 	{
 		return WZCOL_YELLOW;		// Human alliance text color
 	}
-	else if (isHumanPlayer(player))		// Human player, no alliance
+	else if(isHumanPlayer(player))		// Human player, no alliance
 	{
 		return WZCOL_TEXT_BRIGHT;	// Normal text color
 	}
@@ -180,7 +180,8 @@ static PIELIGHT GetPlayerTextColor(int mode, UDWORD player)
 // ////////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////
 
-struct DisplayRequestOptionCache {
+struct DisplayRequestOptionCache
+{
 	Sha256 hash;
 	WzText wzHashText;
 
@@ -207,15 +208,16 @@ public:
 	}
 	void renderCachedText(int x, int y, PIELIGHT colour, float rotation = 0.0f)
 	{
-		renderCachedText(Vector2i{x,y}, colour, rotation);
+		renderCachedText(Vector2i{x, y}, colour, rotation);
 	}
 };
 
-struct DisplayRequestOptionData {
+struct DisplayRequestOptionData
+{
 
 	DisplayRequestOptionData(LEVEL_DATASET *pMapData = nullptr)
-	: pMapData(pMapData)
-	, cache()
+		: pMapData(pMapData)
+		, cache()
 	{ }
 
 	LEVEL_DATASET				*pMapData;
@@ -239,7 +241,8 @@ void displayRequestOption(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	drawBlueBox(x, y, psWidget->width(), psWidget->height());
 
 	PIELIGHT colour;
-	if (mapData && CheckForMod(mapData->realFileName))
+
+	if(mapData && CheckForMod(mapData->realFileName))
 	{
 		colour = WZCOL_RED;
 	}
@@ -248,37 +251,43 @@ void displayRequestOption(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 		colour = WZCOL_TEXT_BRIGHT;
 	}
 
-	if (!data.cache.canUseCachedText(butString, psWidget->width()))
+	if(!data.cache.canUseCachedText(butString, psWidget->width()))
 	{
 		std::string fullButString = butString;
-		while (iV_GetTextWidth(butString, font_regular) > psWidget->width() - 10)
+
+		while(iV_GetTextWidth(butString, font_regular) > psWidget->width() - 10)
 		{
 			butString[strlen(butString) - 1] = '\0';
 		}
+
 		data.cache.setCachedText(butString, font_regular, fullButString, psWidget->width());
 	}
 
 	data.cache.renderCachedText(x + 6, y + 12, colour);	//draw text
 
-	if (mapData != nullptr)
+	if(mapData != nullptr)
 	{
 		// Display map hash, so we can see the difference between identically named maps.
 		Sha256 hash = mapData->realFileHash;  // levGetFileHash can be slightly expensive.
 		static uint32_t lastHashTime = 0;
-		if (lastHashTime != realTime && hash.isZero())
+
+		if(lastHashTime != realTime && hash.isZero())
 		{
 			hash = levGetFileHash(mapData);
-			if (!hash.isZero())
+
+			if(!hash.isZero())
 			{
 				lastHashTime = realTime;  // We just calculated a hash. Don't calculate any more hashes this frame.
 			}
 		}
-		if (!hash.isZero())
+
+		if(!hash.isZero())
 		{
-			if (hash != data.cache.hash)
+			if(hash != data.cache.hash)
 			{
 				sstrcpy(butString, hash.toString().c_str());
-				while (iV_GetTextWidth(butString, font_small) > psWidget->width() - 10 - (8 + mapData->players * 6))
+
+				while(iV_GetTextWidth(butString, font_small) > psWidget->width() - 10 - (8 + mapData->players * 6))
 				{
 					butString[strlen(butString) - 1] = '\0';
 				}
@@ -287,11 +296,12 @@ void displayRequestOption(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 				data.cache.hash = hash;
 				data.cache.wzHashText.setText(butString, font_small);
 			}
+
 			data.cache.wzHashText.render(x + 6 + 8 + mapData->players * 6, y + 26, WZCOL_TEXT_DARK);
 		}
 
 		// if map, then draw no. of players.
-		for (int count = 0; count < mapData->players; ++count)
+		for(int count = 0; count < mapData->players; ++count)
 		{
 			iV_DrawImage(FrontImages, IMAGE_WEE_GUY, x + 6 * count + 6, y + 16);
 		}
@@ -301,7 +311,8 @@ void displayRequestOption(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 // ////////////////////////////////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////
 
-struct DisplayCamTypeButCache {
+struct DisplayCamTypeButCache
+{
 	WzText wzText;
 };
 
@@ -319,7 +330,8 @@ static void displayCamTypeBut(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	sprintf(buffer, "T%i", (int)(psWidget->UserData));
 
 	PIELIGHT colour;
-	if ((unsigned int)(psWidget->UserData) == current_tech)
+
+	if((unsigned int)(psWidget->UserData) == current_tech)
 	{
 		colour = WZCOL_TEXT_BRIGHT;
 	}
@@ -327,11 +339,13 @@ static void displayCamTypeBut(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	{
 		colour = WZCOL_TEXT_MEDIUM;
 	}
+
 	cache.wzText.setText(buffer, font_regular);
 	cache.wzText.render(x + 2, y + 12, colour);
 }
 
-struct DisplayNumPlayersButCache {
+struct DisplayNumPlayersButCache
+{
 	WzText wzText;
 };
 
@@ -348,7 +362,8 @@ static void displayNumPlayersBut(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffse
 	drawBlueBox(x, y, psWidget->width(), psWidget->height());
 
 	PIELIGHT colour;
-	if ((unsigned int)(psWidget->UserData) == current_numplayers)
+
+	if((unsigned int)(psWidget->UserData) == current_numplayers)
 	{
 		colour = WZCOL_TEXT_BRIGHT;
 	}
@@ -356,7 +371,8 @@ static void displayNumPlayersBut(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffse
 	{
 		colour = WZCOL_TEXT_MEDIUM;
 	}
-	if ((unsigned int)(psWidget->UserData) == 0)
+
+	if((unsigned int)(psWidget->UserData) == 0)
 	{
 		sprintf(buffer, " *");
 	}
@@ -365,6 +381,7 @@ static void displayNumPlayersBut(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffse
 		sprintf(buffer, "%iP", (int)(psWidget->UserData));
 		buffer[2] = '\0';  // Truncate 'P' if 2 digits, since there isn't room.
 	}
+
 	cache.wzText.setText(buffer, font_regular);
 	cache.wzText.render(x + 2, y + 12, colour);
 }
@@ -376,38 +393,44 @@ static int stringRelevance(std::string const &string, std::string const &search)
 	int strDim = str.size() + 1;
 	int seaDim = sea.size() + 1;
 
-	if (strDim > 10000 || seaDim > 10000 || strDim * seaDim > 100000)
+	if(strDim > 10000 || seaDim > 10000 || strDim * seaDim > 100000)
 	{
 		return 0;
 	}
 
 	std::vector<unsigned> scores(strDim * seaDim);
-	for (int sum = 0; sum <= str.size() + sea.size(); ++sum)
-		for (int iStr = std::max(0, sum - sea.size()); iStr <= std::min(str.size(), sum - 0); ++iStr)
+
+	for(int sum = 0; sum <= str.size() + sea.size(); ++sum)
+		for(int iStr = std::max(0, sum - sea.size()); iStr <= std::min(str.size(), sum - 0); ++iStr)
 		{
 			int iSea = sum - iStr;
 			unsigned score = 0;
-			if (iStr > 0 && iSea > 0)
+
+			if(iStr > 0 && iSea > 0)
 			{
 				score = (scores[iStr - 1 + (iSea - 1) * strDim] + 1) | 1;
 				WzString::WzUniCodepointRef a = str[iStr - 1], b = sea[iSea - 1];
-				if (a == b)
+
+				if(a == b)
 				{
 					score += 100;
 				}
-				else if (a.value().caseFolded() == b.value().caseFolded())
+				else if(a.value().caseFolded() == b.value().caseFolded())
 				{
 					score += 80;
 				}
 			}
-			if (iStr > 0)
+
+			if(iStr > 0)
 			{
 				score = std::max(score, scores[iStr - 1 + iSea * strDim] & ~1);
 			}
-			if (iSea > 0)
+
+			if(iSea > 0)
 			{
 				score = std::max(score, scores[iStr + (iSea - 1) * strDim] & ~1);
 			}
+
 			scores[iStr + iSea * strDim] = score;
 		}
 
@@ -416,7 +439,8 @@ static int stringRelevance(std::string const &string, std::string const &search)
 
 void multiMenuScreenSizeDidChange(unsigned int oldWidth, unsigned int oldHeight, unsigned int newWidth, unsigned int newHeight)
 {
-	if (psRScreen == nullptr) return;
+	if(psRScreen == nullptr) return;
+
 	psRScreen->screenSizeDidChange(oldWidth, oldHeight, newWidth, newHeight);
 }
 
@@ -436,7 +460,8 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 	const unsigned int buttonsX = (mode == MULTIOP_MAP) ? 22 : 17;
 
 	context = mode;
-	if (mode == MULTIOP_MAP)
+
+	if(mode == MULTIOP_MAP)
 	{
 		// only save these when they select MAP button
 		current_tech = mapCam;
@@ -444,6 +469,7 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 		current_searchString = searchString;
 		game.techLevel = current_tech;
 	}
+
 	char **fileList = PHYSFS_enumerateFiles(searchDir);
 
 	psRScreen = new W_SCREEN; ///< move this to intinit or somewhere like that.. (close too.)
@@ -453,7 +479,8 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 	/* add a form to place the tabbed form on */
 	IntFormAnimated *requestForm = new IntFormAnimated(parent);
 	requestForm->id = M_REQUEST;
-	requestForm->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+	requestForm->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+	{
 		psWidget->setGeometry(M_REQUEST_X + D_W, M_REQUEST_Y + D_H, M_REQUEST_W, M_REQUEST_H);
 	}));
 
@@ -473,18 +500,19 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 	sButInit.height = CLOSE_HEIGHT;
 	sButInit.pTip = _("Close");
 	sButInit.pDisplay = intDisplayImageHilight;
-	sButInit.UserData = PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT , IMAGE_CLOSE);
+	sButInit.UserData = PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
 	widgAddButton(psRScreen, &sButInit);
 
 	// Put the buttons on it.
 	int nextButtonId = M_REQUEST_BUT;
-	for (char **currFile = fileList; *currFile != nullptr; ++currFile)
+
+	for(char **currFile = fileList; *currFile != nullptr; ++currFile)
 	{
 		const unsigned int fileNameLength = strlen(*currFile);
 
 		// Check to see if this file matches the given extension
-		if (fileNameLength <= extensionLength
-		    || strcmp(&(*currFile)[fileNameLength - extensionLength], fileExtension) != 0)
+		if(fileNameLength <= extensionLength
+		        || strcmp(&(*currFile)[fileNameLength - extensionLength], fileExtension) != 0)
 		{
 			continue;
 		}
@@ -499,7 +527,8 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 		button->setString(withoutExtension);
 		button->displayFunction = displayRequestOption;
 		button->pUserData = new DisplayRequestOptionData();
-		button->setOnDelete([](WIDGET *psWidget) {
+		button->setOnDelete([](WIDGET * psWidget)
+		{
 			assert(psWidget->pUserData != nullptr);
 			delete static_cast<DisplayRequestOptionData *>(psWidget->pUserData);
 			psWidget->pUserData = nullptr;
@@ -518,13 +547,13 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 	multiRequestUp = true;
 	hoverPreviewId = 0;
 
-	if (mode == MULTIOP_MAP)
+	if(mode == MULTIOP_MAP)
 	{
 		LEVEL_LIST levels = enumerateMultiMaps(mapCam, numPlayers);
 		using Pair = std::pair<int, W_BUTTON *>;
 		std::vector<Pair> buttons;
 
-		for (auto mapData : levels)
+		for(auto mapData : levels)
 		{
 			// add number of players to string.
 			W_BUTTON *button = new W_BUTTON(requestList);
@@ -533,7 +562,8 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 			button->setString(mapData->pName);
 			button->displayFunction = displayRequestOption;
 			button->pUserData = new DisplayRequestOptionData(mapData);
-			button->setOnDelete([](WIDGET *psWidget) {
+			button->setOnDelete([](WIDGET * psWidget)
+			{
 				assert(psWidget->pUserData != nullptr);
 				delete static_cast<DisplayRequestOptionData *>(psWidget->pUserData);
 				psWidget->pUserData = nullptr;
@@ -542,10 +572,13 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 
 			++nextButtonId;
 		}
-		std::stable_sort(buttons.begin(), buttons.end(), [](Pair const &a, Pair const &b) {
+
+		std::stable_sort(buttons.begin(), buttons.end(), [](Pair const & a, Pair const & b)
+		{
 			return a.first > b.first;
 		});
-		for (Pair const &p : buttons)
+
+		for(Pair const &p : buttons)
 		{
 			requestList->addWidgetToLayout(p.second);
 		}
@@ -562,7 +595,8 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 		sButInit.pTip		= _("Technology level 1");
 		sButInit.pDisplay	= displayCamTypeBut;
 		sButInit.initPUserDataFunc = []() -> void * { return new DisplayCamTypeButCache(); };
-		sButInit.onDelete = [](WIDGET *psWidget) {
+		sButInit.onDelete = [](WIDGET * psWidget)
+		{
 			assert(psWidget->pUserData != nullptr);
 			delete static_cast<DisplayCamTypeButCache *>(psWidget->pUserData);
 			psWidget->pUserData = nullptr;
@@ -588,7 +622,8 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 		sButInit.pTip		= _("Any number of players");
 		sButInit.pDisplay	= displayNumPlayersBut;
 		sButInit.initPUserDataFunc = []() -> void * { return new DisplayNumPlayersButCache(); };
-		sButInit.onDelete = [](WIDGET *psWidget) {
+		sButInit.onDelete = [](WIDGET * psWidget)
+		{
 			assert(psWidget->pUserData != nullptr);
 			delete static_cast<DisplayNumPlayersButCache *>(psWidget->pUserData);
 			psWidget->pUserData = nullptr;
@@ -596,7 +631,8 @@ void addMultiRequest(const char *searchDir, const char *fileExtension, UDWORD mo
 		widgAddButton(psRScreen, &sButInit);
 
 		STATIC_ASSERT(MAX_PLAYERS_IN_GUI <= ARRAY_SIZE(M_REQUEST_NP) + 1);
-		for (unsigned mapNumPlayers = 2; mapNumPlayers <= MAX_PLAYERS_IN_GUI; ++mapNumPlayers)
+
+		for(unsigned mapNumPlayers = 2; mapNumPlayers <= MAX_PLAYERS_IN_GUI; ++mapNumPlayers)
 		{
 			char ttip[100] = {0};
 			sButInit.id             = M_REQUEST_NP[mapNumPlayers - 2];
@@ -625,7 +661,7 @@ bool runMultiRequester(UDWORD id, UDWORD *mode, WzString *chosen, LEVEL_DATASET 
 
 	*isHoverPreview = false;
 
-	if ((id == M_REQUEST_CLOSE) || CancelPressed())			// user hit close box || hit the cancel key
+	if((id == M_REQUEST_CLOSE) || CancelPressed())			// user hit close box || hit the cancel key
 	{
 		closeMultiRequester();
 		*mode = 0;
@@ -633,21 +669,26 @@ bool runMultiRequester(UDWORD id, UDWORD *mode, WzString *chosen, LEVEL_DATASET 
 	}
 
 	bool hoverPreview = false;
-	if (id == 0 && context == MULTIOP_MAP)
+
+	if(id == 0 && context == MULTIOP_MAP)
 	{
 		id = widgGetMouseOver(psRScreen);
-		if (id != hoverId)
+
+		if(id != hoverId)
 		{
 			hoverId = id;
 			hoverStartTime = wzGetTicks() + HOVER_PREVIEW_TIME;
 		}
-		if (id == hoverPreviewId || hoverStartTime > wzGetTicks())
+
+		if(id == hoverPreviewId || hoverStartTime > wzGetTicks())
 		{
 			id = 0;  // Don't re-render preview nor render preview before HOVER_PREVIEW_TIME.
 		}
+
 		hoverPreview = true;
 	}
-	if (id >= M_REQUEST_BUT && id <= M_REQUEST_BUTM)  // chose a file.
+
+	if(id >= M_REQUEST_BUT && id <= M_REQUEST_BUTM)   // chose a file.
 	{
 		*chosen = ((W_BUTTON *)widgGetFromID(psRScreen, id))->pText;
 
@@ -657,47 +698,54 @@ bool runMultiRequester(UDWORD id, UDWORD *mode, WzString *chosen, LEVEL_DATASET 
 		*mode = context;
 		*isHoverPreview = hoverPreview;
 		hoverPreviewId = id;
-		if (!hoverPreview)
+
+		if(!hoverPreview)
 		{
 			closeMultiRequester();
 		}
 
 		return true;
 	}
-	if (hoverPreview)
+
+	if(hoverPreview)
 	{
 		id = 0;
 	}
 
-	switch (id)
+	switch(id)
 	{
-	case M_REQUEST_C1:
-		closeMultiRequester();
-		addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, 1, current_numplayers, current_searchString);
-		break;
-	case M_REQUEST_C2:
-		closeMultiRequester();
-		addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, 2, current_numplayers, current_searchString);
-		break;
-	case M_REQUEST_C3:
-		closeMultiRequester();
-		addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, 3, current_numplayers, current_searchString);
-		break;
-	case M_REQUEST_AP:
-		closeMultiRequester();
-		addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, current_tech, 0, current_searchString);
-		break;
-	default:
-		for (unsigned numPlayers = 2; numPlayers <= MAX_PLAYERS_IN_GUI; ++numPlayers)
-		{
-			if (id == M_REQUEST_NP[numPlayers - 2])
+		case M_REQUEST_C1:
+			closeMultiRequester();
+			addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, 1, current_numplayers, current_searchString);
+			break;
+
+		case M_REQUEST_C2:
+			closeMultiRequester();
+			addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, 2, current_numplayers, current_searchString);
+			break;
+
+		case M_REQUEST_C3:
+			closeMultiRequester();
+			addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, 3, current_numplayers, current_searchString);
+			break;
+
+		case M_REQUEST_AP:
+			closeMultiRequester();
+			addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, current_tech, 0, current_searchString);
+			break;
+
+		default:
+			for(unsigned numPlayers = 2; numPlayers <= MAX_PLAYERS_IN_GUI; ++numPlayers)
 			{
-				closeMultiRequester();
-				addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, current_tech, numPlayers, current_searchString);
-				break;
+				if(id == M_REQUEST_NP[numPlayers - 2])
+				{
+					closeMultiRequester();
+					addMultiRequest(MultiCustomMapsPath, ".wrf", MULTIOP_MAP, current_tech, numPlayers, current_searchString);
+					break;
+				}
 			}
-		}
-		break;
+
+			break;
 	}
 
 	return false;
@@ -710,7 +758,8 @@ bool runMultiRequester(UDWORD id, UDWORD *mode, WzString *chosen, LEVEL_DATASET 
 // ////////////////////////////////////////////////////////////////////////////
 // Display Functions
 
-struct ExtraGubbinsCache {
+struct ExtraGubbinsCache
+{
 	WzText wzTimerText;
 	WzText wzTitleText_Alliances;
 	WzText wzTitleText_Score;
@@ -724,13 +773,15 @@ static void displayExtraGubbins(UDWORD height, ExtraGubbinsCache& cache)
 	char str[128];
 
 	// draw grid
-	const std::vector<glm::ivec4> lines = {
-	         glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C0 - 6 , MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C0 - 6 , MULTIMENU_FORM_Y + height),
-	         glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C8 - 6 , MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C8 - 6 , MULTIMENU_FORM_Y + height),
-	         glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C9 - 6 , MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C9 - 6 , MULTIMENU_FORM_Y + height),
-	         glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C10 - 6 , MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C10 - 6 , MULTIMENU_FORM_Y + height),
-	         glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C11 - 6 , MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C11 - 6 , MULTIMENU_FORM_Y + height),
-	         glm::ivec4(MULTIMENU_FORM_X, MULTIMENU_FORM_Y + MULTIMENU_PLAYER_H, MULTIMENU_FORM_X + MULTIMENU_FORM_W, MULTIMENU_FORM_Y + MULTIMENU_PLAYER_H) };
+	const std::vector<glm::ivec4> lines =
+	{
+		glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C0 - 6, MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C0 - 6, MULTIMENU_FORM_Y + height),
+		glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C8 - 6, MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C8 - 6, MULTIMENU_FORM_Y + height),
+		glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C9 - 6, MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C9 - 6, MULTIMENU_FORM_Y + height),
+		glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C10 - 6, MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C10 - 6, MULTIMENU_FORM_Y + height),
+		glm::ivec4(MULTIMENU_FORM_X + MULTIMENU_C11 - 6, MULTIMENU_FORM_Y, MULTIMENU_FORM_X + MULTIMENU_C11 - 6, MULTIMENU_FORM_Y + height),
+		glm::ivec4(MULTIMENU_FORM_X, MULTIMENU_FORM_Y + MULTIMENU_PLAYER_H, MULTIMENU_FORM_X + MULTIMENU_FORM_W, MULTIMENU_FORM_Y + MULTIMENU_PLAYER_H)
+	};
 	iV_Lines(lines, WZCOL_BLACK);
 
 	iV_SetTextColour(WZCOL_TEXT_BRIGHT);			// main wz text color
@@ -750,14 +801,14 @@ static void displayExtraGubbins(UDWORD height, ExtraGubbinsCache& cache)
 	cache.wzTitleText_Units.setText(_("Units"), font_regular);
 	cache.wzTitleText_Units.render(MULTIMENU_FORM_X + MULTIMENU_C10, MULTIMENU_FORM_Y + MULTIMENU_FONT_OSET, WZCOL_TEXT_BRIGHT);
 
-	if (getDebugMappingStatus())
+	if(getDebugMappingStatus())
 	{
 		cache.wzTitleText_RightColumn.setText(_("Power"), font_regular);
 	}
 	else
 	{
 		// ping is useless for non MP games, so display something useful depending on mode.
-		if (runningMultiplayer())
+		if(runningMultiplayer())
 		{
 			cache.wzTitleText_RightColumn.setText(_("Ping"), font_regular);
 		}
@@ -766,10 +817,12 @@ static void displayExtraGubbins(UDWORD height, ExtraGubbinsCache& cache)
 			cache.wzTitleText_RightColumn.setText(_("Structs"), font_regular);
 		}
 	}
+
 	cache.wzTitleText_RightColumn.render(MULTIMENU_FORM_X + MULTIMENU_C11, MULTIMENU_FORM_Y + MULTIMENU_FONT_OSET, WZCOL_TEXT_BRIGHT);
 
 #ifdef DEBUG
-	for (unsigned q = 0; q < 2; ++q)
+
+	for(unsigned q = 0; q < 2; ++q)
 	{
 		unsigned xPos = 0;
 		unsigned yPos = q * 12;
@@ -791,12 +844,14 @@ static void displayExtraGubbins(UDWORD height, ExtraGubbinsCache& cache)
 		sprintf(str, _("Pack: %u/%u"), NETgetStatistic(NetStatisticPackets, true, isTotal), NETgetStatistic(NetStatisticPackets, false, isTotal));
 		iV_DrawText(str, MULTIMENU_FORM_X + xPos, MULTIMENU_FORM_Y + height + yPos, font_small);
 	}
+
 #endif
 	return;
 }
 
 
-struct DisplayMultiPlayerData {
+struct DisplayMultiPlayerData
+{
 	ExtraGubbinsCache extraGubbinsCache;
 	WzText wzPosAndNameText;
 	WzText wzScoreText;
@@ -816,7 +871,7 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	int y = yOffset + psWidget->y();
 	unsigned player = psWidget->UserData;  // Get the in game player number.
 
-	if (responsibleFor(player, 0))
+	if(responsibleFor(player, 0))
 	{
 		displayExtraGubbins(widgGetFromID(psWScreen, MULTIMENU_FORM)->height(), data.extraGubbinsCache);
 	}
@@ -827,39 +882,42 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 
 	PIELIGHT playerTextColor = GetPlayerTextColor(alliances[selectedPlayer][player], player);
 
-	if (isHuman || (game.type == SKIRMISH && player < game.maxPlayers))
+	if(isHuman || (game.type == SKIRMISH && player < game.maxPlayers))
 	{
 		ssprintf(str, "%d: %s", NetPlay.players[player].position, getPlayerName(player));
 
-		while (iV_GetTextWidth(str, font_regular) >= MULTIMENU_C0 - MULTIMENU_C2 - 10)
+		while(iV_GetTextWidth(str, font_regular) >= MULTIMENU_C0 - MULTIMENU_C2 - 10)
 		{
 			str[strlen(str) - 1] = '\0';
 		}
+
 		data.wzPosAndNameText.setText(str, font_regular);
 		data.wzPosAndNameText.render(x + MULTIMENU_C2, y + MULTIMENU_FONT_OSET, playerTextColor);
 
 		//c3-7 alliance
 		//manage buttons by showing or hiding them. gifts only in campaign,
-		if (alliancesCanGiveAnything(game.alliance))
+		if(alliancesCanGiveAnything(game.alliance))
 		{
-			if (isAlly && !isSelectedPlayer && !giftsUp[player])
+			if(isAlly && !isSelectedPlayer && !giftsUp[player])
 			{
-				if (alliancesCanGiveResearchAndRadar(game.alliance))
+				if(alliancesCanGiveResearchAndRadar(game.alliance))
 				{
 					widgReveal(psWScreen, MULTIMENU_GIFT_RAD + player);
 					widgReveal(psWScreen, MULTIMENU_GIFT_RES + player);
 				}
+
 				widgReveal(psWScreen, MULTIMENU_GIFT_DRO + player);
 				widgReveal(psWScreen, MULTIMENU_GIFT_POW + player);
 				giftsUp[player] = true;
 			}
-			else if (!isAlly && !isSelectedPlayer && giftsUp[player])
+			else if(!isAlly && !isSelectedPlayer && giftsUp[player])
 			{
-				if (alliancesCanGiveResearchAndRadar(game.alliance))
+				if(alliancesCanGiveResearchAndRadar(game.alliance))
 				{
 					widgHide(psWScreen, MULTIMENU_GIFT_RAD + player);
 					widgHide(psWScreen, MULTIMENU_GIFT_RES + player);
 				}
+
 				widgHide(psWScreen, MULTIMENU_GIFT_DRO + player);
 				widgHide(psWScreen, MULTIMENU_GIFT_POW + player);
 				giftsUp[player] = false;
@@ -868,9 +926,9 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	}
 
 	// Let's use the real score for MP games
-	if (NetPlay.bComms)
+	if(NetPlay.bComms)
 	{
-		if (Cheated)
+		if(Cheated)
 		{
 			sprintf(str, "(cheated)");
 		}
@@ -878,6 +936,7 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 		{
 			sprintf(str, "%d", getMultiStats(player).recentScore);
 		}
+
 		data.wzScoreText.setText(str, font_regular);
 
 		//c9:kills,
@@ -893,12 +952,13 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 		sprintf(str, "%d", ingame.skScores[player][1]);
 		data.wzKillsText.setText(str, font_regular);
 	}
+
 	data.wzScoreText.render(x + MULTIMENU_C8, y + MULTIMENU_FONT_OSET, playerTextColor);
 	data.wzKillsText.render(x + MULTIMENU_C9, y + MULTIMENU_FONT_OSET, playerTextColor);
 
 	//only show player's and allies' unit counts, and nobody elses.
 	//c10:units
-	if (isAlly || getDebugMappingStatus())
+	if(isAlly || getDebugMappingStatus())
 	{
 		sprintf(str, "%d", getNumDroids(player) + getNumTransporterDroids(player));
 		data.wzUnitsText.setText(str, font_regular);
@@ -908,19 +968,19 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	/* Display player power instead of number of played games
 	  * and number of units instead of ping when in debug mode
 	  */
-	if (getDebugMappingStatus())  //Won't pass this when in both release and multiplayer modes
+	if(getDebugMappingStatus())   //Won't pass this when in both release and multiplayer modes
 	{
 		//c11: Player power
 		sprintf(str, "%u", (int)getPower(player));
 		data.wzRightmostColumnText.setText(str, font_regular);
 		data.wzRightmostColumnText.render(MULTIMENU_FORM_X + MULTIMENU_C11, y + MULTIMENU_FONT_OSET, playerTextColor);
 	}
-	else if (runningMultiplayer())
+	else if(runningMultiplayer())
 	{
 		//c11:ping
-		if (!isSelectedPlayer && isHuman)
+		if(!isSelectedPlayer && isHuman)
 		{
-			if (ingame.PingTimes[player] < PING_LIMIT)
+			if(ingame.PingTimes[player] < PING_LIMIT)
 			{
 				sprintf(str, "%03d", ingame.PingTimes[player]);
 			}
@@ -928,6 +988,7 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 			{
 				sprintf(str, "∞");
 			}
+
 			data.wzRightmostColumnText.setText(str, font_regular);
 			data.wzRightmostColumnText.render(x + MULTIMENU_C11, y + MULTIMENU_FONT_OSET, playerTextColor);
 		}
@@ -935,14 +996,16 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	else
 	{
 		//c11: Structures
-		if (isAlly || getDebugMappingStatus())
+		if(isAlly || getDebugMappingStatus())
 		{
 			// NOTE, This tallys up *all* the structures you have. Test out via 'start with no base'.
 			int num = 0;
-			for (STRUCTURE *temp = apsStructLists[player]; temp != nullptr; temp = temp->psNext)
+
+			for(STRUCTURE *temp = apsStructLists[player]; temp != nullptr; temp = temp->psNext)
 			{
 				++num;
 			}
+
 			sprintf(str, "%d", num);
 			data.wzRightmostColumnText.setText(str, font_regular);
 			data.wzRightmostColumnText.render(x + MULTIMENU_C11, y + MULTIMENU_FONT_OSET, playerTextColor);
@@ -951,41 +1014,44 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 
 	// a droid of theirs.
 	DROID *displayDroid = apsDroidLists[player];
-	while (displayDroid != nullptr && !displayDroid->visible[selectedPlayer])
+
+	while(displayDroid != nullptr && !displayDroid->visible[selectedPlayer])
 	{
 		displayDroid = displayDroid->psNext;
 	}
-	if (displayDroid)
+
+	if(displayDroid)
 	{
-		pie_SetGeometricOffset(MULTIMENU_FORM_X + MULTIMENU_C1 , y + MULTIMENU_PLAYER_H);
+		pie_SetGeometricOffset(MULTIMENU_FORM_X + MULTIMENU_C1, y + MULTIMENU_PLAYER_H);
 		Vector3i rotation(-15, 45, 0);
 		Position position(0, 0, BUTTON_DEPTH);  // Scale them.
-		if (displayDroid->droidType == DROID_SUPERTRANSPORTER)
+
+		if(displayDroid->droidType == DROID_SUPERTRANSPORTER)
 		{
 			position.z = 7850;
 		}
-		else if (displayDroid->droidType == DROID_TRANSPORTER)
+		else if(displayDroid->droidType == DROID_TRANSPORTER)
 		{
 			position.z = 4100;
 		}
 
 		displayComponentButtonObject(displayDroid, &rotation, &position, 100);
 	}
-	else if (apsDroidLists[player])
+	else if(apsDroidLists[player])
 	{
 		// Show that they have droids, but not which droids, since we can't see them.
 		iV_DrawImageTc(IntImages, IMAGE_GENERIC_TANK, IMAGE_GENERIC_TANK_TC, MULTIMENU_FORM_X + MULTIMENU_C1 - iV_GetImageWidth(IntImages, IMAGE_GENERIC_TANK) / 2, y + MULTIMENU_PLAYER_H - iV_GetImageHeight(IntImages, IMAGE_GENERIC_TANK), pal_GetTeamColour(getPlayerColour(player)));
 	}
 
 	// clean up widgets if player leaves while menu is up.
-	if (!isHuman && !(game.type == SKIRMISH && player < game.maxPlayers))
+	if(!isHuman && !(game.type == SKIRMISH && player < game.maxPlayers))
 	{
-		if (widgGetFromID(psWScreen, MULTIMENU_CHANNEL + player) != nullptr)
+		if(widgGetFromID(psWScreen, MULTIMENU_CHANNEL + player) != nullptr)
 		{
 			widgDelete(psWScreen, MULTIMENU_CHANNEL + player);
 		}
 
-		if (widgGetFromID(psWScreen, MULTIMENU_ALLIANCE_BASE + player) != nullptr)
+		if(widgGetFromID(psWScreen, MULTIMENU_ALLIANCE_BASE + player) != nullptr)
 		{
 			widgDelete(psWScreen, MULTIMENU_ALLIANCE_BASE + player);
 			widgDelete(psWScreen, MULTIMENU_GIFT_RAD + player);
@@ -1003,29 +1069,33 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 static void displayAllianceState(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 {
 	UDWORD a, b, c, player = psWidget->UserData;
-	switch (alliances[selectedPlayer][player])
+
+	switch(alliances[selectedPlayer][player])
 	{
-	case ALLIANCE_BROKEN:
-		a = 0;
-		b = IMAGE_MULTI_NOAL_HI;
-		c = IMAGE_MULTI_NOAL;					// replace with real gfx
-		break;
-	case ALLIANCE_FORMED:
-		a = 0;
-		b = IMAGE_MULTI_AL_HI;
-		c = IMAGE_MULTI_AL;						// replace with real gfx
-		break;
-	case ALLIANCE_REQUESTED:
-	case ALLIANCE_INVITATION:
-		a = 0;
-		b = IMAGE_MULTI_OFFAL_HI;
-		c = IMAGE_MULTI_OFFAL;						// replace with real gfx
-		break;
-	default:
-		a = 0;
-		b = IMAGE_MULTI_NOAL_HI;
-		c = IMAGE_MULTI_NOAL;
-		break;
+		case ALLIANCE_BROKEN:
+			a = 0;
+			b = IMAGE_MULTI_NOAL_HI;
+			c = IMAGE_MULTI_NOAL;					// replace with real gfx
+			break;
+
+		case ALLIANCE_FORMED:
+			a = 0;
+			b = IMAGE_MULTI_AL_HI;
+			c = IMAGE_MULTI_AL;						// replace with real gfx
+			break;
+
+		case ALLIANCE_REQUESTED:
+		case ALLIANCE_INVITATION:
+			a = 0;
+			b = IMAGE_MULTI_OFFAL_HI;
+			c = IMAGE_MULTI_OFFAL;						// replace with real gfx
+			break;
+
+		default:
+			a = 0;
+			b = IMAGE_MULTI_NOAL_HI;
+			c = IMAGE_MULTI_NOAL;
+			break;
 	}
 
 	psWidget->UserData = PACKDWORD_TRI(a, b, c);
@@ -1037,7 +1107,7 @@ static void displayChannelState(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset
 {
 	UDWORD player = psWidget->UserData;
 
-	if (openchannels[player])
+	if(openchannels[player])
 	{
 		psWidget->UserData = PACKDWORD_TRI(0, IMAGE_MULTI_CHAN, IMAGE_MULTI_CHAN);
 	}
@@ -1045,6 +1115,7 @@ static void displayChannelState(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset
 	{
 		psWidget->UserData = PACKDWORD_TRI(0, IMAGE_MULTI_NOCHAN, IMAGE_MULTI_NOCHAN);
 	}
+
 	intDisplayImageHilight(psWidget, xOffset, yOffset);
 	psWidget->UserData = player;
 }
@@ -1070,7 +1141,8 @@ static void addMultiPlayer(UDWORD player, UDWORD pos)
 	sFormInit.pDisplay		  = displayMultiPlayer;
 	sFormInit.UserData		  = player;
 	sFormInit.pUserData = new DisplayMultiPlayerData();
-	sFormInit.onDelete = [](WIDGET *psWidget) {
+	sFormInit.onDelete = [](WIDGET * psWidget)
+	{
 		assert(psWidget->pUserData != nullptr);
 		delete static_cast<DisplayMultiPlayerData *>(psWidget->pUserData);
 		psWidget->pUserData = nullptr;
@@ -1080,7 +1152,7 @@ static void addMultiPlayer(UDWORD player, UDWORD pos)
 	W_BUTINIT sButInit;
 
 	// add channel opener.
-	if (player != selectedPlayer)
+	if(player != selectedPlayer)
 	{
 		sButInit.formID = id;
 		sButInit.x		= MULTIMENU_C0;
@@ -1094,7 +1166,7 @@ static void addMultiPlayer(UDWORD player, UDWORD pos)
 		widgAddButton(psWScreen, &sButInit);
 	}
 
-	if (alliancesCanGiveAnything(game.alliance) && player != selectedPlayer)
+	if(alliancesCanGiveAnything(game.alliance) && player != selectedPlayer)
 	{
 		//alliance
 		sButInit.x		= MULTIMENU_C3;
@@ -1107,7 +1179,7 @@ static void addMultiPlayer(UDWORD player, UDWORD pos)
 		sButInit.UserData = player;
 
 		//can't break alliances in 'Locked Teams' mode
-		if (!alliancesFixed(game.alliance))
+		if(!alliancesFixed(game.alliance))
 		{
 			widgAddButton(psWScreen, &sButInit);
 		}
@@ -1117,7 +1189,7 @@ static void addMultiPlayer(UDWORD player, UDWORD pos)
 		// add the gift buttons.
 		sButInit.y		+= 1;	// move down a wee bit.
 
-		if (alliancesCanGiveResearchAndRadar(game.alliance))
+		if(alliancesCanGiveResearchAndRadar(game.alliance))
 		{
 			sButInit.id		= MULTIMENU_GIFT_RAD + player;
 			sButInit.x		= MULTIMENU_C4;
@@ -1128,20 +1200,20 @@ static void addMultiPlayer(UDWORD player, UDWORD pos)
 			sButInit.id		= MULTIMENU_GIFT_RES + player;
 			sButInit.x		= MULTIMENU_C5;
 			sButInit.pTip	= _("Leak Technology Documents");
-			sButInit.UserData = PACKDWORD_TRI(0, IMAGE_MULTI_TEK_HI , IMAGE_MULTI_TEK);
+			sButInit.UserData = PACKDWORD_TRI(0, IMAGE_MULTI_TEK_HI, IMAGE_MULTI_TEK);
 			widgAddButton(psWScreen, &sButInit);
 		}
 
 		sButInit.id		= MULTIMENU_GIFT_DRO + player;
 		sButInit.x		= MULTIMENU_C6;
 		sButInit.pTip	= _("Hand Over Selected Units");
-		sButInit.UserData = PACKDWORD_TRI(0, IMAGE_MULTI_DRO_HI , IMAGE_MULTI_DRO);
+		sButInit.UserData = PACKDWORD_TRI(0, IMAGE_MULTI_DRO_HI, IMAGE_MULTI_DRO);
 		widgAddButton(psWScreen, &sButInit);
 
 		sButInit.id		= MULTIMENU_GIFT_POW + player;
 		sButInit.x		= MULTIMENU_C7;
 		sButInit.pTip	= _("Give Power To Player");
-		sButInit.UserData = PACKDWORD_TRI(0, IMAGE_MULTI_POW_HI , IMAGE_MULTI_POW);
+		sButInit.UserData = PACKDWORD_TRI(0, IMAGE_MULTI_POW_HI, IMAGE_MULTI_POW);
 		widgAddButton(psWScreen, &sButInit);
 
 		giftsUp[player] = true;				// note buttons are up!
@@ -1153,13 +1225,13 @@ bool intAddMultiMenu()
 	UDWORD			i;
 
 	//check for already open.
-	if (widgGetFromID(psWScreen, MULTIMENU_FORM))
+	if(widgGetFromID(psWScreen, MULTIMENU_FORM))
 	{
 		intCloseMultiMenu();
 		return true;
 	}
 
-	if (intMode != INT_INTELMAP)
+	if(intMode != INT_INTELMAP)
 	{
 		intResetScreen(false);
 	}
@@ -1169,14 +1241,15 @@ bool intAddMultiMenu()
 	// add form
 	IntFormAnimated *multiMenuForm = new IntFormAnimated(parent);
 	multiMenuForm->id = MULTIMENU_FORM;
-	multiMenuForm->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+	multiMenuForm->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+	{
 		psWidget->setGeometry(MULTIMENU_FORM_X, MULTIMENU_FORM_Y, MULTIMENU_FORM_W, MULTIMENU_PLAYER_H * game.maxPlayers + MULTIMENU_PLAYER_H + 7);
 	}));
 
 	// add any players
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
-		if (isHumanPlayer(i) || (game.type == SKIRMISH && i < game.maxPlayers && game.skDiff[i]))
+		if(isHumanPlayer(i) || (game.type == SKIRMISH && i < game.maxPlayers && game.skDiff[i]))
 		{
 			addMultiPlayer(i, NetPlay.players[i].position);
 		}
@@ -1192,18 +1265,20 @@ bool intAddMultiMenu()
 	sButInit.height = CLOSE_HEIGHT;
 	sButInit.pTip = _("Close");
 	sButInit.pDisplay = intDisplayImageHilight;
-	sButInit.UserData = PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT , IMAGE_CLOSE);
-	if (!widgAddButton(psWScreen, &sButInit))
+	sButInit.UserData = PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
+
+	if(!widgAddButton(psWScreen, &sButInit))
 	{
 		return false;
 	}
 
 	intShowPowerBar();						// add power bar
 
-	if (intMode != INT_INTELMAP)
+	if(intMode != INT_INTELMAP)
 	{
 		intMode		= INT_MULTIMENU;			// change interface mode.
 	}
+
 	MultiMenuUp = true;
 	return true;
 }
@@ -1212,12 +1287,15 @@ bool intAddMultiMenu()
 void intCloseMultiMenuNoAnim()
 {
 	widgDelete(psWScreen, MULTIMENU_FORM);
-	if (!MultiMenuUp)
+
+	if(!MultiMenuUp)
 	{
 		return;
 	}
+
 	MultiMenuUp = false;
-	if (intMode != INT_INTELMAP)
+
+	if(intMode != INT_INTELMAP)
 	{
 		intMode		= INT_NORMAL;
 	}
@@ -1227,23 +1305,25 @@ void intCloseMultiMenuNoAnim()
 // ////////////////////////////////////////////////////////////////////////////
 bool intCloseMultiMenu()
 {
-	if (!MultiMenuUp)
+	if(!MultiMenuUp)
 	{
 		return true;
 	}
 
 	// Start the window close animation.
 	IntFormAnimated *form = (IntFormAnimated *)widgGetFromID(psWScreen, MULTIMENU_FORM);
-	if (form != nullptr)
+
+	if(form != nullptr)
 	{
 		form->closeAnimateDelete();
 		MultiMenuUp  = false;
 	}
 
-	if (intMode != INT_INTELMAP)
+	if(intMode != INT_INTELMAP)
 	{
 		intMode		= INT_NORMAL;
 	}
+
 	return true;
 }
 
@@ -1261,49 +1341,52 @@ void intProcessMultiMenu(UDWORD id)
 	UBYTE	i;
 
 	//close
-	if (id == MULTIMENU_CLOSE)
+	if(id == MULTIMENU_CLOSE)
 	{
 		intCloseMultiMenu();
 	}
 
 	//alliance button
-	if (id >= MULTIMENU_ALLIANCE_BASE  &&  id < MULTIMENU_ALLIANCE_BASE + MAX_PLAYERS)
+	if(id >= MULTIMENU_ALLIANCE_BASE  &&  id < MULTIMENU_ALLIANCE_BASE + MAX_PLAYERS)
 	{
 		i = (UBYTE)(id - MULTIMENU_ALLIANCE_BASE);
 
-		switch (alliances[selectedPlayer][i])
+		switch(alliances[selectedPlayer][i])
 		{
-		case ALLIANCE_BROKEN:
-			requestAlliance((UBYTE)selectedPlayer, i, true, true);			// request an alliance
-			break;
-		case ALLIANCE_INVITATION:
-			formAlliance((UBYTE)selectedPlayer, i, true, true, true);			// form an alliance
-			break;
-		case ALLIANCE_REQUESTED:
-			breakAlliance((UBYTE)selectedPlayer, i, true, true);		// break an alliance
-			break;
+			case ALLIANCE_BROKEN:
+				requestAlliance((UBYTE)selectedPlayer, i, true, true);			// request an alliance
+				break;
 
-		case ALLIANCE_FORMED:
-			breakAlliance((UBYTE)selectedPlayer, i, true, true);		// break an alliance
-			break;
-		default:
-			break;
+			case ALLIANCE_INVITATION:
+				formAlliance((UBYTE)selectedPlayer, i, true, true, true);			// form an alliance
+				break;
+
+			case ALLIANCE_REQUESTED:
+				breakAlliance((UBYTE)selectedPlayer, i, true, true);		// break an alliance
+				break;
+
+			case ALLIANCE_FORMED:
+				breakAlliance((UBYTE)selectedPlayer, i, true, true);		// break an alliance
+				break;
+
+			default:
+				break;
 		}
 	}
 
 
 	//channel opens.
-	if (id >= MULTIMENU_CHANNEL &&  id < MULTIMENU_CHANNEL + MAX_PLAYERS)
+	if(id >= MULTIMENU_CHANNEL &&  id < MULTIMENU_CHANNEL + MAX_PLAYERS)
 	{
 		i = id - MULTIMENU_CHANNEL;
 		openchannels[i] = !openchannels[i];
 
-		if (mouseDown(MOUSE_RMB) && NetPlay.isHost) // both buttons....
+		if(mouseDown(MOUSE_RMB) && NetPlay.isHost)  // both buttons....
 		{
 			char buf[250];
 
 			// Allow the host to kick the AI only in a MP game, or if they activated cheats in a skirmish game
-			if ((NetPlay.bComms || Cheated) && (NetPlay.players[i].allocated || (NetPlay.players[i].allocated == false && NetPlay.players[i].ai != AI_OPEN)))
+			if((NetPlay.bComms || Cheated) && (NetPlay.players[i].allocated || (NetPlay.players[i].allocated == false && NetPlay.players[i].ai != AI_OPEN)))
 			{
 				inputLoseFocus();
 				ssprintf(buf, _("The host has kicked %s from the game!"), getPlayerName((unsigned int) i));
@@ -1317,25 +1400,25 @@ void intProcessMultiMenu(UDWORD id)
 	}
 
 	//radar gifts
-	if (id >=  MULTIMENU_GIFT_RAD && id < MULTIMENU_GIFT_RAD + MAX_PLAYERS)
+	if(id >=  MULTIMENU_GIFT_RAD && id < MULTIMENU_GIFT_RAD + MAX_PLAYERS)
 	{
 		sendGift(RADAR_GIFT, id - MULTIMENU_GIFT_RAD);
 	}
 
 	// research gift
-	if (id >= MULTIMENU_GIFT_RES && id < MULTIMENU_GIFT_RES  + MAX_PLAYERS)
+	if(id >= MULTIMENU_GIFT_RES && id < MULTIMENU_GIFT_RES  + MAX_PLAYERS)
 	{
 		sendGift(RESEARCH_GIFT, id - MULTIMENU_GIFT_RES);
 	}
 
 	//droid gift
-	if (id >=  MULTIMENU_GIFT_DRO && id <  MULTIMENU_GIFT_DRO + MAX_PLAYERS)
+	if(id >=  MULTIMENU_GIFT_DRO && id <  MULTIMENU_GIFT_DRO + MAX_PLAYERS)
 	{
 		sendGift(DROID_GIFT, id - MULTIMENU_GIFT_DRO);
 	}
 
 	//power gift
-	if (id >=  MULTIMENU_GIFT_POW && id <  MULTIMENU_GIFT_POW + MAX_PLAYERS)
+	if(id >=  MULTIMENU_GIFT_POW && id <  MULTIMENU_GIFT_POW + MAX_PLAYERS)
 	{
 		sendGift(POWER_GIFT, id - MULTIMENU_GIFT_POW);
 	}

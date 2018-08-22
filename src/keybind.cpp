@@ -110,7 +110,7 @@ static void kfsf_SetSelectedDroidsState(SECONDARY_ORDER sec, SECONDARY_STATE Sta
  */
 bool runningMultiplayer()
 {
-	if (!bMultiPlayer || !NetPlay.bComms)
+	if(!bMultiPlayer || !NetPlay.bComms)
 	{
 		return false;
 	}
@@ -127,22 +127,26 @@ static void noMPCheatMsg()
 void kf_AutoGame()
 {
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
-	if (game.type == CAMPAIGN)
+
+	if(game.type == CAMPAIGN)
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, "Not possible with the campaign!"));
 		return;
 	}
+
 	// Notify all human players that we are trying to enable autogame
-	for (int i = 0; i < MAX_PLAYERS; i++)
+	for(int i = 0; i < MAX_PLAYERS; i++)
 	{
-		if (NetPlay.players[i].allocated)
+		if(NetPlay.players[i].allocated)
 		{
 			sendGift(AUTOGAME_GIFT, i);
 		}
@@ -191,7 +195,7 @@ void	kf_PowerInfo()
 {
 	int i;
 
-	for (i = 0; i < game.maxPlayers; i++)
+	for(i = 0; i < game.maxPlayers; i++)
 	{
 		console("Player %d: %d power", i, (int)getPower(i));
 	}
@@ -200,19 +204,23 @@ void	kf_PowerInfo()
 void kf_DamageMe()
 {
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
-	for (DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+
+	for(DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected)
+		if(psDroid->selected)
 		{
 			int val = psDroid->body - ((psDroid->originalBody / 100) * 20);
-			if (val > 0)
+
+			if(val > 0)
 			{
 				psDroid->body = val;
 				addConsoleMessage(_("Ouch! Droid's health is down 20%!"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
@@ -223,12 +231,14 @@ void kf_DamageMe()
 			}
 		}
 	}
-	for (STRUCTURE *psStruct = apsStructLists[selectedPlayer]; psStruct; psStruct = psStruct->psNext)
+
+	for(STRUCTURE *psStruct = apsStructLists[selectedPlayer]; psStruct; psStruct = psStruct->psNext)
 	{
-		if (psStruct->selected)
+		if(psStruct->selected)
 		{
 			int val = psStruct->body - ((structureBody(psStruct) / 100) * 20);
-			if (val > 0)
+
+			if(val > 0)
 			{
 				psStruct->body = val;
 				addConsoleMessage(_("Ouch! Structure's health is down 20%!"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
@@ -246,26 +256,30 @@ void	kf_TraceObject()
 	DROID		*psCDroid, *psNDroid;
 	STRUCTURE	*psCStruct, *psNStruct;
 
-	for (psCDroid = apsDroidLists[selectedPlayer]; psCDroid; psCDroid = psNDroid)
+	for(psCDroid = apsDroidLists[selectedPlayer]; psCDroid; psCDroid = psNDroid)
 	{
 		psNDroid = psCDroid->psNext;
-		if (psCDroid->selected)
+
+		if(psCDroid->selected)
 		{
 			objTraceEnable(psCDroid->id);
 			CONPRINTF(ConsoleString, (ConsoleString, "Tracing droid %d", (int)psCDroid->id));
 			return;
 		}
 	}
-	for (psCStruct = apsStructLists[selectedPlayer]; psCStruct; psCStruct = psNStruct)
+
+	for(psCStruct = apsStructLists[selectedPlayer]; psCStruct; psCStruct = psNStruct)
 	{
 		psNStruct = psCStruct->psNext;
-		if (psCStruct->selected)
+
+		if(psCStruct->selected)
 		{
 			objTraceEnable(psCStruct->id);
 			CONPRINTF(ConsoleString, (ConsoleString, "Tracing structure %d", (int)psCStruct->id));
 			return;
 		}
 	}
+
 	objTraceDisable();
 	CONPRINTF(ConsoleString, (ConsoleString, "No longer tracing anything."));
 }
@@ -275,17 +289,19 @@ void kf_ToggleSensorDisplay()
 {
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
 	rangeOnScreen = !rangeOnScreen;
 
-	if (rangeOnScreen)
+	if(rangeOnScreen)
 	{
 		addConsoleMessage(_("Lets us see what you see!"), LEFT_JUSTIFY, SYSTEM_MESSAGE);    //added this message... Yeah, its lame. :)
 	}
@@ -300,9 +316,9 @@ void	kf_HalveHeights()
 {
 	MAPTILE	*psTile;
 
-	for (int i = 0; i < mapWidth; ++i)
+	for(int i = 0; i < mapWidth; ++i)
 	{
-		for (int j = 0; j < mapHeight; ++j)
+		for(int j = 0; j < mapHeight; ++j)
 		{
 			psTile = mapTile(i, j);
 			psTile->height /= 2;
@@ -319,30 +335,36 @@ void	kf_FaceNorth()
 void	kf_FaceSouth()
 {
 	player.r.y = DEG(180);
-	if (getWarCamStatus())
+
+	if(getWarCamStatus())
 	{
 		camToggleStatus();
 	}
+
 	CONPRINTF(ConsoleString, (ConsoleString, "%s", _("View Aligned to South")));
 }
 // --------------------------------------------------------------------------
 void	kf_FaceEast()
 {
 	player.r.y = DEG(90);
-	if (getWarCamStatus())
+
+	if(getWarCamStatus())
 	{
 		camToggleStatus();
 	}
+
 	CONPRINTF(ConsoleString, (ConsoleString, "%s", _("View Aligned to East")));
 }
 // --------------------------------------------------------------------------
 void	kf_FaceWest()
 {
 	player.r.y = DEG(270);
-	if (getWarCamStatus())
+
+	if(getWarCamStatus())
 	{
 		camToggleStatus();
 	}
+
 	CONPRINTF(ConsoleString, (ConsoleString, "%s", _("View Aligned to West")));
 }
 // --------------------------------------------------------------------------
@@ -352,9 +374,9 @@ void	kf_DebugDroidInfo()
 {
 	DROID	*psDroid;
 
-	for (psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected)
+		if(psDroid->selected)
 		{
 			printDroidInfo(psDroid);
 		}
@@ -366,39 +388,42 @@ void kf_CloneSelected(int limit)
 	DROID_TEMPLATE	*sTemplate = nullptr;
 	char *msg;
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
-	for (DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for(DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected)
+		if(psDroid->selected)
 		{
-			for (auto &keyvaluepair : droidTemplates[selectedPlayer])
+			for(auto &keyvaluepair : droidTemplates[selectedPlayer])
 			{
-				if (keyvaluepair.second->name.compare(psDroid->aName) == 0)
+				if(keyvaluepair.second->name.compare(psDroid->aName) == 0)
 				{
 					sTemplate = keyvaluepair.second;
 					break;
 				}
 			}
 
-			if (!sTemplate)
+			if(!sTemplate)
 			{
 				debug(LOG_ERROR, "Cloning vat has been destroyed. We can't find the template for this droid: %s, id:%u, type:%d!", psDroid->aName, psDroid->id, psDroid->droidType);
 				return;
 			}
 
 			// create a new droid army
-			for (int i = 0; i < limit; i++)
+			for(int i = 0; i < limit; i++)
 			{
 				Vector2i pos = psDroid->pos.xy + iSinCosR(40503 * i, iSqrt(50 * 50 * i));  // 40503 = 65536/φ
 				DROID *psNewDroid = buildDroid(sTemplate, pos.x, pos.y, psDroid->player, false, nullptr);
-				if (psNewDroid)
+
+				if(psNewDroid)
 				{
 					addDroid(psNewDroid, apsDroidLists);
 					psScrCBNewDroid = psNewDroid;
@@ -407,17 +432,19 @@ void kf_CloneSelected(int limit)
 					psScrCBNewDroid = nullptr;
 					triggerEventDroidBuilt(psNewDroid, nullptr);
 				}
-				else if (!bMultiMessages)
+				else if(!bMultiMessages)
 				{
 					debug(LOG_ERROR, "Cloning has failed for template:%s id:%d", getID(sTemplate), sTemplate->multiPlayerID);
 				}
 			}
+
 			sasprintf(&msg, _("Player %u is cheating a new droid army of: %d × %s."), selectedPlayer, limit, psDroid->aName);
 			sendTextMessage(msg, true);
 			Cheated = true;
 			audio_PlayTrack(ID_SOUND_NEXUS_LAUGH1);
 			return;
 		}
+
 		debug(LOG_INFO, "Nothing was selected?");
 	}
 }
@@ -425,17 +452,19 @@ void kf_CloneSelected(int limit)
 void kf_TeachSelected()
 {
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
-	for (DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for(DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected)
+		if(psDroid->selected)
 		{
 			psDroid->experience += 4 * 65536;
 		}
@@ -445,25 +474,28 @@ void kf_TeachSelected()
 void kf_Unselectable()
 {
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
-	for (DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for(DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected)
+		if(psDroid->selected)
 		{
 			psDroid->flags.set(OBJECT_FLAG_UNSELECTABLE, true);
 			psDroid->selected = false;
 		}
 	}
-	for (STRUCTURE *psStruct = apsStructLists[selectedPlayer]; psStruct; psStruct = psStruct->psNext)
+
+	for(STRUCTURE *psStruct = apsStructLists[selectedPlayer]; psStruct; psStruct = psStruct->psNext)
 	{
-		if (psStruct->selected)
+		if(psStruct->selected)
 		{
 			psStruct->flags.set(OBJECT_FLAG_UNSELECTABLE, true);
 			psStruct->selected = false;
@@ -482,7 +514,7 @@ void	kf_BuildInfo()
 // --------------------------------------------------------------------------
 void	kf_ToggleConsoleDrop()
 {
-	if (!bInTutorial)
+	if(!bInTutorial)
 	{
 		setHistoryMode(false);
 		toggleConsoleDrop();
@@ -491,7 +523,7 @@ void	kf_ToggleConsoleDrop()
 
 void kf_ToggleTeamChat()
 {
-	if (!bInTutorial)
+	if(!bInTutorial)
 	{
 		setHistoryMode(true);
 		toggleConsoleDrop();
@@ -503,7 +535,7 @@ void	kf_SetKillerLevel()
 	char *cmsg;
 
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
@@ -518,7 +550,7 @@ void	kf_SetKillerLevel()
 void	kf_SetEasyLevel()
 {
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
@@ -534,11 +566,12 @@ void	kf_UpThePower()
 	char *cmsg;
 
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 	addPower(selectedPlayer, 1000);
 	sasprintf(&cmsg, _("(Player %u) is using cheat :%s"),
 	          selectedPlayer, _("1000 big ones!!!"));
@@ -551,11 +584,12 @@ void	kf_MaxPower()
 	char *cmsg;
 
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 	setPower(selectedPlayer, 100000);
 	sasprintf(&cmsg, _("(Player %u) is using cheat :%s"),
 	          selectedPlayer, _("Power overwhelming"));
@@ -566,7 +600,7 @@ void	kf_MaxPower()
 void	kf_SetNormalLevel()
 {
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
@@ -579,7 +613,7 @@ void	kf_SetNormalLevel()
 void	kf_SetHardLevel()
 {
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
@@ -594,7 +628,7 @@ void	kf_SetToughUnitsLevel()
 	char *cmsg;
 
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
@@ -611,7 +645,7 @@ void kf_ToggleFPS() //This shows *just FPS* and is always visible (when active) 
 	// Toggle the boolean value of showFPS
 	showFPS = !showFPS;
 
-	if (showFPS)
+	if(showFPS)
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("FPS display is enabled.")));
 	}
@@ -640,7 +674,8 @@ void	kf_FrameRate()
 {
 	CONPRINTF(ConsoleString, (ConsoleString, "FPS %d; PIEs %d; polys %d",
 	                          frameRate(), loopPieCount, loopPolyCount));
-	if (runningMultiplayer())
+
+	if(runningMultiplayer())
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, "NETWORK:  Bytes: s-%d r-%d  Uncompressed Bytes: s-%d r-%d  Packets: s-%d r-%d",
 		                          NETgetStatistic(NetStatisticRawBytes, true),
@@ -650,6 +685,7 @@ void	kf_FrameRate()
 		                          NETgetStatistic(NetStatisticPackets, true),
 		                          NETgetStatistic(NetStatisticPackets, false)));
 	}
+
 	gameStats = !gameStats;
 	CONPRINTF(ConsoleString, (ConsoleString, "Built at %s on %s", __TIME__, __DATE__));
 }
@@ -663,7 +699,7 @@ void kf_ShowNumObjects()
 	char *cmsg;
 
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
@@ -691,16 +727,19 @@ void	kf_TogglePower()
 	char *cmsg;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
 	powerCalculated = !powerCalculated;
-	if (powerCalculated)
+
+	if(powerCalculated)
 	{
 		powerCalc(true);
 	}
@@ -735,12 +774,14 @@ void	kf_AllAvailable()
 	char *cmsg;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
 	makeAllAvailable();
@@ -780,15 +821,17 @@ void	kf_ToggleFog()
 	char *cmsg;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
-	if (fogEnabled)
+	if(fogEnabled)
 	{
 		fogEnabled = false;
 		pie_SetFogStatus(false);
@@ -826,17 +869,17 @@ void kf_MapCheck()
 	STRUCTURE	*psStruct;
 	FLAG_POSITION	*psCurrFlag;
 
-	for (psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
 		psDroid->pos.z = map_Height(psDroid->pos.x, psDroid->pos.y);
 	}
 
-	for (psStruct = apsStructLists[selectedPlayer]; psStruct; psStruct = psStruct->psNext)
+	for(psStruct = apsStructLists[selectedPlayer]; psStruct; psStruct = psStruct->psNext)
 	{
 		alignStructure(psStruct);
 	}
 
-	for (psCurrFlag = apsFlagPosLists[selectedPlayer]; psCurrFlag; psCurrFlag = psCurrFlag->psNext)
+	for(psCurrFlag = apsFlagPosLists[selectedPlayer]; psCurrFlag; psCurrFlag = psCurrFlag->psNext)
 	{
 		psCurrFlag->coords.z = map_Height(psCurrFlag->coords.x, psCurrFlag->coords.y) + ASSEMBLY_POINT_Z_PADDING;
 	}
@@ -845,7 +888,7 @@ void kf_MapCheck()
 /* Raises the tile under the mouse */
 void	kf_RaiseTile()
 {
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		return;  // Don't desynch if pressing 'W'...
 	}
@@ -858,7 +901,7 @@ void	kf_RaiseTile()
 /* Lowers the tile under the mouse */
 void	kf_LowerTile()
 {
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		return;  // Don't desynch if pressing 'A'...
 	}
@@ -878,7 +921,7 @@ void	kf_SystemClose()
 /* Zooms out from display */
 void	kf_ZoomOut()
 {
-	if (getDebugMappingStatus())
+	if(getDebugMappingStatus())
 	{
 		setViewDistance(getViewDistance() + realTimeAdjustedIncrement(war_GetMapZoomRate()));
 	}
@@ -886,12 +929,13 @@ void	kf_ZoomOut()
 	{
 		setViewDistance(std::min<int>(getViewDistance() + realTimeAdjustedIncrement(war_GetMapZoomRate()), MAXDISTANCE));
 	}
+
 	UpdateFogDistance(getViewDistance());
 }
 
 void kf_ZoomOutStep()
 {
-	if (getDebugMappingStatus())
+	if(getDebugMappingStatus())
 	{
 		setViewDistance(getViewDistance() + war_GetMapZoomRate());
 	}
@@ -899,6 +943,7 @@ void kf_ZoomOutStep()
 	{
 		setViewDistance(std::min<int>(getViewDistance() + war_GetMapZoomRate(), MAXDISTANCE));
 	}
+
 	UpdateFogDistance(getViewDistance());
 }
 
@@ -907,7 +952,7 @@ void	kf_RadarZoomIn()
 {
 	uint8_t RadarZoomLevel = GetRadarZoom();
 
-	if (RadarZoomLevel < MAX_RADARZOOM)
+	if(RadarZoomLevel < MAX_RADARZOOM)
 	{
 		RadarZoomLevel += RADARZOOM_STEP;
 		CONPRINTF(ConsoleString, (ConsoleString, _("Setting radar zoom to %u"), RadarZoomLevel));
@@ -920,7 +965,7 @@ void	kf_RadarZoomOut()
 {
 	uint8_t RadarZoomLevel = GetRadarZoom();
 
-	if (RadarZoomLevel > MIN_RADARZOOM)
+	if(RadarZoomLevel > MIN_RADARZOOM)
 	{
 		RadarZoomLevel -= RADARZOOM_STEP;
 		CONPRINTF(ConsoleString, (ConsoleString, _("Setting radar zoom to %u"), RadarZoomLevel));
@@ -933,7 +978,7 @@ void	kf_RadarZoomOut()
 /* Zooms in the map */
 void	kf_ZoomIn()
 {
-	if (getDebugMappingStatus())
+	if(getDebugMappingStatus())
 	{
 		setViewDistance(getViewDistance() - realTimeAdjustedIncrement(war_GetMapZoomRate()));
 	}
@@ -941,12 +986,13 @@ void	kf_ZoomIn()
 	{
 		setViewDistance(std::max<int>(getViewDistance() - realTimeAdjustedIncrement(war_GetMapZoomRate()), MINDISTANCE));
 	}
+
 	UpdateFogDistance(getViewDistance());
 }
 
 void kf_ZoomInStep()
 {
-	if (getDebugMappingStatus())
+	if(getDebugMappingStatus())
 	{
 		setViewDistance(getViewDistance() - war_GetMapZoomRate());
 	}
@@ -954,6 +1000,7 @@ void kf_ZoomInStep()
 	{
 		setViewDistance(std::max<int>(getViewDistance() - war_GetMapZoomRate(), MINDISTANCE));
 	}
+
 	UpdateFogDistance(getViewDistance());
 }
 
@@ -1018,7 +1065,8 @@ void	kf_RotateRight()
 	float rotAmount = realTimeAdjustedIncrement(MAP_SPIN_RATE);
 
 	player.r.y -= rotAmount;
-	if (player.r.y < 0)
+
+	if(player.r.y < 0)
 	{
 		player.r.y += DEG(360);
 	}
@@ -1032,10 +1080,11 @@ void	kf_PitchBack()
 
 	player.r.x += pitchAmount;
 
-	if (player.r.x > DEG(360 + MAX_PLAYER_X_ANGLE))
+	if(player.r.x > DEG(360 + MAX_PLAYER_X_ANGLE))
 	{
 		player.r.x = DEG(360 + MAX_PLAYER_X_ANGLE);
 	}
+
 	setDesiredPitch(player.r.x / DEG_1);
 }
 
@@ -1046,10 +1095,12 @@ void	kf_PitchForward()
 	float pitchAmount = realTimeAdjustedIncrement(MAP_PITCH_RATE);
 
 	player.r.x -= pitchAmount;
-	if (player.r.x < DEG(360 + MIN_PLAYER_X_ANGLE))
+
+	if(player.r.x < DEG(360 + MIN_PLAYER_X_ANGLE))
 	{
 		player.r.x = DEG(360 + MIN_PLAYER_X_ANGLE);
 	}
+
 	setDesiredPitch(player.r.x / DEG_1);
 }
 
@@ -1075,20 +1126,23 @@ void	kf_SelectPlayer()
 	UDWORD	playerNumber, prevPlayer;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP
 	// cheating which could even result in undefined behaviour)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
 	//store the current player
 	prevPlayer = selectedPlayer;
 
 	playerNumber = (getLastSubKey() - KEY_F1);
-	if (playerNumber >= 10)
+
+	if(playerNumber >= 10)
 	{
 		selectedPlayer = 0;
 	}
@@ -1096,10 +1150,11 @@ void	kf_SelectPlayer()
 	{
 		selectedPlayer = playerNumber;
 	}
+
 	realSelectedPlayer = selectedPlayer;
 	//	godMode = true;
 
-	if (prevPlayer == selectedPlayer)
+	if(prevPlayer == selectedPlayer)
 	{
 		changeProductionPlayer((UBYTE)selectedPlayer);
 	}
@@ -1114,23 +1169,26 @@ void	kf_SelectGrouping(UDWORD	groupNumber)
 	bool	Selected;
 
 	bAlreadySelected = false;
-	for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+
+	for(psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 	{
 		/* Wipe out the ones in the wrong group */
-		if (psDroid->selected && psDroid->group != groupNumber)
+		if(psDroid->selected && psDroid->group != groupNumber)
 		{
 			psDroid->selected = false;
 		}
+
 		/* Get the right ones */
-		if (psDroid->group == groupNumber)
+		if(psDroid->group == groupNumber)
 		{
-			if (psDroid->selected)
+			if(psDroid->selected)
 			{
 				bAlreadySelected = true;
 			}
 		}
 	}
-	if (bAlreadySelected)
+
+	if(bAlreadySelected)
 	{
 		Selected = activateGroupAndMove(selectedPlayer, groupNumber);
 	}
@@ -1140,12 +1198,13 @@ void	kf_SelectGrouping(UDWORD	groupNumber)
 	}
 
 	/* play group audio but only if they weren't already selected - AM */
-	if (Selected && !bAlreadySelected)
+	if(Selected && !bAlreadySelected)
 	{
 		audio_QueueTrack(ID_SOUND_GROUP_0 + groupNumber);
 		audio_QueueTrack(ID_SOUND_REPORTING);
 		audio_QueueTrack(ID_SOUND_RADIOCLICK_1 + (rand() % 6));
 	}
+
 	triggerEventSelected();
 }
 
@@ -1192,7 +1251,8 @@ void	kf_ToggleDroidInfo()
 void	kf_addInGameOptions()
 {
 	setWidgetsStatus(true);
-	if (!isInGamePopupUp)	// they can *only* quit when popup is up.
+
+	if(!isInGamePopupUp)	// they can *only* quit when popup is up.
 	{
 		intAddInGameOptions();
 	}
@@ -1203,12 +1263,14 @@ void	kf_addInGameOptions()
 void	kf_AddMissionOffWorld()
 {
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
 	eventFireCallbackTrigger((TRIGGER_TYPE)CALL_MISSION_START);
@@ -1221,12 +1283,14 @@ void	kf_EndMissionOffWorld()
 	char *cmsg;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
 	sasprintf(&cmsg, _("Warning!  This cheat can cause dire problems later on! [%s]"), _("Ending Mission."));
@@ -1239,7 +1303,7 @@ void	kf_EndMissionOffWorld()
 // Display multiplayer guff.
 void	kf_addMultiMenu()
 {
-	if (bMultiPlayer)
+	if(bMultiPlayer)
 	{
 		intAddMultiMenu();
 	}
@@ -1262,15 +1326,17 @@ void	kf_JumpToMapMarker()
 {
 
 	KEY_CODE	entry;
-	if (!getRadarTrackingStatus())
+
+	if(!getRadarTrackingStatus())
 	{
 		entry = getLastSubKey();
 //		CONPRINTF(ConsoleString,(ConsoleString,"Restoring map position %d:%d",getMarkerX(entry),getMarkerY(entry)));
 		player.p.x = getMarkerX(entry);
 		player.p.z = getMarkerY(entry);
 		player.r.y = getMarkerSpin(entry);
+
 		/* A fix to stop the camera continuing when marker code is called */
-		if (getWarCamStatus())
+		if(getWarCamStatus())
 		{
 			camToggleStatus();
 		}
@@ -1297,41 +1363,45 @@ void	kf_ToggleGodMode()
 	static bool pastReveal = true;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
-	if (godMode)
+	if(godMode)
 	{
 		FEATURE	*psFeat = apsFeatureLists[0];
 
 		godMode = false;
 		setRevealStatus(pastReveal);
+
 		// now hide the features
-		while (psFeat)
+		while(psFeat)
 		{
 			psFeat->visible[selectedPlayer] = 0;
 			psFeat = psFeat->psNext;
 		}
 
 		// and the structures
-		for (unsigned player = 0; player < MAX_PLAYERS; ++player)
+		for(unsigned player = 0; player < MAX_PLAYERS; ++player)
 		{
-			if (player != selectedPlayer)
+			if(player != selectedPlayer)
 			{
 				STRUCTURE *psStruct = apsStructLists[player];
 
-				while (psStruct)
+				while(psStruct)
 				{
 					psStruct->visible[selectedPlayer] = 0;
 					psStruct = psStruct->psNext;
 				}
 			}
 		}
+
 		// remove all proximity messages
 		releaseAllProxDisp();
 	}
@@ -1352,10 +1422,12 @@ void	kf_ToggleGodMode()
 void	kf_SeekNorth()
 {
 	player.r.y = 0;
-	if (getWarCamStatus())
+
+	if(getWarCamStatus())
 	{
 		camToggleStatus();
 	}
+
 	CONPRINTF(ConsoleString, (ConsoleString, "%s", _("View Aligned to North")));
 }
 
@@ -1374,13 +1446,13 @@ void kf_toggleTrapCursor()
 void	kf_TogglePauseMode()
 {
 	// Bail out if we're running a _true_ multiplayer game (which cannot be paused)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		return;
 	}
 
 	/* Is the game running? */
-	if (gamePaused() == false)
+	if(gamePaused() == false)
 	{
 		/* Then pause it */
 		setGamePauseStatus(true);
@@ -1389,7 +1461,7 @@ void	kf_TogglePauseMode()
 		setAudioPause(true);
 
 		// If cursor trapping is enabled allow the cursor to leave the window
-		if (war_GetTrapCursor())
+		if(war_GetTrapCursor())
 		{
 			wzReleaseMouse();
 		}
@@ -1408,7 +1480,7 @@ void	kf_TogglePauseMode()
 		setAudioPause(false);
 
 		// Re-enable cursor trapping if it is enabled
-		if (war_GetTrapCursor())
+		if(war_GetTrapCursor())
 		{
 			wzGrabMouse();
 		}
@@ -1426,19 +1498,21 @@ void	kf_FinishAllResearch()
 	char *cmsg;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
-	for (j = 0; j < asResearch.size(); j++)
+	for(j = 0; j < asResearch.size(); j++)
 	{
-		if (IsResearchCompleted(&asPlayerResList[selectedPlayer][j]) == false)
+		if(IsResearchCompleted(&asPlayerResList[selectedPlayer][j]) == false)
 		{
-			if (bMultiMessages)
+			if(bMultiMessages)
 			{
 				SendResearch(selectedPlayer, j, false);
 				// Wait for our message before doing anything.
@@ -1450,6 +1524,7 @@ void	kf_FinishAllResearch()
 			}
 		}
 	}
+
 	sasprintf(&cmsg, _("(Player %u) is using cheat :%s"),
 	          selectedPlayer, _("Researched EVERYTHING for you!"));
 	sendTextMessage(cmsg, true);
@@ -1460,17 +1535,19 @@ void kf_Reload()
 	STRUCTURE	*psCurr;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
-	for (psCurr = interfaceStructList(); psCurr; psCurr = psCurr->psNext)
+	for(psCurr = interfaceStructList(); psCurr; psCurr = psCurr->psNext)
 	{
-		if (isLasSat(psCurr->pStructureType) && psCurr->selected)
+		if(isLasSat(psCurr->pStructureType) && psCurr->selected)
 		{
 			unsigned int firePause = weaponFirePause(&asWeaponStats[psCurr->asWeaps[0].nStat], psCurr->player);
 
@@ -1488,26 +1565,30 @@ void	kf_FinishResearch()
 	char *cmsg;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
-	for (psCurr = interfaceStructList(); psCurr; psCurr = psCurr->psNext)
+	for(psCurr = interfaceStructList(); psCurr; psCurr = psCurr->psNext)
 	{
-		if (psCurr->pStructureType->type == REF_RESEARCH)
+		if(psCurr->pStructureType->type == REF_RESEARCH)
 		{
 			BASE_STATS	*pSubject = nullptr;
 
 			// find out what we are researching here
 			pSubject = ((RESEARCH_FACILITY *)psCurr->pFunctionality)->psSubject;
-			if (pSubject)
+
+			if(pSubject)
 			{
 				int rindex = ((RESEARCH *)pSubject)->index;
-				if (bMultiMessages)
+
+				if(bMultiMessages)
 				{
 					SendResearch(selectedPlayer, rindex, true);
 					// Wait for our message before doing anything.
@@ -1516,6 +1597,7 @@ void	kf_FinishResearch()
 				{
 					researchResult(rindex, selectedPlayer, true, psCurr, true);
 				}
+
 				sasprintf(&cmsg, _("(Player %u) is using cheat :%s %s"), selectedPlayer, _("Researched"), getName(pSubject));
 				sendTextMessage(cmsg, true);
 				intResearchFinished(psCurr);
@@ -1534,19 +1616,22 @@ void	kf_FinishResearch()
 // --------------------------------------------------------------------------
 void	kf_ToggleEnergyBars()
 {
-	switch (toggleEnergyBars())
+	switch(toggleEnergyBars())
 	{
-	case BAR_SELECTED:
-		addConsoleMessage(_("Only displaying energy bars when selected"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
-		break;
-	case BAR_DROIDS:
-		addConsoleMessage(_("Always displaying energy bars for units"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
-		break;
-	case BAR_DROIDS_AND_STRUCTURES:
-		addConsoleMessage(_("Always displaying energy bars for units and structures"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
-		break;
-	default:
-		ASSERT(false, "Bad energy bar status");
+		case BAR_SELECTED:
+			addConsoleMessage(_("Only displaying energy bars when selected"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
+			break;
+
+		case BAR_DROIDS:
+			addConsoleMessage(_("Always displaying energy bars for units"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
+			break;
+
+		case BAR_DROIDS_AND_STRUCTURES:
+			addConsoleMessage(_("Always displaying energy bars for units and structures"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
+			break;
+
+		default:
+			ASSERT(false, "Bad energy bar status");
 	}
 }
 
@@ -1571,7 +1656,7 @@ void	kf_JumpToResourceExtractor()
 {
 	int xJump, yJump;
 
-	if (psOldRE && (STRUCTURE *)psOldRE->psNextFunc)
+	if(psOldRE && (STRUCTURE *)psOldRE->psNextFunc)
 	{
 		psOldRE = psOldRE->psNextFunc;
 	}
@@ -1580,7 +1665,7 @@ void	kf_JumpToResourceExtractor()
 		psOldRE = apsExtractorLists[selectedPlayer];
 	}
 
-	if (psOldRE)
+	if(psOldRE)
 	{
 		xJump = psOldRE->pos.x;
 		yJump = psOldRE->pos.y;
@@ -1630,7 +1715,7 @@ void	kf_JumpToUnassignedUnits()
 
 void	kf_ToggleOverlays()
 {
-	if (getWidgetsStatus() && !isChatUp() && !gamePaused())
+	if(getWidgetsStatus() && !isChatUp() && !gamePaused())
 	{
 		setWidgetsStatus(false);
 	}
@@ -1643,7 +1728,7 @@ void	kf_ToggleOverlays()
 // --------------------------------------------------------------------------
 void	kf_ChooseCommand()
 {
-	if (intCheckReticuleButEnabled(IDRET_COMMAND))
+	if(intCheckReticuleButEnabled(IDRET_COMMAND))
 	{
 		setKeyButtonMapping(IDRET_COMMAND);
 	}
@@ -1652,7 +1737,7 @@ void	kf_ChooseCommand()
 // --------------------------------------------------------------------------
 void	kf_ChooseManufacture()
 {
-	if (intCheckReticuleButEnabled(IDRET_MANUFACTURE))
+	if(intCheckReticuleButEnabled(IDRET_MANUFACTURE))
 	{
 		setKeyButtonMapping(IDRET_MANUFACTURE);
 	}
@@ -1661,7 +1746,7 @@ void	kf_ChooseManufacture()
 // --------------------------------------------------------------------------
 void	kf_ChooseResearch()
 {
-	if (intCheckReticuleButEnabled(IDRET_RESEARCH))
+	if(intCheckReticuleButEnabled(IDRET_RESEARCH))
 	{
 		setKeyButtonMapping(IDRET_RESEARCH);
 	}
@@ -1670,7 +1755,7 @@ void	kf_ChooseResearch()
 // --------------------------------------------------------------------------
 void	kf_ChooseBuild()
 {
-	if (intCheckReticuleButEnabled(IDRET_BUILD))
+	if(intCheckReticuleButEnabled(IDRET_BUILD))
 	{
 		setKeyButtonMapping(IDRET_BUILD);
 	}
@@ -1679,7 +1764,7 @@ void	kf_ChooseBuild()
 // --------------------------------------------------------------------------
 void	kf_ChooseDesign()
 {
-	if (intCheckReticuleButEnabled(IDRET_DESIGN))
+	if(intCheckReticuleButEnabled(IDRET_DESIGN))
 	{
 		setKeyButtonMapping(IDRET_DESIGN);
 	}
@@ -1688,7 +1773,7 @@ void	kf_ChooseDesign()
 // --------------------------------------------------------------------------
 void	kf_ChooseIntelligence()
 {
-	if (intCheckReticuleButEnabled(IDRET_INTEL_MAP))
+	if(intCheckReticuleButEnabled(IDRET_INTEL_MAP))
 	{
 		setKeyButtonMapping(IDRET_INTEL_MAP);
 	}
@@ -1704,9 +1789,9 @@ void	kf_ChooseCancel()
 // --------------------------------------------------------------------------
 void	kf_MovePause()
 {
-	if (!bMultiPlayer)	// can't do it in multiplay
+	if(!bMultiPlayer)	// can't do it in multiplay
 	{
-		if (!bMovePause)
+		if(!bMovePause)
 		{
 			/* Then pause it */
 			setGamePauseStatus(true);
@@ -1740,11 +1825,12 @@ void	kf_MoveToLastMessagePos()
 {
 	int iX, iY, iZ;
 
-	if (!audio_GetPreviousQueueTrackPos(&iX, &iY, &iZ))
+	if(!audio_GetPreviousQueueTrackPos(&iX, &iY, &iZ))
 	{
 		return;
 	}
-	if (iX != 0 && iY != 0)
+
+	if(iX != 0 && iY != 0)
 	{
 		setViewPos(map_coord(iX), map_coord(iY), true);
 	}
@@ -1754,13 +1840,13 @@ void	kf_MoveToLastMessagePos()
 /* Makes it snow if it's not snowing and stops it if it is */
 void	kf_ToggleWeather()
 {
-	if (atmosGetWeatherType() == WT_NONE)
+	if(atmosGetWeatherType() == WT_NONE)
 	{
 		atmosSetWeatherType(WT_SNOWING);
 		addConsoleMessage(_("Oh, the weather outside is frightful... SNOW"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
 
 	}
-	else if (atmosGetWeatherType() == WT_SNOWING)
+	else if(atmosGetWeatherType() == WT_SNOWING)
 	{
 		atmosSetWeatherType(WT_RAINING);
 		addConsoleMessage(_("Singing in the rain, I'm singing in the rain... RAIN"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
@@ -1781,20 +1867,21 @@ void	kf_SelectNextFactory()
 	selNextSpecifiedBuilding(REF_FACTORY);
 
 	//deselect factories of other types
-	for (psCurr = apsStructLists[selectedPlayer]; psCurr; psCurr = psCurr->psNext)
+	for(psCurr = apsStructLists[selectedPlayer]; psCurr; psCurr = psCurr->psNext)
 	{
-		if (psCurr->selected &&
-		    ((psCurr->pStructureType->type == REF_CYBORG_FACTORY) ||
-		     (psCurr->pStructureType->type == REF_VTOL_FACTORY)))
+		if(psCurr->selected &&
+		        ((psCurr->pStructureType->type == REF_CYBORG_FACTORY) ||
+		         (psCurr->pStructureType->type == REF_VTOL_FACTORY)))
 		{
 			psCurr->selected = false;
 		}
 	}
 
-	if (intCheckReticuleButEnabled(IDRET_MANUFACTURE))
+	if(intCheckReticuleButEnabled(IDRET_MANUFACTURE))
 	{
 		setKeyButtonMapping(IDRET_MANUFACTURE);
 	}
+
 	triggerEventSelected();
 }
 
@@ -1802,10 +1889,12 @@ void	kf_SelectNextFactory()
 void	kf_SelectNextResearch()
 {
 	selNextSpecifiedBuilding(REF_RESEARCH);
-	if (intCheckReticuleButEnabled(IDRET_RESEARCH))
+
+	if(intCheckReticuleButEnabled(IDRET_RESEARCH))
 	{
 		setKeyButtonMapping(IDRET_RESEARCH);
 	}
+
 	triggerEventSelected();
 }
 
@@ -1824,20 +1913,21 @@ void	kf_SelectNextCyborgFactory()
 	selNextSpecifiedBuilding(REF_CYBORG_FACTORY);
 
 	//deselect factories of other types
-	for (psCurr = apsStructLists[selectedPlayer]; psCurr; psCurr = psCurr->psNext)
+	for(psCurr = apsStructLists[selectedPlayer]; psCurr; psCurr = psCurr->psNext)
 	{
-		if (psCurr->selected &&
-		    ((psCurr->pStructureType->type == REF_FACTORY) ||
-		     (psCurr->pStructureType->type == REF_VTOL_FACTORY)))
+		if(psCurr->selected &&
+		        ((psCurr->pStructureType->type == REF_FACTORY) ||
+		         (psCurr->pStructureType->type == REF_VTOL_FACTORY)))
 		{
 			psCurr->selected = false;
 		}
 	}
 
-	if (intCheckReticuleButEnabled(IDRET_MANUFACTURE))
+	if(intCheckReticuleButEnabled(IDRET_MANUFACTURE))
 	{
 		setKeyButtonMapping(IDRET_MANUFACTURE);
 	}
+
 	triggerEventSelected();
 }
 
@@ -1852,12 +1942,14 @@ void	kf_KillEnemy()
 	char *cmsg;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
 	debug(LOG_DEATH, "Destroying enemy droids and structures");
@@ -1868,18 +1960,19 @@ void	kf_KillEnemy()
 	sendTextMessage(cmsg, true);
 	Cheated = true;
 
-	for (player = 0; player < MAX_PLAYERS; player++)
+	for(player = 0; player < MAX_PLAYERS; player++)
 	{
-		if (player != selectedPlayer)
+		if(player != selectedPlayer)
 		{
 			// wipe out all the droids
-			for (psCDroid = apsDroidLists[player]; psCDroid; psCDroid = psNDroid)
+			for(psCDroid = apsDroidLists[player]; psCDroid; psCDroid = psNDroid)
 			{
 				psNDroid = psCDroid->psNext;
 				SendDestroyDroid(psCDroid);
 			}
+
 			// wipe out all their structures
-			for (psCStruct = apsStructLists[player]; psCStruct; psCStruct = psNStruct)
+			for(psCStruct = apsStructLists[player]; psCStruct; psCStruct = psNStruct)
 			{
 				psNStruct = psCStruct->psNext;
 				SendDestroyStructure(psCStruct);
@@ -1896,12 +1989,14 @@ void kf_KillSelected()
 	char *cmsg;
 
 #ifndef DEBUG
+
 	// Bail out if we're running a _true_ multiplayer game (to prevent MP cheating)
-	if (runningMultiplayer())
+	if(runningMultiplayer())
 	{
 		noMPCheatMsg();
 		return;
 	}
+
 #endif
 
 	sasprintf(&cmsg, _("(Player %u) is using cheat :%s"),
@@ -1912,12 +2007,13 @@ void kf_KillSelected()
 	audio_PlayTrack(ID_SOUND_COLL_DIE);
 	Cheated = true;
 
-	for (psCDroid = apsDroidLists[selectedPlayer]; psCDroid; psCDroid = psNDroid)
+	for(psCDroid = apsDroidLists[selectedPlayer]; psCDroid; psCDroid = psNDroid)
 	{
 		psNDroid = psCDroid->psNext;
-		if (psCDroid->selected)
+
+		if(psCDroid->selected)
 		{
-			if (!bMultiMessages)
+			if(!bMultiMessages)
 			{
 				destroyDroid(psCDroid, gameTime);	// SP game
 			}
@@ -1927,12 +2023,14 @@ void kf_KillSelected()
 			}
 		}
 	}
-	for (psCStruct = apsStructLists[selectedPlayer]; psCStruct; psCStruct = psNStruct)
+
+	for(psCStruct = apsStructLists[selectedPlayer]; psCStruct; psCStruct = psNStruct)
 	{
 		psNStruct = psCStruct->psNext;
-		if (psCStruct->selected)
+
+		if(psCStruct->selected)
 		{
-			if (!bMultiMessages)
+			if(!bMultiMessages)
 			{
 				destroyStruct(psCStruct, gameTime);	//SP
 			}
@@ -1952,18 +2050,21 @@ void kf_ShowGridInfo()
 	DROID		*psCDroid, *psNDroid;
 	STRUCTURE	*psCStruct, *psNStruct;
 
-	for (psCDroid = apsDroidLists[selectedPlayer]; psCDroid; psCDroid = psNDroid)
+	for(psCDroid = apsDroidLists[selectedPlayer]; psCDroid; psCDroid = psNDroid)
 	{
 		psNDroid = psCDroid->psNext;
-		if (psCDroid->selected)
+
+		if(psCDroid->selected)
 		{
 			gridDisplayCoverage((BASE_OBJECT *)psCDroid);
 		}
 	}
-	for (psCStruct = apsStructLists[selectedPlayer]; psCStruct; psCStruct = psNStruct)
+
+	for(psCStruct = apsStructLists[selectedPlayer]; psCStruct; psCStruct = psNStruct)
 	{
 		psNStruct = psCStruct->psNext;
-		if (psCStruct->selected)
+
+		if(psCStruct->selected)
 		{
 			gridDisplayCoverage((BASE_OBJECT *)psCStruct);
 		}
@@ -1974,7 +2075,7 @@ void kf_ShowGridInfo()
 // Chat message. NOTE THIS FUNCTION CAN DISABLE ALL OTHER KEYPRESSES
 void kf_SendTeamMessage()
 {
-	if (bAllowOtherKeyPresses && !gamePaused())  // just starting.
+	if(bAllowOtherKeyPresses && !gamePaused())   // just starting.
 	{
 		bAllowOtherKeyPresses = false;
 		sstrcpy(sTextToSend, "");
@@ -1991,7 +2092,7 @@ void kf_SendTeamMessage()
 // Chat message. NOTE THIS FUNCTION CAN DISABLE ALL OTHER KEYPRESSES
 void kf_SendGlobalMessage()
 {
-	if (bAllowOtherKeyPresses && !gamePaused())  // just starting.
+	if(bAllowOtherKeyPresses && !gamePaused())   // just starting.
 	{
 		bAllowOtherKeyPresses = false;
 		sstrcpy(sTextToSend, "");
@@ -2005,9 +2106,9 @@ void kf_SendGlobalMessage()
 	}
 
 	// macro store stuff
-	if (keyPressed(KEY_F1))
+	if(keyPressed(KEY_F1))
 	{
-		if (keyDown(KEY_LCTRL))
+		if(keyDown(KEY_LCTRL))
 		{
 			sstrcpy(ingame.phrases[0], sTextToSend);
 		}
@@ -2018,9 +2119,10 @@ void kf_SendGlobalMessage()
 			return;
 		}
 	}
-	if (keyPressed(KEY_F2))
+
+	if(keyPressed(KEY_F2))
 	{
-		if (keyDown(KEY_LCTRL))
+		if(keyDown(KEY_LCTRL))
 		{
 			sstrcpy(ingame.phrases[1], sTextToSend);
 		}
@@ -2031,9 +2133,10 @@ void kf_SendGlobalMessage()
 			return;
 		}
 	}
-	if (keyPressed(KEY_F3))
+
+	if(keyPressed(KEY_F3))
 	{
-		if (keyDown(KEY_LCTRL))
+		if(keyDown(KEY_LCTRL))
 		{
 			sstrcpy(ingame.phrases[2], sTextToSend);
 		}
@@ -2044,9 +2147,10 @@ void kf_SendGlobalMessage()
 			return;
 		}
 	}
-	if (keyPressed(KEY_F4))
+
+	if(keyPressed(KEY_F4))
 	{
-		if (keyDown(KEY_LCTRL))
+		if(keyDown(KEY_LCTRL))
 		{
 			sstrcpy(ingame.phrases[3], sTextToSend);
 		}
@@ -2057,9 +2161,10 @@ void kf_SendGlobalMessage()
 			return;
 		}
 	}
-	if (keyPressed(KEY_F5))
+
+	if(keyPressed(KEY_F5))
 	{
-		if (keyDown(KEY_LCTRL))
+		if(keyDown(KEY_LCTRL))
 		{
 			sstrcpy(ingame.phrases[4], sTextToSend);
 		}
@@ -2075,7 +2180,7 @@ void kf_SendGlobalMessage()
 // --------------------------------------------------------------------------
 void	kf_ToggleConsole()
 {
-	if (getConsoleDisplayStatus())
+	if(getConsoleDisplayStatus())
 	{
 		enableConsoleDisplay(false);
 	}
@@ -2247,9 +2352,9 @@ void	kf_SetDroidAttackCease()
 // --------------------------------------------------------------------------
 void	kf_SetDroidOrderHold()
 {
-	for (DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for(DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected)
+		if(psDroid->selected)
 		{
 			orderDroid(psDroid, DORDER_HOLD, ModeQueue);
 		}
@@ -2259,9 +2364,9 @@ void	kf_SetDroidOrderHold()
 // --------------------------------------------------------------------------
 void	kf_SetDroidOrderStop()
 {
-	for (DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for(DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected)
+		if(psDroid->selected)
 		{
 			orderDroid(psDroid, DORDER_STOP, ModeQueue);
 		}
@@ -2301,7 +2406,7 @@ void	kf_SetDroidRecycle()
 // --------------------------------------------------------------------------
 void	kf_ToggleVisibility()
 {
-	if (getRevealStatus())
+	if(getRevealStatus())
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Reveal OFF")));
 		setRevealStatus(false);
@@ -2323,10 +2428,10 @@ static void kfsf_SetSelectedDroidsState(SECONDARY_ORDER sec, SECONDARY_STATE sta
 	// _not_ be disallowed in multiplayer games.
 
 	// This code is similar to SetSecondaryState() in intorder.cpp. Unfortunately, it seems hard to un-duplicate the code.
-	for (psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
 		// Only set the state if it's not a transporter.
-		if (psDroid->selected && !isTransporter(psDroid))
+		if(psDroid->selected && !isTransporter(psDroid))
 		{
 			secondarySetState(psDroid, sec, state);
 		}
@@ -2340,17 +2445,19 @@ void	kf_TriggerRayCast()
 	bool	found;
 
 	found = false;
-	for (psDroid = apsDroidLists[selectedPlayer]; psDroid && !found;
-	     psDroid = psDroid->psNext)
+
+	for(psDroid = apsDroidLists[selectedPlayer]; psDroid && !found;
+	        psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected)
+		if(psDroid->selected)
 		{
 			found = true;
 		}
+
 		/* NOP */
 	}
 
-	if (found)
+	if(found)
 	{
 //		getBlockHeightDirToEdgeOfGrid(UDWORD x, UDWORD y, UBYTE direction, UDWORD *height, UDWORD *dist)
 //		getBlockHeightDirToEdgeOfGrid(psOther->pos.x,psOther->pos.y,psOther->direction,&height,&dist);
@@ -2373,12 +2480,12 @@ void	kf_CentreOnBase()
 	UDWORD		xJump = 0, yJump = 0;
 
 	/* Got through our buildings */
-	for (psStruct = apsStructLists[selectedPlayer], bGotHQ = false;	// start
-	     psStruct && !bGotHQ;											// terminate
-	     psStruct = psStruct->psNext)									// iteration
+	for(psStruct = apsStructLists[selectedPlayer], bGotHQ = false;	// start
+	        psStruct && !bGotHQ;											// terminate
+	        psStruct = psStruct->psNext)									// iteration
 	{
 		/* Have we got a HQ? */
-		if (psStruct->pStructureType->type == REF_HQ)
+		if(psStruct->pStructureType->type == REF_HQ)
 		{
 			bGotHQ = true;
 			xJump = psStruct->pos.x;
@@ -2387,14 +2494,15 @@ void	kf_CentreOnBase()
 	}
 
 	/* If we found it, then jump to it! */
-	if (bGotHQ)
+	if(bGotHQ)
 	{
 		addConsoleMessage(_("Centered on player HQ, direction NORTH"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
 		player.p.x = xJump;
 		player.p.z = yJump;
 		player.r.y = 0; // face north
+
 		/* A fix to stop the camera continuing when marker code is called */
-		if (getWarCamStatus())
+		if(getWarCamStatus())
 		{
 			camToggleStatus();
 		}
@@ -2418,22 +2526,23 @@ void	kf_RightOrderMenu()
 	bool	bFound;
 
 	// if menu open, then close it!
-	if (widgGetFromID(psWScreen, IDORDER_FORM) != nullptr)
+	if(widgGetFromID(psWScreen, IDORDER_FORM) != nullptr)
 	{
 		intRemoveOrder();	// close the screen.
 		return;
 	}
 
-	for (psDroid = apsDroidLists[selectedPlayer], bFound = false;
-	     psDroid && !bFound; psDroid = psDroid->psNext)
+	for(psDroid = apsDroidLists[selectedPlayer], bFound = false;
+	        psDroid && !bFound; psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected) // && droidOnScreen(psDroid,0))
+		if(psDroid->selected)  // && droidOnScreen(psDroid,0))
 		{
 			bFound = true;
 			psGotOne = psDroid;
 		}
 	}
-	if (bFound)
+
+	if(bFound)
 	{
 		intResetScreen(true);
 		intObjectSelected((BASE_OBJECT *)psGotOne);
@@ -2454,7 +2563,7 @@ void kf_TriggerShockWave()
 // --------------------------------------------------------------------------
 void	kf_ToggleMouseInvert()
 {
-	if (getInvertMouseStatus())
+	if(getInvertMouseStatus())
 	{
 		setInvertMouseStatus(false);
 		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Vertical rotation direction: Normal")));
@@ -2469,7 +2578,7 @@ void	kf_ToggleMouseInvert()
 // --------------------------------------------------------------------------
 void	kf_ToggleShadows()
 {
-	if (getDrawShadows())
+	if(getDrawShadows())
 	{
 		setDrawShadows(false);
 	}
@@ -2510,30 +2619,33 @@ const unsigned nb_available_speeds = ARRAY_SIZE(available_speed);
 static void tryChangeSpeed(Rational newMod, Rational oldMod)
 {
 	// Bail out if we're running a _true_ multiplayer game or are playing a tutorial
-	if ((runningMultiplayer() && !getDebugMappingStatus()) || bInTutorial)
+	if((runningMultiplayer() && !getDebugMappingStatus()) || bInTutorial)
 	{
-		if (!bInTutorial)
+		if(!bInTutorial)
 		{
 			addConsoleMessage(_("Sorry, but game speed cannot be changed in multiplayer."), DEFAULT_JUSTIFY, SYSTEM_MESSAGE);
 		}
+
 		return;
 	}
 
 	// only in debug/cheat mode do we enable all time compression speeds.
-	if (!getDebugMappingStatus() && (newMod >= 2 || newMod <= 0))  // 2 = max officially allowed time compression
+	if(!getDebugMappingStatus() && (newMod >= 2 || newMod <= 0))   // 2 = max officially allowed time compression
 	{
 		return;
 	}
 
 	char modString[30];
-	if (newMod.d != 1)
+
+	if(newMod.d != 1)
 	{
 		const float speed = float(newMod.n) / newMod.d;
-		if (speed > 0.4)
+
+		if(speed > 0.4)
 		{
 			ssprintf(modString, "%.1f", speed);
 		}
-		else if (speed > 0.15)
+		else if(speed > 0.15)
 		{
 			ssprintf(modString, "%.2f", speed);
 		}
@@ -2547,11 +2659,11 @@ static void tryChangeSpeed(Rational newMod, Rational oldMod)
 		ssprintf(modString, "%d", newMod.n);
 	}
 
-	if (newMod == 1)
+	if(newMod == 1)
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Game Speed Reset")));
 	}
-	else if (newMod > oldMod)
+	else if(newMod > oldMod)
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, _("Game Speed Increased to %s"), modString));
 	}
@@ -2559,6 +2671,7 @@ static void tryChangeSpeed(Rational newMod, Rational oldMod)
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, _("Game Speed Reduced to %s"), modString));
 	}
+
 	gameTimeSetMod(newMod);
 }
 
@@ -2568,7 +2681,8 @@ void kf_SpeedUp()
 	Rational mod = gameTimeGetMod();
 
 	Rational const *newMod = std::upper_bound(available_speed, available_speed + nb_available_speeds, mod);
-	if (newMod == available_speed + nb_available_speeds)
+
+	if(newMod == available_speed + nb_available_speeds)
 	{
 		return;  // Already at maximum speed.
 	}
@@ -2582,10 +2696,12 @@ void kf_SlowDown()
 	Rational mod = gameTimeGetMod();
 
 	Rational const *newMod = std::lower_bound(available_speed, available_speed + nb_available_speeds, mod);
-	if (newMod == available_speed)
+
+	if(newMod == available_speed)
 	{
 		return;  // Already at minimum speed.
 	}
+
 	--newMod;  // Point to lower speed instead of current speed.
 
 	tryChangeSpeed(*newMod, mod);
@@ -2594,12 +2710,13 @@ void kf_SlowDown()
 void kf_NormalSpeed()
 {
 	// Bail out if we're running a _true_ multiplayer game or are playing a tutorial
-	if (runningMultiplayer() || bInTutorial)
+	if(runningMultiplayer() || bInTutorial)
 	{
-		if (!bInTutorial)
+		if(!bInTutorial)
 		{
 			noMPCheatMsg();
 		}
+
 		return;
 	}
 
@@ -2613,7 +2730,7 @@ void kf_ToggleRadarAllyEnemy()
 {
 	bEnemyAllyRadarColor = !bEnemyAllyRadarColor;
 
-	if (bEnemyAllyRadarColor)
+	if(bEnemyAllyRadarColor)
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar showing friend-foe colors")));
 	}
@@ -2621,33 +2738,40 @@ void kf_ToggleRadarAllyEnemy()
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar showing player colors")));
 	}
+
 	resizeRadar();
 }
 
 void kf_ToggleRadarTerrain()
 {
 	radarDrawMode = (RADAR_DRAW_MODE)(radarDrawMode + 1);
-	if (radarDrawMode >= NUM_RADAR_MODES)
+
+	if(radarDrawMode >= NUM_RADAR_MODES)
 	{
 		radarDrawMode = (RADAR_DRAW_MODE)0;
 	}
-	switch (radarDrawMode)
+
+	switch(radarDrawMode)
 	{
-	case RADAR_MODE_NO_TERRAIN:
-		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar showing only objects")));
-		break;
-	case RADAR_MODE_COMBINED:
-		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar blending terrain and height")));
-		break;
-	case RADAR_MODE_TERRAIN:
-		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar showing terrain")));
-		break;
-	case RADAR_MODE_HEIGHT_MAP:
-		CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar showing height")));
-		break;
-	case NUM_RADAR_MODES:
-		assert(false);
-		break;
+		case RADAR_MODE_NO_TERRAIN:
+			CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar showing only objects")));
+			break;
+
+		case RADAR_MODE_COMBINED:
+			CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar blending terrain and height")));
+			break;
+
+		case RADAR_MODE_TERRAIN:
+			CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar showing terrain")));
+			break;
+
+		case RADAR_MODE_HEIGHT_MAP:
+			CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Radar showing height")));
+			break;
+
+		case NUM_RADAR_MODES:
+			assert(false);
+			break;
 	}
 }
 
@@ -2661,7 +2785,7 @@ void	kf_AddHelpBlip()
 	bool	mOverR = false;
 
 	/* not needed in campaign */
-	if (!bMultiPlayer)
+	if(!bMultiPlayer)
 	{
 		return;
 	}
@@ -2671,9 +2795,10 @@ void	kf_AddHelpBlip()
 	/* check if clicked on radar */
 	x = mouseX();
 	y = mouseY();
-	if (radarOnScreen && radarPermitted)
+
+	if(radarOnScreen && radarPermitted)
 	{
-		if (CoordInRadar(x, y))
+		if(CoordInRadar(x, y))
 		{
 			mOverR = true;
 			CalcRadarPosition(x, y, &worldX, &worldY);
@@ -2686,7 +2811,7 @@ void	kf_AddHelpBlip()
 	}
 
 	/* convert screen to world */
-	if (!mOverR)
+	if(!mOverR)
 	{
 		worldX = mouseTileX * TILE_UNITS + TILE_UNITS / 2;
 		worldY = mouseTileY * TILE_UNITS + TILE_UNITS / 2;
@@ -2699,9 +2824,9 @@ void	kf_AddHelpBlip()
 	sendBeaconToPlayer(worldX, worldY, selectedPlayer, selectedPlayer, beaconMsg[selectedPlayer]);
 
 	/* send beacon to other players */
-	for (i = 0; i < game.maxPlayers; i++)
+	for(i = 0; i < game.maxPlayers; i++)
 	{
-		if (openchannels[i] && (i != selectedPlayer))
+		if(openchannels[i] && (i != selectedPlayer))
 		{
 			sstrcpy(beaconMsg[i], tempStr);
 			sendBeaconToPlayer(worldX, worldY, i, selectedPlayer, beaconMsg[i]);
@@ -2721,12 +2846,13 @@ void kf_BuildPrevPage()
 {
 	ASSERT_OR_RETURN(, psWScreen != nullptr, " Invalid screen pointer!");
 	ListTabWidget *psTForm = (ListTabWidget *)widgGetFromID(psWScreen, IDSTAT_TABFORM);
-	if (psTForm == nullptr)
+
+	if(psTForm == nullptr)
 	{
 		return;
 	}
 
-	if (!psTForm->setCurrentPage(psTForm->currentPage() - 1))
+	if(!psTForm->setCurrentPage(psTForm->currentPage() - 1))
 	{
 		audio_PlayTrack(ID_SOUND_BUILD_FAIL);
 		return;
@@ -2740,12 +2866,13 @@ void kf_BuildNextPage()
 {
 	ASSERT_OR_RETURN(, psWScreen != nullptr, " Invalid screen pointer!");
 	ListTabWidget *psTForm = (ListTabWidget *)widgGetFromID(psWScreen, IDSTAT_TABFORM);
-	if (psTForm == nullptr)
+
+	if(psTForm == nullptr)
 	{
 		return;
 	}
 
-	if (!psTForm->setCurrentPage(psTForm->currentPage() + 1))
+	if(!psTForm->setCurrentPage(psTForm->currentPage() + 1))
 	{
 		// went over max
 		audio_PlayTrack(ID_SOUND_BUILD_FAIL);

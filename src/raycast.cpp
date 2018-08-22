@@ -50,7 +50,7 @@ static bool tryStep(int32_t &tile, int32_t step, int32_t &cur, int32_t end, int3
 {
 	tile += step;
 
-	if (cur == end)
+	if(cur == end)
 	{
 		return false;  // No more vertical grid lines to cross before reaching the endpoint.
 	}
@@ -65,7 +65,7 @@ static bool tryStep(int32_t &tile, int32_t step, int32_t &cur, int32_t end, int3
 
 void rayCast(Vector2i src, Vector2i dst, RAY_CALLBACK callback, void *data)
 {
-	if (!callback(src, 0, data) || src == dst)  // Start at src.
+	if(!callback(src, 0, data) || src == dst)   // Start at src.
 	{
 		return;  // Callback gave up after the first point, or there are no other points.
 	}
@@ -82,13 +82,15 @@ void rayCast(Vector2i src, Vector2i dst, RAY_CALLBACK callback, void *data)
 	Vector2i nextX(0, 0), nextY(0, 0);  // Dummy initialisations.
 	bool canX = tryStep(tile.x, step.x, cur.x, end.x, nextX.x, nextX.y, src.x, src.y, dst.x, dst.y);
 	bool canY = tryStep(tile.y, step.y, cur.y, end.y, nextY.y, nextY.x, src.y, src.x, dst.y, dst.x);
-	while (canX || canY)
+
+	while(canX || canY)
 	{
 		int32_t xDist = abs(nextX.x - src.x) + abs(nextX.y - src.y);
 		int32_t yDist = abs(nextY.x - src.x) + abs(nextY.y - src.y);
 		Vector2i sel;
 		Vector2i selTile;
-		if (canX && (!canY || xDist < yDist))  // The line crosses a vertical grid line next.
+
+		if(canX && (!canY || xDist < yDist))   // The line crosses a vertical grid line next.
 		{
 			sel = nextX;
 			selTile = tile;
@@ -101,27 +103,31 @@ void rayCast(Vector2i src, Vector2i dst, RAY_CALLBACK callback, void *data)
 			selTile = tile;
 			canY = tryStep(tile.y, step.y, cur.y, end.y, nextY.y, nextY.x, src.y, src.x, dst.y, dst.x);
 		}
-		if (!first)
+
+		if(!first)
 		{
 			// Find midpoint.
 			Vector2i avg = (prev + sel) / 2;
 			// But make sure it's on the right tile, since it could be off-by-one if the line passes exactly through a grid intersection.
 			avg.x = std::min(std::max(avg.x, world_coord(selTile.x)), world_coord(selTile.x + 1) - 1);
 			avg.y = std::min(std::max(avg.y, world_coord(selTile.y)), world_coord(selTile.y + 1) - 1);
-			if (!worldOnMap(avg) || !callback(avg, iHypot(avg), data))
+
+			if(!worldOnMap(avg) || !callback(avg, iHypot(avg), data))
 			{
 				return;  // Callback doesn't want any more points, or we reached the edge of the map, so return.
 			}
 		}
+
 		prev = sel;
 		first = false;
 	}
 
 	// Include the endpoint.
-	if (!worldOnMap(dst))
+	if(!worldOnMap(dst))
 	{
 		return;  // Stop, since reached the edge of the map.
 	}
+
 	callback(dst, iHypot(dst), data);
 }
 
@@ -135,11 +141,11 @@ static bool getTileHeightCallback(Vector2i pos, int32_t dist, void *data)
 #endif
 
 	/* Are we still on the grid? */
-	if (clipXY(pos.x, pos.y))
+	if(clipXY(pos.x, pos.y))
 	{
 		bool HasTallStructure = blockTile(map_coord(pos.x), map_coord(pos.y), AUX_MAP) & AIR_BLOCKED;
 
-		if (dist > TILE_UNITS || HasTallStructure)
+		if(dist > TILE_UNITS || HasTallStructure)
 		{
 			// Only do it the current tile is > TILE_UNITS away from the starting tile. Or..
 			// there is a tall structure  on the current tile and the current tile is not the starting tile.
@@ -147,12 +153,12 @@ static bool getTileHeightCallback(Vector2i pos, int32_t dist, void *data)
 			int height = map_Height(pos.x, pos.y), heightDiff;
 			uint16_t newPitch;
 
-			if (HasTallStructure)
+			if(HasTallStructure)
 			{
 				height += TALLOBJECT_ADJUST;
 			}
 
-			if (height <= help->height)
+			if(height <= help->height)
 			{
 				heightDiff = 0;
 			}
@@ -165,11 +171,12 @@ static bool getTileHeightCallback(Vector2i pos, int32_t dist, void *data)
 			newPitch = iAtan2(heightDiff, dist);
 
 			/* Is this the steepest we've found? */
-			if (angleDelta(newPitch - help->pitch) > 0)
+			if(angleDelta(newPitch - help->pitch) > 0)
 			{
 				/* Yes, then keep a record of it */
 				help->pitch = newPitch;
 			}
+
 			//---
 
 #ifdef TEST_RAY

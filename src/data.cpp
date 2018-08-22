@@ -73,12 +73,13 @@ static UDWORD	hashBuffer(const uint8_t *pData, uint32_t size)
 	uint32_t i, j;
 	uint32_t lines = 0;
 	uint32_t bytes = 0;
-	for (i = 0; i < size; i = j + 1)
+
+	for(i = 0; i < size; i = j + 1)
 	{
-		for (j = i; j < size && pData[j] != '\n' && pData[j] != '\r'; ++j)
+		for(j = i; j < size && pData[j] != '\n' && pData[j] != '\r'; ++j)
 		{}
 
-		if (i != j)  // CRC non-empty lines only.
+		if(i != j)   // CRC non-empty lines only.
 		{
 			crc = crcSum(crc, pData + i, j - i);  // CRC the line.
 			crc = crcSum(crc, &nl, 1);            // CRC the line ending.
@@ -87,6 +88,7 @@ static UDWORD	hashBuffer(const uint8_t *pData, uint32_t size)
 			bytes += j - i + 1;
 		}
 	}
+
 	debug(LOG_NET, "The size of the old buffer (%u bytes - %d stripped), New buffer size of %u bytes, %u non-empty lines.", size, size - bytes, bytes, lines);
 
 	return ~crc;
@@ -98,14 +100,14 @@ static void calcDataHash(const uint8_t *pBuffer, uint32_t size, uint32_t index)
 {
 	const uint32_t oldHash = DataHash[index];
 
-	if (!bMultiPlayer)
+	if(!bMultiPlayer)
 	{
 		return;
 	}
 
 	DataHash[index] += hashBuffer(pBuffer, size);
 
-	if (!DataHash[index] && oldHash)
+	if(!DataHash[index] && oldHash)
 	{
 		debug(LOG_NET, "The new hash is 0, the old hash was %u. We added the negated value!", oldHash);
 	}
@@ -124,10 +126,12 @@ static void calcDataHash(const WzConfig &ini, uint32_t index)
 void resetDataHash()
 {
 	UDWORD i;
-	for (i = 0; i < DATA_MAXDATA; i++)
+
+	for(i = 0; i < DATA_MAXDATA; i++)
 	{
 		DataHash[i] = 0;
 	}
+
 	debug(LOG_NET, "== Hash is reset ==");
 }
 
@@ -149,10 +153,11 @@ static bool bufferSBODYLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SBODY);
 
-	if (!loadBodyStats(ini) || !allocComponentList(COMP_BODY, numBodyStats))
+	if(!loadBodyStats(ini) || !allocComponentList(COMP_BODY, numBodyStats))
 	{
 		return false;
 	}
+
 	*ppData = (void *)1;
 	return true;
 }
@@ -171,8 +176,8 @@ static bool bufferSWEAPONLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SWEAPON);
 
-	if (!loadWeaponStats(ini)
-	    || !allocComponentList(COMP_WEAPON, numWeaponStats))
+	if(!loadWeaponStats(ini)
+	        || !allocComponentList(COMP_WEAPON, numWeaponStats))
 	{
 		return false;
 	}
@@ -188,8 +193,8 @@ static bool bufferSCONSTRLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SCONSTR);
 
-	if (!loadConstructStats(ini)
-	    || !allocComponentList(COMP_CONSTRUCT, numConstructStats))
+	if(!loadConstructStats(ini)
+	        || !allocComponentList(COMP_CONSTRUCT, numConstructStats))
 	{
 		return false;
 	}
@@ -205,8 +210,8 @@ static bool bufferSECMLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SECM);
 
-	if (!loadECMStats(ini)
-	    || !allocComponentList(COMP_ECM, numECMStats))
+	if(!loadECMStats(ini)
+	        || !allocComponentList(COMP_ECM, numECMStats))
 	{
 		return false;
 	}
@@ -222,7 +227,7 @@ static bool bufferSPROPLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SPROP);
 
-	if (!loadPropulsionStats(ini) || !allocComponentList(COMP_PROPULSION, numPropulsionStats))
+	if(!loadPropulsionStats(ini) || !allocComponentList(COMP_PROPULSION, numPropulsionStats))
 	{
 		return false;
 	}
@@ -237,8 +242,8 @@ static bool bufferSSENSORLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SSENSOR);
 
-	if (!loadSensorStats(ini)
-	    || !allocComponentList(COMP_SENSOR, numSensorStats))
+	if(!loadSensorStats(ini)
+	        || !allocComponentList(COMP_SENSOR, numSensorStats))
 	{
 		return false;
 	}
@@ -254,7 +259,7 @@ static bool bufferSREPAIRLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SREPAIR);
 
-	if (!loadRepairStats(ini) || !allocComponentList(COMP_REPAIRUNIT, numRepairStats))
+	if(!loadRepairStats(ini) || !allocComponentList(COMP_REPAIRUNIT, numRepairStats))
 	{
 		return false;
 	}
@@ -270,10 +275,11 @@ static bool bufferSBRAINLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SBRAIN);
 
-	if (!loadBrainStats(ini) || !allocComponentList(COMP_BRAIN, numBrainStats))
+	if(!loadBrainStats(ini) || !allocComponentList(COMP_BRAIN, numBrainStats))
 	{
 		return false;
 	}
+
 	//not interested in this value
 	*ppData = nullptr;
 	return true;
@@ -285,7 +291,7 @@ static bool bufferSPROPTYPESLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SPROPTY);
 
-	if (!loadPropulsionTypes(ini))
+	if(!loadPropulsionTypes(ini))
 	{
 		return false;
 	}
@@ -298,7 +304,7 @@ static bool bufferSPROPTYPESLoad(const char *fileName, void **ppData)
 /* Load the propulsion type sound stats */
 static bool bufferSPROPSNDLoad(const char *fileName, void **ppData)
 {
-	if (!loadPropulsionSounds(fileName))
+	if(!loadPropulsionSounds(fileName))
 	{
 		return false;
 	}
@@ -314,7 +320,7 @@ static bool bufferSTERRTABLELoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_STERRT);
 
-	if (!loadTerrainTable(ini))
+	if(!loadTerrainTable(ini))
 	{
 		return false;
 	}
@@ -338,7 +344,7 @@ static bool bufferSWEAPMODLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SWEAPMOD);
 
-	if (!loadWeaponModifiers(ini))
+	if(!loadWeaponModifiers(ini))
 	{
 		return false;
 	}
@@ -352,7 +358,7 @@ static bool bufferSWEAPMODLoad(const char *fileName, void **ppData)
 /* Load the Template stats */
 static bool bufferSTEMPLLoad(const char *fileName, void **ppData)
 {
-	if (!loadDroidTemplates(fileName))
+	if(!loadDroidTemplates(fileName))
 	{
 		return false;
 	}
@@ -375,12 +381,12 @@ static bool bufferSSTRUCTLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SSTRUCT);
 
-	if (!loadStructureStats(ini))
+	if(!loadStructureStats(ini))
 	{
 		return false;
 	}
 
-	if (!allocStructLists())
+	if(!allocStructLists())
 	{
 		return false;
 	}
@@ -403,7 +409,7 @@ static bool bufferSSTRMODLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SSTRMOD);
 
-	if (!loadStructureStrengthModifiers(ini))
+	if(!loadStructureStrengthModifiers(ini))
 	{
 		return false;
 	}
@@ -419,10 +425,11 @@ static bool bufferSFEATLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_SFEAT);
 
-	if (!loadFeatureStats(ini))
+	if(!loadFeatureStats(ini))
 	{
 		return false;
 	}
+
 	// set a dummy value so the release function gets called
 	*ppData = (void *)1;
 	return true;
@@ -445,7 +452,7 @@ static void dataRESCHRelease(WZ_DECL_UNUSED void *pData)
 static bool bufferRESCHLoad(const char *fileName, void **ppData)
 {
 	//check to see if already loaded
-	if (!asResearch.empty())
+	if(!asResearch.empty())
 	{
 		//release previous data before loading in the new
 		dataRESCHRelease(nullptr);
@@ -454,7 +461,7 @@ static bool bufferRESCHLoad(const char *fileName, void **ppData)
 	WzConfig ini(fileName, WzConfig::ReadOnlyAndRequired);
 	calcDataHash(ini, DATA_RESCH);
 
-	if (!loadResearch(ini))
+	if(!loadResearch(ini))
 	{
 		return false;
 	}
@@ -466,7 +473,8 @@ static bool bufferRESCHLoad(const char *fileName, void **ppData)
 static bool bufferSMSGLoad(const char *pBuffer, UDWORD size, void **ppData)
 {
 	WzString *ptr = loadViewData(pBuffer, size);
-	if (!ptr)
+
+	if(!ptr)
 	{
 		return false;
 	}
@@ -480,7 +488,8 @@ static bool bufferSMSGLoad(const char *pBuffer, UDWORD size, void **ppData)
 static bool dataResearchMsgLoad(const char *fileName, void **ppData)
 {
 	WzString *ptr = loadResearchViewData(fileName);
-	if (!ptr)
+
+	if(!ptr)
 	{
 		return false;
 	}
@@ -505,12 +514,13 @@ static void dataSMSGRelease(void *pData)
 static bool dataImageLoad(const char *fileName, void **ppData)
 {
 	iV_Image *psSprite = (iV_Image *)malloc(sizeof(iV_Image));
-	if (!psSprite)
+
+	if(!psSprite)
 	{
 		return false;
 	}
 
-	if (!iV_loadImage_PNG(fileName, psSprite))
+	if(!iV_loadImage_PNG(fileName, psSprite))
 	{
 		debug(LOG_ERROR, "IMGPAGE load failed");
 		free(psSprite);
@@ -540,7 +550,8 @@ static bool dataTERTILESLoad(const char *fileName, void **ppData)
 static bool dataIMGLoad(const char *fileName, void **ppData)
 {
 	*ppData = iV_LoadImageFile(fileName);
-	if (*ppData == nullptr)
+
+	if(*ppData == nullptr)
 	{
 		return false;
 	}
@@ -561,7 +572,7 @@ static void dataImageRelease(void *pData)
 {
 	iV_Image *psSprite = (iV_Image *) pData;
 
-	if (psSprite)
+	if(psSprite)
 	{
 		free(psSprite);
 	}
@@ -571,7 +582,7 @@ static void dataImageRelease(void *pData)
 /* Load an audio file */
 static bool dataAudioLoad(const char *fileName, void **ppData)
 {
-	if (audio_Disabled() == true)
+	if(audio_Disabled() == true)
 	{
 		*ppData = nullptr;
 		// No error occurred (sound is just disabled), so we return true
@@ -592,14 +603,15 @@ static bool dataAudioCfgLoad(const char *fileName, void **ppData)
 
 	*ppData = nullptr;
 
-	if (audio_Disabled())
+	if(audio_Disabled())
 	{
 		return true;
 	}
+
 	debug(LOG_WZ, "Reading...[directory: %s] %s", PHYSFS_getRealDir(fileName), fileName);
 	fileHandle = PHYSFS_openRead(fileName);
 
-	if (fileHandle == nullptr)
+	if(fileHandle == nullptr)
 	{
 		return false;
 	}
@@ -615,15 +627,15 @@ static bool dataAudioCfgLoad(const char *fileName, void **ppData)
 static bool dataStrResLoad(const char *fileName, void **ppData)
 {
 	// recreate the string resource if it was freed by a WRF release
-	if (psStringRes == nullptr)
+	if(psStringRes == nullptr)
 	{
-		if (!stringsInitialise())
+		if(!stringsInitialise())
 		{
 			return false;
 		}
 	}
 
-	if (!strresLoad(psStringRes, fileName))
+	if(!strresLoad(psStringRes, fileName))
 	{
 		return false;
 	}
@@ -634,7 +646,7 @@ static bool dataStrResLoad(const char *fileName, void **ppData)
 
 static void dataStrResRelease(WZ_DECL_UNUSED void *pData)
 {
-	if (psStringRes != nullptr)
+	if(psStringRes != nullptr)
 	{
 		strresDestroy(psStringRes);
 		psStringRes = nullptr;
@@ -656,7 +668,8 @@ static bool dataScriptLoad(const char *fileName, void **ppData)
 
 	fileHandle = PHYSFS_openRead(fileName);
 	debug(LOG_WZ, "Reading...[directory: %s] %s", PHYSFS_getRealDir(fileName), fileName);
-	if (fileHandle == nullptr)
+
+	if(fileHandle == nullptr)
 	{
 		return false;
 	}
@@ -679,13 +692,13 @@ static bool dataScriptLoad(const char *fileName, void **ppData)
 
 	PHYSFS_close(fileHandle);
 
-	if (!*psProg)		// see script.h
+	if(!*psProg)		// see script.h
 	{
 		debug(LOG_ERROR, "Script %s did not compile", GetLastResourceFilename());
 		return false;
 	}
 
-	if (printHack)
+	if(printHack)
 	{
 		cpPrintProgram(*psProg);
 	}
@@ -718,7 +731,7 @@ static bool dataScriptLoadVals(const char *fileName, void **ppData)
 	*ppData = nullptr;
 
 	// don't load anything if a saved game is being loaded
-	if (saveFlag)
+	if(saveFlag)
 	{
 		return true;
 	}
@@ -727,10 +740,12 @@ static bool dataScriptLoadVals(const char *fileName, void **ppData)
 
 	fileHandle = PHYSFS_openRead(fileName);
 	debug(LOG_WZ, "Reading...[directory: %s] %s", PHYSFS_getRealDir(fileName), fileName);
-	if (fileHandle == nullptr)
+
+	if(fileHandle == nullptr)
 	{
 		return false;
 	}
+
 	// due to the changes in r2532 we must do this routine a bit different.
 	fileSize = PHYSFS_fileLength(fileHandle);
 
@@ -747,7 +762,7 @@ static bool dataScriptLoadVals(const char *fileName, void **ppData)
 
 	success = scrvLoad(fileHandle);
 
-	if (!success)
+	if(!success)
 	{
 		debug(LOG_FATAL, "Script %s did not compile", GetLastResourceFilename());
 	}
@@ -829,9 +844,9 @@ bool dataInitLoadFuncs()
 		// Points just past the last item in the list
 		const RES_TYPE_MIN_BUF *const EndType = &BufferResourceTypes[sizeof(BufferResourceTypes) / sizeof(RES_TYPE_MIN_BUF)];
 
-		for (CurrentType = BufferResourceTypes; CurrentType != EndType; ++CurrentType)
+		for(CurrentType = BufferResourceTypes; CurrentType != EndType; ++CurrentType)
 		{
-			if (!resAddBufferLoad(CurrentType->aType, CurrentType->buffLoad, CurrentType->release))
+			if(!resAddBufferLoad(CurrentType->aType, CurrentType->buffLoad, CurrentType->release))
 			{
 				return false; // error whilst adding a buffer load
 			}
@@ -844,9 +859,9 @@ bool dataInitLoadFuncs()
 		// Points just past the last item in the list
 		const RES_TYPE_MIN_FILE *const EndType = &FileResourceTypes[sizeof(FileResourceTypes) / sizeof(RES_TYPE_MIN_BUF)];
 
-		for (CurrentType = FileResourceTypes; CurrentType != EndType; ++CurrentType)
+		for(CurrentType = FileResourceTypes; CurrentType != EndType; ++CurrentType)
 		{
-			if (!resAddFileLoad(CurrentType->aType, CurrentType->fileLoad, CurrentType->release))
+			if(!resAddFileLoad(CurrentType->aType, CurrentType->fileLoad, CurrentType->release))
 			{
 				return false; // error whilst adding a file load
 			}

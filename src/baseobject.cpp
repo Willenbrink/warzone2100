@@ -61,14 +61,16 @@ static Spacetime interpolateSpacetime(Spacetime st1, Spacetime st2, uint32_t t)
 
 Spacetime interpolateObjectSpacetime(const SIMPLE_OBJECT *obj, uint32_t t)
 {
-	switch (obj->type)
+	switch(obj->type)
 	{
-	default:
-		return getSpacetime(obj);
-	case OBJ_DROID:
-		return interpolateSpacetime(castDroid(obj)->prevSpacetime, getSpacetime(obj), t);
-	case OBJ_PROJECTILE:
-		return interpolateSpacetime(castProjectile(obj)->prevSpacetime, getSpacetime(obj), t);
+		default:
+			return getSpacetime(obj);
+
+		case OBJ_DROID:
+			return interpolateSpacetime(castDroid(obj)->prevSpacetime, getSpacetime(obj), t);
+
+		case OBJ_PROJECTILE:
+			return interpolateSpacetime(castProjectile(obj)->prevSpacetime, getSpacetime(obj), t);
 	}
 }
 
@@ -127,61 +129,75 @@ BASE_OBJECT::~BASE_OBJECT()
 
 void checkObject(const SIMPLE_OBJECT *psObject, const char *const location_description, const char *function, const int recurse)
 {
-	if (recurse < 0)
+	if(recurse < 0)
 	{
 		return;
 	}
 
 	ASSERT(psObject != nullptr, "NULL pointer");
 
-	switch (psObject->type)
+	switch(psObject->type)
 	{
-	case OBJ_DROID:
-		checkDroid((const DROID *)psObject, location_description, function, recurse - 1);
-		break;
+		case OBJ_DROID:
+			checkDroid((const DROID *)psObject, location_description, function, recurse - 1);
+			break;
 
-	case OBJ_STRUCTURE:
-		checkStructure((const STRUCTURE *)psObject, location_description, function, recurse - 1);
-		break;
+		case OBJ_STRUCTURE:
+			checkStructure((const STRUCTURE *)psObject, location_description, function, recurse - 1);
+			break;
 
-	case OBJ_PROJECTILE:
-		checkProjectile((const PROJECTILE *)psObject, location_description, function, recurse - 1);
-		break;
+		case OBJ_PROJECTILE:
+			checkProjectile((const PROJECTILE *)psObject, location_description, function, recurse - 1);
+			break;
 
-	case OBJ_FEATURE:
-	case OBJ_TARGET:
-		break;
+		case OBJ_FEATURE:
+		case OBJ_TARGET:
+			break;
 
-	default:
-		ASSERT_HELPER(!"invalid object type", location_description, function, "CHECK_OBJECT: Invalid object type (type num %u)", (unsigned int)psObject->type);
-		break;
+		default:
+			ASSERT_HELPER(!"invalid object type", location_description, function, "CHECK_OBJECT: Invalid object type (type num %u)", (unsigned int)psObject->type);
+			break;
 	}
 }
 
 void _syncDebugObject(const char *function, SIMPLE_OBJECT const *psObject, char ch)
 {
-	switch (psObject->type)
+	switch(psObject->type)
 	{
-	case OBJ_DROID:      _syncDebugDroid(function, (const DROID *)     psObject, ch); break;
-	case OBJ_STRUCTURE:  _syncDebugStructure(function, (const STRUCTURE *) psObject, ch); break;
-	case OBJ_FEATURE:    _syncDebugFeature(function, (const FEATURE *)   psObject, ch); break;
-	case OBJ_PROJECTILE: _syncDebugProjectile(function, (const PROJECTILE *)psObject, ch); break;
-	default:             _syncDebug(function, "%c unidentified_object%d = p%d;objectType%d", ch, psObject->id, psObject->player, psObject->type);
-		ASSERT_HELPER(!"invalid object type", "_syncDebugObject", function, "syncDebug: Invalid object type (type num %u)", (unsigned int)psObject->type);
-		break;
+		case OBJ_DROID:
+			_syncDebugDroid(function, (const DROID *)     psObject, ch);
+			break;
+
+		case OBJ_STRUCTURE:
+			_syncDebugStructure(function, (const STRUCTURE *) psObject, ch);
+			break;
+
+		case OBJ_FEATURE:
+			_syncDebugFeature(function, (const FEATURE *)   psObject, ch);
+			break;
+
+		case OBJ_PROJECTILE:
+			_syncDebugProjectile(function, (const PROJECTILE *)psObject, ch);
+			break;
+
+		default:
+			_syncDebug(function, "%c unidentified_object%d = p%d;objectType%d", ch, psObject->id, psObject->player, psObject->type);
+			ASSERT_HELPER(!"invalid object type", "_syncDebugObject", function, "syncDebug: Invalid object type (type num %u)", (unsigned int)psObject->type);
+			break;
 	}
 }
 
 Vector2i getStatsSize(BASE_STATS const *pType, uint16_t direction)
 {
-	if (StatIsStructure(pType))
+	if(StatIsStructure(pType))
 	{
 		return static_cast<STRUCTURE_STATS const *>(pType)->size(direction);
 	}
-	else if (StatIsFeature(pType))
+	else if(StatIsFeature(pType))
 	{
 		return static_cast<FEATURE_STATS const *>(pType)->size();
 	}
+
 	return Vector2i(1, 1);
 }
 
@@ -190,11 +206,11 @@ StructureBounds getStructureBounds(BASE_OBJECT const *object)
 	STRUCTURE const *psStructure = castStructure(object);
 	FEATURE const *psFeature = castFeature(object);
 
-	if (psStructure != nullptr)
+	if(psStructure != nullptr)
 	{
 		return getStructureBounds(psStructure);
 	}
-	else if (psFeature != nullptr)
+	else if(psFeature != nullptr)
 	{
 		return getStructureBounds(psFeature);
 	}
@@ -204,11 +220,11 @@ StructureBounds getStructureBounds(BASE_OBJECT const *object)
 
 StructureBounds getStructureBounds(BASE_STATS const *stats, Vector2i pos, uint16_t direction)
 {
-	if (StatIsStructure(stats))
+	if(StatIsStructure(stats))
 	{
 		return getStructureBounds(static_cast<STRUCTURE_STATS const *>(stats), pos, direction);
 	}
-	else if (StatIsFeature(stats))
+	else if(StatIsFeature(stats))
 	{
 		return getStructureBounds(static_cast<FEATURE_STATS const *>(stats), pos);
 	}

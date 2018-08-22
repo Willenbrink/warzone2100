@@ -58,13 +58,14 @@ void raiseTile(int tile3dX, int tile3dY)
 {
 	int i, j;
 
-	if (tile3dX < 0 || tile3dX > mapWidth - 1 || tile3dY < 0 || tile3dY > mapHeight - 1)
+	if(tile3dX < 0 || tile3dX > mapWidth - 1 || tile3dY < 0 || tile3dY > mapHeight - 1)
 	{
 		return;
 	}
-	for (i = tile3dX; i <= MIN(mapWidth - 1, tile3dX + brushSize); i++)
+
+	for(i = tile3dX; i <= MIN(mapWidth - 1, tile3dX + brushSize); i++)
 	{
-		for (j = tile3dY; j <= MIN(mapHeight - 1, tile3dY + brushSize); j++)
+		for(j = tile3dY; j <= MIN(mapHeight - 1, tile3dY + brushSize); j++)
 		{
 			adjustTileHeight(mapTile(i, j), TILE_RAISE);
 			markTileDirty(i, j);
@@ -77,13 +78,14 @@ void lowerTile(int tile3dX, int tile3dY)
 {
 	int i, j;
 
-	if (tile3dX < 0 || tile3dX > mapWidth - 1 || tile3dY < 0 || tile3dY > mapHeight - 1)
+	if(tile3dX < 0 || tile3dX > mapWidth - 1 || tile3dY < 0 || tile3dY > mapHeight - 1)
 	{
 		return;
 	}
-	for (i = tile3dX; i <= MIN(mapWidth - 1, tile3dX + brushSize); i++)
+
+	for(i = tile3dX; i <= MIN(mapWidth - 1, tile3dX + brushSize); i++)
 	{
-		for (j = tile3dY; j <= MIN(mapHeight - 1, tile3dY + brushSize); j++)
+		for(j = tile3dY; j <= MIN(mapHeight - 1, tile3dY + brushSize); j++)
 		{
 			adjustTileHeight(mapTile(i, j), TILE_LOWER);
 			markTileDirty(i, j);
@@ -96,7 +98,7 @@ void	adjustTileHeight(MAPTILE *psTile, SDWORD adjust)
 {
 	int32_t newHeight = psTile->height + adjust * ELEVATION_SCALE;
 
-	if (newHeight >= MIN_TILE_HEIGHT * ELEVATION_SCALE && newHeight <= MAX_TILE_HEIGHT * ELEVATION_SCALE)
+	if(newHeight >= MIN_TILE_HEIGHT * ELEVATION_SCALE && newHeight <= MAX_TILE_HEIGHT * ELEVATION_SCALE)
 	{
 		psTile->height = newHeight;
 	}
@@ -106,9 +108,9 @@ bool	inHighlight(UDWORD realX, UDWORD realY)
 {
 	bool	retVal = false;
 
-	if (realX >= buildSite.xTL && realX <= buildSite.xBR)
+	if(realX >= buildSite.xTL && realX <= buildSite.xBR)
 	{
-		if (realY >= buildSite.yTL && realY <= buildSite.yBR)
+		if(realY >= buildSite.yTL && realY <= buildSite.yBR)
 		{
 			retVal = true;
 		}
@@ -128,15 +130,15 @@ void init3DBuilding(BASE_STATS *psStats, BUILDCALLBACK CallBack, void *UserData)
 	sBuildDetails.x = mouseTileX;
 	sBuildDetails.y = mouseTileY;
 
-	if (psStats->ref >= REF_STRUCTURE_START &&
-	    psStats->ref < (REF_STRUCTURE_START + REF_RANGE))
+	if(psStats->ref >= REF_STRUCTURE_START &&
+	        psStats->ref < (REF_STRUCTURE_START + REF_RANGE))
 	{
 		sBuildDetails.width = ((STRUCTURE_STATS *)psStats)->baseWidth;
 		sBuildDetails.height = ((STRUCTURE_STATS *)psStats)->baseBreadth;
 		sBuildDetails.psStats = psStats;
 	}
-	else if (psStats->ref >= REF_FEATURE_START &&
-	         psStats->ref < (REF_FEATURE_START + REF_RANGE))
+	else if(psStats->ref >= REF_FEATURE_START &&
+	        psStats->ref < (REF_FEATURE_START + REF_RANGE))
 	{
 		sBuildDetails.width = ((FEATURE_STATS *)psStats)->baseWidth;
 		sBuildDetails.height = ((FEATURE_STATS *)psStats)->baseBreadth;
@@ -165,13 +167,14 @@ void	kill3DBuilding()
 bool process3DBuilding()
 {
 	//if not trying to build ignore
-	if (buildState == BUILD3D_NONE)
+	if(buildState == BUILD3D_NONE)
 	{
-		if (quickQueueMode && !ctrlShiftDown())
+		if(quickQueueMode && !ctrlShiftDown())
 		{
 			quickQueueMode = false;
 			intDemolishCancel();
 		}
+
 		return true;
 	}
 
@@ -179,12 +182,12 @@ bool process3DBuilding()
 	int bX = clip(mouseTileX, 2, mapWidth - 3);
 	int bY = clip(mouseTileY, 2, mapHeight - 3);
 
-	if (buildState != BUILD3D_FINISHED)
+	if(buildState != BUILD3D_FINISHED)
 	{
 		Vector2i size = getStatsSize(sBuildDetails.psStats, player.r.y);
 		Vector2i offset = size * (TILE_UNITS / 2);  // This presumably gets added to the chosen coordinates, somewhere, based on looking at what pickStructLocation does. No idea where it gets added, though.
 
-		if (validLocation(sBuildDetails.psStats, world_coord(Vector2i(bX, bY)) + offset, player.r.y, selectedPlayer, true))
+		if(validLocation(sBuildDetails.psStats, world_coord(Vector2i(bX, bY)) + offset, player.r.y, selectedPlayer, true))
 		{
 			buildState = BUILD3D_VALID;
 		}
@@ -196,7 +199,8 @@ bool process3DBuilding()
 
 	sBuildDetails.x = buildSite.xTL = bX;
 	sBuildDetails.y = buildSite.yTL = bY;
-	if (((player.r.y + 0x2000) & 0x4000) == 0)
+
+	if(((player.r.y + 0x2000) & 0x4000) == 0)
 	{
 		buildSite.xBR = buildSite.xTL + sBuildDetails.width - 1;
 		buildSite.yBR = buildSite.yTL + sBuildDetails.height - 1;
@@ -208,13 +212,14 @@ bool process3DBuilding()
 		buildSite.yBR = buildSite.yTL + sBuildDetails.width - 1;
 	}
 
-	if ((buildState == BUILD3D_FINISHED) && (sBuildDetails.CallBack != nullptr))
+	if((buildState == BUILD3D_FINISHED) && (sBuildDetails.CallBack != nullptr))
 	{
 		sBuildDetails.CallBack(sBuildDetails.x, sBuildDetails.y, sBuildDetails.UserData);
 		buildState = BUILD3D_NONE;
 		return true;
 	}
-	if (quickQueueMode && !ctrlShiftDown())
+
+	if(quickQueueMode && !ctrlShiftDown())
 	{
 		buildState = BUILD3D_NONE;
 		quickQueueMode = false;
@@ -227,7 +232,7 @@ bool process3DBuilding()
 /* See if a structure location has been found */
 bool found3DBuilding(UDWORD *x, UDWORD *y)
 {
-	if (buildState != BUILD3D_FINISHED || x == nullptr || y == nullptr)
+	if(buildState != BUILD3D_FINISHED || x == nullptr || y == nullptr)
 	{
 		return false;
 	}
@@ -235,7 +240,7 @@ bool found3DBuilding(UDWORD *x, UDWORD *y)
 	*x = sBuildDetails.x;
 	*y = sBuildDetails.y;
 
-	if (ctrlShiftDown())
+	if(ctrlShiftDown())
 	{
 		quickQueueMode = true;
 		init3DBuilding(sBuildDetails.psStats, sBuildDetails.CallBack, sBuildDetails.UserData);
@@ -251,17 +256,17 @@ bool found3DBuilding(UDWORD *x, UDWORD *y)
 /* See if a second position for a build has been found */
 bool found3DBuildLocTwo(UDWORD *px1, UDWORD *py1, UDWORD *px2, UDWORD *py2)
 {
-	if ((((STRUCTURE_STATS *)sBuildDetails.psStats)->type != REF_WALL &&
-	     ((STRUCTURE_STATS *)sBuildDetails.psStats)->type != REF_GATE &&
-	     ((STRUCTURE_STATS *)sBuildDetails.psStats)->type != REF_DEFENSE &&
-	     ((STRUCTURE_STATS *)sBuildDetails.psStats)->type != REF_REARM_PAD) ||
-	    wallDrag.status != DRAG_RELEASED)
+	if((((STRUCTURE_STATS *)sBuildDetails.psStats)->type != REF_WALL &&
+	        ((STRUCTURE_STATS *)sBuildDetails.psStats)->type != REF_GATE &&
+	        ((STRUCTURE_STATS *)sBuildDetails.psStats)->type != REF_DEFENSE &&
+	        ((STRUCTURE_STATS *)sBuildDetails.psStats)->type != REF_REARM_PAD) ||
+	        wallDrag.status != DRAG_RELEASED)
 	{
 		return false;
 	}
 
 	//whilst we're still looking for a valid location - return false
-	if (buildState == BUILD3D_POS)
+	if(buildState == BUILD3D_POS)
 	{
 		return false;
 	}
@@ -272,7 +277,7 @@ bool found3DBuildLocTwo(UDWORD *px1, UDWORD *py1, UDWORD *px2, UDWORD *py2)
 	*px2 = wallDrag.x2;
 	*py2 = wallDrag.y2;
 
-	if (ctrlShiftDown())
+	if(ctrlShiftDown())
 	{
 		quickQueueMode = true;
 		init3DBuilding(sBuildDetails.psStats, sBuildDetails.CallBack, sBuildDetails.UserData);
@@ -284,7 +289,7 @@ bool found3DBuildLocTwo(UDWORD *px1, UDWORD *py1, UDWORD *px2, UDWORD *py2)
 /*returns true if the build state is not equal to BUILD3D_NONE*/
 bool tryingToGetLocation()
 {
-	if (buildState == BUILD3D_NONE)
+	if(buildState == BUILD3D_NONE)
 	{
 		return false;
 	}

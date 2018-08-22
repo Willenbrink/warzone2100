@@ -413,10 +413,11 @@ static inline void setStatusPendingCancel(Functionality &functionality)
 template<typename Functionality>
 static inline void setStatusPendingHold(Functionality &functionality)
 {
-	if (functionality.psSubjectPending == nullptr)
+	if(functionality.psSubjectPending == nullptr)
 	{
 		functionality.psSubjectPending = functionality.psSubject;
 	}
+
 	functionality.statusPending = FACTORY_HOLD_PENDING;
 	++functionality.pendingCount;
 }
@@ -424,25 +425,28 @@ static inline void setStatusPendingHold(Functionality &functionality)
 template<typename Functionality>
 static inline void setStatusPendingRelease(Functionality &functionality)
 {
-	if (functionality.psSubjectPending == nullptr && functionality.statusPending != FACTORY_CANCEL_PENDING)
+	if(functionality.psSubjectPending == nullptr && functionality.statusPending != FACTORY_CANCEL_PENDING)
 	{
 		functionality.psSubjectPending = functionality.psSubject;
 	}
-	if (functionality.psSubjectPending != nullptr)
+
+	if(functionality.psSubjectPending != nullptr)
 	{
 		functionality.statusPending = FACTORY_START_PENDING;
 	}
+
 	++functionality.pendingCount;
 }
 
 template<typename Functionality>
 static inline void popStatusPending(Functionality &functionality)
 {
-	if (functionality.pendingCount == 0)
+	if(functionality.pendingCount == 0)
 	{
 		++functionality.pendingCount;
 	}
-	if (--functionality.pendingCount == 0)
+
+	if(--functionality.pendingCount == 0)
 	{
 		// Subject is now synchronised, remove pending.
 		functionality.psSubjectPending = nullptr;

@@ -71,10 +71,11 @@ void war_SetDefaultStates()
 
 void war_SetSPcolor(int color)
 {
-	if (color >= 1 && color <= 3)		// only 0,4,5,6,7 are allowed for SP games, AI uses the other colors.
+	if(color >= 1 && color <= 3)		// only 0,4,5,6,7 are allowed for SP games, AI uses the other colors.
 	{
 		color = 0;
 	}
+
 	warGlobs.SPcolor = color;
 	setPlayerColour(0, color);
 }
@@ -106,10 +107,11 @@ bool war_getFullscreen()
 
 void war_setAntialiasing(int antialiasing)
 {
-	if (antialiasing > 16)
+	if(antialiasing > 16)
 	{
 		debug(LOG_WARNING, "Antialising set to value > 16, which can cause crashes.");
 	}
+
 	warGlobs.antialiasing = antialiasing;
 }
 
@@ -247,9 +249,9 @@ int war_GetMapZoom()
 
 void war_SetMapZoom(int mapZoom)
 {
-        if (mapZoom % MAP_ZOOM_RATE_MIN == 0 && ! (mapZoom < MINDISTANCE || mapZoom > MAXDISTANCE))
+	if(mapZoom % MAP_ZOOM_RATE_MIN == 0 && !(mapZoom < MINDISTANCE || mapZoom > MAXDISTANCE))
 	{
-	    warGlobs.mapZoom = mapZoom;
+		warGlobs.mapZoom = mapZoom;
 	}
 }
 
@@ -260,9 +262,9 @@ int war_GetMapZoomRate()
 
 void war_SetMapZoomRate(int mapZoomRate)
 {
-        if (mapZoomRate % MAP_ZOOM_RATE_STEP == 0 && ! (mapZoomRate < MAP_ZOOM_RATE_MIN || mapZoomRate > MAP_ZOOM_RATE_MAX))
+	if(mapZoomRate % MAP_ZOOM_RATE_STEP == 0 && !(mapZoomRate < MAP_ZOOM_RATE_MIN || mapZoomRate > MAP_ZOOM_RATE_MAX))
 	{
-	    warGlobs.mapZoomRate = mapZoomRate;
+		warGlobs.mapZoomRate = mapZoomRate;
 	}
 }
 
@@ -273,9 +275,9 @@ int war_GetRadarZoom()
 
 void war_SetRadarZoom(int radarZoom)
 {
-        if (radarZoom % RADARZOOM_STEP == 0 && ! (radarZoom < MIN_RADARZOOM || radarZoom > MAX_RADARZOOM))
+	if(radarZoom % RADARZOOM_STEP == 0 && !(radarZoom < MIN_RADARZOOM || radarZoom > MAX_RADARZOOM))
 	{
-	    warGlobs.radarZoom = radarZoom;
+		warGlobs.radarZoom = radarZoom;
 	}
 }
 
@@ -286,9 +288,9 @@ int war_GetCameraSpeed()
 
 void war_SetCameraSpeed(int cameraSpeed)
 {
-        if (cameraSpeed % CAMERASPEED_STEP == 0 && ! (cameraSpeed < CAMERASPEED_MIN || cameraSpeed > CAMERASPEED_MAX))
+	if(cameraSpeed % CAMERASPEED_STEP == 0 && !(cameraSpeed < CAMERASPEED_MIN || cameraSpeed > CAMERASPEED_MAX))
 	{
-	    warGlobs.cameraSpeed = cameraSpeed;
+		warGlobs.cameraSpeed = cameraSpeed;
 	}
 }
 

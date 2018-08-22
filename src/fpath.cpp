@@ -75,9 +75,9 @@ static int fpathThreadFunc(void *)
 {
 	wzMutexLock(fpathMutex);
 
-	while (!fpathQuit)
+	while(!fpathQuit)
 	{
-		if (pathJobs.empty())
+		if(pathJobs.empty())
 		{
 			ASSERT(!waitingForResult, "Waiting for a result (id %u) that doesn't exist.", waitingForResultId);
 			wzMutexUnlock(fpathMutex);
@@ -98,6 +98,7 @@ static int fpathThreadFunc(void *)
 		objTrace(waitingForResultId, "These are the droids you are looking for.");
 		wzSemaphorePost(waitingForResultSemaphore);
 	}
+
 	wzMutexUnlock(fpathMutex);
 	return 0;
 }
@@ -109,7 +110,7 @@ bool fpathInitialise()
 	// The path system is up
 	fpathQuit = false;
 
-	if (!fpathThread)
+	if(!fpathThread)
 	{
 		fpathMutex = wzMutexCreate();
 		fpathSemaphore = wzSemaphoreCreate(0);
@@ -124,7 +125,7 @@ bool fpathInitialise()
 
 void fpathShutdown()
 {
-	if (fpathThread)
+	if(fpathThread)
 	{
 		// Signal the path finding thread to quit
 		fpathQuit = true;
@@ -139,6 +140,7 @@ void fpathShutdown()
 		wzSemaphoreDestroy(waitingForResultSemaphore);
 		waitingForResultSemaphore = nullptr;
 	}
+
 	fpathHardTableReset();
 }
 
@@ -157,32 +159,56 @@ bool fpathIsEquivalentBlocking(PROPULSION_TYPE propulsion1, int player1, FPATH_M
                                PROPULSION_TYPE propulsion2, int player2, FPATH_MOVETYPE moveType2)
 {
 	int domain1, domain2;
-	switch (propulsion1)
+
+	switch(propulsion1)
 	{
-	default:                        domain1 = 0; break;  // Land
-	case PROPULSION_TYPE_LIFT:      domain1 = 1; break;  // Air
-	case PROPULSION_TYPE_PROPELLOR: domain1 = 2; break;  // Water
-	case PROPULSION_TYPE_HOVER:     domain1 = 3; break;  // Land and water
-	}
-	switch (propulsion2)
-	{
-	default:                        domain2 = 0; break;  // Land
-	case PROPULSION_TYPE_LIFT:      domain2 = 1; break;  // Air
-	case PROPULSION_TYPE_PROPELLOR: domain2 = 2; break;  // Water
-	case PROPULSION_TYPE_HOVER:     domain2 = 3; break;  // Land and water
+		default:
+			domain1 = 0;
+			break;  // Land
+
+		case PROPULSION_TYPE_LIFT:
+			domain1 = 1;
+			break;  // Air
+
+		case PROPULSION_TYPE_PROPELLOR:
+			domain1 = 2;
+			break;  // Water
+
+		case PROPULSION_TYPE_HOVER:
+			domain1 = 3;
+			break;  // Land and water
 	}
 
-	if (domain1 != domain2)
+	switch(propulsion2)
+	{
+		default:
+			domain2 = 0;
+			break;  // Land
+
+		case PROPULSION_TYPE_LIFT:
+			domain2 = 1;
+			break;  // Air
+
+		case PROPULSION_TYPE_PROPELLOR:
+			domain2 = 2;
+			break;  // Water
+
+		case PROPULSION_TYPE_HOVER:
+			domain2 = 3;
+			break;  // Land and water
+	}
+
+	if(domain1 != domain2)
 	{
 		return false;
 	}
 
-	if (domain1 == 1)
+	if(domain1 == 1)
 	{
 		return true;  // Air units ignore move type and player.
 	}
 
-	if (moveType1 != moveType2 || player1 != player2)
+	if(moveType1 != moveType2 || player1 != player2)
 	{
 		return false;
 	}
@@ -194,21 +220,25 @@ static uint8_t prop2bits(PROPULSION_TYPE propulsion)
 {
 	uint8_t bits;
 
-	switch (propulsion)
+	switch(propulsion)
 	{
-	case PROPULSION_TYPE_LIFT:
-		bits = AIR_BLOCKED;
-		break;
-	case PROPULSION_TYPE_HOVER:
-		bits = FEATURE_BLOCKED;
-		break;
-	case PROPULSION_TYPE_PROPELLOR:
-		bits = FEATURE_BLOCKED | LAND_BLOCKED;
-		break;
-	default:
-		bits = FEATURE_BLOCKED | WATER_BLOCKED;
-		break;
+		case PROPULSION_TYPE_LIFT:
+			bits = AIR_BLOCKED;
+			break;
+
+		case PROPULSION_TYPE_HOVER:
+			bits = FEATURE_BLOCKED;
+			break;
+
+		case PROPULSION_TYPE_PROPELLOR:
+			bits = FEATURE_BLOCKED | LAND_BLOCKED;
+			break;
+
+		default:
+			bits = FEATURE_BLOCKED | WATER_BLOCKED;
+			break;
 	}
+
 	return bits;
 }
 
@@ -216,29 +246,40 @@ static uint8_t prop2bits(PROPULSION_TYPE propulsion)
 bool fpathBaseBlockingTile(SDWORD x, SDWORD y, PROPULSION_TYPE propulsion, int mapIndex, FPATH_MOVETYPE moveType)
 {
 	/* All tiles outside of the map and on map border are blocking. */
-	if (x < 1 || y < 1 || x > mapWidth - 1 || y > mapHeight - 1)
+	if(x < 1 || y < 1 || x > mapWidth - 1 || y > mapHeight - 1)
 	{
 		return true;
 	}
 
 	/* Check scroll limits (used in campaign to partition the map. */
-	if (propulsion != PROPULSION_TYPE_LIFT && (x < scrollMinX + 1 || y < scrollMinY + 1 || x >= scrollMaxX - 1 || y >= scrollMaxY - 1))
+	if(propulsion != PROPULSION_TYPE_LIFT && (x < scrollMinX + 1 || y < scrollMinY + 1 || x >= scrollMaxX - 1 || y >= scrollMaxY - 1))
 	{
 		// coords off map - auto blocking tile
 		return true;
 	}
+
 	unsigned aux = auxTile(x, y, mapIndex);
 
 	int auxMask = 0;
-	switch (moveType)
+
+	switch(moveType)
 	{
-	case FMT_MOVE:   auxMask = AUXBITS_NONPASSABLE; break;   // do not wish to shoot our way through enemy buildings, but want to go through friendly gates (without shooting them)
-	case FMT_ATTACK: auxMask = AUXBITS_OUR_BUILDING; break;  // move blocked by friendly building, assuming we do not want to shoot it up en route
-	case FMT_BLOCK:  auxMask = AUXBITS_BLOCKING; break;      // Do not wish to tunnel through closed gates or buildings.
+		case FMT_MOVE:
+			auxMask = AUXBITS_NONPASSABLE;
+			break;   // do not wish to shoot our way through enemy buildings, but want to go through friendly gates (without shooting them)
+
+		case FMT_ATTACK:
+			auxMask = AUXBITS_OUR_BUILDING;
+			break;  // move blocked by friendly building, assuming we do not want to shoot it up en route
+
+		case FMT_BLOCK:
+			auxMask = AUXBITS_BLOCKING;
+			break;      // Do not wish to tunnel through closed gates or buildings.
 	}
 
 	unsigned unitbits = prop2bits(propulsion);  // TODO - cache prop2bits to psDroid, and pass in instead of propulsion type
-	if ((unitbits & FEATURE_BLOCKED) != 0 && (aux & auxMask) != 0)
+
+	if((unitbits & FEATURE_BLOCKED) != 0 && (aux & auxMask) != 0)
 	{
 		return true;	// move blocked by building, and we cannot or do not want to shoot our way through anything
 	}
@@ -263,20 +304,23 @@ bool fpathBlockingTile(SDWORD x, SDWORD y, PROPULSION_TYPE propulsion)
 static Position findNonblockingPosition(Position pos, PROPULSION_TYPE propulsion, int player = 0, FPATH_MOVETYPE moveType = FMT_BLOCK)
 {
 	Vector2i centreTile = map_coord(pos.xy);
-	if (!fpathBaseBlockingTile(centreTile.x, centreTile.y, propulsion, player, moveType))
+
+	if(!fpathBaseBlockingTile(centreTile.x, centreTile.y, propulsion, player, moveType))
 	{
 		return pos;  // Fast case, pos is not on a blocking tile.
 	}
 
 	Vector2i bestTile = centreTile;
 	int bestDistSq = INT32_MAX;
-	for (int y = -2; y <= 2; ++y)
-		for (int x = -2; x <= 2; ++x)
+
+	for(int y = -2; y <= 2; ++y)
+		for(int x = -2; x <= 2; ++x)
 		{
 			Vector2i tile = centreTile + Vector2i(x, y);
 			Vector2i diff = world_coord(tile) + Vector2i(TILE_UNITS / 2, TILE_UNITS / 2) - pos.xy;
 			int distSq = dot(diff, diff);
-			if (distSq < bestDistSq && !fpathBaseBlockingTile(tile.x, tile.y, propulsion, player, moveType))
+
+			if(distSq < bestDistSq && !fpathBaseBlockingTile(tile.x, tile.y, propulsion, player, moveType))
 			{
 				bestTile = tile;
 				bestDistSq = distSq;
@@ -316,7 +360,7 @@ static FPATH_RETVAL fpathRoute(MOVE_CONTROL *psMove, unsigned id, int startX, in
 {
 	objTrace(id, "called(*,id=%d,sx=%d,sy=%d,ex=%d,ey=%d,prop=%d,type=%d,move=%d,owner=%d)", id, startX, startY, tX, tY, (int)propulsionType, (int)droidType, (int)moveType, owner);
 
-	if (!worldOnMap(startX, startY) || !worldOnMap(tX, tY))
+	if(!worldOnMap(startX, startY) || !worldOnMap(tX, tY))
 	{
 		debug(LOG_ERROR, "Droid trying to find path to/from invalid location (%d %d) -> (%d %d).", startX, startY, tX, tY);
 		objTrace(id, "Invalid start/end.");
@@ -325,7 +369,7 @@ static FPATH_RETVAL fpathRoute(MOVE_CONTROL *psMove, unsigned id, int startX, in
 	}
 
 	// don't have to do anything if already there
-	if (startX == tX && startY == tY)
+	if(startX == tX && startY == tY)
 	{
 		// return failed to stop them moving anywhere
 		objTrace(id, "Tried to move nowhere");
@@ -334,7 +378,7 @@ static FPATH_RETVAL fpathRoute(MOVE_CONTROL *psMove, unsigned id, int startX, in
 	}
 
 	// Check if waiting for a result
-	while (psMove->Status == MOVEWAITROUTE)
+	while(psMove->Status == MOVEWAITROUTE)
 	{
 		objTrace(id, "Checking if we have a path yet");
 
@@ -358,13 +402,14 @@ static FPATH_RETVAL fpathRoute(MOVE_CONTROL *psMove, unsigned id, int startX, in
 		objTrace(id, "Got a path to (%d, %d)! Length=%d Retval=%d", psMove->destination.x, psMove->destination.y, (int)psMove->asPath.size(), (int)retval);
 		syncDebug("fpathRoute(..., %d, %d, %d, %d, %d, %d, %d, %d, %d) = %d, path[%d] = %08X->(%d, %d)", id, startX, startY, tX, tY, propulsionType, droidType, moveType, owner, retval, (int)psMove->asPath.size(), ~crcSumVector2i(0, psMove->asPath.data(), psMove->asPath.size()), psMove->destination.x, psMove->destination.y);
 
-		if (!correctDestination)
+		if(!correctDestination)
 		{
 			goto queuePathfinding;  // Seems we got the result of an old pathfinding job for this droid, so need to pathfind again.
 		}
 
 		return retval;
 	}
+
 queuePathfinding:
 
 	// We were not waiting for a result, and found no trivial path, so create new job and start waiting
@@ -388,7 +433,10 @@ queuePathfinding:
 	// job or result for each droid in the system at any time.
 	fpathRemoveDroidData(id);
 
-	packagedPathJob task([job]() { return fpathExecute(job); });
+	packagedPathJob task([job]()
+	{
+		return fpathExecute(job);
+	});
 	pathResults[id] = task.get_future();
 
 	// Add to end of list
@@ -397,7 +445,7 @@ queuePathfinding:
 	pathJobs.push_back(std::move(task));
 	wzMutexUnlock(fpathMutex);
 
-	if (isFirstJob)
+	if(isFirstJob)
 	{
 		wzSemaphorePost(fpathSemaphore);  // Wake up processing thread.
 	}
@@ -415,7 +463,7 @@ FPATH_RETVAL fpathDroidRoute(DROID *psDroid, SDWORD tX, SDWORD tY, FPATH_MOVETYP
 	PROPULSION_STATS *psPropStats = getPropulsionStats(psDroid);
 
 	// override for AI to blast our way through stuff
-	if (!isHumanPlayer(psDroid->player) && moveType == FMT_MOVE)
+	if(!isHumanPlayer(psDroid->player) && moveType == FMT_MOVE)
 	{
 		moveType = (psDroid->asWeaps[0].nStat == 0) ? FMT_MOVE : FMT_ATTACK;
 	}
@@ -428,26 +476,32 @@ FPATH_RETVAL fpathDroidRoute(DROID *psDroid, SDWORD tX, SDWORD tY, FPATH_MOVETYP
 	Position endPos = Position(tX, tY, 0);
 	StructureBounds dstStructure = getStructureBounds(worldTile(endPos.xy)->psObject);
 	startPos = findNonblockingPosition(startPos, getPropulsionStats(psDroid)->propulsionType, psDroid->player, moveType);
-	if (!dstStructure.valid())  // If there's a structure over the destination, ignore it, otherwise pathfind from somewhere around the obstruction.
+
+	if(!dstStructure.valid())   // If there's a structure over the destination, ignore it, otherwise pathfind from somewhere around the obstruction.
 	{
 		endPos   = findNonblockingPosition(endPos,   getPropulsionStats(psDroid)->propulsionType, psDroid->player, moveType);
 	}
+
 	objTrace(psDroid->id, "Want to go to (%d, %d) -> (%d, %d), going (%d, %d) -> (%d, %d)", map_coord(psDroid->pos.x), map_coord(psDroid->pos.y), map_coord(tX), map_coord(tY), map_coord(startPos.x), map_coord(startPos.y), map_coord(endPos.x), map_coord(endPos.y));
-	switch (psDroid->order.type)
+
+	switch(psDroid->order.type)
 	{
-	case DORDER_BUILD:
-	case DORDER_LINEBUILD:                       // build a number of structures in a row (walls + bridges)
-		dstStructure = getStructureBounds(psDroid->order.psStats, psDroid->order.pos, psDroid->order.direction);  // Just need to get close enough to build (can be diagonally), do not need to reach the destination tile.
+		case DORDER_BUILD:
+		case DORDER_LINEBUILD:                       // build a number of structures in a row (walls + bridges)
+			dstStructure = getStructureBounds(psDroid->order.psStats, psDroid->order.pos, psDroid->order.direction);  // Just need to get close enough to build (can be diagonally), do not need to reach the destination tile.
+
 		// fallthrough
-	case DORDER_HELPBUILD:                       // help to build a structure
-	case DORDER_DEMOLISH:                        // demolish a structure
-	case DORDER_REPAIR:
-		acceptNearest = false;
-		break;
-	default:
-		acceptNearest = true;
-		break;
+		case DORDER_HELPBUILD:                       // help to build a structure
+		case DORDER_DEMOLISH:                        // demolish a structure
+		case DORDER_REPAIR:
+			acceptNearest = false;
+			break;
+
+		default:
+			acceptNearest = true;
+			break;
 	}
+
 	return fpathRoute(&psDroid->sMove, psDroid->id, startPos.x, startPos.y, endPos.x, endPos.y, psPropStats->propulsionType,
 	                  psDroid->droidType, moveType, psDroid->player, acceptNearest, dstStructure);
 }
@@ -463,39 +517,46 @@ PATHRESULT fpathExecute(PATHJOB job)
 	ASR_RETVAL retval = fpathAStarRoute(&result.sMove, &job);
 
 	ASSERT(retval != ASR_OK || result.sMove.asPath.size() > 0, "Ok result but no path in result");
-	switch (retval)
+
+	switch(retval)
 	{
-	case ASR_NEAREST:
-		if (job.acceptNearest)
-		{
-			objTrace(job.droidID, "** Nearest route -- accepted **");
+		case ASR_NEAREST:
+			if(job.acceptNearest)
+			{
+				objTrace(job.droidID, "** Nearest route -- accepted **");
+				result.retval = FPR_OK;
+			}
+			else
+			{
+				objTrace(job.droidID, "** Nearest route -- rejected **");
+				result.retval = FPR_FAILED;
+			}
+
+			break;
+
+		case ASR_FAILED:
+			objTrace(job.droidID, "** Failed route **");
+
+			// Is this really a good idea? Was in original code.
+			if(job.propulsion == PROPULSION_TYPE_LIFT && (job.droidType != DROID_TRANSPORTER && job.droidType != DROID_SUPERTRANSPORTER))
+			{
+				objTrace(job.droidID, "Doing fallback for non-transport VTOL");
+				fpathSetMove(&result.sMove, job.destX, job.destY);
+				result.retval = FPR_OK;
+			}
+			else
+			{
+				result.retval = FPR_FAILED;
+			}
+
+			break;
+
+		case ASR_OK:
+			objTrace(job.droidID, "Got route of length %d", (int)result.sMove.asPath.size());
 			result.retval = FPR_OK;
-		}
-		else
-		{
-			objTrace(job.droidID, "** Nearest route -- rejected **");
-			result.retval = FPR_FAILED;
-		}
-		break;
-	case ASR_FAILED:
-		objTrace(job.droidID, "** Failed route **");
-		// Is this really a good idea? Was in original code.
-		if (job.propulsion == PROPULSION_TYPE_LIFT && (job.droidType != DROID_TRANSPORTER && job.droidType != DROID_SUPERTRANSPORTER))
-		{
-			objTrace(job.droidID, "Doing fallback for non-transport VTOL");
-			fpathSetMove(&result.sMove, job.destX, job.destY);
-			result.retval = FPR_OK;
-		}
-		else
-		{
-			result.retval = FPR_FAILED;
-		}
-		break;
-	case ASR_OK:
-		objTrace(job.droidID, "Got route of length %d", (int)result.sMove.asPath.size());
-		result.retval = FPR_OK;
-		break;
+			break;
 	}
+
 	return result;
 }
 
@@ -548,7 +609,8 @@ void fpathTest(int x, int y, int x2, int y2)
 
 	/* This should not leak memory */
 	sMove.asPath.clear();
-	for (i = 0; i < 100; i++)
+
+	for(i = 0; i < 100; i++)
 	{
 		fpathSetMove(&sMove, 1, 1);
 	}
@@ -561,10 +623,12 @@ void fpathTest(int x, int y, int x2, int y2)
 	assert(fpathJobQueueLength() == 1 || fpathResultQueueLength() == 1);
 	fpathRemoveDroidData(2);	// should not crash, nor remove our path
 	assert(fpathJobQueueLength() == 1 || fpathResultQueueLength() == 1);
-	while (fpathResultQueueLength() == 0)
+
+	while(fpathResultQueueLength() == 0)
 	{
 		wzYieldCurrentThread();
 	}
+
 	assert(fpathJobQueueLength() == 0);
 	assert(fpathResultQueueLength() == 1);
 	r = fpathSimpleRoute(&sMove, 1, x, y, x2, y2);
@@ -576,17 +640,21 @@ void fpathTest(int x, int y, int x2, int y2)
 
 	/* Let one hundred paths flower! */
 	sMove.Status = MOVEINACTIVE;
-	for (i = 1; i <= 100; i++)
+
+	for(i = 1; i <= 100; i++)
 	{
 		r = fpathSimpleRoute(&sMove, i, x, y, x2, y2);
 		assert(r == FPR_WAIT);
 	}
-	while (fpathResultQueueLength() != 100)
+
+	while(fpathResultQueueLength() != 100)
 	{
 		wzYieldCurrentThread();
 	}
+
 	assert(fpathJobQueueLength() == 0);
-	for (i = 1; i <= 100; i++)
+
+	for(i = 1; i <= 100; i++)
 	{
 		sMove.Status = MOVEWAITROUTE;
 		r = fpathSimpleRoute(&sMove, i, x, y, x2, y2);
@@ -595,19 +663,23 @@ void fpathTest(int x, int y, int x2, int y2)
 		assert(sMove.asPath[sMove.asPath.size() - 1].x == x2);
 		assert(sMove.asPath[sMove.asPath.size() - 1].y == y2);
 	}
+
 	assert(fpathResultQueueLength() == 0);
 
 	/* Kill a hundred flowers */
 	sMove.Status = MOVEINACTIVE;
-	for (i = 1; i <= 100; i++)
+
+	for(i = 1; i <= 100; i++)
 	{
 		r = fpathSimpleRoute(&sMove, i, x, y, x2, y2);
 		assert(r == FPR_WAIT);
 	}
-	for (i = 1; i <= 100; i++)
+
+	for(i = 1; i <= 100; i++)
 	{
 		fpathRemoveDroidData(i);
 	}
+
 	//assert(pathJobs.empty()); // can now be marked .deleted as well
 	assert(pathResults.empty());
 	(void)r;  // Squelch unused-but-set warning.
@@ -618,7 +690,7 @@ bool fpathCheck(Position orig, Position dest, PROPULSION_TYPE propulsion)
 	// We have to be careful with this check because it is called on
 	// load when playing campaign on droids that are on the other
 	// map during missions, and those maps are usually larger.
-	if (!worldOnMap(orig.xy) || !worldOnMap(dest.xy))
+	if(!worldOnMap(orig.xy) || !worldOnMap(dest.xy))
 	{
 		return false;
 	}
@@ -629,20 +701,23 @@ bool fpathCheck(Position orig, Position dest, PROPULSION_TYPE propulsion)
 	ASSERT_OR_RETURN(false, propulsion != PROPULSION_TYPE_NUM, "Bad propulsion type");
 	ASSERT_OR_RETURN(false, origTile != nullptr && destTile != nullptr, "Bad tile parameter");
 
-	switch (propulsion)
+	switch(propulsion)
 	{
-	case PROPULSION_TYPE_PROPELLOR:
-	case PROPULSION_TYPE_WHEELED:
-	case PROPULSION_TYPE_TRACKED:
-	case PROPULSION_TYPE_LEGGED:
-	case PROPULSION_TYPE_HALF_TRACKED:
-		return origTile->limitedContinent == destTile->limitedContinent;
-	case PROPULSION_TYPE_HOVER:
-		return origTile->hoverContinent == destTile->hoverContinent;
-	case PROPULSION_TYPE_LIFT:
-		return true;	// assume no map uses skyscrapers to isolate areas
-	default:
-		break;
+		case PROPULSION_TYPE_PROPELLOR:
+		case PROPULSION_TYPE_WHEELED:
+		case PROPULSION_TYPE_TRACKED:
+		case PROPULSION_TYPE_LEGGED:
+		case PROPULSION_TYPE_HALF_TRACKED:
+			return origTile->limitedContinent == destTile->limitedContinent;
+
+		case PROPULSION_TYPE_HOVER:
+			return origTile->hoverContinent == destTile->hoverContinent;
+
+		case PROPULSION_TYPE_LIFT:
+			return true;	// assume no map uses skyscrapers to isolate areas
+
+		default:
+			break;
 	}
 
 	ASSERT(false, "Should never get here, unknown propulsion !");

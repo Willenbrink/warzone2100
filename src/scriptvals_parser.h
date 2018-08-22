@@ -21,20 +21,21 @@
 /* Tokens.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     BOOLEAN_T = 258,
-     INTEGER = 259,
-     IDENT = 260,
-     QTEXT = 261,
-     TYPE = 262,
-     VAR = 263,
-     ARRAY = 264,
-     SCRIPT = 265,
-     STORE = 266,
-     RUN = 267
-   };
+/* Put the tokens into the symbol table, so that GDB and other debuggers
+   know about them.  */
+enum yytokentype
+{
+	BOOLEAN_T = 258,
+	INTEGER = 259,
+	IDENT = 260,
+	QTEXT = 261,
+	TYPE = 262,
+	VAR = 263,
+	ARRAY = 264,
+	SCRIPT = 265,
+	STORE = 266,
+	RUN = 267
+};
 #endif
 /* Tokens.  */
 #define BOOLEAN_T 258
@@ -55,7 +56,7 @@
 typedef union YYSTYPE
 {
 
-/* Line 2068 of yacc.c  */
+	/* Line 2068 of yacc.c  */
 #line 120 "scriptvals_parser.ypp"
 
 	bool			bval;
@@ -68,7 +69,7 @@ typedef union YYSTYPE
 
 
 
-/* Line 2068 of yacc.c  */
+	/* Line 2068 of yacc.c  */
 #line 86 "scriptvals_parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1

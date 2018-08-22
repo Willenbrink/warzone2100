@@ -114,11 +114,11 @@ SDWORD getLevelLoadType()
 // shutdown the level system
 void levShutDown()
 {
-	for (auto toDelete : psLevels)
+	for(auto toDelete : psLevels)
 	{
-		for (auto &apDataFile : toDelete->apDataFiles)
+		for(auto &apDataFile : toDelete->apDataFiles)
 		{
-			if (apDataFile != nullptr)
+			if(apDataFile != nullptr)
 			{
 				free(apDataFile);
 			}
@@ -128,6 +128,7 @@ void levShutDown()
 		free(toDelete->realFileName);
 		free(toDelete);
 	}
+
 	psLevels.clear();
 }
 
@@ -144,16 +145,16 @@ void lev_error(const char *msg)
  */
 LEVEL_DATASET *levFindDataSet(char const *name, Sha256 const *hash)
 {
-	if (hash != nullptr && hash->isZero())
+	if(hash != nullptr && hash->isZero())
 	{
 		hash = nullptr;  // Don't check hash if it's just 0000000000000000000000000000000000000000000000000000000000000000. Assuming real map files probably won't have that particular SHA-256 hash.
 	}
 
-	for (auto psNewLevel : psLevels)
+	for(auto psNewLevel : psLevels)
 	{
-		if (psNewLevel->pName && strcmp(psNewLevel->pName, name) == 0)
+		if(psNewLevel->pName && strcmp(psNewLevel->pName, name) == 0)
 		{
-			if (hash == nullptr || levGetFileHash(psNewLevel) == *hash)
+			if(hash == nullptr || levGetFileHash(psNewLevel) == *hash)
 			{
 				return psNewLevel;
 			}
@@ -165,24 +166,27 @@ LEVEL_DATASET *levFindDataSet(char const *name, Sha256 const *hash)
 
 Sha256 levGetFileHash(LEVEL_DATASET *level)
 {
-	if (level->realFileName != nullptr && level->realFileHash.isZero())
+	if(level->realFileName != nullptr && level->realFileHash.isZero())
 	{
 		level->realFileHash = findHashOfFile(level->realFileName);
 		debug(LOG_WZ, "Hash of file \"%s\" is %s.", level->realFileName, level->realFileHash.toString().c_str());
 	}
+
 	return level->realFileHash;
 }
 
 Sha256 levGetMapNameHash(char const *mapName)
 {
 	LEVEL_DATASET *level = levFindDataSet(mapName, nullptr);
-	if (level == nullptr)
+
+	if(level == nullptr)
 	{
 		debug(LOG_WARNING, "Couldn't find map \"%s\" to hash.", mapName);
 		Sha256 zero;
 		zero.setZero();
 		return zero;
 	}
+
 	return levGetFileHash(level);
 }
 
@@ -203,275 +207,311 @@ bool levParse(const char *buffer, size_t size, searchPathMode datadir, bool igno
 	lev_set_extra(&input);
 
 	state = LP_START;
-	for (token = lev_lex(); token != 0; token = lev_lex())
+
+	for(token = lev_lex(); token != 0; token = lev_lex())
 	{
-		switch (token)
+		switch(token)
 		{
-		case LTK_LEVEL:
-		case LTK_CAMPAIGN:
-		case LTK_CAMSTART:
-		case LTK_CAMCHANGE:
-		case LTK_EXPAND:
-		case LTK_BETWEEN:
-		case LTK_MKEEP:
-		case LTK_MCLEAR:
-		case LTK_EXPAND_LIMBO:
-		case LTK_MKEEP_LIMBO:
-			if (state == LP_START || state == LP_WAITDATA)
-			{
-				// start a new level data set
-				psDataSet = (LEVEL_DATASET *)malloc(sizeof(LEVEL_DATASET));
-				if (!psDataSet)
+			case LTK_LEVEL:
+			case LTK_CAMPAIGN:
+			case LTK_CAMSTART:
+			case LTK_CAMCHANGE:
+			case LTK_EXPAND:
+			case LTK_BETWEEN:
+			case LTK_MKEEP:
+			case LTK_MCLEAR:
+			case LTK_EXPAND_LIMBO:
+			case LTK_MKEEP_LIMBO:
+				if(state == LP_START || state == LP_WAITDATA)
 				{
-					debug(LOG_FATAL, "Out of memory");
-					abort();
-					return false;
-				}
-				memset(psDataSet, 0, sizeof(LEVEL_DATASET));
-				psDataSet->players = 1;
-				psDataSet->game = -1;
-				psDataSet->dataDir = datadir;
-				psDataSet->realFileName = realFileName != nullptr ? strdup(realFileName) : nullptr;
-				psDataSet->realFileHash.setZero();  // The hash is only calculated on demand; for example, if the map name matches.
-				psLevels.push_back(psDataSet);
-				currData = 0;
+					// start a new level data set
+					psDataSet = (LEVEL_DATASET *)malloc(sizeof(LEVEL_DATASET));
 
-				// set the dataset type
-				switch (token)
-				{
-				case LTK_LEVEL:
-					psDataSet->type = LDS_COMPLETE;
-					break;
-				case LTK_CAMPAIGN:
-					psDataSet->type = LDS_CAMPAIGN;
-					break;
-				case LTK_CAMSTART:
-					psDataSet->type = LDS_CAMSTART;
-					break;
-				case LTK_BETWEEN:
-					psDataSet->type = LDS_BETWEEN;
-					break;
-				case LTK_MKEEP:
-					psDataSet->type = LDS_MKEEP;
-					break;
-				case LTK_CAMCHANGE:
-					psDataSet->type = LDS_CAMCHANGE;
-					break;
-				case LTK_EXPAND:
-					psDataSet->type = LDS_EXPAND;
-					break;
-				case LTK_MCLEAR:
-					psDataSet->type = LDS_MCLEAR;
-					break;
-				case LTK_EXPAND_LIMBO:
-					psDataSet->type = LDS_EXPAND_LIMBO;
-					break;
-				case LTK_MKEEP_LIMBO:
-					psDataSet->type = LDS_MKEEP_LIMBO;
-					break;
-				default:
-					ASSERT(false, "eh?");
-					break;
-				}
-			}
-			else
-			{
-				lev_error("Syntax Error");
-				return false;
-			}
-			state = LP_LEVEL;
-			break;
-		case LTK_PLAYERS:
-			if (state == LP_LEVELDONE &&
-			    (psDataSet->type == LDS_COMPLETE || psDataSet->type >= LDS_MULTI_TYPE_START))
-			{
-				state = LP_PLAYERS;
-			}
-			else
-			{
-				lev_error("Syntax Error");
-				return false;
-			}
-			break;
-		case LTK_TYPE:
-			if (state == LP_LEVELDONE && psDataSet->type == LDS_COMPLETE)
-			{
-				state = LP_TYPE;
-			}
-			else
-			{
-				lev_error("Syntax Error");
-				return false;
-			}
-			break;
-		case LTK_INTEGER:
-			if (state == LP_PLAYERS)
-			{
-				psDataSet->players = (SWORD)levVal;
-			}
-			else if (state == LP_TYPE)
-			{
-				if (levVal < LDS_MULTI_TYPE_START)
-				{
-					lev_error("invalid type number");
-					return false;
-				}
-
-				psDataSet->type = levVal;
-			}
-			else
-			{
-				lev_error("Syntax Error");
-				return false;
-			}
-			state = LP_LEVELDONE;
-			break;
-		case LTK_DATASET:
-			if (state == LP_LEVELDONE && psDataSet->type != LDS_COMPLETE)
-			{
-				state = LP_DATASET;
-			}
-			else
-			{
-				lev_error("Syntax Error");
-				return false;
-			}
-			break;
-		case LTK_DATA:
-			if (state == LP_WAITDATA)
-			{
-				state = LP_DATA;
-			}
-			else if (state == LP_LEVELDONE)
-			{
-				if (psDataSet->type == LDS_CAMSTART ||
-				    psDataSet->type == LDS_MKEEP
-				    || psDataSet->type == LDS_CAMCHANGE ||
-				    psDataSet->type == LDS_EXPAND ||
-				    psDataSet->type == LDS_MCLEAR ||
-				    psDataSet->type == LDS_EXPAND_LIMBO ||
-				    psDataSet->type == LDS_MKEEP_LIMBO
-				   )
-				{
-					lev_error("Missing dataset command");
-					return false;
-				}
-				state = LP_DATA;
-			}
-			else
-			{
-				lev_error("Syntax Error");
-				return false;
-			}
-			break;
-		case LTK_GAME:
-			if ((state == LP_WAITDATA || state == LP_LEVELDONE) &&
-			    psDataSet->game == -1 && psDataSet->type != LDS_CAMPAIGN)
-			{
-				state = LP_GAME;
-			}
-			else
-			{
-				lev_error("Syntax Error");
-				return false;
-			}
-			break;
-		case LTK_IDENT:
-			if (state == LP_LEVEL)
-			{
-				if (psDataSet->type == LDS_CAMCHANGE)
-				{
-					// This is a campaign change dataset, we need to find the full data set.
-					LEVEL_DATASET *const psFoundData = levFindDataSet(pLevToken);
-
-					if (psFoundData == nullptr)
+					if(!psDataSet)
 					{
-						lev_error("Cannot find full data set for camchange");
+						debug(LOG_FATAL, "Out of memory");
+						abort();
 						return false;
 					}
 
-					if (psFoundData->type != LDS_CAMSTART)
+					memset(psDataSet, 0, sizeof(LEVEL_DATASET));
+					psDataSet->players = 1;
+					psDataSet->game = -1;
+					psDataSet->dataDir = datadir;
+					psDataSet->realFileName = realFileName != nullptr ? strdup(realFileName) : nullptr;
+					psDataSet->realFileHash.setZero();  // The hash is only calculated on demand; for example, if the map name matches.
+					psLevels.push_back(psDataSet);
+					currData = 0;
+
+					// set the dataset type
+					switch(token)
 					{
-						lev_error("Invalid data set name for cam change");
+						case LTK_LEVEL:
+							psDataSet->type = LDS_COMPLETE;
+							break;
+
+						case LTK_CAMPAIGN:
+							psDataSet->type = LDS_CAMPAIGN;
+							break;
+
+						case LTK_CAMSTART:
+							psDataSet->type = LDS_CAMSTART;
+							break;
+
+						case LTK_BETWEEN:
+							psDataSet->type = LDS_BETWEEN;
+							break;
+
+						case LTK_MKEEP:
+							psDataSet->type = LDS_MKEEP;
+							break;
+
+						case LTK_CAMCHANGE:
+							psDataSet->type = LDS_CAMCHANGE;
+							break;
+
+						case LTK_EXPAND:
+							psDataSet->type = LDS_EXPAND;
+							break;
+
+						case LTK_MCLEAR:
+							psDataSet->type = LDS_MCLEAR;
+							break;
+
+						case LTK_EXPAND_LIMBO:
+							psDataSet->type = LDS_EXPAND_LIMBO;
+							break;
+
+						case LTK_MKEEP_LIMBO:
+							psDataSet->type = LDS_MKEEP_LIMBO;
+							break;
+
+						default:
+							ASSERT(false, "eh?");
+							break;
+					}
+				}
+				else
+				{
+					lev_error("Syntax Error");
+					return false;
+				}
+
+				state = LP_LEVEL;
+				break;
+
+			case LTK_PLAYERS:
+				if(state == LP_LEVELDONE &&
+				        (psDataSet->type == LDS_COMPLETE || psDataSet->type >= LDS_MULTI_TYPE_START))
+				{
+					state = LP_PLAYERS;
+				}
+				else
+				{
+					lev_error("Syntax Error");
+					return false;
+				}
+
+				break;
+
+			case LTK_TYPE:
+				if(state == LP_LEVELDONE && psDataSet->type == LDS_COMPLETE)
+				{
+					state = LP_TYPE;
+				}
+				else
+				{
+					lev_error("Syntax Error");
+					return false;
+				}
+
+				break;
+
+			case LTK_INTEGER:
+				if(state == LP_PLAYERS)
+				{
+					psDataSet->players = (SWORD)levVal;
+				}
+				else if(state == LP_TYPE)
+				{
+					if(levVal < LDS_MULTI_TYPE_START)
+					{
+						lev_error("invalid type number");
 						return false;
 					}
-					psFoundData->psChange = psDataSet;
+
+					psDataSet->type = levVal;
 				}
-				// store the level name
-				psDataSet->pName = strdup(pLevToken);
-				if (psDataSet->pName == nullptr)
+				else
 				{
-					debug(LOG_FATAL, "Out of memory!");
-					abort();
+					lev_error("Syntax Error");
 					return false;
 				}
 
 				state = LP_LEVELDONE;
-			}
-			else if (state == LP_DATASET)
-			{
-				// find the dataset
-				psDataSet->psBaseData = levFindDataSet(pLevToken);
+				break;
 
-				if (psDataSet->psBaseData == nullptr)
+			case LTK_DATASET:
+				if(state == LP_LEVELDONE && psDataSet->type != LDS_COMPLETE)
 				{
-					lev_error("Unknown dataset");
-					return false;
+					state = LP_DATASET;
 				}
-				state = LP_WAITDATA;
-			}
-			else
-			{
-				lev_error("Syntax Error");
-				return false;
-			}
-			break;
-		case LTK_STRING:
-			if (state == LP_DATA || state == LP_GAME)
-			{
-				if (currData >= LEVEL_MAXFILES)
+				else
 				{
-					lev_error("Too many data files");
+					lev_error("Syntax Error");
 					return false;
 				}
 
-				// note the game index if necessary
-				if (state == LP_GAME)
+				break;
+
+			case LTK_DATA:
+				if(state == LP_WAITDATA)
 				{
-					psDataSet->game = (SWORD)currData;
+					state = LP_DATA;
 				}
-				else if (ignoreWrf)
+				else if(state == LP_LEVELDONE)
 				{
+					if(psDataSet->type == LDS_CAMSTART ||
+					        psDataSet->type == LDS_MKEEP
+					        || psDataSet->type == LDS_CAMCHANGE ||
+					        psDataSet->type == LDS_EXPAND ||
+					        psDataSet->type == LDS_MCLEAR ||
+					        psDataSet->type == LDS_EXPAND_LIMBO ||
+					        psDataSet->type == LDS_MKEEP_LIMBO
+					  )
+					{
+						lev_error("Missing dataset command");
+						return false;
+					}
+
+					state = LP_DATA;
+				}
+				else
+				{
+					lev_error("Syntax Error");
+					return false;
+				}
+
+				break;
+
+			case LTK_GAME:
+				if((state == LP_WAITDATA || state == LP_LEVELDONE) &&
+				        psDataSet->game == -1 && psDataSet->type != LDS_CAMPAIGN)
+				{
+					state = LP_GAME;
+				}
+				else
+				{
+					lev_error("Syntax Error");
+					return false;
+				}
+
+				break;
+
+			case LTK_IDENT:
+				if(state == LP_LEVEL)
+				{
+					if(psDataSet->type == LDS_CAMCHANGE)
+					{
+						// This is a campaign change dataset, we need to find the full data set.
+						LEVEL_DATASET *const psFoundData = levFindDataSet(pLevToken);
+
+						if(psFoundData == nullptr)
+						{
+							lev_error("Cannot find full data set for camchange");
+							return false;
+						}
+
+						if(psFoundData->type != LDS_CAMSTART)
+						{
+							lev_error("Invalid data set name for cam change");
+							return false;
+						}
+
+						psFoundData->psChange = psDataSet;
+					}
+
+					// store the level name
+					psDataSet->pName = strdup(pLevToken);
+
+					if(psDataSet->pName == nullptr)
+					{
+						debug(LOG_FATAL, "Out of memory!");
+						abort();
+						return false;
+					}
+
+					state = LP_LEVELDONE;
+				}
+				else if(state == LP_DATASET)
+				{
+					// find the dataset
+					psDataSet->psBaseData = levFindDataSet(pLevToken);
+
+					if(psDataSet->psBaseData == nullptr)
+					{
+						lev_error("Unknown dataset");
+						return false;
+					}
+
 					state = LP_WAITDATA;
-					break;	// ignore this wrf line
+				}
+				else
+				{
+					lev_error("Syntax Error");
+					return false;
 				}
 
-				// store the data name
-				psDataSet->apDataFiles[currData] = strdup(pLevToken);
+				break;
 
-				resToLower(pLevToken);
+			case LTK_STRING:
+				if(state == LP_DATA || state == LP_GAME)
+				{
+					if(currData >= LEVEL_MAXFILES)
+					{
+						lev_error("Too many data files");
+						return false;
+					}
 
-				currData += 1;
-				state = LP_WAITDATA;
-			}
-			else
-			{
-				lev_error("Syntax Error");
-				return false;
-			}
-			break;
-		default:
-			lev_error("Unexpected token");
-			break;
+					// note the game index if necessary
+					if(state == LP_GAME)
+					{
+						psDataSet->game = (SWORD)currData;
+					}
+					else if(ignoreWrf)
+					{
+						state = LP_WAITDATA;
+						break;	// ignore this wrf line
+					}
+
+					// store the data name
+					psDataSet->apDataFiles[currData] = strdup(pLevToken);
+
+					resToLower(pLevToken);
+
+					currData += 1;
+					state = LP_WAITDATA;
+				}
+				else
+				{
+					lev_error("Syntax Error");
+					return false;
+				}
+
+				break;
+
+			default:
+				lev_error("Unexpected token");
+				break;
 		}
 	}
 
 	lev_lex_destroy();
 
 	// Accept empty files when parsing (indicated by currData < 0)
-	if (currData >= 0
-	    && (state != LP_WAITDATA
-	        || currData == 0))
+	if(currData >= 0
+	        && (state != LP_WAITDATA
+	            || currData == 0))
 	{
 		lev_error("Unexpected end of file");
 		return false;
@@ -485,21 +525,21 @@ bool levParse(const char *buffer, size_t size, searchPathMode datadir, bool igno
 bool levReleaseMissionData()
 {
 	// release old data if any was loaded
-	if (psCurrLevel != nullptr)
+	if(psCurrLevel != nullptr)
 	{
-		if (!stageThreeShutDown())
+		if(!stageThreeShutDown())
 		{
 			return false;
 		}
 
 		// free up the old data
-		for (int i = LEVEL_MAXFILES - 1; i >= 0; i--)
+		for(int i = LEVEL_MAXFILES - 1; i >= 0; i--)
 		{
-			if (i == psCurrLevel->game)
+			if(i == psCurrLevel->game)
 			{
-				if (psCurrLevel->psBaseData == nullptr)
+				if(psCurrLevel->psBaseData == nullptr)
 				{
-					if (!stageTwoShutDown())
+					if(!stageTwoShutDown())
 					{
 						return false;
 					}
@@ -511,6 +551,7 @@ bool levReleaseMissionData()
 			}
 		}
 	}
+
 	return true;
 }
 
@@ -522,18 +563,18 @@ bool levReleaseAll()
 	initEffectsSystem();
 
 	// release old data if any was loaded
-	if (psCurrLevel != nullptr)
+	if(psCurrLevel != nullptr)
 	{
-		if (!levReleaseMissionData())
+		if(!levReleaseMissionData())
 		{
 			debug(LOG_ERROR, "Failed to unload mission data");
 			return false;
 		}
 
 		// release the game data
-		if (psCurrLevel->psBaseData != nullptr)
+		if(psCurrLevel->psBaseData != nullptr)
 		{
-			if (!stageTwoShutDown())
+			if(!stageTwoShutDown())
 			{
 				debug(LOG_ERROR, "Failed stage two shutdown");
 				return false;
@@ -541,18 +582,18 @@ bool levReleaseAll()
 		}
 
 
-		if (psCurrLevel->psBaseData)
+		if(psCurrLevel->psBaseData)
 		{
-			for (int i = LEVEL_MAXFILES - 1; i >= 0; i--)
+			for(int i = LEVEL_MAXFILES - 1; i >= 0; i--)
 			{
-				if (psCurrLevel->psBaseData->apDataFiles[i])
+				if(psCurrLevel->psBaseData->apDataFiles[i])
 				{
 					resReleaseBlockData(i);
 				}
 			}
 		}
 
-		if (!stageOneShutDown())
+		if(!stageOneShutDown())
 		{
 			debug(LOG_ERROR, "Failed stage one shutdown");
 			return false;
@@ -568,13 +609,13 @@ bool levReleaseAll()
 static bool levLoadSingleWRF(const char *name)
 {
 	// free the old data
-	if (!levReleaseAll())
+	if(!levReleaseAll())
 	{
 		return false;
 	}
 
 	// create the dummy level data
-	if (sSingleWRF.pName)
+	if(sSingleWRF.pName)
 	{
 		free(sSingleWRF.pName);
 	}
@@ -583,19 +624,20 @@ static bool levLoadSingleWRF(const char *name)
 	sSingleWRF.pName = strdup(name);
 
 	// load up the WRF
-	if (!stageOneInitialise())
+	if(!stageOneInitialise())
 	{
 		return false;
 	}
 
 	// load the data
 	debug(LOG_WZ, "Loading %s ...", name);
-	if (!resLoad(name, 0))
+
+	if(!resLoad(name, 0))
 	{
 		return false;
 	}
 
-	if (!stageThreeInitialise())
+	if(!stageThreeInitialise())
 	{
 		return false;
 	}
@@ -617,9 +659,10 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 	bool            bCamChangeSaveGame;
 
 	debug(LOG_WZ, "Loading level %s hash %s (%s, type %d)", name, hash == nullptr ? "builtin" : hash->toString().c_str(), pSaveName, (int)saveType);
-	if (saveType == GTYPE_SAVE_START || saveType == GTYPE_SAVE_MIDMISSION)
+
+	if(saveType == GTYPE_SAVE_START || saveType == GTYPE_SAVE_MIDMISSION)
 	{
-		if (!levReleaseAll())
+		if(!levReleaseAll())
 		{
 			debug(LOG_ERROR, "Failed to unload old data");
 			return false;
@@ -633,20 +676,23 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 
 	// find the level dataset
 	psNewLevel = levFindDataSet(name, hash);
-	if (psNewLevel == nullptr)
+
+	if(psNewLevel == nullptr)
 	{
 		debug(LOG_INFO, "Dataset %s not found - trying to load as WRF", name);
 		return levLoadSingleWRF(name);
 	}
+
 	debug(LOG_WZ, "** Data set found is %s type %d", psNewLevel->pName, (int)psNewLevel->type);
 
 	/* Keep a copy of the present level name */
 	sstrcpy(currentLevelName, name);
 
 	bCamChangeSaveGame = false;
-	if (pSaveName && saveType == GTYPE_SAVE_START)
+
+	if(pSaveName && saveType == GTYPE_SAVE_START)
 	{
-		if (psNewLevel->psChange != nullptr)
+		if(psNewLevel->psChange != nullptr)
 		{
 			bCamChangeSaveGame = true;
 			debug(LOG_WZ, "** CAMCHANGE FOUND");
@@ -655,7 +701,8 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 
 	// select the change dataset if there is one
 	psChangeLevel = nullptr;
-	if (((psNewLevel->psChange != nullptr) && (psCurrLevel != nullptr)) || bCamChangeSaveGame)
+
+	if(((psNewLevel->psChange != nullptr) && (psCurrLevel != nullptr)) || bCamChangeSaveGame)
 	{
 		//store the level name
 		debug(LOG_WZ, "Found CAMCHANGE dataset");
@@ -664,23 +711,24 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 	}
 
 	// ensure the correct dataset is loaded
-	if (psNewLevel->type == LDS_CAMPAIGN)
+	if(psNewLevel->type == LDS_CAMPAIGN)
 	{
 		debug(LOG_ERROR, "Cannot load a campaign dataset (%s)", psNewLevel->pName);
 		return false;
 	}
 	else
 	{
-		if (psCurrLevel != nullptr)
+		if(psCurrLevel != nullptr)
 		{
-			if ((psCurrLevel->psBaseData != psNewLevel->psBaseData) ||
-			    (psCurrLevel->type < LDS_NONE && psNewLevel->type  >= LDS_NONE) ||
-			    (psCurrLevel->type >= LDS_NONE && psNewLevel->type  < LDS_NONE))
+			if((psCurrLevel->psBaseData != psNewLevel->psBaseData) ||
+			        (psCurrLevel->type < LDS_NONE && psNewLevel->type  >= LDS_NONE) ||
+			        (psCurrLevel->type >= LDS_NONE && psNewLevel->type  < LDS_NONE))
 			{
 				// there is a dataset loaded but it isn't the correct one
 				debug(LOG_WZ, "Incorrect base dataset loaded (%p != %p, %d - %d)",
 				      static_cast<void *>(psCurrLevel->psBaseData), static_cast<void *>(psNewLevel->psBaseData), (int)psCurrLevel->type, (int)psNewLevel->type);
-				if (!levReleaseAll())	// this sets psCurrLevel to NULL
+
+				if(!levReleaseAll())	// this sets psCurrLevel to NULL
 				{
 					debug(LOG_ERROR, "Failed to release old data");
 					return false;
@@ -693,12 +741,13 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 		}
 
 		// setup the correct dataset to load if necessary
-		if (psCurrLevel == nullptr)
+		if(psCurrLevel == nullptr)
 		{
-			if (psNewLevel->psBaseData != nullptr)
+			if(psNewLevel->psBaseData != nullptr)
 			{
 				debug(LOG_WZ, "Setting base dataset to load: %s", psNewLevel->psBaseData->pName);
 			}
+
 			psBaseData = psNewLevel->psBaseData;
 		}
 		else
@@ -708,17 +757,18 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 		}
 	}
 
-	if (!rebuildSearchPath(psNewLevel->dataDir, true, psNewLevel->realFileName))
+	if(!rebuildSearchPath(psNewLevel->dataDir, true, psNewLevel->realFileName))
 	{
 		debug(LOG_ERROR, "Failed to rebuild search path");
 		return false;
 	}
 
 	// reset the old mission data if necessary
-	if (psCurrLevel != nullptr)
+	if(psCurrLevel != nullptr)
 	{
 		debug(LOG_WZ, "Reseting old mission data");
-		if (!levReleaseMissionData())
+
+		if(!levReleaseMissionData())
 		{
 			debug(LOG_ERROR, "Failed to unload old mission data");
 			return false;
@@ -726,9 +776,9 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 	}
 
 	// need to free the current map and droids etc for a save game
-	if (psBaseData == nullptr && pSaveName != nullptr)
+	if(psBaseData == nullptr && pSaveName != nullptr)
 	{
-		if (!saveGameReset())
+		if(!saveGameReset())
 		{
 			debug(LOG_ERROR, "Failed to saveGameReset()!");
 			return false;
@@ -736,10 +786,11 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 	}
 
 	// initialise if necessary
-	if (psNewLevel->type == LDS_COMPLETE || psBaseData != nullptr)
+	if(psNewLevel->type == LDS_COMPLETE || psBaseData != nullptr)
 	{
 		debug(LOG_WZ, "Calling stageOneInitialise!");
-		if (!stageOneInitialise())
+
+		if(!stageOneInitialise())
 		{
 			debug(LOG_ERROR, "Failed stageOneInitialise!");
 			return false;
@@ -747,16 +798,18 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 	}
 
 	// load up a base dataset if necessary
-	if (psBaseData != nullptr)
+	if(psBaseData != nullptr)
 	{
 		debug(LOG_WZ, "Loading base dataset %s", psBaseData->pName);
-		for (int i = 0; i < LEVEL_MAXFILES; i++)
+
+		for(int i = 0; i < LEVEL_MAXFILES; i++)
 		{
-			if (psBaseData->apDataFiles[i])
+			if(psBaseData->apDataFiles[i])
 			{
 				// load the data
 				debug(LOG_WZ, "Loading [directory: %s] %s ...", PHYSFS_getRealDir(psBaseData->apDataFiles[i]), psBaseData->apDataFiles[i]);
-				if (!resLoad(psBaseData->apDataFiles[i], i))
+
+				if(!resLoad(psBaseData->apDataFiles[i], i))
 				{
 					debug(LOG_ERROR, "Failed resLoad(%s)!", psBaseData->apDataFiles[i]);
 					return false;
@@ -764,23 +817,26 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 			}
 		}
 	}
-	if (psNewLevel->type == LDS_CAMCHANGE)
+
+	if(psNewLevel->type == LDS_CAMCHANGE)
 	{
-		if (!campaignReset())
+		if(!campaignReset())
 		{
 			debug(LOG_ERROR, "Failed campaignReset()!");
 			return false;
 		}
 	}
-	if (psNewLevel->game == -1)  //no .gam file to load - BETWEEN missions (for Editor games only)
+
+	if(psNewLevel->game == -1)   //no .gam file to load - BETWEEN missions (for Editor games only)
 	{
 		ASSERT(psNewLevel->type == LDS_BETWEEN, "Only BETWEEN missions do not need a .gam file");
 		debug(LOG_WZ, "No .gam file for level: BETWEEN mission");
-		if (pSaveName != nullptr)
+
+		if(pSaveName != nullptr)
 		{
-			if (psBaseData != nullptr)
+			if(psBaseData != nullptr)
 			{
-				if (!stageTwoInitialise())
+				if(!stageTwoInitialise())
 				{
 					debug(LOG_ERROR, "Failed stageTwoInitialise()!");
 					return false;
@@ -788,10 +844,11 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 			}
 
 			//set the mission type before the saveGame data is loaded
-			if (saveType == GTYPE_SAVE_MIDMISSION)
+			if(saveType == GTYPE_SAVE_MIDMISSION)
 			{
 				debug(LOG_WZ, "Init mission stuff");
-				if (!startMissionSave(psNewLevel->type))
+
+				if(!startMissionSave(psNewLevel->type))
 				{
 					debug(LOG_ERROR, "Failed startMissionSave(%d)!", psNewLevel->type);
 					return false;
@@ -802,17 +859,19 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 			}
 
 			debug(LOG_NEVER, "Loading savegame: %s", pSaveName);
-			if (!loadGame(pSaveName, false, true, true))
+
+			if(!loadGame(pSaveName, false, true, true))
 			{
 				debug(LOG_ERROR, "Failed loadGame(%s)!", pSaveName);
 				return false;
 			}
 		}
 
-		if (pSaveName == nullptr || saveType == GTYPE_SAVE_START)
+		if(pSaveName == nullptr || saveType == GTYPE_SAVE_START)
 		{
 			debug(LOG_NEVER, "Start mission - no .gam");
-			if (!startMission((LEVEL_TYPE)psNewLevel->type, nullptr))
+
+			if(!startMission((LEVEL_TYPE)psNewLevel->type, nullptr))
 			{
 				debug(LOG_ERROR, "Failed startMission(%d)!", psNewLevel->type);
 				return false;
@@ -821,13 +880,13 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 	}
 
 	//we need to load up the save game data here for a camchange
-	if (bCamChangeSaveGame)
+	if(bCamChangeSaveGame)
 	{
-		if (pSaveName != nullptr)
+		if(pSaveName != nullptr)
 		{
-			if (psBaseData != nullptr)
+			if(psBaseData != nullptr)
 			{
-				if (!stageTwoInitialise())
+				if(!stageTwoInitialise())
 				{
 					debug(LOG_ERROR, "Failed stageTwoInitialise() [camchange]!");
 					return false;
@@ -835,7 +894,8 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 			}
 
 			debug(LOG_NEVER, "loading savegame: %s", pSaveName);
-			if (!loadGame(pSaveName, false, true, true))
+
+			if(!loadGame(pSaveName, false, true, true))
 			{
 				debug(LOG_ERROR, "Failed loadGame(%s)!", pSaveName);
 				return false;
@@ -848,14 +908,15 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 
 	// load the new data
 	debug(LOG_NEVER, "Loading mission dataset: %s", psNewLevel->pName);
-	for (int i = 0; i < LEVEL_MAXFILES; i++)
+
+	for(int i = 0; i < LEVEL_MAXFILES; i++)
 	{
-		if (psNewLevel->game == i)
+		if(psNewLevel->game == i)
 		{
 			// do some more initialising if necessary
-			if (psNewLevel->type == LDS_COMPLETE || psNewLevel->type >= LDS_MULTI_TYPE_START || (psBaseData != nullptr && !bCamChangeSaveGame))
+			if(psNewLevel->type == LDS_COMPLETE || psNewLevel->type >= LDS_MULTI_TYPE_START || (psBaseData != nullptr && !bCamChangeSaveGame))
 			{
-				if (!stageTwoInitialise())
+				if(!stageTwoInitialise())
 				{
 					debug(LOG_ERROR, "Failed stageTwoInitialise() [newdata]!");
 					return false;
@@ -863,13 +924,14 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 			}
 
 			// load a savegame if there is one - but not if already done so
-			if (pSaveName != nullptr && !bCamChangeSaveGame)
+			if(pSaveName != nullptr && !bCamChangeSaveGame)
 			{
 				//set the mission type before the saveGame data is loaded
-				if (saveType == GTYPE_SAVE_MIDMISSION)
+				if(saveType == GTYPE_SAVE_MIDMISSION)
 				{
 					debug(LOG_WZ, "Init mission stuff");
-					if (!startMissionSave(psNewLevel->type))
+
+					if(!startMissionSave(psNewLevel->type))
 					{
 						debug(LOG_ERROR, "Failed startMissionSave(%d)!", psNewLevel->type);
 						return false;
@@ -880,104 +942,130 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 				}
 
 				debug(LOG_NEVER, "Loading save game %s", pSaveName);
-				if (!loadGame(pSaveName, false, true, true))
+
+				if(!loadGame(pSaveName, false, true, true))
 				{
 					debug(LOG_ERROR, "Failed loadGame(%s)!", pSaveName);
 					return false;
 				}
 			}
 
-			if (pSaveName == nullptr || saveType == GTYPE_SAVE_START)
+			if(pSaveName == nullptr || saveType == GTYPE_SAVE_START)
 			{
 				// load the game
 				debug(LOG_WZ, "Loading scenario file %s", psNewLevel->apDataFiles[i]);
-				switch (psNewLevel->type)
+
+				switch(psNewLevel->type)
 				{
-				case LDS_COMPLETE:
-				case LDS_CAMSTART:
-					debug(LOG_WZ, "LDS_COMPLETE / LDS_CAMSTART");
-					if (!startMission(LDS_CAMSTART, psNewLevel->apDataFiles[i]))
-					{
-						debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_CAMSTART, psNewLevel->apDataFiles[i]);
-						return false;
-					}
-					break;
-				case LDS_BETWEEN:
-					debug(LOG_WZ, "LDS_BETWEEN");
-					if (!startMission(LDS_BETWEEN, psNewLevel->apDataFiles[i]))
-					{
-						debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_BETWEEN, psNewLevel->apDataFiles[i]);
-						return false;
-					}
-					break;
+					case LDS_COMPLETE:
+					case LDS_CAMSTART:
+						debug(LOG_WZ, "LDS_COMPLETE / LDS_CAMSTART");
 
-				case LDS_MKEEP:
-					debug(LOG_WZ, "LDS_MKEEP");
-					if (!startMission(LDS_MKEEP, psNewLevel->apDataFiles[i]))
-					{
-						debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_MKEEP, psNewLevel->apDataFiles[i]);
-						return false;
-					}
-					break;
-				case LDS_CAMCHANGE:
-					debug(LOG_WZ, "LDS_CAMCHANGE");
-					if (!startMission(LDS_CAMCHANGE, psNewLevel->apDataFiles[i]))
-					{
-						debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_CAMCHANGE, psNewLevel->apDataFiles[i]);
-						return false;
-					}
-					break;
+						if(!startMission(LDS_CAMSTART, psNewLevel->apDataFiles[i]))
+						{
+							debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_CAMSTART, psNewLevel->apDataFiles[i]);
+							return false;
+						}
 
-				case LDS_EXPAND:
-					debug(LOG_WZ, "LDS_EXPAND");
-					if (!startMission(LDS_EXPAND, psNewLevel->apDataFiles[i]))
-					{
-						debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_EXPAND, psNewLevel->apDataFiles[i]);
-						return false;
-					}
-					break;
-				case LDS_EXPAND_LIMBO:
-					debug(LOG_WZ, "LDS_LIMBO");
-					if (!startMission(LDS_EXPAND_LIMBO, psNewLevel->apDataFiles[i]))
-					{
-						debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_EXPAND_LIMBO, psNewLevel->apDataFiles[i]);
-						return false;
-					}
-					break;
+						break;
 
-				case LDS_MCLEAR:
-					debug(LOG_WZ, "LDS_MCLEAR");
-					if (!startMission(LDS_MCLEAR, psNewLevel->apDataFiles[i]))
-					{
-						debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_MCLEAR, psNewLevel->apDataFiles[i]);
-						return false;
-					}
-					break;
-				case LDS_MKEEP_LIMBO:
-					debug(LOG_WZ, "LDS_MKEEP_LIMBO");
-					if (!startMission(LDS_MKEEP_LIMBO, psNewLevel->apDataFiles[i]))
-					{
-						debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_MKEEP_LIMBO, psNewLevel->apDataFiles[i]);
-						return false;
-					}
-					break;
-				default:
-					ASSERT(psNewLevel->type >= LDS_MULTI_TYPE_START, "Unexpected mission type");
-					debug(LOG_WZ, "default (MULTIPLAYER)");
-					if (!startMission(LDS_CAMSTART, psNewLevel->apDataFiles[i]))
-					{
-						debug(LOG_ERROR, "Failed startMission(%d, %s) (default)!", LDS_CAMSTART, psNewLevel->apDataFiles[i]);
-						return false;
-					}
-					break;
+					case LDS_BETWEEN:
+						debug(LOG_WZ, "LDS_BETWEEN");
+
+						if(!startMission(LDS_BETWEEN, psNewLevel->apDataFiles[i]))
+						{
+							debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_BETWEEN, psNewLevel->apDataFiles[i]);
+							return false;
+						}
+
+						break;
+
+					case LDS_MKEEP:
+						debug(LOG_WZ, "LDS_MKEEP");
+
+						if(!startMission(LDS_MKEEP, psNewLevel->apDataFiles[i]))
+						{
+							debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_MKEEP, psNewLevel->apDataFiles[i]);
+							return false;
+						}
+
+						break;
+
+					case LDS_CAMCHANGE:
+						debug(LOG_WZ, "LDS_CAMCHANGE");
+
+						if(!startMission(LDS_CAMCHANGE, psNewLevel->apDataFiles[i]))
+						{
+							debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_CAMCHANGE, psNewLevel->apDataFiles[i]);
+							return false;
+						}
+
+						break;
+
+					case LDS_EXPAND:
+						debug(LOG_WZ, "LDS_EXPAND");
+
+						if(!startMission(LDS_EXPAND, psNewLevel->apDataFiles[i]))
+						{
+							debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_EXPAND, psNewLevel->apDataFiles[i]);
+							return false;
+						}
+
+						break;
+
+					case LDS_EXPAND_LIMBO:
+						debug(LOG_WZ, "LDS_LIMBO");
+
+						if(!startMission(LDS_EXPAND_LIMBO, psNewLevel->apDataFiles[i]))
+						{
+							debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_EXPAND_LIMBO, psNewLevel->apDataFiles[i]);
+							return false;
+						}
+
+						break;
+
+					case LDS_MCLEAR:
+						debug(LOG_WZ, "LDS_MCLEAR");
+
+						if(!startMission(LDS_MCLEAR, psNewLevel->apDataFiles[i]))
+						{
+							debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_MCLEAR, psNewLevel->apDataFiles[i]);
+							return false;
+						}
+
+						break;
+
+					case LDS_MKEEP_LIMBO:
+						debug(LOG_WZ, "LDS_MKEEP_LIMBO");
+
+						if(!startMission(LDS_MKEEP_LIMBO, psNewLevel->apDataFiles[i]))
+						{
+							debug(LOG_ERROR, "Failed startMission(%d, %s)!", LDS_MKEEP_LIMBO, psNewLevel->apDataFiles[i]);
+							return false;
+						}
+
+						break;
+
+					default:
+						ASSERT(psNewLevel->type >= LDS_MULTI_TYPE_START, "Unexpected mission type");
+						debug(LOG_WZ, "default (MULTIPLAYER)");
+
+						if(!startMission(LDS_CAMSTART, psNewLevel->apDataFiles[i]))
+						{
+							debug(LOG_ERROR, "Failed startMission(%d, %s) (default)!", LDS_CAMSTART, psNewLevel->apDataFiles[i]);
+							return false;
+						}
+
+						break;
 				}
 			}
 		}
-		else if (psNewLevel->apDataFiles[i])
+		else if(psNewLevel->apDataFiles[i])
 		{
 			// load the data
 			debug(LOG_WZ, "Loading %s", psNewLevel->apDataFiles[i]);
-			if (!resLoad(psNewLevel->apDataFiles[i], i + CURRENT_DATAID))
+
+			if(!resLoad(psNewLevel->apDataFiles[i], i + CURRENT_DATAID))
 			{
 				debug(LOG_ERROR, "Failed resLoad(%s, %d) (default)!", psNewLevel->apDataFiles[i], i + CURRENT_DATAID);
 				return false;
@@ -985,35 +1073,36 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 		}
 	}
 
-	if (bMultiPlayer)
+	if(bMultiPlayer)
 	{
 		// This calls resLoadFile("SMSG", "multiplay.txt"). Must be before loadMissionExtras, which calls loadSaveMessage, which calls getViewData.
 		loadMultiScripts();
 	}
 
-	if (pSaveName != nullptr)
+	if(pSaveName != nullptr)
 	{
 		//load MidMission Extras
-		if (!loadMissionExtras(pSaveName, psNewLevel->type))
+		if(!loadMissionExtras(pSaveName, psNewLevel->type))
 		{
 			debug(LOG_ERROR, "Failed loadMissionExtras(%s, %d)!", pSaveName, psNewLevel->type);
 			return false;
 		}
 	}
 
-	if (pSaveName != nullptr && saveType == GTYPE_SAVE_MIDMISSION)
+	if(pSaveName != nullptr && saveType == GTYPE_SAVE_MIDMISSION)
 	{
 		//load script stuff
 		// load the event system state here for a save game
 		debug(LOG_SAVE, "Loading script system state");
-		if (!loadScriptState(pSaveName))
+
+		if(!loadScriptState(pSaveName))
 		{
 			debug(LOG_ERROR, "Failed loadScriptState(%s)!", pSaveName);
 			return false;
 		}
 	}
 
-	if (!stageThreeInitialise())
+	if(!stageThreeInitialise())
 	{
 		debug(LOG_ERROR, "Failed stageThreeInitialise()!");
 		return false;
@@ -1023,13 +1112,13 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 
 	//this enables us to to start cam2/cam3 without going via a save game and get the extra droids
 	//in from the script-controlled Transporters
-	if (!pSaveName && psNewLevel->type == LDS_CAMSTART)
+	if(!pSaveName && psNewLevel->type == LDS_CAMSTART)
 	{
 		eventFireCallbackTrigger((TRIGGER_TYPE)CALL_NO_REINFORCEMENTS_LEFT);
 	}
 
 	//restore the level name for comparisons on next mission load up
-	if (psChangeLevel == nullptr)
+	if(psChangeLevel == nullptr)
 	{
 		psCurrLevel = psNewLevel;
 	}
@@ -1046,10 +1135,11 @@ bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYP
 
 	triggerEvent(TRIGGER_GAME_LOADED);
 
-	if (autogame_enabled())
+	if(autogame_enabled())
 	{
 		gameTimeSetMod(Rational(500));
-		if (hostlaunch != 2) // tests will specify the AI manually
+
+		if(hostlaunch != 2)  // tests will specify the AI manually
 		{
 			jsAutogameSpecific("multiplay/skirmish/semperfi.js", selectedPlayer);
 		}
@@ -1063,23 +1153,24 @@ LEVEL_LIST enumerateMultiMaps(int camToUse, int numPlayers)
 {
 	LEVEL_LIST list;
 
-	for (auto lev : psLevels)
+	for(auto lev : psLevels)
 	{
-		if (game.type == SKIRMISH)
+		if(game.type == SKIRMISH)
 		{
 			int cam = 1;
-			if (lev->type == MULTI_SKIRMISH2)
+
+			if(lev->type == MULTI_SKIRMISH2)
 			{
 				cam = 2;
 			}
-			else if (lev->type == MULTI_SKIRMISH3)
+			else if(lev->type == MULTI_SKIRMISH3)
 			{
 				cam = 3;
 			}
 
-			if ((lev->type == SKIRMISH || lev->type == MULTI_SKIRMISH2 || lev->type == MULTI_SKIRMISH3)
-			    && (numPlayers == 0 || numPlayers == lev->players)
-			    && cam == camToUse)
+			if((lev->type == SKIRMISH || lev->type == MULTI_SKIRMISH2 || lev->type == MULTI_SKIRMISH3)
+			        && (numPlayers == 0 || numPlayers == lev->players)
+			        && cam == camToUse)
 			{
 				list.push_back(lev);
 			}

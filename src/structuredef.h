@@ -146,10 +146,12 @@ struct STRUCTURE_STATS : public BASE_STATS
 	inline Vector2i size(uint16_t direction) const
 	{
 		Vector2i size(baseWidth, baseBreadth);
-		if (((direction + 0x2000) & 0x4000) != 0) // if building is rotated left or right by 90°, swap width and height
+
+		if(((direction + 0x2000) & 0x4000) != 0)  // if building is rotated left or right by 90°, swap width and height
 		{
 			std::swap(size.x, size.y);
 		}
+
 		return size;
 	}
 };
@@ -276,7 +278,10 @@ struct STRUCTURE : public BASE_OBJECT
 	UDWORD lastStateTime;
 	iIMDShape *prebuiltImd;
 
-	inline Vector2i size() const { return pStructureType->size(rot.direction); }
+	inline Vector2i size() const
+	{
+		return pStructureType->size(rot.direction);
+	}
 };
 
 #define LOTS_OF 0xFFFFFFFF  // highest number the limit can be set to

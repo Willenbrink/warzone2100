@@ -77,7 +77,8 @@
 
 static void displayStructureBar(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset);
 
-struct DisplayStructureBarCache {
+struct DisplayStructureBarCache
+{
 	WzText wzNameText;
 	WzText wzLimitText;
 };
@@ -86,7 +87,7 @@ struct DisplayStructureBarCache {
 static inline void freeLimitSet()
 {
 	// Free the old set if required
-	if (ingame.numStructureLimits)
+	if(ingame.numStructureLimits)
 	{
 		free(ingame.pStructureLimits);
 		ingame.numStructureLimits = 0;
@@ -100,11 +101,11 @@ bool startLimitScreen()
 	addBackdrop();//background
 
 	// load stats...
-	if (!bLimiterLoaded)
+	if(!bLimiterLoaded)
 	{
 		initLoadingScreen(true);
 
-		if (!resLoad("wrf/limiter_data.wrf", 503))
+		if(!resLoad("wrf/limiter_data.wrf", 503))
 		{
 			return false;
 		}
@@ -114,9 +115,9 @@ bool startLimitScreen()
 		closeLoadingScreen();
 	}
 
-	if (challengeActive)
+	if(challengeActive)
 	{
-		for (unsigned i = 0; i < numStructureStats; ++i)
+		for(unsigned i = 0; i < numStructureStats; ++i)
 		{
 			asStructureStats[i].upgrade[0].limit = asStructureStats[i].base.limit;
 		}
@@ -136,7 +137,8 @@ bool startLimitScreen()
 
 	IntFormAnimated *limitsForm = new IntFormAnimated(parent, false);
 	limitsForm->id = IDLIMITS;
-	limitsForm->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+	limitsForm->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+	{
 		psWidget->setGeometry(LIMITSX, LIMITSY, LIMITSW, LIMITSH);
 	}));
 
@@ -156,7 +158,8 @@ bool startLimitScreen()
 
 	// add tab form..
 	IntListTabWidget *limitsList = new IntListTabWidget(limitsForm);
-	limitsList->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+	limitsList->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+	{
 		IntListTabWidget *limitsList = static_cast<IntListTabWidget *>(psWidget);
 		assert(limitsList != nullptr);
 		limitsList->setChildSize(BARWIDTH, BARHEIGHT);
@@ -167,16 +170,17 @@ bool startLimitScreen()
 	//Put the buttons on it
 	int limitsButtonId = IDLIMITS_ENTRIES_START;
 
-	for (unsigned i = 0; i < numStructureStats; ++i)
+	for(unsigned i = 0; i < numStructureStats; ++i)
 	{
-		if (asStructureStats[i].base.limit != LOTS_OF)
+		if(asStructureStats[i].base.limit != LOTS_OF)
 		{
 			W_FORM *button = new W_FORM(limitsList);
 			button->id = limitsButtonId;
 			button->displayFunction = displayStructureBar;
 			button->UserData = i;
 			button->pUserData = new DisplayStructureBarCache();
-			button->setOnDelete([](WIDGET *psWidget) {
+			button->setOnDelete([](WIDGET * psWidget)
+			{
 				assert(psWidget->pUserData != nullptr);
 				delete static_cast<DisplayStructureBarCache *>(psWidget->pUserData);
 				psWidget->pUserData = nullptr;
@@ -204,10 +208,11 @@ void runLimitScreen()
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
 	// sliders
-	if ((id > IDLIMITS_ENTRIES_START)  && (id < IDLIMITS_ENTRIES_END))
+	if((id > IDLIMITS_ENTRIES_START)  && (id < IDLIMITS_ENTRIES_END))
 	{
 		unsigned statid = widgGetFromID(psWScreen, id - 1)->UserData;
-		if (statid)
+
+		if(statid)
 		{
 			asStructureStats[statid].upgrade[0].limit = (UBYTE)((W_SLIDER *)(widgGetFromID(psWScreen, id)))->pos;
 		}
@@ -215,43 +220,48 @@ void runLimitScreen()
 	else
 	{
 		// icons that are always about.
-		switch (id)
+		switch(id)
 		{
-		case IDLIMITS_RETURN:
-			// reset the sliders..
-			for (unsigned i = 0; i < numStructureStats; ++i)
-			{
-				asStructureStats[i].upgrade[0].limit = asStructureStats[i].base.limit;
-			}
-			// free limiter structure
-			freeLimitSet();
-			//inform others
-			if (bHosted)
-			{
-				sendOptions();
-			}
+			case IDLIMITS_RETURN:
 
-			eventReset();
-			changeTitleMode(MULTIOPTION);
+				// reset the sliders..
+				for(unsigned i = 0; i < numStructureStats; ++i)
+				{
+					asStructureStats[i].upgrade[0].limit = asStructureStats[i].base.limit;
+				}
 
-			// make some noize.
-			if (!ingame.localOptionsReceived)
-			{
-				addConsoleMessage(_("Limits reset to default values"), DEFAULT_JUSTIFY, SYSTEM_MESSAGE);
-			}
-			else
-			{
-				sendTextMessage("Limits Reset To Default Values", true);
-			}
+				// free limiter structure
+				freeLimitSet();
 
-			break;
-		case IDLIMITS_OK:
-			resetReadyStatus(false);
-			createLimitSet();
-			changeTitleMode(MULTIOPTION);
-			break;
-		default:
-			break;
+				//inform others
+				if(bHosted)
+				{
+					sendOptions();
+				}
+
+				eventReset();
+				changeTitleMode(MULTIOPTION);
+
+				// make some noize.
+				if(!ingame.localOptionsReceived)
+				{
+					addConsoleMessage(_("Limits reset to default values"), DEFAULT_JUSTIFY, SYSTEM_MESSAGE);
+				}
+				else
+				{
+					sendTextMessage("Limits Reset To Default Values", true);
+				}
+
+				break;
+
+			case IDLIMITS_OK:
+				resetReadyStatus(false);
+				createLimitSet();
+				changeTitleMode(MULTIOPTION);
+				break;
+
+			default:
+				break;
 		}
 	}
 
@@ -269,16 +279,16 @@ void createLimitSet()
 	freeLimitSet();
 
 	// don't bother creating if a challenge mode is active
-	if (challengeActive)
+	if(challengeActive)
 	{
 		return;
 	}
 
 	// Count the number of changes
-	for (unsigned i = 0; i < numStructureStats; i++)
+	for(unsigned i = 0; i < numStructureStats; i++)
 	{
 		// If the limit differs from the default
-		if (asStructureStats[i].upgrade[0].limit != LOTS_OF)
+		if(asStructureStats[i].upgrade[0].limit != LOTS_OF)
 		{
 			numchanges++;
 		}
@@ -290,9 +300,9 @@ void createLimitSet()
 	memset(pEntry, 255, bufSize);
 
 	// Prepare chunk
-	for (unsigned i = 0; i < numStructureStats; i++)
+	for(unsigned i = 0; i < numStructureStats; i++)
 	{
-		if (asStructureStats[i].upgrade[0].limit != LOTS_OF)
+		if(asStructureStats[i].upgrade[0].limit != LOTS_OF)
 		{
 			ASSERT_OR_RETURN(, idx < numchanges, "Bad number of changed limits");
 			pEntry[idx].id		= i;
@@ -304,7 +314,7 @@ void createLimitSet()
 	ingame.numStructureLimits	= numchanges;
 	ingame.pStructureLimits		= pEntry;
 
-	if (bHosted)
+	if(bHosted)
 	{
 		sendOptions();
 	}
@@ -313,21 +323,22 @@ void createLimitSet()
 // ////////////////////////////////////////////////////////////////////////////
 void applyLimitSet()
 {
-	if (ingame.numStructureLimits == 0)
+	if(ingame.numStructureLimits == 0)
 	{
 		return;
 	}
 
 	// Get the limits and decode
 	const MULTISTRUCTLIMITS *pEntry = ingame.pStructureLimits;
-	for (int i = 0; i < ingame.numStructureLimits; ++i)
+
+	for(int i = 0; i < ingame.numStructureLimits; ++i)
 	{
 		int id = pEntry[i].id;
 
 		// So long as the ID is valid
-		if (id < numStructureStats)
+		if(id < numStructureStats)
 		{
-			for (int player = 0; player < MAX_PLAYERS; player++)
+			for(int player = 0; player < MAX_PLAYERS; player++)
 			{
 				asStructureStats[id].upgrade[player].limit = pEntry[i].limit;
 			}
@@ -368,11 +379,12 @@ static void displayStructureBar(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset
 	position.z = BUTTON_DEPTH * 2; //getStructureStatSize(stat)  * 38 * OBJECT_RADIUS;
 
 	Radius = getStructureStatSizeMax(stat);
-	if (Radius <= 128)
+
+	if(Radius <= 128)
 	{
 		scale = SMALL_STRUCT_SCALE;
 	}
-	else if (Radius <= 256)
+	else if(Radius <= 256)
 	{
 		scale = MED_STRUCT_SCALE;
 	}

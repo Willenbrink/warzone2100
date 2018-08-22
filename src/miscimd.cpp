@@ -96,25 +96,28 @@ static bool multiLoadMiscImds()
 	char	name[15];	// hopefully!
 
 	/* Go thru' the list */
-	while (bMoreToProcess)
+	while(bMoreToProcess)
 	{
 		snprintf(name, sizeof(name), "%s.pie", miscImds[i].pName);
 
 		/* see if the resource loader can find it */
 		miscImds[i].pImd = modelGet(name);
+
 		/* If it didn't get it then... */
-		if (!miscImds[i].pImd)
+		if(!miscImds[i].pImd)
 		{
 			/* Say which one and return false */
 			debug(LOG_ERROR, "Can't find misselaneous PIE file : %s", miscImds[i].pName);
 			ASSERT(false, "NULL PIE");
 			return (false);
 		}
+
 		/*	If the next one's the end one, then get out now.
 			This is cos strcmp will return 0 only at end of list
 		*/
 		bMoreToProcess = strcmp(miscImds[++i].pName, "END_OF_IMD_LIST");
 	}
+
 	return true;
 }
 // -------------------------------------------------------------------------------
@@ -147,11 +150,13 @@ static bool initMiscImd(unsigned i, unsigned n, const char *nameFormat, unsigned
 	char pieName[100];
 	snprintf(pieName, sizeof(pieName), nameFormat, n);
 	pAssemblyPointIMDs[flagType][i] = modelGet(pieName);
-	if (!pAssemblyPointIMDs[flagType][i])
+
+	if(!pAssemblyPointIMDs[flagType][i])
 	{
 		debug(LOG_ERROR, "Can't find assembly point graphic %s for factory", pieName);
 		return false;
 	}
+
 	return true;
 }
 
@@ -161,19 +166,21 @@ bool	initMiscImds()
 	multiLoadMiscImds();
 
 	/* Now load the multi array stuff */
-	for (unsigned i = 0; i < MAX_FACTORY_FLAG_IMDS; ++i)
+	for(unsigned i = 0; i < MAX_FACTORY_FLAG_IMDS; ++i)
 	{
 		unsigned n = i + 1;
 
 		STATIC_ASSERT(MAX_FACTORY <= MAX_FACTORY_FLAG_IMDS);
 		STATIC_ASSERT(MAX_FACTORY_FLAG_IMDS <= 32);  // Need to add more assembly point graphics, if increasing MAX_FACTORY_FLAG_IMDS.
-		if (!initMiscImd(i, n, "minum%u.pie",  FACTORY_FLAG) ||
-		    !initMiscImd(i, n, "micnum%u.pie", CYBORG_FLAG) ||
-		    !initMiscImd(i, n, "mivnum%u.pie", VTOL_FLAG) ||
-		    !initMiscImd(i, 1, "mirnum%u.pie", REPAIR_FLAG))
+
+		if(!initMiscImd(i, n, "minum%u.pie",  FACTORY_FLAG) ||
+		        !initMiscImd(i, n, "micnum%u.pie", CYBORG_FLAG) ||
+		        !initMiscImd(i, n, "mivnum%u.pie", VTOL_FLAG) ||
+		        !initMiscImd(i, 1, "mirnum%u.pie", REPAIR_FLAG))
 		{
 			return false;
 		}
 	}
+
 	return (true);
 }

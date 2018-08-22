@@ -86,14 +86,15 @@ static inline void setProjectileSource(PROJECTILE *psProj, SIMPLE_OBJECT *psObj)
 {
 	// use the source of the source of psProj if psAttacker is a projectile
 	psProj->psSource = nullptr;
-	if (psObj == nullptr)
+
+	if(psObj == nullptr)
 	{
 	}
-	else if (isProjectile(psObj))
+	else if(isProjectile(psObj))
 	{
 		PROJECTILE *psPrevProj = castProjectile(psObj);
 
-		if (psPrevProj->psSource && !psPrevProj->psSource->died)
+		if(psPrevProj->psSource && !psPrevProj->psSource->died)
 		{
 			psProj->psSource = psPrevProj->psSource;
 		}

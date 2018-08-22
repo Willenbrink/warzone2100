@@ -67,7 +67,7 @@ void sendOptions()
 {
 	unsigned int i;
 
-	if (!NetPlay.isHost || !bHosted)  // Only host should act, and only if the game hasn't started yet.
+	if(!NetPlay.isHost || !bHosted)   // Only host should act, and only if the game hasn't started yet.
 	{
 		ASSERT(false, "Host only routine detected for client or not hosting yet!");
 		return;
@@ -83,10 +83,12 @@ void sendOptions()
 	NETbin(game.hash.bytes, game.hash.Bytes);
 	uint32_t modHashesSize = game.modHashes.size();
 	NETuint32_t(&modHashesSize);
-	for (auto &hash : game.modHashes)
+
+	for(auto &hash : game.modHashes)
 	{
 		NETbin(hash.bytes, hash.Bytes);
 	}
+
 	NETuint8_t(&game.maxPlayers);
 	NETstring(game.name, 128);
 	NETuint32_t(&game.power);
@@ -96,23 +98,23 @@ void sendOptions()
 	NETbool(&game.isMapMod);
 	NETuint32_t(&game.techLevel);
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
 		NETuint8_t(&game.skDiff[i]);
 	}
 
 	// Send the list of who is still joining
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
 		NETbool(&ingame.JoiningInProgress[i]);
 	}
 
 	// Same goes for the alliances
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
 		unsigned int j;
 
-		for (j = 0; j < MAX_PLAYERS; j++)
+		for(j = 0; j < MAX_PLAYERS; j++)
 		{
 			NETuint8_t(&alliances[i][j]);
 		}
@@ -121,12 +123,14 @@ void sendOptions()
 	// Send the number of structure limits to expect
 	NETuint32_t(&ingame.numStructureLimits);
 	debug(LOG_NET, "(Host) Structure limits to process on client is %u", ingame.numStructureLimits);
+
 	// Send the structures changed
-	for (i = 0; i < ingame.numStructureLimits; i++)
+	for(i = 0; i < ingame.numStructureLimits; i++)
 	{
 		NETuint32_t(&ingame.pStructureLimits[i].id);
 		NETuint32_t(&ingame.pStructureLimits[i].limit);
 	}
+
 	updateLimitFlags();
 	NETuint8_t(&ingame.flags);
 
@@ -150,10 +154,12 @@ void recvOptions(NETQUEUE queue)
 	NETuint32_t(&modHashesSize);
 	ASSERT_OR_RETURN(, modHashesSize < 1000000, "Way too many mods %u", modHashesSize);
 	game.modHashes.resize(modHashesSize);
-	for (auto &hash : game.modHashes)
+
+	for(auto &hash : game.modHashes)
 	{
 		NETbin(hash.bytes, hash.Bytes);
 	}
+
 	NETuint8_t(&game.maxPlayers);
 	NETstring(game.name, 128);
 	NETuint32_t(&game.power);
@@ -163,31 +169,32 @@ void recvOptions(NETQUEUE queue)
 	NETbool(&game.isMapMod);
 	NETuint32_t(&game.techLevel);
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
 		NETuint8_t(&game.skDiff[i]);
 	}
 
 	// Send the list of who is still joining
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
 		NETbool(&ingame.JoiningInProgress[i]);
 	}
 
 	// Alliances
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
 		unsigned int j;
 
-		for (j = 0; j < MAX_PLAYERS; j++)
+		for(j = 0; j < MAX_PLAYERS; j++)
 		{
 			NETuint8_t(&alliances[i][j]);
 		}
 	}
+
 	netPlayersUpdated = true;
 
 	// Free any structure limits we may have in-place
-	if (ingame.numStructureLimits)
+	if(ingame.numStructureLimits)
 	{
 		ingame.numStructureLimits = 0;
 		free(ingame.pStructureLimits);
@@ -197,29 +204,32 @@ void recvOptions(NETQUEUE queue)
 	// Get the number of structure limits to expect
 	NETuint32_t(&ingame.numStructureLimits);
 	debug(LOG_NET, "Host is sending us %u structure limits", ingame.numStructureLimits);
+
 	// If there were any changes allocate memory for them
-	if (ingame.numStructureLimits)
+	if(ingame.numStructureLimits)
 	{
 		ingame.pStructureLimits = (MULTISTRUCTLIMITS *)malloc(ingame.numStructureLimits * sizeof(MULTISTRUCTLIMITS));
 	}
 
-	for (i = 0; i < ingame.numStructureLimits; i++)
+	for(i = 0; i < ingame.numStructureLimits; i++)
 	{
 		NETuint32_t(&ingame.pStructureLimits[i].id);
 		NETuint32_t(&ingame.pStructureLimits[i].limit);
 	}
+
 	NETuint8_t(&ingame.flags);
 
 	NETend();
 
 	// Do the skirmish slider settings if they are up
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
-		if (widgGetFromID(psWScreen, MULTIOP_SKSLIDE + i))
+		if(widgGetFromID(psWScreen, MULTIOP_SKSLIDE + i))
 		{
 			widgSetSliderPos(psWScreen, MULTIOP_SKSLIDE + i, game.skDiff[i]);
 		}
 	}
+
 	debug(LOG_INFO, "Rebuilding map list");
 	// clear out the old level list.
 	levShutDown();
@@ -228,19 +238,23 @@ void recvOptions(NETQUEUE queue)
 	buildMapList();
 
 	bool haveData = true;
-	auto requestFile = [&haveData](Sha256 &hash, char const *filename) {
-		if (std::any_of(NetPlay.wzFiles.begin(), NetPlay.wzFiles.end(), [&hash](WZFile const &file) { return file.hash == hash; }))
+	auto requestFile = [&haveData](Sha256 & hash, char const * filename)
+	{
+		if(std::any_of(NetPlay.wzFiles.begin(), NetPlay.wzFiles.end(), [&hash](WZFile const & file)
+	{
+		return file.hash == hash;
+	}))
 		{
 			debug(LOG_INFO, "Already requested file, continue waiting.");
 			haveData = false;
 			return false;  // Downloading the file already
 		}
 
-		if (!PHYSFS_exists(filename))
+		if(!PHYSFS_exists(filename))
 		{
 			debug(LOG_INFO, "Creating new file %s", filename);
 		}
-		else if (findHashOfFile(filename) != hash)
+		else if(findHashOfFile(filename) != hash)
 		{
 			debug(LOG_INFO, "Overwriting old incomplete or corrupt file %s", filename);
 		}
@@ -261,21 +275,23 @@ void recvOptions(NETQUEUE queue)
 	};
 
 	LEVEL_DATASET *mapData = levFindDataSet(game.map, &game.hash);
+
 	// See if we have the map or not
-	if (mapData == nullptr)
+	if(mapData == nullptr)
 	{
 		char mapName[256];
 		sstrcpy(mapName, game.map);
 		removeWildcards(mapName);
 
-		if (strlen(mapName) >= 3 && mapName[strlen(mapName) - 3] == '-' && mapName[strlen(mapName) - 2] == 'T' && unsigned(mapName[strlen(mapName) - 1] - '1') < 3)
+		if(strlen(mapName) >= 3 && mapName[strlen(mapName) - 3] == '-' && mapName[strlen(mapName) - 2] == 'T' && unsigned(mapName[strlen(mapName) - 1] - '1') < 3)
 		{
 			mapName[strlen(mapName) - 3] = '\0';  // Cut off "-T1", "-T2" or "-T3".
 		}
+
 		char filename[256];
 		ssprintf(filename, "maps/%dc-%s-%s.wz", game.maxPlayers, mapName, game.hash.toString().c_str());  // Wonder whether game.maxPlayers is initialised already?
 
-		if (requestFile(game.hash, filename))
+		if(requestFile(game.hash, filename))
 		{
 			debug(LOG_INFO, "Map was not found, requesting map %s from host, type %d", game.map, game.isMapMod);
 			addConsoleMessage("MAP REQUESTED!", DEFAULT_JUSTIFY, SYSTEM_MESSAGE);
@@ -287,28 +303,28 @@ void recvOptions(NETQUEUE queue)
 		}
 	}
 
-	for (Sha256 &hash : game.modHashes)
+	for(Sha256 &hash : game.modHashes)
 	{
 		char filename[256];
 		ssprintf(filename, "mods/downloads/%s", hash.toString().c_str());
 
-		if (requestFile(hash, filename))
+		if(requestFile(hash, filename))
 		{
 			debug(LOG_INFO, "Mod was not found, requesting mod %s from host", hash.toString().c_str());
 			addConsoleMessage("MOD REQUESTED!", DEFAULT_JUSTIFY, SYSTEM_MESSAGE);
 		}
 	}
 
-	if (mapData && CheckForMod(mapData->realFileName))
+	if(mapData && CheckForMod(mapData->realFileName))
 	{
 		char const *str = game.isMapMod ?
-			_("Warning, this is a map-mod, it could alter normal gameplay.") :
-			_("Warning, HOST has altered the game code, and can't be trusted!");
+		                  _("Warning, this is a map-mod, it could alter normal gameplay.") :
+		                  _("Warning, HOST has altered the game code, and can't be trusted!");
 		addConsoleMessage(str, DEFAULT_JUSTIFY, NOTIFY_MESSAGE);
 		game.isMapMod = true;
 	}
 
-	if (mapData)
+	if(mapData)
 	{
 		loadMapPreview(false);
 	}
@@ -326,14 +342,14 @@ bool hostCampaign(char *sGame, char *sPlayer)
 
 	freeMessages();
 
-	if (!NEThostGame(sGame, sPlayer, game.type, 0, 0, 0, game.maxPlayers))
+	if(!NEThostGame(sGame, sPlayer, game.type, 0, 0, 0, game.maxPlayers))
 	{
 		return false;
 	}
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
-		if (NetPlay.bComms)
+		if(NetPlay.bComms)
 		{
 			game.skDiff[i] = 0;     	// disable AI
 		}
@@ -354,12 +370,13 @@ bool hostCampaign(char *sGame, char *sPlayer)
 	setupChallengeAIs();
 
 	// ensure all players have a name in One Player Skirmish games
-	if (!NetPlay.bComms)
+	if(!NetPlay.bComms)
 	{
 		sstrcpy(NetPlay.players[0].name, sPlayer);
-		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
+
+		for(unsigned i = 1; i < MAX_PLAYERS; ++i)
 		{
-		    sstrcpy(NetPlay.players[i].name, getAIName(i));
+			sstrcpy(NetPlay.players[i].name, getAIName(i));
 		}
 	}
 
@@ -394,7 +411,8 @@ bool multiShutdown()
 	NETshutdown();
 
 	debug(LOG_MAIN, "free game data (structure limits)");
-	if (ingame.numStructureLimits)
+
+	if(ingame.numStructureLimits)
 	{
 		ingame.numStructureLimits = 0;
 		free(ingame.pStructureLimits);
@@ -409,24 +427,25 @@ static bool gameInit()
 {
 	UDWORD			player;
 
-	for (player = 1; player < MAX_PLAYERS; player++)
+	for(player = 1; player < MAX_PLAYERS; player++)
 	{
 		// we want to remove disabled AI & all the other players that don't belong
-		if ((game.skDiff[player] == 0 || player >= game.maxPlayers) && player != scavengerPlayer())
+		if((game.skDiff[player] == 0 || player >= game.maxPlayers) && player != scavengerPlayer())
 		{
 			clearPlayer(player, true);			// do this quietly
 			debug(LOG_NET, "removing disabled AI (%d) from map.", player);
 		}
 	}
 
-	if (game.scavengers)	// FIXME - not sure if we still need this hack - Per
+	if(game.scavengers)	// FIXME - not sure if we still need this hack - Per
 	{
 		// ugly hack for now
 		game.skDiff[scavengerPlayer()] = DIFF_SLIDER_STOPS / 2;
 	}
 
 	unsigned playerCount = 0;
-	for (int index = 0; index < game.maxPlayers; ++index)
+
+	for(int index = 0; index < game.maxPlayers; ++index)
 	{
 		playerCount += NetPlay.players[index].ai >= 0 || NetPlay.players[index].allocated;
 	}
@@ -459,7 +478,7 @@ bool multiGameInit()
 {
 	UDWORD player;
 
-	for (player = 0; player < MAX_PLAYERS; player++)
+	for(player = 0; player < MAX_PLAYERS; player++)
 	{
 		openchannels[player] = true;								//open comms to this player.
 	}
@@ -488,20 +507,23 @@ bool multiGameShutdown()
 
 	// if we terminate the socket too quickly, then, it is possible not to get the leave message
 	time = wzGetTicks();
-	while (wzGetTicks() - time < 1000)
+
+	while(wzGetTicks() - time < 1000)
 	{
 		wzYieldCurrentThread();  // TODO Make a wzDelay() function?
 	}
+
 	// close game
 	NETclose();
 	NETremRedirects();
 
-	if (ingame.numStructureLimits)
+	if(ingame.numStructureLimits)
 	{
 		ingame.numStructureLimits = 0;
 		free(ingame.pStructureLimits);
 		ingame.pStructureLimits = nullptr;
 	}
+
 	ingame.flags = 0;
 
 	ingame.localJoiningInProgress = false; // Clean up

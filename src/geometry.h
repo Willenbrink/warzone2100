@@ -25,7 +25,7 @@
 
 struct QUAD
 {
-	Vector2i coords[4] = {{0,0}, {0,0}, {0,0}, {0,0}};
+	Vector2i coords[4] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
 };
 
 uint16_t calcDirection(int32_t x0, int32_t y0, int32_t x1, int32_t y1);
@@ -37,20 +37,24 @@ bool droidOnScreen(DROID *psDroid, SDWORD tolerance);
 static inline STRUCTURE *getTileStructure(UDWORD x, UDWORD y)
 {
 	BASE_OBJECT *psObj = mapTile(x, y)->psObject;
-	if (psObj && psObj->type == OBJ_STRUCTURE)
+
+	if(psObj && psObj->type == OBJ_STRUCTURE)
 	{
 		return (STRUCTURE *)psObj;
 	}
+
 	return nullptr;
 }
 
 static inline FEATURE *getTileFeature(UDWORD x, UDWORD y)
 {
 	BASE_OBJECT *psObj = mapTile(x, y)->psObject;
-	if (psObj && psObj->type == OBJ_FEATURE)
+
+	if(psObj && psObj->type == OBJ_FEATURE)
 	{
 		return (FEATURE *)psObj;
 	}
+
 	return nullptr;
 }
 
@@ -59,7 +63,7 @@ static inline BASE_OBJECT *getTileOccupier(UDWORD x, UDWORD y)
 {
 	MAPTILE *psTile = mapTile(x, y);
 
-	if (TEST_TILE_VISIBLE(selectedPlayer, psTile))
+	if(TEST_TILE_VISIBLE(selectedPlayer, psTile))
 	{
 		return mapTile(x, y)->psObject;
 	}

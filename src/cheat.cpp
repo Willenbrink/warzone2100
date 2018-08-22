@@ -95,33 +95,36 @@ bool attemptCheatCode(const char *cheat_name)
 	static const CHEAT_ENTRY *const EndCheat = &cheatCodes[ARRAY_SIZE(cheatCodes)];
 
 	// there is no reason to make people enter "cheat mode" to enter following commands
-	if (!strcasecmp("showfps", cheat_name))
+	if(!strcasecmp("showfps", cheat_name))
 	{
 		kf_ToggleFPS();
 		return true;
 	}
 
-	if (strcmp(cheat_name, "cheat on") == 0 || strcmp(cheat_name, "debug") == 0)
+	if(strcmp(cheat_name, "cheat on") == 0 || strcmp(cheat_name, "debug") == 0)
 	{
-		if (!getDebugMappingStatus())
+		if(!getDebugMappingStatus())
 		{
 			kf_ToggleDebugMappings();
 		}
+
 		return true;
 	}
-	if (strcmp(cheat_name, "cheat off") == 0 && getDebugMappingStatus())
+
+	if(strcmp(cheat_name, "cheat off") == 0 && getDebugMappingStatus())
 	{
 		kf_ToggleDebugMappings();
 		return true;
 	}
-	if (!getDebugMappingStatus())
+
+	if(!getDebugMappingStatus())
 	{
 		return false;
 	}
 
-	for (curCheat = cheatCodes; curCheat != EndCheat; ++curCheat)
+	for(curCheat = cheatCodes; curCheat != EndCheat; ++curCheat)
 	{
-		if (strcasecmp(cheat_name, curCheat->pName) == 0)
+		if(strcasecmp(cheat_name, curCheat->pName) == 0)
 		{
 			char buf[256];
 
@@ -160,7 +163,8 @@ void recvProcessDebugMappings(NETQUEUE queue)
 	bool newDebugMode = getDebugMappingStatus();
 
 	char *cmsg;
-	if (val)
+
+	if(val)
 	{
 		sasprintf(&cmsg, _("%s wants to enable debug mode. Enabled: %s, Disabled: %s."), getPlayerName(queue.index), getWantedDebugMappingStatuses(true).c_str(), getWantedDebugMappingStatuses(false).c_str());
 	}
@@ -168,15 +172,16 @@ void recvProcessDebugMappings(NETQUEUE queue)
 	{
 		sasprintf(&cmsg, _("%s wants to disable debug mode. Enabled: %s, Disabled: %s."), getPlayerName(queue.index), getWantedDebugMappingStatuses(true).c_str(), getWantedDebugMappingStatuses(false).c_str());
 	}
+
 	addConsoleMessage(cmsg, DEFAULT_JUSTIFY,  SYSTEM_MESSAGE);
 
-	if (!oldDebugMode && newDebugMode)
+	if(!oldDebugMode && newDebugMode)
 	{
 		addConsoleMessage(_("Debug mode now enabled!"), DEFAULT_JUSTIFY,  SYSTEM_MESSAGE);
 		Cheated = true;
 		triggerEventCheatMode(true);
 	}
-	else if (oldDebugMode && !newDebugMode)
+	else if(oldDebugMode && !newDebugMode)
 	{
 		addConsoleMessage(_("Debug mode now disabled!"), DEFAULT_JUSTIFY,  SYSTEM_MESSAGE);
 		triggerEventCheatMode(false);

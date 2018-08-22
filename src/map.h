@@ -170,7 +170,7 @@ static inline void auxMapRestore(int player, int slot, int mask)
 	int i;
 	uint8_t original, cached;
 
-	for (i = 0; i < mapHeight * mapWidth; i++)
+	for(i = 0; i < mapHeight * mapWidth; i++)
 	{
 		original = psAuxMap[player][i];
 		cached = psAuxMap[MAX_PLAYERS + slot][i];
@@ -189,7 +189,7 @@ WZ_DECL_ALWAYS_INLINE static inline void auxSetAll(int x, int y, int state)
 {
 	int i;
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
 		psAuxMap[i][x + y * mapWidth] |= state;
 	}
@@ -200,9 +200,9 @@ WZ_DECL_ALWAYS_INLINE static inline void auxSetAllied(int x, int y, int player, 
 {
 	int i;
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
-		if (alliancebits[player] & (1 << i))
+		if(alliancebits[player] & (1 << i))
 		{
 			psAuxMap[i][x + y * mapWidth] |= state;
 		}
@@ -214,9 +214,9 @@ WZ_DECL_ALWAYS_INLINE static inline void auxSetEnemy(int x, int y, int player, i
 {
 	int i;
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
-		if (!(alliancebits[player] & (1 << i)))
+		if(!(alliancebits[player] & (1 << i)))
 		{
 			psAuxMap[i][x + y * mapWidth] |= state;
 		}
@@ -234,7 +234,7 @@ WZ_DECL_ALWAYS_INLINE static inline void auxClearAll(int x, int y, int state)
 {
 	int i;
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
 		psAuxMap[i][x + y * mapWidth] &= ~state;
 	}
@@ -457,30 +457,33 @@ static inline WZ_DECL_PURE MAPTILE *worldTile(Vector2i const &v)
 /// Return ground height of top-left corner of tile at x,y
 static inline WZ_DECL_PURE int32_t map_TileHeight(int32_t x, int32_t y)
 {
-	if (x >= mapWidth || y >= mapHeight || x < 0 || y < 0)
+	if(x >= mapWidth || y >= mapHeight || x < 0 || y < 0)
 	{
 		return 0;
 	}
+
 	return psMapTiles[x + (y * mapWidth)].height;
 }
 
 /// Return water height of top-left corner of tile at x,y
 static inline WZ_DECL_PURE int32_t map_WaterHeight(int32_t x, int32_t y)
 {
-	if (x >= mapWidth || y >= mapHeight || x < 0 || y < 0)
+	if(x >= mapWidth || y >= mapHeight || x < 0 || y < 0)
 	{
 		return 0;
 	}
+
 	return psMapTiles[x + (y * mapWidth)].waterLevel;
 }
 
 /// Return max(ground, water) height of top-left corner of tile at x,y
 static inline WZ_DECL_PURE int32_t map_TileHeightSurface(int32_t x, int32_t y)
 {
-	if (x >= mapWidth || y >= mapHeight || x < 0 || y < 0)
+	if(x >= mapWidth || y >= mapHeight || x < 0 || y < 0)
 	{
 		return 0;
 	}
+
 	return MAX(psMapTiles[x + (y * mapWidth)].height, psMapTiles[x + (y * mapWidth)].waterLevel);
 }
 

@@ -93,11 +93,13 @@ void updateChallenge(bool gameWon)
 
 	fStr = strrchr(sRequestResult, '/');
 	fStr++;	// skip slash
-	if (*fStr == '\0')
+
+	if(*fStr == '\0')
 	{
 		debug(LOG_ERROR, "Bad path to challenge file (%s)", sRequestResult);
 		return;
 	}
+
 	sstrcpy(sPath, fStr);
 	sPath[strlen(sPath) - 5] = '\0';	// remove .json
 	scores.beginGroup(sPath);
@@ -107,25 +109,28 @@ void updateChallenge(bool gameWon)
 	// Update score if we have a victory and best recorded was a loss,
 	// or both were losses but time is higher, or both were victories
 	// but time is lower.
-	if ((!victory && gameWon)
-	    || (!gameWon && !victory && newtime > seconds)
-	    || (gameWon && victory && newtime < seconds))
+	if((!victory && gameWon)
+	        || (!gameWon && !victory && newtime > seconds)
+	        || (gameWon && victory && newtime < seconds))
 	{
 		scores.setValue("Seconds", newtime);
 		scores.setValue("Victory", gameWon);
 		scores.setValue("Player", NetPlay.players[selectedPlayer].name);
 	}
+
 	scores.endGroup();
 }
 
 // ////////////////////////////////////////////////////////////////////////////
 
-struct DisplayLoadSlotCache {
+struct DisplayLoadSlotCache
+{
 	std::string fullText;
 	WzText wzText;
 };
 
-struct DisplayLoadSlotData {
+struct DisplayLoadSlotData
+{
 	DisplayLoadSlotCache cache;
 	const char * filename;
 };
@@ -142,17 +147,18 @@ static void displayLoadSlot(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 
 	drawBlueBox(x, y, psWidget->width(), psWidget->height());	//draw box
 
-	if (!((W_BUTTON *)psWidget)->pText.isEmpty())
+	if(!((W_BUTTON *)psWidget)->pText.isEmpty())
 	{
 		sstrcpy(butString, ((W_BUTTON *)psWidget)->pText.toUtf8().c_str());
 
-		if (data.cache.fullText != butString)
+		if(data.cache.fullText != butString)
 		{
 			// Update cache
-			while (iV_GetTextWidth(butString, font_regular) > psWidget->width())
+			while(iV_GetTextWidth(butString, font_regular) > psWidget->width())
 			{
 				butString[strlen(butString) - 1] = '\0';
 			}
+
 			data.cache.wzText.setText(butString, font_regular);
 			data.cache.fullText = butString;
 		}
@@ -163,7 +169,8 @@ static void displayLoadSlot(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 
 void challengesScreenSizeDidChange(unsigned int oldWidth, unsigned int oldHeight, unsigned int newWidth, unsigned int newHeight)
 {
-	if (psRequestScreen == nullptr) return;
+	if(psRequestScreen == nullptr) return;
+
 	psRequestScreen->screenSizeDidChange(oldWidth, oldHeight, newWidth, newHeight);
 }
 
@@ -187,7 +194,8 @@ bool addChallenges()
 	/* add a form to place the tabbed form on */
 	IntFormAnimated *challengeForm = new IntFormAnimated(parent);
 	challengeForm->id = CHALLENGE_FORM;
-	challengeForm->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE({
+	challengeForm->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
+	{
 		psWidget->setGeometry(CHALLENGE_X, CHALLENGE_Y, CHALLENGE_W, (slotsInColumn * CHALLENGE_ENTRY_H + CHALLENGE_HGAP * slotsInColumn) + CHALLENGE_BANNER_DEPTH + 20);
 	}));
 
@@ -223,7 +231,7 @@ bool addChallenges()
 	sButInit.y = 8;
 	sButInit.width		= iV_GetImageWidth(IntImages, IMAGE_NRUTER);
 	sButInit.height		= iV_GetImageHeight(IntImages, IMAGE_NRUTER);
-	sButInit.UserData	= PACKDWORD_TRI(0, IMAGE_NRUTER , IMAGE_NRUTER);
+	sButInit.UserData	= PACKDWORD_TRI(0, IMAGE_NRUTER, IMAGE_NRUTER);
 
 	sButInit.id = CHALLENGE_CANCEL;
 	sButInit.pTip = _("Close");
@@ -237,23 +245,24 @@ bool addChallenges()
 	sButInit.height		= CHALLENGE_ENTRY_H;
 	sButInit.pDisplay	= displayLoadSlot;
 	sButInit.initPUserDataFunc = []() -> void * { return new DisplayLoadSlotData(); };
-	sButInit.onDelete = [](WIDGET *psWidget) {
+	sButInit.onDelete = [](WIDGET * psWidget)
+	{
 		assert(psWidget->pUserData != nullptr);
 		delete static_cast<DisplayLoadSlotData *>(psWidget->pUserData);
 		psWidget->pUserData = nullptr;
 	};
 
-	for (slotCount = 0; slotCount < totalslots; slotCount++)
+	for(slotCount = 0; slotCount < totalslots; slotCount++)
 	{
 		sButInit.id		= slotCount + CHALLENGE_ENTRY_START;
 
-		if (slotCount < slotsInColumn)
+		if(slotCount < slotsInColumn)
 		{
 			sButInit.x	= 22 + CHALLENGE_HGAP;
 			sButInit.y	= (SWORD)((CHALLENGE_BANNER_DEPTH + (2 * CHALLENGE_VGAP)) + (
 			                          slotCount * (CHALLENGE_VGAP + CHALLENGE_ENTRY_H)));
 		}
-		else if (slotCount >= slotsInColumn && (slotCount < (slotsInColumn * 2)))
+		else if(slotCount >= slotsInColumn && (slotCount < (slotsInColumn * 2)))
 		{
 			sButInit.x	= 22 + (2 * CHALLENGE_HGAP + CHALLENGE_ENTRY_W);
 			sButInit.y	= (SWORD)((CHALLENGE_BANNER_DEPTH + (2 * CHALLENGE_VGAP)) + (
@@ -265,6 +274,7 @@ bool addChallenges()
 			sButInit.y	= (SWORD)((CHALLENGE_BANNER_DEPTH + (2 * CHALLENGE_VGAP)) + (
 			                          (slotCount % slotsInColumn) * (CHALLENGE_VGAP + CHALLENGE_ENTRY_H)));
 		}
+
 		widgAddButton(psRequestScreen, &sButInit);
 	}
 
@@ -278,7 +288,8 @@ bool addChallenges()
 
 	// add challenges to buttons
 	files = PHYSFS_enumerateFiles(sSearchPath);
-	for (i = files; *i != nullptr; ++i)
+
+	for(i = files; *i != nullptr; ++i)
 	{
 		W_BUTTON *button;
 		QString name, map, difficulty, highscore, description;
@@ -286,7 +297,7 @@ bool addChallenges()
 		int seconds;
 
 		// See if this filename contains the extension we're looking for
-		if (!strstr(*i, ".json"))
+		if(!strstr(*i, ".json"))
 		{
 			// If it doesn't, move on to the next filename
 			continue;
@@ -301,11 +312,13 @@ bool addChallenges()
 		name = scores.value("player", "NO NAME").toString();
 		victory = scores.value("victory", false).toBool();
 		seconds = scores.value("seconds", -1).toInt();
-		if (seconds > 0)
+
+		if(seconds > 0)
 		{
 			QTime format = QTime(0, 0, 0).addSecs(seconds);
 			highscore = format.toString(Qt::TextDate) + " by " + name + " (" + QString(victory ? "Victory" : "Survived") + ")";
 		}
+
 		scores.endGroup();
 		ssprintf(sPath, "%s/%s", sSearchPath, *i);
 		WzConfig challenge(sPath, WzConfig::ReadOnlyAndRequired);
@@ -333,12 +346,15 @@ bool addChallenges()
 		assert(button->pUserData != nullptr);
 		static_cast<DisplayLoadSlotData *>(button->pUserData)->filename = sSlotFile[slotCount];
 		slotCount++;		// go to next button...
-		if (slotCount == totalslots)
+
+		if(slotCount == totalslots)
 		{
 			break;
 		}
+
 		challenge.endGroup();
 	}
+
 	PHYSFS_freeList(files);
 
 	challengesUp = true;
@@ -364,24 +380,26 @@ bool closeChallenges()
 bool runChallenges()
 {
 	WidgetTriggers const &triggers = widgRunScreen(psRequestScreen);
-	for (const auto trigger : triggers)
+
+	for(const auto trigger : triggers)
 	{
 		unsigned id = trigger.widget->id;
 
 		sstrcpy(sRequestResult, "");  // set returned filename to null;
 
 		// cancel this operation...
-		if (id == CHALLENGE_CANCEL || CancelPressed())
+		if(id == CHALLENGE_CANCEL || CancelPressed())
 		{
 			goto failure;
 		}
 
 		// clicked a load entry
-		if (id >= CHALLENGE_ENTRY_START  &&  id <= CHALLENGE_ENTRY_END)
+		if(id >= CHALLENGE_ENTRY_START  &&  id <= CHALLENGE_ENTRY_END)
 		{
 			W_BUTTON * psWidget = static_cast<W_BUTTON *>(widgGetFromID(psRequestScreen, id));
 			assert(psWidget != nullptr);
-			if (!(psWidget->pText.isEmpty()))
+
+			if(!(psWidget->pText.isEmpty()))
 			{
 				DisplayLoadSlotData * data = static_cast<DisplayLoadSlotData *>(psWidget->pUserData);
 				assert(data != nullptr);
@@ -392,6 +410,7 @@ bool runChallenges()
 			{
 				goto failure;  // clicked on an empty box
 			}
+
 			goto success;
 		}
 	}

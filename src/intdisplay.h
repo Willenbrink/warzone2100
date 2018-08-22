@@ -268,7 +268,8 @@ bool StatGetComponentIMD(BASE_STATS *Stat, SDWORD compID, iIMDShape **CompIMD, i
 bool StatIsResearch(BASE_STATS *Stat);
 
 /* The cache (pUserData) expected by both intDisplayStatsBar and intDisplayDesignPowerBar */
-struct DisplayBarCache {
+struct DisplayBarCache
+{
 	WzText wzCheckWidthText;
 	WzText wzText;
 };

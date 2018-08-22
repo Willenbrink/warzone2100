@@ -61,7 +61,10 @@ struct FEATURE_STATS : public BASE_STATS
 	UDWORD		body = 0;               ///< Number of body points
 	UDWORD          armourValue = 0;        ///< Feature armour
 
-	inline Vector2i size() const { return Vector2i(baseWidth, baseBreadth); }
+	inline Vector2i size() const
+	{
+		return Vector2i(baseWidth, baseBreadth);
+	}
 };
 
 struct FEATURE : public BASE_OBJECT
@@ -71,7 +74,10 @@ struct FEATURE : public BASE_OBJECT
 
 	FEATURE_STATS const *psStats;
 
-	inline Vector2i size() const { return psStats->size(); }
+	inline Vector2i size() const
+	{
+		return psStats->size();
+	}
 };
 
 #endif // __INCLUDED_FEATUREDEF_H__

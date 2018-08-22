@@ -57,11 +57,12 @@ static int maxTextureSize = 2048; ///< the maximum size texture we will create
 
 void setTextureSize(int texSize)
 {
-	if (texSize < 16 || texSize % 16 != 0)
+	if(texSize < 16 || texSize % 16 != 0)
 	{
 		debug(LOG_ERROR, "Attempted to set bad texture size %d! Ignored.", texSize);
 		return;
 	}
+
 	maxTextureSize = texSize;
 	debug(LOG_TEXTURE, "texture size set to %d", texSize);
 }
@@ -76,14 +77,15 @@ static int newPage(const char *name, int level, int width, int height, int count
 {
 	int texPage = firstPage + ((count + 1) / TILES_IN_PAGE);
 
-	if (texPage == pie_NumberOfPages())
+	if(texPage == pie_NumberOfPages())
 	{
 		// We need to create a new texture page; create it and increase texture table to store it
 		pie_ReserveTexture(name, width, height);
 		pie_AssignTexture(texPage,
-			gfx_api::context::get().create_texture(width, height,
-				wz_texture_compression ? gfx_api::pixel_format::compressed_rgba : gfx_api::pixel_format::rgba));
+		                  gfx_api::context::get().create_texture(width, height,
+		                          wz_texture_compression ? gfx_api::pixel_format::compressed_rgba : gfx_api::pixel_format::rgba));
 	}
+
 	terrainPage = texPage;
 	pie_SetTexturePage(texPage);
 
@@ -98,7 +100,7 @@ static int newPage(const char *name, int level, int width, int height, int count
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	// Use anisotropic filtering, if available, but only max 4.0 to reduce processor burden
-	if (GLEW_EXT_texture_filter_anisotropic)
+	if(GLEW_EXT_texture_filter_anisotropic)
 	{
 		GLfloat max;
 
@@ -121,10 +123,11 @@ bool texLoad(const char *fileName)
 	ASSERT_OR_RETURN(false, MIPMAP_MAX == TILE_WIDTH && MIPMAP_MAX == TILE_HEIGHT, "Bad tile sizes");
 
 	// store the filename so we can later determine which tileset we are using
-	if (tilesetDir)
+	if(tilesetDir)
 	{
 		free(tilesetDir);
 	}
+
 	tilesetDir = strdup(fileName);
 
 	// reset defaults
@@ -133,7 +136,7 @@ bool texLoad(const char *fileName)
 
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glval);
 
-	while (glval < mipmap_max * TILES_IN_PAGE_COLUMN)
+	while(glval < mipmap_max * TILES_IN_PAGE_COLUMN)
 	{
 		mipmap_max /= 2;
 		mipmap_levels--;
@@ -141,12 +144,14 @@ bool texLoad(const char *fileName)
 		      (int)glval, (int)glval, mipmap_max, mipmap_max);
 		ASSERT(mipmap_levels > 0, "Supported texture size %d is too low to load any mipmap levels!",
 		       (int)glval);
-		if (mipmap_levels == 0)
+
+		if(mipmap_levels == 0)
 		{
 			exit(1);
 		}
 	}
-	while (maxTextureSize < mipmap_max)
+
+	while(maxTextureSize < mipmap_max)
 	{
 		mipmap_max /= 2;
 		mipmap_levels--;
@@ -156,13 +161,16 @@ bool texLoad(const char *fileName)
 	/* Get and set radar colours */
 
 	sprintf(fullPath, "%s.radar", fileName);
-	if (!loadFile(fullPath, &buffer, &size))
+
+	if(!loadFile(fullPath, &buffer, &size))
 	{
 		debug(LOG_FATAL, "texLoad: Could not find radar colours at %s", fullPath);
 		abort(); // cannot recover; we could possibly generate a random palette?
 	}
+
 	i = 0; // tile
 	j = 0; // place in buffer
+
 	do
 	{
 		unsigned int r, g, b;
@@ -170,19 +178,22 @@ bool texLoad(const char *fileName)
 
 		k = sscanf(buffer + j, "%2x%2x%2x%n", &r, &g, &b, &cnt);
 		j += cnt;
-		if (k >= 3)
+
+		if(k >= 3)
 		{
 			radarColour(i, r, g, b);
 		}
+
 		i++; // next tile
-	}
-	while (k >= 3 && j + 6 < size);
+	} while(k >= 3 && j + 6 < size);
+
 	free(buffer);
 
 	/* Now load the actual tiles */
 
 	i = mipmap_max; // i is used to keep track of the tile dimensions
-	for (j = 0; j < mipmap_levels; j++)
+
+	for(j = 0; j < mipmap_levels; j++)
 	{
 		int xOffset = 0, yOffset = 0; // offsets into the texture atlas
 		int xSize = 1;
@@ -191,8 +202,9 @@ bool texLoad(const char *fileName)
 		const int yLimit = TILES_IN_PAGE_ROW * i;
 
 		// pad width and height into ^2 values
-		while (xLimit > (xSize *= 2)) {}
-		while (yLimit > (ySize *= 2)) {}
+		while(xLimit > (xSize *= 2)) {}
+
+		while(yLimit > (ySize *= 2)) {}
 
 		// Generate the empty texture buffer in VRAM
 		texPage = newPage(fileName, j, xSize, ySize, 0);
@@ -200,12 +212,13 @@ bool texLoad(const char *fileName)
 		sprintf(partialPath, "%s-%d", fileName, i);
 
 		// Load until we cannot find anymore of them
-		for (k = 0; k < MAX_TILES; k++)
+		for(k = 0; k < MAX_TILES; k++)
 		{
 			iV_Image tile;
 
 			snprintf(fullPath, sizeof(fullPath), "%s/tile-%02d.png", partialPath, k);
-			if (PHYSFS_exists(fullPath)) // avoid dire warning
+
+			if(PHYSFS_exists(fullPath))  // avoid dire warning
 			{
 				bool retval = iV_loadImage_PNG(fullPath, &tile);
 				ASSERT_OR_RETURN(false, retval, "Could not load %s!", fullPath);
@@ -216,10 +229,12 @@ bool texLoad(const char *fileName)
 				ASSERT_OR_RETURN(false, k > 0, "Could not find %s", fullPath);
 				break;
 			}
+
 			// Insert into texture page
 			pie_Texture(texPage).upload(j, xOffset, yOffset, tile.width, tile.height, gfx_api::pixel_format::rgba, tile.bmp);
 			free(tile.bmp);
-			if (i == mipmap_max) // dealing with main texture page; so register coordinates
+
+			if(i == mipmap_max)  // dealing with main texture page; so register coordinates
 			{
 				tileTexInfo[k].uOffset = (float)xOffset / (float)xSize;
 				tileTexInfo[k].vOffset = (float)yOffset / (float)ySize;
@@ -227,13 +242,16 @@ bool texLoad(const char *fileName)
 				debug(LOG_TEXTURE, "  texLoad: Registering k=%d i=%d u=%f v=%f xoff=%d yoff=%d xsize=%d ysize=%d tex=%d (%s)",
 				      k, i, tileTexInfo[k].uOffset, tileTexInfo[k].vOffset, xOffset, yOffset, xSize, ySize, texPage, fullPath);
 			}
+
 			xOffset += i; // i is width of tile
-			if (xOffset + i > xLimit)
+
+			if(xOffset + i > xLimit)
 			{
 				yOffset += i; // i is also height of tile
 				xOffset = 0;
 			}
-			if (yOffset + i > yLimit)
+
+			if(yOffset + i > yLimit)
 			{
 				/* Change to next texture page */
 				xOffset = 0;
@@ -243,9 +261,11 @@ bool texLoad(const char *fileName)
 				texPage = newPage(fileName, j, xSize, ySize, k);
 			}
 		}
+
 		debug(LOG_TEXTURE, "texLoad: Found %d textures for %s mipmap level %d, added to page %d, opengl id %u",
 		      k, partialPath, i, texPage, (unsigned)pie_Texture(texPage).id());
 		i /= 2;	// halve the dimensions for the next series; OpenGL mipmaps start with largest at level zero
 	}
+
 	return true;
 }

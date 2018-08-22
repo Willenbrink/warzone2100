@@ -80,12 +80,12 @@ bool scrCBDroidTaken()
 	DROID		**ppsDroid;
 	bool	triggered = false;
 
-	if (!stackPopParams(1, VAL_REF | ST_DROID, &ppsDroid))
+	if(!stackPopParams(1, VAL_REF | ST_DROID, &ppsDroid))
 	{
 		return false;
 	}
 
-	if (psScrCBDroidTaken == nullptr)
+	if(psScrCBDroidTaken == nullptr)
 	{
 		triggered = false;
 		*ppsDroid = nullptr;
@@ -97,7 +97,8 @@ bool scrCBDroidTaken()
 	}
 
 	scrFunctionResult.v.bval = triggered;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -113,12 +114,12 @@ bool scrCBNewDroid()
 	STRUCTURE	**ppsStructure;
 	bool	triggered = false;
 
-	if (!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid, VAL_REF | ST_STRUCTURE, &ppsStructure))
+	if(!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid, VAL_REF | ST_STRUCTURE, &ppsStructure))
 	{
 		return false;
 	}
 
-	if (psScrCBNewDroid == nullptr)
+	if(psScrCBNewDroid == nullptr)
 	{
 		// eh? got called without setting the new droid
 		ASSERT(false, "scrCBNewUnit: no unit has been set");
@@ -126,7 +127,7 @@ bool scrCBNewDroid()
 		*ppsDroid = nullptr;
 		*ppsStructure  = nullptr;
 	}
-	else if (psScrCBNewDroid->player == (UDWORD)player)
+	else if(psScrCBNewDroid->player == (UDWORD)player)
 	{
 		triggered = true;
 		*ppsDroid = psScrCBNewDroid;
@@ -134,7 +135,8 @@ bool scrCBNewDroid()
 	}
 
 	scrFunctionResult.v.bval = triggered;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -150,21 +152,21 @@ bool scrCBStructAttacked()
 	BASE_OBJECT		**ppsAttacker;//, **ppsTarget;
 	bool			triggered = false;
 
-	if (!stackPopParams(3, VAL_INT, &player,
-	                    VAL_REF | ST_STRUCTURE, &ppsTarget,
-	                    VAL_REF | ST_BASEOBJECT, &ppsAttacker))
+	if(!stackPopParams(3, VAL_INT, &player,
+	                   VAL_REF | ST_STRUCTURE, &ppsTarget,
+	                   VAL_REF | ST_BASEOBJECT, &ppsAttacker))
 	{
 		return false;
 	}
 
-	if (psLastStructHit == nullptr)
+	if(psLastStructHit == nullptr)
 	{
 		ASSERT(false, "scrCBStructAttacked: no target has been set");
 		triggered = false;
 		*ppsAttacker = nullptr;
 		*ppsTarget = nullptr;
 	}
-	else if (psLastStructHit->player == (UDWORD)player)
+	else if(psLastStructHit->player == (UDWORD)player)
 	{
 		triggered = true;
 		*ppsAttacker = g_pProjLastAttacker;
@@ -178,7 +180,8 @@ bool scrCBStructAttacked()
 	}
 
 	scrFunctionResult.v.bval = triggered;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -191,13 +194,14 @@ bool scrCBVTOLRetarget()
 	SDWORD			player;
 	DROID			**ppsDroid;
 
-	if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid))
+	if(!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid))
 	{
 		return false;
 	}
+
 	ASSERT_OR_RETURN(false, player < MAX_PLAYERS && player >= 0, "Invalid player %d", player);
 
-	if (player == psScrVtolRetarget->player)
+	if(player == psScrVtolRetarget->player)
 	{
 		*ppsDroid = psScrVtolRetarget;
 		scrFunctionResult.v.bval = true;
@@ -207,7 +211,8 @@ bool scrCBVTOLRetarget()
 		*ppsDroid = nullptr;
 		scrFunctionResult.v.bval = false;
 	}
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -223,21 +228,21 @@ bool scrCBDroidAttacked()
 	BASE_OBJECT		**ppsAttacker;//, **ppsTarget;
 	bool			triggered = false;
 
-	if (!stackPopParams(3, VAL_INT, &player,
-	                    VAL_REF | ST_DROID, &ppsTarget,
-	                    VAL_REF | ST_BASEOBJECT, &ppsAttacker))
+	if(!stackPopParams(3, VAL_INT, &player,
+	                   VAL_REF | ST_DROID, &ppsTarget,
+	                   VAL_REF | ST_BASEOBJECT, &ppsAttacker))
 	{
 		return false;
 	}
 
-	if (psLastDroidHit == nullptr)
+	if(psLastDroidHit == nullptr)
 	{
 		ASSERT(false, "scrCBUnitAttacked: no target has been set");
 		triggered = false;
 		*ppsAttacker = nullptr;
 		*ppsTarget = nullptr;
 	}
-	else if (psLastDroidHit->player == (UDWORD)player)
+	else if(psLastDroidHit->player == (UDWORD)player)
 	{
 		triggered = true;
 		*ppsAttacker = g_pProjLastAttacker;
@@ -251,7 +256,8 @@ bool scrCBDroidAttacked()
 	}
 
 	scrFunctionResult.v.bval = triggered;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -267,21 +273,21 @@ bool scrCBAttacked()
 	BASE_OBJECT		**ppsAttacker;//, **ppsTarget;
 	bool			triggered = false;
 
-	if (!stackPopParams(3, VAL_INT, &player,
-	                    VAL_REF | ST_BASEOBJECT, &ppsTarget,
-	                    VAL_REF | ST_BASEOBJECT, &ppsAttacker))
+	if(!stackPopParams(3, VAL_INT, &player,
+	                   VAL_REF | ST_BASEOBJECT, &ppsTarget,
+	                   VAL_REF | ST_BASEOBJECT, &ppsAttacker))
 	{
 		return false;
 	}
 
-	if (psScrCBTarget == nullptr)
+	if(psScrCBTarget == nullptr)
 	{
 		ASSERT(false, "scrCBAttacked: no target has been set");
 		triggered = false;
 		*ppsAttacker = nullptr;
 		*ppsTarget = nullptr;
 	}
-	else if (psScrCBTarget->player == (UDWORD)player)
+	else if(psScrCBTarget->player == (UDWORD)player)
 	{
 		triggered = true;
 		*ppsAttacker = g_pProjLastAttacker;
@@ -295,7 +301,8 @@ bool scrCBAttacked()
 	}
 
 	scrFunctionResult.v.bval = triggered;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -311,18 +318,19 @@ bool scrCBButtonPressed()
 	UDWORD	button;
 	bool	triggered = false;
 
-	if (!stackPopParams(1, VAL_INT, &button))
+	if(!stackPopParams(1, VAL_INT, &button))
 	{
 		return false;
 	}
 
-	if (button == intLastWidget)
+	if(button == intLastWidget)
 	{
 		triggered = true;
 	}
 
 	scrFunctionResult.v.bval = triggered;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -338,7 +346,7 @@ bool scrCBDroidSelected()
 {
 	DROID	**ppsDroid;
 
-	if (!stackPopParams(1, VAL_REF | ST_DROID, &ppsDroid))
+	if(!stackPopParams(1, VAL_REF | ST_DROID, &ppsDroid))
 	{
 		return false;
 	}
@@ -349,7 +357,8 @@ bool scrCBDroidSelected()
 	*ppsDroid = psCBSelectedDroid;
 
 	scrFunctionResult.v.bval = true;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -368,14 +377,14 @@ bool scrCBObjDestroyed()
 	BASE_OBJECT		**ppsObj;
 	bool			retval;
 
-	if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_BASEOBJECT, &ppsObj))
+	if(!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_BASEOBJECT, &ppsObj))
 	{
 		return false;
 	}
 
-	if ((psCBObjDestroyed != nullptr) &&
-	    (psCBObjDestroyed->player == (UDWORD)player) &&
-	    (psCBObjDestroyed->type != OBJ_FEATURE))
+	if((psCBObjDestroyed != nullptr) &&
+	        (psCBObjDestroyed->player == (UDWORD)player) &&
+	        (psCBObjDestroyed->type != OBJ_FEATURE))
 	{
 		retval = true;
 		*ppsObj = psCBObjDestroyed;
@@ -387,7 +396,8 @@ bool scrCBObjDestroyed()
 	}
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -403,14 +413,14 @@ bool scrCBStructDestroyed()
 	BASE_OBJECT		**ppsObj;
 	bool			retval;
 
-	if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_STRUCTURE, &ppsObj))
+	if(!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_STRUCTURE, &ppsObj))
 	{
 		return false;
 	}
 
-	if ((psCBObjDestroyed != nullptr) &&
-	    (psCBObjDestroyed->player == (UDWORD)player) &&
-	    (psCBObjDestroyed->type == OBJ_STRUCTURE))
+	if((psCBObjDestroyed != nullptr) &&
+	        (psCBObjDestroyed->player == (UDWORD)player) &&
+	        (psCBObjDestroyed->type == OBJ_STRUCTURE))
 	{
 		retval = true;
 		*ppsObj = psCBObjDestroyed;
@@ -422,7 +432,8 @@ bool scrCBStructDestroyed()
 	}
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -438,14 +449,14 @@ bool scrCBDroidDestroyed()
 	BASE_OBJECT		**ppsObj;
 	bool			retval;
 
-	if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsObj))
+	if(!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsObj))
 	{
 		return false;
 	}
 
-	if ((psCBObjDestroyed != nullptr) &&
-	    (psCBObjDestroyed->player == (UDWORD)player) &&
-	    (psCBObjDestroyed->type == OBJ_DROID))
+	if((psCBObjDestroyed != nullptr) &&
+	        (psCBObjDestroyed->player == (UDWORD)player) &&
+	        (psCBObjDestroyed->type == OBJ_DROID))
 	{
 		retval = true;
 		*ppsObj = psCBObjDestroyed;
@@ -457,7 +468,8 @@ bool scrCBDroidDestroyed()
 	}
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -472,12 +484,12 @@ bool scrCBFeatureDestroyed()
 	BASE_OBJECT		**ppsObj;
 	bool			retval;
 
-	if (!stackPopParams(1, VAL_REF | ST_FEATURE, &ppsObj))
+	if(!stackPopParams(1, VAL_REF | ST_FEATURE, &ppsObj))
 	{
 		return false;
 	}
 
-	if (psCBObjDestroyed != nullptr)
+	if(psCBObjDestroyed != nullptr)
 	{
 		retval = true;
 		*ppsObj = psCBObjDestroyed;
@@ -489,7 +501,8 @@ bool scrCBFeatureDestroyed()
 	}
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -511,34 +524,35 @@ static bool scrCBObjectSeen(SDWORD callback)
 	SDWORD			player;
 	bool			retval;
 
-	if (!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_BASEOBJECT, &ppsObj, VAL_REF | ST_BASEOBJECT, &ppsViewer))
+	if(!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_BASEOBJECT, &ppsObj, VAL_REF | ST_BASEOBJECT, &ppsViewer))
 	{
 		return false;
 	}
 
-	if (psScrCBObjSeen == nullptr)
+	if(psScrCBObjSeen == nullptr)
 	{
 		ASSERT(false, "scrCBObjectSeen: no object set");
 		return false;
 	}
 
 	*ppsObj = nullptr;
-	if (psScrCBObjViewer != nullptr &&  psScrCBObjViewer->player != player)
+
+	if(psScrCBObjViewer != nullptr &&  psScrCBObjViewer->player != player)
 	{
 		retval = false;
 	}
-	else if ((callback == CALL_DROID_SEEN) &&
-	         (psScrCBObjSeen->type != OBJ_DROID))
+	else if((callback == CALL_DROID_SEEN) &&
+	        (psScrCBObjSeen->type != OBJ_DROID))
 	{
 		retval = false;
 	}
-	else if ((callback == CALL_STRUCT_SEEN) &&
-	         (psScrCBObjSeen->type != OBJ_STRUCTURE))
+	else if((callback == CALL_STRUCT_SEEN) &&
+	        (psScrCBObjSeen->type != OBJ_STRUCTURE))
 	{
 		retval = false;
 	}
-	else if ((callback == CALL_FEATURE_SEEN) &&
-	         (psScrCBObjSeen->type != OBJ_FEATURE))
+	else if((callback == CALL_FEATURE_SEEN) &&
+	        (psScrCBObjSeen->type != OBJ_FEATURE))
 	{
 		retval = false;
 	}
@@ -550,7 +564,8 @@ static bool scrCBObjectSeen(SDWORD callback)
 	}
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -588,15 +603,15 @@ bool scrCBTransporterOffMap()
 	bool	retval;
 	DROID	*psTransporter;
 
-	if (!stackPopParams(1, VAL_INT, &player))
+	if(!stackPopParams(1, VAL_INT, &player))
 	{
 		return false;
 	}
 
 	psTransporter = transporterGetScriptCurrent();
 
-	if ((psTransporter != nullptr) &&
-	    (psTransporter->player == (UDWORD)player))
+	if((psTransporter != nullptr) &&
+	        (psTransporter->player == (UDWORD)player))
 	{
 		retval = true;
 	}
@@ -606,7 +621,8 @@ bool scrCBTransporterOffMap()
 	}
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -621,28 +637,29 @@ bool scrCBTransporterLanded()
 	DROID			*psTransporter, *psDroid, *psNext;
 	bool			retval;
 
-	if (!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &player))
+	if(!stackPopParams(2, ST_GROUP, &psGroup, VAL_INT, &player))
 	{
 		return false;
 	}
 
 	psTransporter = transporterGetScriptCurrent();
 
-	if ((psTransporter == nullptr) ||
-	    (psTransporter->player != (UDWORD)player))
+	if((psTransporter == nullptr) ||
+	        (psTransporter->player != (UDWORD)player))
 	{
 		retval = false;
 	}
 	else
 	{
 		/* if not selectedPlayer unload droids */
-		if ((UDWORD)player != selectedPlayer)
+		if((UDWORD)player != selectedPlayer)
 		{
 			/* transfer droids from transporter group to current group */
-			for (psDroid = psTransporter->psGroup->psList; psDroid; psDroid = psNext)
+			for(psDroid = psTransporter->psGroup->psList; psDroid; psDroid = psNext)
 			{
 				psNext = psDroid->psGrpNext;
-				if (psDroid != psTransporter)
+
+				if(psDroid != psTransporter)
 				{
 					psGroup->add(psDroid);
 				}
@@ -653,7 +670,8 @@ bool scrCBTransporterLanded()
 	}
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -669,8 +687,8 @@ bool scrCBTransporterLandedB()
 	bool			retval;
 	DROID			**ppsTransp;
 
-	if (!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &player,
-	                    VAL_REF | ST_DROID, &ppsTransp))
+	if(!stackPopParams(3, ST_GROUP, &psGroup, VAL_INT, &player,
+	                   VAL_REF | ST_DROID, &ppsTransp))
 	{
 		debug(LOG_ERROR, "scrCBTransporterLandedB(): stack failed");
 		return false;
@@ -678,7 +696,7 @@ bool scrCBTransporterLandedB()
 
 	psTransporter = transporterGetScriptCurrent();
 
-	if (psTransporter == nullptr || psTransporter->player != (UDWORD)player)
+	if(psTransporter == nullptr || psTransporter->player != (UDWORD)player)
 	{
 		retval = false;
 	}
@@ -687,10 +705,11 @@ bool scrCBTransporterLandedB()
 		*ppsTransp = psTransporter;		//return landed transporter
 
 		/* transfer droids from transporter group to current group */
-		for (psDroid = psTransporter->psGroup->psList; psDroid; psDroid = psNext)
+		for(psDroid = psTransporter->psGroup->psList; psDroid; psDroid = psNext)
 		{
 			psNext = psDroid->psGrpNext;
-			if (psDroid != psTransporter)
+
+			if(psDroid != psTransporter)
 			{
 				psGroup->add(psDroid);
 			}
@@ -700,7 +719,8 @@ bool scrCBTransporterLandedB()
 	}
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		debug(LOG_ERROR, "scrCBTransporterLandedB: push landed");
 		return false;
@@ -716,7 +736,7 @@ bool scrCBClusterEmpty()
 {
 	SDWORD		*pClusterID;
 
-	if (!stackPopParams(1, VAL_REF | VAL_INT, &pClusterID))
+	if(!stackPopParams(1, VAL_REF | VAL_INT, &pClusterID))
 	{
 		return false;
 	}
@@ -724,7 +744,8 @@ bool scrCBClusterEmpty()
 	*pClusterID = scrCBEmptyClusterID;
 
 	scrFunctionResult.v.bval = true;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -741,27 +762,30 @@ bool scrCBVtolOffMap()
 	DROID	**ppsVtol;
 	bool	retval;
 
-	if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsVtol))
+	if(!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsVtol))
 	{
 		return false;
 	}
 
-	if (psScrCBVtolOffMap == nullptr)
+	if(psScrCBVtolOffMap == nullptr)
 	{
 		ASSERT(false, "scrCBVtolAtBase: NULL vtol pointer");
 		return false;
 	}
 
 	retval = false;
-	if (psScrCBVtolOffMap->player == player)
+
+	if(psScrCBVtolOffMap->player == player)
 	{
 		retval = true;
 		*ppsVtol = psScrCBVtolOffMap;
 	}
+
 	psScrCBVtolOffMap = nullptr;
 
 	scrFunctionResult.v.bval = retval;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -777,8 +801,8 @@ bool scrCBResCompleted()
 	bool	    retVal;
 	SDWORD		resFacOwner;
 
-	if (!stackPopParams(3, VAL_REF | ST_RESEARCH, &ppsResearch,
-	                    VAL_REF | ST_STRUCTURE, &ppsResFac , VAL_INT, &resFacOwner))
+	if(!stackPopParams(3, VAL_REF | ST_RESEARCH, &ppsResearch,
+	                   VAL_REF | ST_STRUCTURE, &ppsResFac, VAL_INT, &resFacOwner))
 	{
 		return false;
 	}
@@ -787,9 +811,9 @@ bool scrCBResCompleted()
 	*ppsResearch = nullptr;
 	*ppsResFac = nullptr;
 
-	if (resFacOwner == -1 || resFacOwner == CBResFacilityOwner)
+	if(resFacOwner == -1 || resFacOwner == CBResFacilityOwner)
 	{
-		if (psCBLastResearch != nullptr)
+		if(psCBLastResearch != nullptr)
 		{
 			retVal = true;
 			*ppsResearch = psCBLastResearch;
@@ -802,7 +826,8 @@ bool scrCBResCompleted()
 	}
 
 	scrFunctionResult.v.bval = retVal;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -815,7 +840,8 @@ bool scrCBResCompleted()
 bool scrCBPlayerLeft()
 {
 	SDWORD	*player;
-	if (!stackPopParams(1, VAL_REF | VAL_INT, &player))
+
+	if(!stackPopParams(1, VAL_REF | VAL_INT, &player))
 	{
 		return false;
 	}
@@ -823,7 +849,8 @@ bool scrCBPlayerLeft()
 	*player = CBallFrom;
 
 	scrFunctionResult.v.bval = true;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -837,7 +864,7 @@ bool scrCBAllianceOffer()
 {
 	SDWORD	*from, *to;
 
-	if (!stackPopParams(2, VAL_REF | VAL_INT, &from, VAL_REF | VAL_INT, &to))
+	if(!stackPopParams(2, VAL_REF | VAL_INT, &from, VAL_REF | VAL_INT, &to))
 	{
 		return false;
 	}
@@ -846,7 +873,8 @@ bool scrCBAllianceOffer()
 	*to = CBallTo;
 
 	scrFunctionResult.v.bval = true;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -865,13 +893,13 @@ bool scrCallConsole()
 	SDWORD	*player;
 	char	**ConsoleText = nullptr;
 
-	if (!stackPopParams(2, VAL_REF | VAL_INT, &player, VAL_REF | VAL_STRING, &ConsoleText))
+	if(!stackPopParams(2, VAL_REF | VAL_INT, &player, VAL_REF | VAL_STRING, &ConsoleText))
 	{
 		debug(LOG_ERROR, "scrCallConsole(): stack failed");
 		return false;
 	}
 
-	if (*ConsoleText == nullptr)
+	if(*ConsoleText == nullptr)
 	{
 		debug(LOG_ERROR, "scrCallConsole(): passed string was not initialized");
 		return false;
@@ -882,7 +910,8 @@ bool scrCallConsole()
 	*player = ConsolePlayer;
 
 	scrFunctionResult.v.bval = true;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		debug(LOG_ERROR, "scrCallConsole(): stackPushResult failed");
 		return false;
@@ -899,9 +928,9 @@ bool scrCallBeacon()
 	char	**BeaconText = nullptr;
 	SDWORD	*locX, *locY;
 
-	if (!stackPopParams(5, VAL_INT, &playerTo, VAL_REF | VAL_INT, &playerFrom,
-	                    VAL_REF | VAL_INT, &locX, VAL_REF | VAL_INT, &locY,
-	                    VAL_REF | VAL_STRING, &BeaconText))
+	if(!stackPopParams(5, VAL_INT, &playerTo, VAL_REF | VAL_INT, &playerFrom,
+	                   VAL_REF | VAL_INT, &locX, VAL_REF | VAL_INT, &locY,
+	                   VAL_REF | VAL_STRING, &BeaconText))
 	{
 		debug(LOG_ERROR, "scrCallBeacon() - failed to pop parameters.");
 		return false;
@@ -910,16 +939,16 @@ bool scrCallBeacon()
 	debug(LOG_SCRIPT, "scrCallBeacon: to: %d (%d), text: %s ",
 	      playerTo, MultiMsgPlayerTo, *BeaconText);
 
-	if (*BeaconText == nullptr)
+	if(*BeaconText == nullptr)
 	{
 		debug(LOG_ERROR, "scrCallBeacon(): passed string was not initialized");
 		return false;
 	}
 
-	if (MultiMsgPlayerTo >= 0 && MultiMsgPlayerFrom >= 0 && MultiMsgPlayerTo < MAX_PLAYERS && MultiMsgPlayerFrom < MAX_PLAYERS)
+	if(MultiMsgPlayerTo >= 0 && MultiMsgPlayerFrom >= 0 && MultiMsgPlayerTo < MAX_PLAYERS && MultiMsgPlayerFrom < MAX_PLAYERS)
 	{
 
-		if (MultiMsgPlayerTo == playerTo)
+		if(MultiMsgPlayerTo == playerTo)
 		{
 			strcpy(*BeaconText, MultiplayMsg);
 
@@ -928,7 +957,8 @@ bool scrCallBeacon()
 			*locY = beaconY;
 
 			scrFunctionResult.v.bval = true;
-			if (!stackPushResult(VAL_BOOL, &scrFunctionResult))	//triggered
+
+			if(!stackPushResult(VAL_BOOL, &scrFunctionResult))	//triggered
 			{
 				debug(LOG_ERROR, "scrCallBeacon - failed to push");
 				return false;
@@ -941,7 +971,8 @@ bool scrCallBeacon()
 	{
 		debug(LOG_ERROR, "scrCallBeacon() - player indexes failed: %d - %d", MultiMsgPlayerFrom, MultiMsgPlayerTo);
 		scrFunctionResult.v.bval = false;
-		if (!stackPushResult(VAL_BOOL, &scrFunctionResult))	//not triggered
+
+		if(!stackPushResult(VAL_BOOL, &scrFunctionResult))	//not triggered
 		{
 			return false;
 		}
@@ -951,7 +982,8 @@ bool scrCallBeacon()
 
 	//return "not triggered"
 	scrFunctionResult.v.bval = false;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -966,28 +998,29 @@ bool scrCallMultiMsg()
 	SDWORD	*player, playerTo;
 	char	**ConsoleText = nullptr;
 
-	if (!stackPopParams(3, VAL_INT, &playerTo, VAL_REF | VAL_INT, &player, VAL_REF | VAL_STRING, &ConsoleText))
+	if(!stackPopParams(3, VAL_INT, &playerTo, VAL_REF | VAL_INT, &player, VAL_REF | VAL_STRING, &ConsoleText))
 	{
 		debug(LOG_ERROR, "scrCallMultiMsg() failed to pop parameters.");
 		return false;
 	}
 
-	if (*ConsoleText == nullptr)
+	if(*ConsoleText == nullptr)
 	{
 		debug(LOG_ERROR, "scrCallMultiMsg(): passed string was not initialized");
 		return false;
 	}
 
-	if (MultiMsgPlayerTo >= 0 && MultiMsgPlayerFrom >= 0 && MultiMsgPlayerTo < MAX_PLAYERS && MultiMsgPlayerFrom < MAX_PLAYERS)
+	if(MultiMsgPlayerTo >= 0 && MultiMsgPlayerFrom >= 0 && MultiMsgPlayerTo < MAX_PLAYERS && MultiMsgPlayerFrom < MAX_PLAYERS)
 	{
-		if (MultiMsgPlayerTo == playerTo)
+		if(MultiMsgPlayerTo == playerTo)
 		{
 			strcpy(*ConsoleText, MultiplayMsg);
 
 			*player = MultiMsgPlayerFrom;
 
 			scrFunctionResult.v.bval = true;
-			if (!stackPushResult(VAL_BOOL, &scrFunctionResult))	//triggered
+
+			if(!stackPushResult(VAL_BOOL, &scrFunctionResult))	//triggered
 			{
 				debug(LOG_ERROR, "scrCallMultiMsg(): stackPushResult failed");
 				return false;
@@ -1000,7 +1033,8 @@ bool scrCallMultiMsg()
 	{
 		debug(LOG_ERROR, "scrCallMultiMsg() - player indexes failed: %d - %d", MultiMsgPlayerFrom, MultiMsgPlayerTo);
 		scrFunctionResult.v.bval = false;
-		if (!stackPushResult(VAL_BOOL, &scrFunctionResult))	//not triggered
+
+		if(!stackPushResult(VAL_BOOL, &scrFunctionResult))	//not triggered
 		{
 			return false;
 		}
@@ -1010,7 +1044,8 @@ bool scrCallMultiMsg()
 
 	//return "not triggered"
 	scrFunctionResult.v.bval = false;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		debug(LOG_ERROR, "scrCallMultiMsg: stackPushResult failed");
 		return false;
@@ -1030,13 +1065,13 @@ bool scrCBStructBuilt()
 	bool		triggered = false;
 	DROID		**ppsDroid;
 
-	if (!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid, VAL_REF | ST_STRUCTURE, &ppsStructure))
+	if(!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid, VAL_REF | ST_STRUCTURE, &ppsStructure))
 	{
 		debug(LOG_ERROR, "scrCBStructBuilt() failed to pop parameters.");
 		return false;
 	}
 
-	if (psScrCBNewStruct == nullptr)
+	if(psScrCBNewStruct == nullptr)
 	{
 		debug(LOG_ERROR, "scrCBStructBuilt: no structure has been set");
 		ASSERT(false, "scrCBStructBuilt: no structure has been set");
@@ -1044,7 +1079,7 @@ bool scrCBStructBuilt()
 		*ppsStructure  = nullptr;
 		*ppsDroid = nullptr;
 	}
-	else if (psScrCBNewStructTruck == nullptr)
+	else if(psScrCBNewStructTruck == nullptr)
 	{
 		debug(LOG_ERROR, "scrCBStructBuilt: no builder has been set");
 		ASSERT(false, "scrCBStructBuilt: no builder has been set");
@@ -1052,7 +1087,7 @@ bool scrCBStructBuilt()
 		*ppsStructure  = nullptr;
 		*ppsDroid = nullptr;
 	}
-	else if (psScrCBNewStruct->player == (UDWORD)player)
+	else if(psScrCBNewStruct->player == (UDWORD)player)
 	{
 		triggered = true;
 		*ppsStructure  = psScrCBNewStruct;		//pass to script
@@ -1060,7 +1095,8 @@ bool scrCBStructBuilt()
 	}
 
 	scrFunctionResult.v.bval = triggered;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		debug(LOG_ERROR, "scrCBStructBuilt: push failed");
 		return false;
@@ -1076,26 +1112,27 @@ bool scrCBDorderStop()
 	DROID		**ppsDroid;
 	bool	triggered = false;
 
-	if (!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid))
+	if(!stackPopParams(2, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid))
 	{
 		debug(LOG_ERROR, "scrCBDorderStop: failed to pop");
 		return false;
 	}
 
-	if (psScrCBOrderDroid == nullptr)	//if droid that received stop order was destroyed
+	if(psScrCBOrderDroid == nullptr)	//if droid that received stop order was destroyed
 	{
 		ASSERT(false, "scrCBDorderStop: psScrCBOrderDroid is NULL");
 		triggered = false;
 		*ppsDroid = nullptr;
 	}
-	else if (psScrCBOrderDroid->player == (UDWORD)player)
+	else if(psScrCBOrderDroid->player == (UDWORD)player)
 	{
 		triggered = true;
 		*ppsDroid = psScrCBOrderDroid;
 	}
 
 	scrFunctionResult.v.bval = triggered;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -1111,19 +1148,19 @@ bool scrCBDorderReachedLocation()
 	DROID		**ppsDroid;
 	bool	triggered = false;
 
-	if (!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid, VAL_REF | VAL_INT, &Order))
+	if(!stackPopParams(3, VAL_INT, &player, VAL_REF | ST_DROID, &ppsDroid, VAL_REF | VAL_INT, &Order))
 	{
 		debug(LOG_ERROR, "scrCBDorderReachedLocation: failed to pop");
 		return false;
 	}
 
-	if (psScrCBOrderDroid == nullptr)	//if droid was destroyed
+	if(psScrCBOrderDroid == nullptr)	//if droid was destroyed
 	{
 		ASSERT(false, "psScrCBOrderDroid is NULL");
 		triggered = false;
 		*ppsDroid = nullptr;
 	}
-	else if (psScrCBOrderDroid->player == (UDWORD)player)
+	else if(psScrCBOrderDroid->player == (UDWORD)player)
 	{
 		triggered = true;
 		*ppsDroid = psScrCBOrderDroid;
@@ -1131,7 +1168,8 @@ bool scrCBDorderReachedLocation()
 	}
 
 	scrFunctionResult.v.bval = triggered;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -1144,7 +1182,7 @@ bool scrCBProcessKeyPress()
 {
 	SDWORD		*key = nullptr, *metaKey = nullptr;
 
-	if (!stackPopParams(2, VAL_REF | VAL_INT, &key, VAL_REF | VAL_INT, &metaKey))
+	if(!stackPopParams(2, VAL_REF | VAL_INT, &key, VAL_REF | VAL_INT, &metaKey))
 	{
 		debug(LOG_ERROR, "scrCBProcessKeyPress: failed to pop");
 		return false;
@@ -1154,7 +1192,8 @@ bool scrCBProcessKeyPress()
 	*metaKey = cbPressedMetaKey;
 
 	scrFunctionResult.v.bval = true;
-	if (!stackPushResult(VAL_BOOL, &scrFunctionResult))		//triggered
+
+	if(!stackPushResult(VAL_BOOL, &scrFunctionResult))		//triggered
 	{
 		return false;
 	}

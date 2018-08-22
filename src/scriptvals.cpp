@@ -63,7 +63,8 @@ bool scrvInitialise()
 void scrvShutDown()
 {
 	SCRV_STORE	*psCurr;
-	while (psContextStore)
+
+	while(psContextStore)
 	{
 		psCurr = psContextStore;
 		psContextStore = psContextStore->psNext;
@@ -77,7 +78,8 @@ void scrvShutDown()
 void scrvReset()
 {
 	SCRV_STORE	*psCurr;
-	while (psContextStore)
+
+	while(psContextStore)
 	{
 		psCurr = psContextStore;
 		psContextStore = psContextStore->psNext;
@@ -96,19 +98,23 @@ bool scrvAddContext(char *pID, SCRIPT_CONTEXT *psContext, SCRV_TYPE type)
 	SCRV_STORE		*psNew;
 
 	psNew = (SCRV_STORE *)malloc(sizeof(SCRV_STORE));
-	if (!psNew)
+
+	if(!psNew)
 	{
 		debug(LOG_FATAL, "scrvAddContext: Out of memory");
 		abort();
 		return false;
 	}
+
 	psNew->pIDString = (char *)malloc(strlen(pID) + 1);
-	if (!psNew->pIDString)
+
+	if(!psNew->pIDString)
 	{
 		debug(LOG_FATAL, "scrvAddContext: Out of memory");
 		abort();
 		return false;
 	}
+
 	strcpy(psNew->pIDString, pID);
 	psNew->type = type;
 	psNew->psContext = psContext;
@@ -135,12 +141,14 @@ void scrvReleaseBasePointer(INTERP_VAL *psVal)
 static bool baseObjDead(INTERP_VAL *psVal)
 {
 	BASE_OBJECT *psObj = (BASE_OBJECT *)psVal->v.oval;
-	if (psObj && isDead(psObj))
+
+	if(psObj && isDead(psObj))
 	{
 		debug(LOG_DEATH, "Removing %p (%s) from the wzscript system", static_cast<void *>(psObj), objInfo(psObj));
 		psVal->v.oval = nullptr;
 		return true;
 	}
+
 	return false;
 }
 
@@ -185,9 +193,9 @@ bool scrvGetContext(char *pID, SCRIPT_CONTEXT **ppsContext)
 {
 	SCRV_STORE	*psCurr;
 
-	for (psCurr = psContextStore; psCurr; psCurr = psCurr->psNext)
+	for(psCurr = psContextStore; psCurr; psCurr = psCurr->psNext)
 	{
-		if (strcmp(psCurr->pIDString, pID) == 0)
+		if(strcmp(psCurr->pIDString, pID) == 0)
 		{
 			*ppsContext = psCurr->psContext;
 			return true;

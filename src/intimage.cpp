@@ -89,10 +89,10 @@ IMAGEFRAME FrameNormal =
 	IMAGE_FRAME_HB, FR_SOLID,
 	IMAGE_FRAME_VL, FR_SOLID,
 	{	{FR_FRAME, 0, 1, 0, -1, 33},
-		{FR_IGNORE, 0, 0, 0, 0 , 0},
-		{FR_IGNORE, 0, 0, 0, 0 , 0},
-		{FR_IGNORE, 0, 0, 0, 0 , 0},
-		{FR_IGNORE, 0, 0, 0, 0 , 0}
+		{FR_IGNORE, 0, 0, 0, 0, 0},
+		{FR_IGNORE, 0, 0, 0, 0, 0},
+		{FR_IGNORE, 0, 0, 0, 0, 0},
+		{FR_IGNORE, 0, 0, 0, 0, 0}
 	},
 };
 
@@ -108,11 +108,11 @@ IMAGEFRAME FrameRadar =
 	IMAGE_FRAME_VR, FR_SOLID,
 	IMAGE_FRAME_HB, FR_SOLID,
 	IMAGE_FRAME_VL, FR_SOLID,
-	{	{FR_IGNORE, 0, 0, 0, 0 , 0},
-		{FR_IGNORE, 0, 0, 0, 0 , 0},
-		{FR_IGNORE, 0, 0, 0, 0 , 0},
-		{FR_IGNORE, 0, 0, 0, 0 , 0},
-		{FR_IGNORE, 0, 0, 0, 0 , 0}
+	{	{FR_IGNORE, 0, 0, 0, 0, 0},
+		{FR_IGNORE, 0, 0, 0, 0, 0},
+		{FR_IGNORE, 0, 0, 0, 0, 0},
+		{FR_IGNORE, 0, 0, 0, 0, 0},
+		{FR_IGNORE, 0, 0, 0, 0, 0}
 	},
 };
 
@@ -146,85 +146,90 @@ void RenderWindowFrame(FRAMETYPE frame, UDWORD x, UDWORD y, UDWORD Width, UDWORD
 	Width -= Frame->OffsetX1 + Frame->OffsetX0;
 	Height -= Frame->OffsetY1 + Frame->OffsetY0;
 
-	for (RectI = 0; RectI < 5; RectI++)
+	for(RectI = 0; RectI < 5; RectI++)
 	{
 		Rect = &Frame->FRect[RectI];
 
-		switch (Rect->Type)
+		switch(Rect->Type)
 		{
-		case FR_FRAME:
-			iV_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset,
-			                x + Width - INCEND + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
-			break;
-		case FR_LEFT:
-			iV_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset,
-			                x + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
-			break;
-		case FR_RIGHT:
-			iV_TransBoxFill(x + Width - INCEND + Rect->TLXOffset, y + Rect->TLYOffset,
-			                x + Width - INCEND + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
-			break;
-		case FR_TOP:
-			iV_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset,
-			                x + Width - INCEND + Rect->BRXOffset, y + Rect->BRYOffset);
-			break;
-		case FR_BOTTOM:
-			iV_TransBoxFill(x + Rect->TLXOffset, y + Height - INCEND + Rect->TLYOffset,
-			                x + Width - INCEND + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
-			break;
-		case FR_IGNORE:
-			break; // ignored
+			case FR_FRAME:
+				iV_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset,
+				                x + Width - INCEND + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
+				break;
+
+			case FR_LEFT:
+				iV_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset,
+				                x + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
+				break;
+
+			case FR_RIGHT:
+				iV_TransBoxFill(x + Width - INCEND + Rect->TLXOffset, y + Rect->TLYOffset,
+				                x + Width - INCEND + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
+				break;
+
+			case FR_TOP:
+				iV_TransBoxFill(x + Rect->TLXOffset, y + Rect->TLYOffset,
+				                x + Width - INCEND + Rect->BRXOffset, y + Rect->BRYOffset);
+				break;
+
+			case FR_BOTTOM:
+				iV_TransBoxFill(x + Rect->TLXOffset, y + Height - INCEND + Rect->TLYOffset,
+				                x + Width - INCEND + Rect->BRXOffset, y + Height - INCEND + Rect->BRYOffset);
+				break;
+
+			case FR_IGNORE:
+				break; // ignored
 		}
 	}
 
 	BatchedImageDrawRequests imageDrawBatch(true); // defer drawing
 
-	if (Frame->TopLeft >= 0)
+	if(Frame->TopLeft >= 0)
 	{
 		WTopLeft = (SWORD)iV_GetImageWidth(IntImages, Frame->TopLeft);
 		HTopLeft = (SWORD)iV_GetImageHeight(IntImages, Frame->TopLeft);
 		iV_DrawImage(IntImages, Frame->TopLeft, x, y, modelViewProjectionMatrix, &imageDrawBatch);
 	}
 
-	if (Frame->TopRight >= 0)
+	if(Frame->TopRight >= 0)
 	{
 		WTopRight = (SWORD)iV_GetImageWidth(IntImages, Frame->TopRight);
 		HTopRight = (SWORD)iV_GetImageHeight(IntImages, Frame->TopRight);
 		iV_DrawImage(IntImages, Frame->TopRight, x + Width - WTopRight, y, modelViewProjectionMatrix, &imageDrawBatch);
 	}
 
-	if (Frame->BottomRight >= 0)
+	if(Frame->BottomRight >= 0)
 	{
 		WBottomRight = (SWORD)iV_GetImageWidth(IntImages, Frame->BottomRight);
 		HBottomRight = (SWORD)iV_GetImageHeight(IntImages, Frame->BottomRight);
 		iV_DrawImage(IntImages, Frame->BottomRight, x + Width - WBottomRight, y + Height - HBottomRight, modelViewProjectionMatrix, &imageDrawBatch);
 	}
 
-	if (Frame->BottomLeft >= 0)
+	if(Frame->BottomLeft >= 0)
 	{
 		WBottomLeft = (SWORD)iV_GetImageWidth(IntImages, Frame->BottomLeft);
 		HBottomLeft = (SWORD)iV_GetImageHeight(IntImages, Frame->BottomLeft);
 		iV_DrawImage(IntImages, Frame->BottomLeft, x, y + Height - HBottomLeft, modelViewProjectionMatrix, &imageDrawBatch);
 	}
 
-	if (Frame->TopEdge >= 0)
+	if(Frame->TopEdge >= 0)
 	{
 		iV_DrawImageRepeatX(IntImages, Frame->TopEdge, x + iV_GetImageWidth(IntImages, Frame->TopLeft), y,
 		                    Width - WTopLeft - WTopRight, modelViewProjectionMatrix, false, &imageDrawBatch);
 	}
 
-	if (Frame->BottomEdge >= 0)
+	if(Frame->BottomEdge >= 0)
 	{
 		iV_DrawImageRepeatX(IntImages, Frame->BottomEdge, x + WBottomLeft, y + Height - iV_GetImageHeight(IntImages, Frame->BottomEdge),
 		                    Width - WBottomLeft - WBottomRight, modelViewProjectionMatrix, false, &imageDrawBatch);
 	}
 
-	if (Frame->LeftEdge >= 0)
+	if(Frame->LeftEdge >= 0)
 	{
 		iV_DrawImageRepeatY(IntImages, Frame->LeftEdge, x, y + HTopLeft, Height - HTopLeft - HBottomLeft, modelViewProjectionMatrix, &imageDrawBatch);
 	}
 
-	if (Frame->RightEdge >= 0)
+	if(Frame->RightEdge >= 0)
 	{
 		iV_DrawImageRepeatY(IntImages, Frame->RightEdge, x + Width - iV_GetImageWidth(IntImages, Frame->RightEdge), y + HTopRight,
 		                    Height - HTopRight - HBottomRight, modelViewProjectionMatrix, &imageDrawBatch);

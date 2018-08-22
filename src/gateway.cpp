@@ -77,10 +77,11 @@ bool gwInitialise()
 // Shutdown the gateway system
 void gwShutDown()
 {
-	for (auto psGateway : psGateways)
+	for(auto psGateway : psGateways)
 	{
 		gwFreeGateway(psGateway);
 	}
+
 	psGateways.clear();
 }
 
@@ -97,14 +98,14 @@ bool gwNewGateway(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
 	psNew = (GATEWAY *)malloc(sizeof(GATEWAY));
 
 	// make sure the first coordinate is always the smallest
-	if (x2 < x1)
+	if(x2 < x1)
 	{
 		// y is the same, swap x
 		temp = x2;
 		x2 = x1;
 		x1 = temp;
 	}
-	else if (y2 < y1)
+	else if(y2 < y1)
 	{
 		// x is the same, swap y
 		temp = y2;
@@ -122,10 +123,10 @@ bool gwNewGateway(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
 	psGateways.push_back(psNew);
 
 	// set the map flags
-	if (psNew->x1 == psNew->x2)
+	if(psNew->x1 == psNew->x2)
 	{
 		// vertical gateway
-		for (pos = psNew->y1; pos <= psNew->y2; pos++)
+		for(pos = psNew->y1; pos <= psNew->y2; pos++)
 		{
 			gwSetGatewayFlag(psNew->x1, pos);
 		}
@@ -133,7 +134,7 @@ bool gwNewGateway(SDWORD x1, SDWORD y1, SDWORD x2, SDWORD y2)
 	else
 	{
 		// horizontal gateway
-		for (pos = psNew->x1; pos <= psNew->x2; pos++)
+		for(pos = psNew->x1; pos <= psNew->x2; pos++)
 		{
 			gwSetGatewayFlag(pos, psNew->y1);
 		}
@@ -158,13 +159,13 @@ static void gwFreeGateway(GATEWAY *psDel)
 {
 	int pos;
 
-	if (psMapTiles) // this lines fixes the bug where we were closing the gateways after freeing the map
+	if(psMapTiles)  // this lines fixes the bug where we were closing the gateways after freeing the map
 	{
 		// clear the map flags
-		if (psDel->x1 == psDel->x2)
+		if(psDel->x1 == psDel->x2)
 		{
 			// vertical gateway
-			for (pos = psDel->y1; pos <= psDel->y2; pos++)
+			for(pos = psDel->y1; pos <= psDel->y2; pos++)
 			{
 				gwClearGatewayFlag(psDel->x1, pos);
 			}
@@ -172,7 +173,7 @@ static void gwFreeGateway(GATEWAY *psDel)
 		else
 		{
 			// horizontal gateway
-			for (pos = psDel->x1; pos <= psDel->x2; pos++)
+			for(pos = psDel->x1; pos <= psDel->x2; pos++)
 			{
 				gwClearGatewayFlag(pos, psDel->y1);
 			}

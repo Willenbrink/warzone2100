@@ -64,6 +64,7 @@ void setTheSun(Vector3f newSun)
 	Vector3f oldSun = theSun;
 	theSun = normalise(newSun) * float(FP12_MULTIPLIER);
 	theSun_ForTileIllumination = Vector3f(-theSun.x, -theSun.y, theSun.z);
+
 	if(oldSun != theSun)
 	{
 		// The sun has changed - must relcalulate lighting
@@ -87,25 +88,25 @@ Vector3f getTheSun()
 void initLighting(UDWORD x1, UDWORD y1, UDWORD x2, UDWORD y2)
 {
 	// quick check not trying to go off the map - don't need to check for < 0 since UWORD's!!
-	if (x1 > mapWidth || x2 > mapWidth || y1 > mapHeight || y2 > mapHeight)
+	if(x1 > mapWidth || x2 > mapWidth || y1 > mapHeight || y2 > mapHeight)
 	{
 		ASSERT(false, "initLighting: coords off edge of map");
 		return;
 	}
 
-	for (unsigned i = x1; i < x2; i++)
+	for(unsigned i = x1; i < x2; i++)
 	{
-		for (unsigned j = y1; j < y2; j++)
+		for(unsigned j = y1; j < y2; j++)
 		{
 			MAPTILE	*psTile = mapTile(i, j);
 
 			// always make the edge tiles dark
-			if (i == 0 || j == 0 || i >= mapWidth - 1 || j >= mapHeight - 1)
+			if(i == 0 || j == 0 || i >= mapWidth - 1 || j >= mapHeight - 1)
 			{
 				psTile->illumination = 16;
 
 				// give water tiles at edge of map a border
-				if (terrainType(psTile) == TER_WATER)
+				if(terrainType(psTile) == TER_WATER)
 				{
 					psTile->texture = 0;
 				}
@@ -114,10 +115,11 @@ void initLighting(UDWORD x1, UDWORD y1, UDWORD x2, UDWORD y2)
 			{
 				calcTileIllum(i, j);
 			}
+
 			// Basically darkens down the tiles that are outside the scroll
 			// limits - thereby emphasising the cannot-go-there-ness of them
-			if ((SDWORD)i < scrollMinX + 4 || (SDWORD)i > scrollMaxX - 4
-			    || (SDWORD)j < scrollMinY + 4 || (SDWORD)j > scrollMaxY - 4)
+			if((SDWORD)i < scrollMinX + 4 || (SDWORD)i > scrollMaxX - 4
+			        || (SDWORD)j < scrollMinY + 4 || (SDWORD)j > scrollMaxY - 4)
 			{
 				psTile->illumination /= 3;
 			}
@@ -132,8 +134,8 @@ static void normalsOnTile(unsigned int tileX, unsigned int tileY, unsigned int q
 	MAPTILE *psTiles[2][2];
 	Vector3f corners[2][2];
 
-	for (unsigned j = 0; j < 2; ++j)
-		for (unsigned i = 0; i < 2; ++i)
+	for(unsigned j = 0; j < 2; ++j)
+		for(unsigned i = 0; i < 2; ++i)
 		{
 			tiles[i][j] = Vector2i(tileX + i, tileY + j);
 			/* Get a pointer to our tile */
@@ -144,37 +146,43 @@ static void normalsOnTile(unsigned int tileX, unsigned int tileY, unsigned int q
 
 	int flipped = TRI_FLIPPED(psTiles[0][0]) ? 10 : 0;
 
-	switch (quadrant + flipped)
+	switch(quadrant + flipped)
 	{
-	// Not flipped.
-	case 0:
-	case 2:
-		/* Otherwise, it's not flipped and so two triangles*/
-		normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][0], corners[1][1]);
-		normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][1], corners[0][1]);
-		break;
-	case 1:
-		normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][1], corners[0][1]);
-		break;
-	case 3:
-		normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][0], corners[1][1]);
-		break;
-	// Flipped.
-	case 10:
-		/* Is it flipped? In this case one triangle  */
-		normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[1][0], corners[1][1], corners[0][1]);
-		break;
-	case 12:
-		normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][0], corners[0][1]);
-		break;
-	case 11:
-	case 13:
-		/* Is it flipped? In this case two triangles  */
-		normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][0], corners[0][1]);
-		normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[1][0], corners[1][1], corners[0][1]);
-		break;
-	default:
-		ASSERT(false, "Invalid quadrant in lighting code");
+		// Not flipped.
+		case 0:
+		case 2:
+			/* Otherwise, it's not flipped and so two triangles*/
+			normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][0], corners[1][1]);
+			normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][1], corners[0][1]);
+			break;
+
+		case 1:
+			normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][1], corners[0][1]);
+			break;
+
+		case 3:
+			normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][0], corners[1][1]);
+			break;
+
+		// Flipped.
+		case 10:
+			/* Is it flipped? In this case one triangle  */
+			normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[1][0], corners[1][1], corners[0][1]);
+			break;
+
+		case 12:
+			normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][0], corners[0][1]);
+			break;
+
+		case 11:
+		case 13:
+			/* Is it flipped? In this case two triangles  */
+			normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[0][0], corners[1][0], corners[0][1]);
+			normals[(*numNormals)++] = pie_SurfaceNormal3fv(corners[1][0], corners[1][1], corners[0][1]);
+			break;
+
+		default:
+			ASSERT(false, "Invalid quadrant in lighting code");
 	} // end switch
 }
 
@@ -216,7 +224,7 @@ static void calcTileIllum(UDWORD tileX, UDWORD tileY)
 	/* Do quadrant 3 - tile that's down and left*/
 	normalsOnTile(tileX - 1, tileY, 3, &numNormals, normals);
 
-	for (i = 0; i < numNormals; i++)
+	for(i = 0; i < numNormals; i++)
 	{
 		finalVector = finalVector + normals[i];
 	}
@@ -224,14 +232,17 @@ static void calcTileIllum(UDWORD tileX, UDWORD tileY)
 	dotProduct = glm::dot(normalise(finalVector), theSun_ForTileIllumination);
 
 	val = abs(dotProduct) / 16;
-	if (val == 0)
+
+	if(val == 0)
 	{
 		val = 1;
 	}
-	if (val > 254)
+
+	if(val > 254)
 	{
 		val = 254;
 	}
+
 	mapTile(tileX, tileY)->illumination = val;
 }
 
@@ -247,7 +258,7 @@ static void colourTile(SDWORD xIndex, SDWORD yIndex, PIELIGHT light_colour, doub
 void processLight(LIGHT *psLight)
 {
 	/* Firstly - there's no point processing lights that are off the grid */
-	if (clipXY(psLight->position.x, psLight->position.z) == false)
+	if(clipXY(psLight->position.x, psLight->position.z) == false)
 	{
 		return;
 	}
@@ -272,14 +283,14 @@ void processLight(LIGHT *psLight)
 	endY = MIN(endY, mapHeight - 1);
 	startY = MIN(startY, endY);
 
-	for (int i = startX; i <= endX; i++)
+	for(int i = startX; i <= endX; i++)
 	{
-		for (int j = startY; j <= endY; j++)
+		for(int j = startY; j <= endY; j++)
 		{
 			int distToCorner = calcDistToTile(i, j, &psLight->position);
 
 			/* If we're inside the range of the light */
-			if (distToCorner < (SDWORD)psLight->range)
+			if(distToCorner < (SDWORD)psLight->range)
 			{
 				/* Find how close we are to it */
 				double ratio = (100.0 - PERCENT(distToCorner, psLight->range)) / 100.0;
@@ -322,12 +333,12 @@ void calcDroidIllumination(DROID *psDroid)
 	const int tileY = map_coord(psDroid->pos.y);
 
 	/* Are we at the edge, or even on the map */
-	if (!tileOnMap(tileX, tileY))
+	if(!tileOnMap(tileX, tileY))
 	{
 		psDroid->illumination = UBYTE_MAX;
 		return;
 	}
-	else if (tileX <= 1 || tileX >= mapWidth - 2 || tileY <= 1 || tileY >= mapHeight - 2)
+	else if(tileX <= 1 || tileX >= mapWidth - 2 || tileY <= 1 || tileY >= mapHeight - 2)
 	{
 		lightVal = mapTile(tileX, tileY)->illumination;
 		lightVal += MIN_DROID_LIGHT_LEVEL;
@@ -344,18 +355,21 @@ void calcDroidIllumination(DROID *psDroid)
 	}
 
 	/* Saturation */
-	if (lightVal > 255)
+	if(lightVal > 255)
 	{
 		lightVal = 255;
 	}
+
 	presVal = psDroid->illumination;
 	adjust = (float)lightVal - (float)presVal;
 	adjust *= graphicsTimeAdjustedIncrement(DROID_SEEK_LIGHT_SPEED);
 	retVal = presVal + adjust;
-	if (retVal > 255)
+
+	if(retVal > 255)
 	{
 		retVal = 255;
 	}
+
 	psDroid->illumination = retVal;
 }
 
@@ -365,9 +379,9 @@ void doBuildingLights()
 	UDWORD	i;
 	LIGHT	light;
 
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for(i = 0; i < MAX_PLAYERS; i++)
 	{
-		for (psStructure = apsStructLists[i]; psStructure; psStructure = psStructure->psNext)
+		for(psStructure = apsStructLists[i]; psStructure; psStructure = psStructure->psNext)
 		{
 			light.range = psStructure->pStructureType->baseWidth * TILE_UNITS;
 			light.position.x = psStructure->pos.x;

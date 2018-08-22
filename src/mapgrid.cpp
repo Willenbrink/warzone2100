@@ -53,17 +53,19 @@ void gridReset()
 	gridPointTree->clear();
 
 	// Put all existing objects into the point tree.
-	for (unsigned player = 0; player < MAX_PLAYERS; player++)
+	for(unsigned player = 0; player < MAX_PLAYERS; player++)
 	{
 		BASE_OBJECT *start[3] = {(BASE_OBJECT *)apsDroidLists[player], (BASE_OBJECT *)apsStructLists[player], (BASE_OBJECT *)apsFeatureLists[player]};
-		for (unsigned type = 0; type != sizeof(start) / sizeof(*start); ++type)
+
+		for(unsigned type = 0; type != sizeof(start) / sizeof(*start); ++type)
 		{
-			for (BASE_OBJECT *psObj = start[type]; psObj != nullptr; psObj = psObj->psNext)
+			for(BASE_OBJECT *psObj = start[type]; psObj != nullptr; psObj = psObj->psNext)
 			{
-				if (!psObj->died)
+				if(!psObj->died)
 				{
 					gridPointTree->insert(psObj, psObj->pos.x, psObj->pos.y);
-					for (unsigned char &viewer : psObj->seenThisTick)
+
+					for(unsigned char &viewer : psObj->seenThisTick)
 					{
 						viewer = 0;
 					}
@@ -74,7 +76,7 @@ void gridReset()
 
 	gridPointTree->sort();
 
-	for (unsigned player = 0; player < MAX_PLAYERS; ++player)
+	for(unsigned player = 0; player < MAX_PLAYERS; ++player)
 	{
 		gridFiltersUnseen[player].reset(*gridPointTree);
 		gridFiltersDroidsByPlayer[player].reset(*gridPointTree);
@@ -102,7 +104,7 @@ static bool isInRadius(int32_t x, int32_t y, uint32_t radius)
 template<class Condition>
 static GridList const &gridStartIterateFiltered(int32_t x, int32_t y, uint32_t radius, PointTree::Filter *filter, Condition const &condition)
 {
-	if (filter == nullptr)
+	if(filter == nullptr)
 	{
 		gridPointTree->query(x, y, radius);
 	}
@@ -110,20 +112,24 @@ static GridList const &gridStartIterateFiltered(int32_t x, int32_t y, uint32_t r
 	{
 		gridPointTree->query(*filter, x, y, radius);
 	}
+
 	PointTree::ResultVector::iterator w = gridPointTree->lastQueryResults.begin(), i;
-	for (i = w; i != gridPointTree->lastQueryResults.end(); ++i)
+
+	for(i = w; i != gridPointTree->lastQueryResults.end(); ++i)
 	{
 		BASE_OBJECT *obj = static_cast<BASE_OBJECT *>(*i);
-		if (!condition.test(obj))  // Check if we should skip this object.
+
+		if(!condition.test(obj))   // Check if we should skip this object.
 		{
 			filter->erase(gridPointTree->lastFilteredQueryIndices[i - gridPointTree->lastQueryResults.begin()]);  // Stop the object from appearing in future searches.
 		}
-		else if (isInRadius(obj->pos.x - x, obj->pos.y - y, radius))  // Check that search result is less than radius (since they can be up to a factor of sqrt(2) more).
+		else if(isInRadius(obj->pos.x - x, obj->pos.y - y, radius))   // Check that search result is less than radius (since they can be up to a factor of sqrt(2) more).
 		{
 			*w = *i;
 			++w;
 		}
 	}
+
 	gridPointTree->lastQueryResults.erase(w, i);  // Erase all points that were a bit too far.
 	/*
 	// In case you are curious.
@@ -131,10 +137,12 @@ static GridList const &gridStartIterateFiltered(int32_t x, int32_t y, uint32_t r
 	*/
 	static GridList gridList;
 	gridList.resize(gridPointTree->lastQueryResults.size());
-	for (unsigned n = 0; n < gridList.size(); ++n)
+
+	for(unsigned n = 0; n < gridList.size(); ++n)
 	{
 		gridList[n] = (BASE_OBJECT *)gridPointTree->lastQueryResults[n];
 	}
+
 	return gridList;
 }
 
@@ -145,10 +153,12 @@ static GridList const &gridStartIterateFilteredArea(int32_t x, int32_t y, int32_
 
 	static GridList gridList;
 	gridList.resize(gridPointTree->lastQueryResults.size());
-	for (unsigned n = 0; n < gridList.size(); ++n)
+
+	for(unsigned n = 0; n < gridList.size(); ++n)
 	{
 		gridList[n] = (BASE_OBJECT *)gridPointTree->lastQueryResults[n];
 	}
+
 	return gridList;
 }
 

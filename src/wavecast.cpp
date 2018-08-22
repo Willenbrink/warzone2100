@@ -48,14 +48,35 @@ private:
 	{
 		int q = myY >= 0 ? (myX >= 0 ? (myX != 0 || myY != 0 ? 0 : 4) : 1)   // Quadrant is arbitrarily chosen for myX == 0 || myY == 0, just needs to be consistent. Quadrant is 4 for myX == 0 && myY == 0.
 		        : (myX >= 0 ?                         3      : 2);
-		switch (q)
+
+		switch(q)
 		{
-		case 0: x =  myX; y =  myY; break;
-		case 1: x =  myY; y = -myX; break;
-		case 2: x = -myX; y = -myY; break;
-		case 3: x = -myY; y =  myX; break;
-		case 4: x = 0;    y = 0;    break;  // myX and myY are both 0, set x, y to arbitrary constant so (0, 0) compares equal to itself.
+			case 0:
+				x =  myX;
+				y =  myY;
+				break;
+
+			case 1:
+				x =  myY;
+				y = -myX;
+				break;
+
+			case 2:
+				x = -myX;
+				y = -myY;
+				break;
+
+			case 3:
+				x = -myY;
+				y =  myX;
+				break;
+
+			case 4:
+				x = 0;
+				y = 0;
+				break;  // myX and myY are both 0, set x, y to arbitrary constant so (0, 0) compares equal to itself.
 		}
+
 		return q;
 	}
 
@@ -71,47 +92,67 @@ static std::vector<WavecastTile> generateWavecastTable(unsigned radius)
 
 	std::vector<RationalAngle> unsortedAngles;
 
-	for (unsigned diamond = 1; diamond * TILE_UNITS < radius * 2; ++diamond) // Factor is a bit more than needed to surround the circle with diamonds.
+	for(unsigned diamond = 1; diamond * TILE_UNITS < radius * 2; ++diamond)  // Factor is a bit more than needed to surround the circle with diamonds.
 	{
-		for (unsigned quadrant = 0; quadrant < 4; ++quadrant)
+		for(unsigned quadrant = 0; quadrant < 4; ++quadrant)
 		{
-			for (unsigned s = 0; s < diamond; ++s)
+			for(unsigned s = 0; s < diamond; ++s)
 			{
 				WavecastTile tile;
 #if defined( _MSC_VER )
-	#pragma warning( push )
-	#pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
+#pragma warning( push )
+#pragma warning( disable : 4146 ) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
 #endif
-				switch (quadrant)
+
+				switch(quadrant)
 				{
-				case 0: tile.dx =  diamond - s;     tile.dy =            s + 1; break;
-				case 1: tile.dx =          - s;     tile.dy =  diamond - s;     break;
-				case 2: tile.dx = -diamond + s + 1; tile.dy =          - s;     break;
-				case 3: tile.dx =            s + 1; tile.dy = -diamond + s + 1; break;
-				default:
-					debug(LOG_FATAL, "quadrant is unexpected value: %u", quadrant); // Silence later MSVC warning C4701: potentially uninitialized local variable 'tile' used
+					case 0:
+						tile.dx =  diamond - s;
+						tile.dy =            s + 1;
+						break;
+
+					case 1:
+						tile.dx =          - s;
+						tile.dy =  diamond - s;
+						break;
+
+					case 2:
+						tile.dx = -diamond + s + 1;
+						tile.dy =          - s;
+						break;
+
+					case 3:
+						tile.dx =            s + 1;
+						tile.dy = -diamond + s + 1;
+						break;
+
+					default:
+						debug(LOG_FATAL, "quadrant is unexpected value: %u", quadrant); // Silence later MSVC warning C4701: potentially uninitialized local variable 'tile' used
 				}
 
 #if defined( _MSC_VER )
-	#pragma warning( pop )
+#pragma warning( pop )
 #endif
 
 				const int sdx = tile.dx * 2 - 1, sdy = tile.dy * 2 - 1; // 2*distance from sensor located at (0.5, 0.5)
 				const unsigned tileRadiusSq = sdx * sdx + sdy * sdy;
 
-				if (tileRadiusSq * (TILE_UNITS * TILE_UNITS / 4) > radius * radius)
+				if(tileRadiusSq * (TILE_UNITS * TILE_UNITS / 4) > radius * radius)
 				{
 					continue;
 				}
+
 				tile.invRadius = i64Sqrt((uint64_t)2 * 65536 * 65536 / tileRadiusSq); // Result is at most 65536, inversely proportional to the radius.
 
 				const int minCorner[4][2] = {{1, 0}, {1, 1}, {0, 1}, {0, 0}};
 				const int mcdx = minCorner[quadrant][0], mcdy = minCorner[quadrant][1];  // Corner of the tile which the minimum angle.
 				RationalAngle minAngle = RationalAngle(tile.dx - 1 + mcdx, tile.dy - 1 + mcdy), maxAngle = RationalAngle(tile.dx - mcdx, tile.dy - mcdy);
-				if (maxAngle < minAngle)
+
+				if(maxAngle < minAngle)
 				{
 					maxAngle = RationalAngle(0, 0);  // Special case, like RationalAngle(1, 0), except that it compares greater than all other angles instead of less than all other angles.
 				}
+
 				tile.angBegin = unsortedAngles.size();
 				unsortedAngles.push_back(minAngle);
 				tile.angEnd = unsortedAngles.size();
@@ -130,31 +171,38 @@ static std::vector<WavecastTile> generateWavecastTable(unsigned radius)
 	// Subtitute the angle values angBegin and angEnd with ones that can be compared to each other, so that
 	// the angles can be compared without using the unsortedAngles lookup table. (And without using the
 	// sortedAngles lookup table either.)
-	for (auto &i : tiles)
+	for(auto &i : tiles)
 	{
 		i.angBegin = std::lower_bound(sortedAngles.begin(), sortedAngles.end(), unsortedAngles[i.angBegin]) - sortedAngles.begin();
 		i.angEnd   = std::lower_bound(sortedAngles.begin(), sortedAngles.end(), unsortedAngles[i.angEnd  ]) - sortedAngles.begin();
 	}
 
 #if 0  // Prints wavecast table.
-	if (radius == 8 * TILE_UNITS)
+
+	if(radius == 8 * TILE_UNITS)
 	{
 		printf("Table for radius %f:\n", radius / (float)TILE_UNITS);
-		for (std::vector<WavecastTile>::iterator i = tiles.begin(); i != tiles.end(); ++i)
+
+		for(std::vector<WavecastTile>::iterator i = tiles.begin(); i != tiles.end(); ++i)
 		{
 			printf("Tile%5d: (%3d,%3d): angle %3d-%3d, invRadius %5d\n", (int)(i -/*>*/tiles.begin()), i->dx, i->dy, i->angBegin, i->angEnd, i->invRadius);
 		}
+
 		printf("Unsorted angles for radius %f:\n", radius / (float)TILE_UNITS);
-		for (std::vector<RationalAngle>::iterator i = unsortedAngles.begin(); i != unsortedAngles.end(); ++i)
+
+		for(std::vector<RationalAngle>::iterator i = unsortedAngles.begin(); i != unsortedAngles.end(); ++i)
 		{
 			printf("Unsorted angle%5d: (%3d,%3d) = %11.6lf°\n", (int)(i -/*>*/unsortedAngles.begin()), ((int *)&*i)[0], ((int *)&*i)[1], atan2(((int *)&*i)[1], ((int *)&*i)[0]) * 180 / M_PI);    // ((int *)&*i)[0] = very hacky bypass of "private:".
 		}
+
 		printf("Sorted angles for radius %f:\n", radius / (float)TILE_UNITS);
-		for (std::vector<RationalAngle>::iterator i = sortedAngles.begin(); i != sortedAngles.end(); ++i)
+
+		for(std::vector<RationalAngle>::iterator i = sortedAngles.begin(); i != sortedAngles.end(); ++i)
 		{
 			printf("Sorted angle%5d: (%3d,%3d) = %11.6lf°\n", (int)(i -/*>*/sortedAngles.begin()), ((int *)&*i)[0], ((int *)&*i)[1], atan2(((int *)&*i)[1], ((int *)&*i)[0]) * 180 / M_PI);    // ((int *)&*i)[0] = very hacky bypass of "private:".
 		}
 	}
+
 	printf("Radius %11.6f summary: %5d tiles, %5d angles (%5d with duplicates)\n", radius / (float)TILE_UNITS, (int)tiles.size(), (int)sortedAngles.size(), (int)unsortedAngles.size());
 #endif
 
@@ -167,7 +215,8 @@ const WavecastTile *getWavecastTable(unsigned radius, size_t *size)
 	static std::map<unsigned, std::vector<WavecastTile> > tables;
 
 	std::vector<WavecastTile> &table = tables[radius];
-	if (table.empty())
+
+	if(table.empty())
 	{
 		// Table not generated yet.
 		generateWavecastTable(radius).swap(table);

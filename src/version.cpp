@@ -45,11 +45,11 @@ std::string version_getVersionedAppDirFolderName()
 	versionedWriteDirFolderName = "warzone2100-";
 #endif
 
-	if (strlen(vcs_tag))
+	if(strlen(vcs_tag))
 	{
 		versionedWriteDirFolderName += vcs_tag;
 	}
-	else if (strlen(vcs_branch_cstr))
+	else if(strlen(vcs_branch_cstr))
 	{
 #if defined(DEBUG) || defined(WZ_USE_MASTER_BRANCH_APP_DIR)
 		// To ease testing new branches with existing files, DEBUG builds
@@ -69,6 +69,7 @@ std::string version_getVersionedAppDirFolderName()
 		std::remove(vcs_extra_str.begin(), vcs_extra_str.end(), ' ');
 		versionedWriteDirFolderName += vcs_extra_str;
 	}
+
 	return versionedWriteDirFolderName;
 }
 
@@ -81,13 +82,13 @@ const char *version_getVersionString()
 {
 	static const char *version_string = nullptr;
 
-	if (version_string == nullptr)
+	if(version_string == nullptr)
 	{
-		if (strlen(vcs_tag))
+		if(strlen(vcs_tag))
 		{
 			version_string = vcs_tag;
 		}
-		else if (strlen(vcs_branch_cstr))
+		else if(strlen(vcs_branch_cstr))
 		{
 			version_string = (VCS_BRANCH " " VCS_SHORT_HASH);
 		}
@@ -108,7 +109,7 @@ const char *version_getFormattedVersionString()
 {
 	static char versionString[MAX_STR_LENGTH] = {'\0'};
 
-	if (versionString[0] == '\0')
+	if(versionString[0] == '\0')
 	{
 		// Compose the working copy state string
 #if (VCS_WC_MODIFIED)

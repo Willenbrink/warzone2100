@@ -1111,7 +1111,7 @@ FUNC_SYMBOL asFuncTable[] =
 
 	{
 		"dominatingAlliance",	scrDominatingAlliance,	VAL_BOOL,
-		0, { VAL_VOID } ,
+		0, { VAL_VOID },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
@@ -1585,79 +1585,79 @@ FUNC_SYMBOL asFuncTable[] =
 
 	{
 		"threatInRange",		scrThreatInRange,			VAL_BOOL,
-		5, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL },
+		5, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numEnemyWeapObjInRange", scrNumEnemyWeapObjInRange, VAL_INT,
-		6, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
+		6, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numEnemyWeapDroidsInRange", scrNumEnemyWeapDroidsInRange, VAL_INT,
-		5, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL },
+		5, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numEnemyWeapStructsInRange", scrNumEnemyWeapStructsInRange, VAL_INT,
-		5, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL },
+		5, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numFriendlyWeapObjInRange", scrNumFriendlyWeapObjInRange, VAL_INT,
-		6, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
+		6, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numFriendlyWeapDroidsInRange", scrNumFriendlyWeapDroidsInRange, VAL_INT,
-		5, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL },
+		5, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numFriendlyWeapStructsInRange", scrNumFriendlyWeapStructsInRange, VAL_INT,
-		5, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL },
+		5, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numPlayerWeapObjInRange", scrNumPlayerWeapObjInRange, VAL_INT,
-		7, { VAL_INT, VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
+		7, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numPlayerWeapDroidsInRange",	scrNumPlayerWeapDroidsInRange,		VAL_INT,
-		6, { VAL_INT, VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL },
+		6, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numPlayerWeapStructsInRange", scrNumPlayerWeapStructsInRange,		VAL_INT,
-		6, { VAL_INT, VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL },
+		6, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numEnemyObjInRange",		scrNumEnemyObjInRange,			VAL_INT,
-		6, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
+		6, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"enemyWeapObjCostInRange", scrEnemyWeapObjCostInRange, VAL_INT,
-		6, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
+		6, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"friendlyWeapObjCostInRange", scrFriendlyWeapObjCostInRange, VAL_INT,
-		6, { VAL_INT, VAL_INT , VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
+		6, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_BOOL, VAL_BOOL },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
@@ -1670,13 +1670,13 @@ FUNC_SYMBOL asFuncTable[] =
 //num structures
 	{
 		"numStructsByStatInRange", scrNumStructsByStatInRange, VAL_INT,
-		6, { (INTERP_TYPE)ST_STRUCTURESTAT, VAL_INT , VAL_INT, VAL_INT, VAL_INT, VAL_INT },
+		6, { (INTERP_TYPE)ST_STRUCTURESTAT, VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_INT },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
 	{
 		"numStructsByStatInArea",	scrNumStructsByStatInArea, VAL_INT,
-		7, { (INTERP_TYPE)ST_STRUCTURESTAT, VAL_INT , VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_INT },
+		7, { (INTERP_TYPE)ST_STRUCTURESTAT, VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_INT },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
@@ -1694,7 +1694,7 @@ FUNC_SYMBOL asFuncTable[] =
 
 	{
 		"numStructsButNotWallsInRangeVis", scrNumStructsButNotWallsInRangeVis, VAL_INT,
-		5, { VAL_INT , VAL_INT, VAL_INT, VAL_INT, VAL_INT },
+		5, { VAL_INT, VAL_INT, VAL_INT, VAL_INT, VAL_INT },
 		0, 0, nullptr, 0, 0, nullptr, nullptr
 	},
 
@@ -2610,7 +2610,7 @@ CONST_SYMBOL asConstantTable[] =
 	{ "DSS_ALEV_NEVER",		VAL_INT,	false,	DSS_ALEV_NEVER,		nullptr, nullptr, 0.0f },
 	{ "DSS_RECYCLE_SET",	VAL_INT,	false,	DSS_RECYCLE_SET,	nullptr, nullptr, 0.0f },
 	{ "DSS_ASSPROD_START",	VAL_INT,	false,	DSS_ASSPROD_START,	nullptr, nullptr, 0.0f },
-	{ "DSS_ASSPROD_END ",	VAL_INT,	false,	DSS_ASSPROD_END ,	nullptr, nullptr, 0.0f },
+	{ "DSS_ASSPROD_END ",	VAL_INT,	false,	DSS_ASSPROD_END,	nullptr, nullptr, 0.0f },
 	{ "DSS_RTL_REPAIR",		VAL_INT,	false,	DSS_RTL_REPAIR,		nullptr, nullptr, 0.0f },
 	{ "DSS_RTL_BASE",		VAL_INT,	false,	DSS_RTL_BASE,		nullptr, nullptr, 0.0f },
 	{ "DSS_RTL_TRANSPORT",	VAL_INT,	false,	DSS_RTL_TRANSPORT,	nullptr, nullptr, 0.0f },
@@ -3052,12 +3052,12 @@ TYPE_EQUIV asEquivTable[] =
 // Initialise the script system
 bool scrTabInitialise()
 {
-	if (!scriptInitialise())
+	if(!scriptInitialise())
 	{
 		return false;
 	}
 
-	if (!eventInitValueFuncs((INTERP_TYPE)ST_MAXTYPE))
+	if(!eventInitValueFuncs((INTERP_TYPE)ST_MAXTYPE))
 	{
 		return false;
 	}
@@ -3087,47 +3087,52 @@ bool scrTabInitialise()
 	scriptSetTypeEquiv(asEquivTable);
 
 	// Set the create and release functions
-	if (!eventAddValueCreate((INTERP_TYPE)ST_BASEOBJECT, scrvAddBasePointer))
-	{
-		return false;
-	}
-	if (!eventAddValueRelease((INTERP_TYPE)ST_BASEOBJECT, scrvReleaseBasePointer))
+	if(!eventAddValueCreate((INTERP_TYPE)ST_BASEOBJECT, scrvAddBasePointer))
 	{
 		return false;
 	}
 
-	if (!eventAddValueCreate((INTERP_TYPE)ST_DROID, scrvAddBasePointer))
-	{
-		return false;
-	}
-	if (!eventAddValueRelease((INTERP_TYPE)ST_DROID, scrvReleaseBasePointer))
+	if(!eventAddValueRelease((INTERP_TYPE)ST_BASEOBJECT, scrvReleaseBasePointer))
 	{
 		return false;
 	}
 
-	if (!eventAddValueCreate((INTERP_TYPE)ST_STRUCTURE, scrvAddBasePointer))
-	{
-		return false;
-	}
-	if (!eventAddValueRelease((INTERP_TYPE)ST_STRUCTURE, scrvReleaseBasePointer))
+	if(!eventAddValueCreate((INTERP_TYPE)ST_DROID, scrvAddBasePointer))
 	{
 		return false;
 	}
 
-	if (!eventAddValueCreate((INTERP_TYPE)ST_FEATURE, scrvAddBasePointer))
-	{
-		return false;
-	}
-	if (!eventAddValueRelease((INTERP_TYPE)ST_FEATURE, scrvReleaseBasePointer))
+	if(!eventAddValueRelease((INTERP_TYPE)ST_DROID, scrvReleaseBasePointer))
 	{
 		return false;
 	}
 
-	if (!eventAddValueCreate((INTERP_TYPE)ST_GROUP, scrvNewGroup))
+	if(!eventAddValueCreate((INTERP_TYPE)ST_STRUCTURE, scrvAddBasePointer))
 	{
 		return false;
 	}
-	if (!eventAddValueRelease((INTERP_TYPE)ST_GROUP, scrvReleaseGroup))
+
+	if(!eventAddValueRelease((INTERP_TYPE)ST_STRUCTURE, scrvReleaseBasePointer))
+	{
+		return false;
+	}
+
+	if(!eventAddValueCreate((INTERP_TYPE)ST_FEATURE, scrvAddBasePointer))
+	{
+		return false;
+	}
+
+	if(!eventAddValueRelease((INTERP_TYPE)ST_FEATURE, scrvReleaseBasePointer))
+	{
+		return false;
+	}
+
+	if(!eventAddValueCreate((INTERP_TYPE)ST_GROUP, scrvNewGroup))
+	{
+		return false;
+	}
+
+	if(!eventAddValueRelease((INTERP_TYPE)ST_GROUP, scrvReleaseGroup))
 	{
 		return false;
 	}

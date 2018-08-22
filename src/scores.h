@@ -90,7 +90,8 @@ enum
 };
 
 #include "lib/ivis_opengl/textdraw.h"
-struct ScoreDataToScreenCache {
+struct ScoreDataToScreenCache
+{
 	WzText wzLabelText_UnitLosses;
 	WzText wzLabelText_StructureLosses;
 	WzText wzLabelText_ForceInformation;

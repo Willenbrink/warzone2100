@@ -67,7 +67,7 @@ struct CONSOLE_MESSAGE
 	CONSOLE_TEXT_JUSTIFICATION JustifyType;	// text justification
 	int		player;			// Player who sent this message or SYSTEM_MESSAGE
 	CONSOLE_MESSAGE(const std::string &text, iV_fonts fontID, UDWORD time, CONSOLE_TEXT_JUSTIFICATION justify, int plr)
-	                : display(text, fontID), timeAdded(time), JustifyType(justify), player(plr) {}
+		: display(text, fontID), timeAdded(time), JustifyType(justify), player(plr) {}
 
 	CONSOLE_MESSAGE& operator =(CONSOLE_MESSAGE&& input)
 	{
@@ -112,7 +112,8 @@ static void	setConsoleMessageDuration(UDWORD time)
 void setConsoleCalcLayout(const CONSOLE_CALC_LAYOUT_FUNC& layoutFunc)
 {
 	calcLayoutFunc = layoutFunc;
-	if (calcLayoutFunc != nullptr)
+
+	if(calcLayoutFunc != nullptr)
 	{
 		calcLayoutFunc();
 	}
@@ -128,7 +129,8 @@ void	initConsoleMessages()
 	enableConsoleDisplay(true);								// Turn on the console display
 
 	//	Set up the main console size and position x,y,width
-	setConsoleCalcLayout([]() {
+	setConsoleCalcLayout([]()
+	{
 		setConsoleSizePos(16, 32, pie_GetVideoBufferWidth() - 32);
 	});
 	historyConsole.topX = HISTORYBOX_X;
@@ -141,7 +143,8 @@ void	initConsoleMessages()
 
 void consoleScreenDidChangeSize(unsigned int oldWidth, unsigned int oldHeight, unsigned int newWidth, unsigned int newHeight)
 {
-	if (calcLayoutFunc == nullptr) return;
+	if(calcLayoutFunc == nullptr) return;
+
 	calcLayoutFunc();
 }
 
@@ -154,8 +157,9 @@ void setHistoryMode(bool mode)
 /** Open the console when it's closed and close it when it's open. */
 void	toggleConsoleDrop()
 {
-	if (!bConsoleDropped)
-	{	// it was closed, so play open sound
+	if(!bConsoleDropped)
+	{
+		// it was closed, so play open sound
 		bConsoleDropped = true;
 		audio_PlayTrack(ID_SOUND_WINDOWOPEN);
 	}
@@ -170,7 +174,7 @@ void	toggleConsoleDrop()
 /** Add a string to the console. */
 bool addConsoleMessage(const char *Text, CONSOLE_TEXT_JUSTIFICATION jusType, SDWORD player, bool team)
 {
-	if (!allowNewMessages)
+	if(!allowNewMessages)
 	{
 		return false;	// Don't allow it to be added if we've disabled adding of new messages
 	}
@@ -178,38 +182,44 @@ bool addConsoleMessage(const char *Text, CONSOLE_TEXT_JUSTIFICATION jusType, SDW
 	std::istringstream stream(Text);
 	std::string lines;
 
-	while (std::getline(stream, lines))
+	while(std::getline(stream, lines))
 	{
 		// We got one "line" from the total string, now we must check
 		// to see if it fits, if not, we truncate it. (Full text is in the logs)
 		// NOTE: may want to break up line into multi-line so it matches the log
 		std::string FitText(lines);
-		while (!FitText.empty())
+
+		while(!FitText.empty())
 		{
 			int pixelWidth = iV_GetTextWidth(FitText.c_str(), font_regular);
-			if (pixelWidth <= mainConsole.width)
+
+			if(pixelWidth <= mainConsole.width)
 			{
 				break;
 			}
+
 			FitText.resize(FitText.length() - 1);	// Erase last char.
 		}
 
 		debug(LOG_CONSOLE, "(to player %d): %s", (int)player, FitText.c_str());
 
-		if (player == INFO_MESSAGE)
+		if(player == INFO_MESSAGE)
 		{
 			InfoMessages.emplace_back(FitText, font_regular, realTime, jusType, player);
 		}
 		else
 		{
 			ActiveMessages.emplace_back(FitText, font_regular, realTime, jusType, player);	// everything gets logged here for a specific period of time
-			if (team)
+
+			if(team)
 			{
 				TeamMessages.emplace_back(FitText, font_regular, realTime, jusType, player);	// persistent team specific logs
 			}
+
 			HistoryMessages.emplace_back(FitText, font_regular, realTime, jusType, player);	// persistent messages (all types)
 		}
 	}
+
 	return true;
 }
 
@@ -225,13 +235,14 @@ int	getNumberConsoleMessages()
 void	updateConsoleMessages()
 {
 	// If there are no messages or we're on permanent (usually for scripts) then exit
-	if ((!getNumberConsoleMessages() && InfoMessages.empty()) || mainConsole.permanent)
+	if((!getNumberConsoleMessages() && InfoMessages.empty()) || mainConsole.permanent)
 	{
 		return;
 	}
-	for (auto i = InfoMessages.begin(); i != InfoMessages.end();)
+
+	for(auto i = InfoMessages.begin(); i != InfoMessages.end();)
 	{
-		if (realTime - i->timeAdded > messageDuration)
+		if(realTime - i->timeAdded > messageDuration)
 		{
 			i = InfoMessages.erase(i);
 		}
@@ -240,10 +251,11 @@ void	updateConsoleMessages()
 			++i;
 		}
 	}
+
 	// Time to kill all expired ones
-	for (auto i = ActiveMessages.begin(); i != ActiveMessages.end();)
+	for(auto i = ActiveMessages.begin(); i != ActiveMessages.end();)
 	{
-		if (realTime - i->timeAdded > messageDuration)
+		if(realTime - i->timeAdded > messageDuration)
 		{
 			i = ActiveMessages.erase(i);
 		}
@@ -262,7 +274,7 @@ void	updateConsoleMessages()
 */
 void	removeTopConsoleMessage()
 {
-	if (getNumberConsoleMessages())
+	if(getNumberConsoleMessages())
 	{
 		ActiveMessages.pop_front();
 	}
@@ -286,24 +298,24 @@ void	flushConsoleMessages()
 static PIELIGHT getConsoleTextColor(int player)
 {
 	// System messages
-	if (player == SYSTEM_MESSAGE)
+	if(player == SYSTEM_MESSAGE)
 	{
 		return WZCOL_CONS_TEXT_SYSTEM;
 	}
-	else if (player == NOTIFY_MESSAGE)
+	else if(player == NOTIFY_MESSAGE)
 	{
 		return WZCOL_YELLOW;
 	}
-	else if (player == INFO_MESSAGE)
+	else if(player == INFO_MESSAGE)
 	{
 		return WZCOL_CONS_TEXT_INFO;
 	}
 	else
 	{
 		// Don't use friend-foe colors in the lobby
-		if (bEnemyAllyRadarColor && (GetGameMode() == GS_NORMAL))
+		if(bEnemyAllyRadarColor && (GetGameMode() == GS_NORMAL))
 		{
-			if (aiCheckAlliances(player, selectedPlayer))
+			if(aiCheckAlliances(player, selectedPlayer))
 			{
 				return WZCOL_CONS_TEXT_USER_ALLY;
 			}
@@ -312,6 +324,7 @@ static PIELIGHT getConsoleTextColor(int player)
 				return WZCOL_CONS_TEXT_USER_ENEMY;
 			}
 		}
+
 		// Friend-foe is off
 		return WZCOL_TEXT_BRIGHT;
 	}
@@ -319,17 +332,20 @@ static PIELIGHT getConsoleTextColor(int player)
 
 static void console_drawtext(WzText &display, PIELIGHT colour, int x, int y, CONSOLE_TEXT_JUSTIFICATION justify, int width)
 {
-	switch (justify)
+	switch(justify)
 	{
-	case LEFT_JUSTIFY:
-		break; // do nothing
-	case RIGHT_JUSTIFY:
-		x = x + width - display.width();
-		break;
-	case CENTRE_JUSTIFY:
-		x = x + (width - display.width()) / 2;
-		break;
+		case LEFT_JUSTIFY:
+			break; // do nothing
+
+		case RIGHT_JUSTIFY:
+			x = x + width - display.width();
+			break;
+
+		case CENTRE_JUSTIFY:
+			x = x + (width - display.width()) / 2;
+			break;
 	}
+
 	display.render(x, y, colour);
 }
 
@@ -339,7 +355,7 @@ void displayOldMessages(bool mode)
 	int startpos = 0;
 	std::deque<CONSOLE_MESSAGE> *WhichMessages;
 
-	if (mode)
+	if(mode)
 	{
 		WhichMessages = &TeamMessages;
 	}
@@ -347,20 +363,23 @@ void displayOldMessages(bool mode)
 	{
 		WhichMessages = &HistoryMessages;
 	}
-	if (!WhichMessages->empty())
+
+	if(!WhichMessages->empty())
 	{
 		unsigned int count = WhichMessages->size();	// total number of messages
-		if (count > NumDisplayLines)	// if we have more than we can display
+
+		if(count > NumDisplayLines)	// if we have more than we can display
 		{
 			startpos = count - NumDisplayLines;	// show last X lines
 			startpos += updatepos;	// unless user wants to start at something else
-			if (startpos < 0)		// don't underflow
+
+			if(startpos < 0)		// don't underflow
 			{
 				startpos = 0;
 				updatepos = (count - NumDisplayLines) * -1; // reset back to first entry
 				count = NumDisplayLines;
 			}
-			else if (count + updatepos <= count)
+			else if(count + updatepos <= count)
 			{
 				count += updatepos;		// user may want something different
 			}
@@ -376,17 +395,19 @@ void displayOldMessages(bool mode)
 		int nudgeright = 0;
 		int TextYpos = historyConsole.topY + linePitch - 2;
 
-		if (isSecondaryWindowUp())	// see if (build/research/...)window is up
+		if(isSecondaryWindowUp())	// see if (build/research/...)window is up
 		{
 			nudgeright = RET_FORMWIDTH + 2; // move text over
 		}
+
 		// if user wants to add a bit more contrast to the text
-		if (showBackgroundColor)
+		if(showBackgroundColor)
 		{
 			iV_TransBoxFill(historyConsole.topX + nudgeright - CON_BORDER_WIDTH, historyConsole.topY - historyConsole.textDepth - CON_BORDER_HEIGHT,
 			                historyConsole.topX + historyConsole.width, historyConsole.topY + (NumDisplayLines * linePitch) + CON_BORDER_HEIGHT);
 		}
-		for (int i = startpos; i < count; ++i)
+
+		for(int i = startpos; i < count; ++i)
 		{
 			PIELIGHT colour = mode ? WZCOL_CONS_TEXT_USER_ALLY : getConsoleTextColor((*WhichMessages)[i].player);
 			console_drawtext((*WhichMessages)[i].display, colour, historyConsole.topX + nudgeright, TextYpos, (*WhichMessages)[i].JustifyType, historyConsole.width);
@@ -399,13 +420,13 @@ void displayOldMessages(bool mode)
 void	displayConsoleMessages()
 {
 	// Check if we have any messages we want to show
-	if (!getNumberConsoleMessages() && !bConsoleDropped && InfoMessages.empty())
+	if(!getNumberConsoleMessages() && !bConsoleDropped && InfoMessages.empty())
 	{
 		return;
 	}
 
 	// scripts can disable the console
-	if (!bConsoleDisplayEnabled && InfoMessages.empty())
+	if(!bConsoleDisplayEnabled && InfoMessages.empty())
 	{
 		return;
 	}
@@ -413,27 +434,30 @@ void	displayConsoleMessages()
 	pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
 	pie_SetFogStatus(false);
 
-	if (bConsoleDropped)
+	if(bConsoleDropped)
 	{
 		displayOldMessages(HistoryMode);
 	}
 
-	if (!InfoMessages.empty())
+	if(!InfoMessages.empty())
 	{
 		auto i = InfoMessages.end() - 1;		// we can only show the last one...
 		int tmp = pie_GetVideoBufferWidth();
-		drawBlueBox(0, 0,tmp, 18);
+		drawBlueBox(0, 0, tmp, 18);
 		tmp -= i->display.width();
 		console_drawtext(i->display, getConsoleTextColor(i->player), tmp - 6, linePitch - 2, i->JustifyType, i->display.width());
 	}
+
 	int TextYpos = mainConsole.topY;
+
 	// Draw the blue background for the text (only in game, not lobby)
-	if (bTextBoxActive && GetGameMode() == GS_NORMAL)
+	if(bTextBoxActive && GetGameMode() == GS_NORMAL)
 	{
 		iV_TransBoxFill(mainConsole.topX - CON_BORDER_WIDTH, mainConsole.topY - mainConsole.textDepth - CON_BORDER_HEIGHT,
-						mainConsole.topX + mainConsole.width, mainConsole.topY + (getNumberConsoleMessages() * linePitch) + CON_BORDER_HEIGHT - linePitch);
+		                mainConsole.topX + mainConsole.width, mainConsole.topY + (getNumberConsoleMessages() * linePitch) + CON_BORDER_HEIGHT - linePitch);
 	}
-	for (auto & ActiveMessage : ActiveMessages)
+
+	for(auto & ActiveMessage : ActiveMessages)
 	{
 		console_drawtext(ActiveMessage.display, getConsoleTextColor(ActiveMessage.player), mainConsole.topX, TextYpos, ActiveMessage.JustifyType, mainConsole.width);
 		TextYpos += ActiveMessage.display.lineSize();
@@ -481,20 +505,22 @@ void	setConsoleSizePos(UDWORD x, UDWORD y, UDWORD width)
 /**	Establishes whether the console messages stay there */
 void	setConsolePermanence(bool state, bool bClearOld)
 {
-	if (mainConsole.permanent == true && state == false)
+	if(mainConsole.permanent == true && state == false)
 	{
-		if (bClearOld)
+		if(bClearOld)
 		{
 			flushConsoleMessages();
 		}
+
 		mainConsole.permanent = false;
 	}
 	else
 	{
-		if (bClearOld)
+		if(bClearOld)
 		{
 			flushConsoleMessages();
 		}
+
 		mainConsole.permanent = state;
 	}
 }
@@ -503,14 +529,16 @@ void	setConsolePermanence(bool state, bool bClearOld)
 bool mouseOverConsoleBox()
 {
 	int gotMessages = getNumberConsoleMessages();
-	if (gotMessages &&
-		((UDWORD)mouseX() > mainConsole.topX)
-		&& ((UDWORD)mouseY() > mainConsole.topY)
-		&& ((UDWORD)mouseX() < mainConsole.topX + mainConsole.width)
-		&& ((UDWORD)mouseY() < (mainConsole.topY + 4 + linePitch * gotMessages)))
+
+	if(gotMessages &&
+	        ((UDWORD)mouseX() > mainConsole.topX)
+	        && ((UDWORD)mouseY() > mainConsole.topY)
+	        && ((UDWORD)mouseX() < mainConsole.topX + mainConsole.width)
+	        && ((UDWORD)mouseY() < (mainConsole.topY + 4 + linePitch * gotMessages)))
 	{
 		return true;
 	}
+
 	return false;
 }
 
@@ -518,13 +546,17 @@ bool mouseOverConsoleBox()
 bool	mouseOverHistoryConsoleBox()
 {
 	int nudgeright = 0;
-	if (isSecondaryWindowUp())
-	{	// if a build/research/... is up, we need to move text over by this much
+
+	if(isSecondaryWindowUp())
+	{
+		// if a build/research/... is up, we need to move text over by this much
 		nudgeright = RET_FORMWIDTH;
 	}
+
 	// enable below to see the hitbox of the history console window
 #if 0
-	if (isSecondaryWindowUp())
+
+	if(isSecondaryWindowUp())
 	{
 		iV_Box2(historyConsole.topX + nudgeright, historyConsole.topY, historyConsole.topX + historyConsole.width, (historyConsole.topY + 4 + linePitch * NumDisplayLines), WZCOL_RED, WZCOL_GREEN);
 
@@ -533,23 +565,26 @@ bool	mouseOverHistoryConsoleBox()
 	{
 		iV_Box2(historyConsole.topX, historyConsole.topY, historyConsole.topX + historyConsole.width, (historyConsole.topY + 4 + linePitch * NumDisplayLines), WZCOL_GREY, WZCOL_GREY);
 	}
+
 #endif
+
 	// check to see if mouse is in the area when console is enabled
-	if	(bConsoleDropped &&
-	     ((UDWORD)mouseX() > historyConsole.topX + nudgeright)
-	     && ((UDWORD)mouseY() > historyConsole.topY)
-	     && ((UDWORD)mouseX() < historyConsole.topX + historyConsole.width)
-	     && ((UDWORD)mouseY() < (historyConsole.topY + 4 + linePitch * NumDisplayLines)))
+	if(bConsoleDropped &&
+	        ((UDWORD)mouseX() > historyConsole.topX + nudgeright)
+	        && ((UDWORD)mouseY() > historyConsole.topY)
+	        && ((UDWORD)mouseX() < historyConsole.topX + historyConsole.width)
+	        && ((UDWORD)mouseY() < (historyConsole.topY + 4 + linePitch * NumDisplayLines)))
 	{
-		if (mousePressed(MOUSE_WUP))
+		if(mousePressed(MOUSE_WUP))
 		{
 			updatepos--;
 		}
-		else if (mousePressed(MOUSE_WDN))
+		else if(mousePressed(MOUSE_WDN))
 		{
 			updatepos++;
 		}
-		if (keyDown(KEY_LCTRL))
+
+		if(keyDown(KEY_LCTRL))
 		{
 			showBackgroundColor = true;
 		}
@@ -557,6 +592,7 @@ bool	mouseOverHistoryConsoleBox()
 		{
 			showBackgroundColor = false;
 		}
+
 		return (true);
 	}
 	else

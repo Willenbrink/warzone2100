@@ -114,11 +114,13 @@ template<bool IsFiltered>
 static unsigned current(std::vector<unsigned> &filterData, unsigned i)
 {
 	unsigned ret = i;
-	while (IsFiltered && filterData[ret])
+
+	while(IsFiltered && filterData[ret])
 	{
 		ret += filterData[ret];
 	}
-	while (IsFiltered && filterData[i])
+
+	while(IsFiltered && filterData[i])
 	{
 		unsigned next = i + filterData[i];
 		filterData[i] = ret - i;
@@ -153,11 +155,13 @@ PointTree::ResultVector &PointTree::queryMaybeFilter(Filter &filter, int32_t min
 
 #ifdef DUMP_IMAGE
 	FILE *f;
-	if (doDump)
+
+	if(doDump)
 	{
 		f = fopen("pointtree.ppm", "wb");
 		fprintf(f, "P6\n1000 1000\n255\n");
-		for (int py = 0; py != 1000; ++py) for (int px = 0; px != 1000; ++px)
+
+		for(int py = 0; py != 1000; ++py) for(int px = 0; px != 1000; ++px)
 			{
 				int ax = px - 500, ay = py - 500;
 				double dx = ax - x, dy = ay - y;
@@ -165,32 +169,39 @@ PointTree::ResultVector &PointTree::queryMaybeFilter(Filter &filter, int32_t min
 				ppm[py][px][0] = 255;
 				ppm[py][px][1] = 255;
 				ppm[py][px][2] = 255;
-				if (dist <= radius)
+
+				if(dist <= radius)
 				{
 					ppm[py][px][0] = 128;
 					ppm[py][px][1] = 128;
 					ppm[py][px][2] = 128;
 				}
-				if (ax == minXo || ax == splitXo || ax == maxXo || ay == minYo || ay == splitYo || ay == maxYo)
+
+				if(ax == minXo || ax == splitXo || ax == maxXo || ay == minYo || ay == splitYo || ay == maxYo)
 				{
 					ppm[py][px][0] /= 2;
 					ppm[py][px][1] /= 2;
 					ppm[py][px][2] /= 2;
 				}
+
 				uint64_t nn = expandX(ax) | expandY(ay);
-				if (ranges[0].a <= nn && nn <= ranges[0].z)
+
+				if(ranges[0].a <= nn && nn <= ranges[0].z)
 				{
 					ppm[py][px][0] /= 2;
 				}
-				if (ranges[1].a <= nn && nn <= ranges[1].z)
+
+				if(ranges[1].a <= nn && nn <= ranges[1].z)
 				{
 					ppm[py][px][1] /= 2;
 				}
-				if (ranges[2].a <= nn && nn <= ranges[2].z)
+
+				if(ranges[2].a <= nn && nn <= ranges[2].z)
 				{
 					ppm[py][px][2] /= 2;
 				}
-				if (ranges[3].a <= nn && nn <= ranges[3].z && ((ax ^ ay) & 2))
+
+				if(ranges[3].a <= nn && nn <= ranges[3].z && ((ax ^ ay) & 2))
 				{
 					ppm[py][px][0] /= 2;
 					ppm[py][px][1] /= 2;
@@ -198,26 +209,30 @@ PointTree::ResultVector &PointTree::queryMaybeFilter(Filter &filter, int32_t min
 				}
 			}
 	}
+
 #endif //DUMP_IMAGE
 
 	// Sort ranges ready to be merged.
-	if (ranges[1].a > ranges[2].a)
+	if(ranges[1].a > ranges[2].a)
 	{
 		std::swap(ranges[1], ranges[2]);
 	}
+
 	// Merge ranges if needed.
-	if (ranges[2].z + 1 >= ranges[3].a)
+	if(ranges[2].z + 1 >= ranges[3].a)
 	{
 		ranges[2].z = ranges[3].z;
 		--numRanges;
 	}
-	if (ranges[1].z + 1 >= ranges[2].a)
+
+	if(ranges[1].z + 1 >= ranges[2].a)
 	{
 		ranges[1].z = ranges[2].z;
 		ranges[2] = ranges[3];
 		--numRanges;
 	}
-	if (ranges[0].z + 1 >= ranges[1].a)
+
+	if(ranges[0].z + 1 >= ranges[1].a)
 	{
 		ranges[0].z = ranges[1].z;
 		ranges[1] = ranges[2];
@@ -226,45 +241,54 @@ PointTree::ResultVector &PointTree::queryMaybeFilter(Filter &filter, int32_t min
 	}
 
 	lastQueryResults.clear();
-	if (IsFiltered)
+
+	if(IsFiltered)
 	{
 		lastFilteredQueryIndices.clear();
 	}
-	for (int r = 0; r != numRanges; ++r)
+
+	for(int r = 0; r != numRanges; ++r)
 	{
 		// Find range of points which may be close enough. Range is [i1 ... i2 - 1]. The pointers are ignored when searching.
 		unsigned i1 = std::lower_bound(points.begin(),      points.end(), Point(ranges[r].a, (void *)nullptr), pointTreeSortFunction) - points.begin();
 		unsigned i2 = std::upper_bound(points.begin() + i1, points.end(), Point(ranges[r].z, (void *)nullptr), pointTreeSortFunction) - points.begin();
 
-		for (unsigned i = current<IsFiltered>(filter.data, i1); i < i2; i = current<IsFiltered>(filter.data, i + 1))
+		for(unsigned i = current<IsFiltered>(filter.data, i1); i < i2; i = current<IsFiltered>(filter.data, i + 1))
 		{
 			uint64_t px = points[i].first & 0xAAAAAAAAAAAAAAAAULL;
 			uint64_t py = points[i].first & 0x5555555555555555ULL;
-			if (px >= minX && px <= maxX && py >= minY && py <= maxY)  // Only add point if it's at least in the desired square.
+
+			if(px >= minX && px <= maxX && py >= minY && py <= maxY)   // Only add point if it's at least in the desired square.
 			{
 				lastQueryResults.push_back(points[i].second);
-				if (IsFiltered)
+
+				if(IsFiltered)
 				{
 					lastFilteredQueryIndices.push_back(i);
 				}
+
 #ifdef DUMP_IMAGE
-				if (doDump)
+
+				if(doDump)
 				{
 					ppm[((int32_t *)points[i].second)[1] + 500][((int32_t *)points[i].second)[0] + 500][0] = 192;
 					ppm[((int32_t *)points[i].second)[1] + 500][((int32_t *)points[i].second)[0] + 500][1] = 128;
 					ppm[((int32_t *)points[i].second)[1] + 500][((int32_t *)points[i].second)[0] + 500][2] = 0;
 				}
+
 #endif //DUMP_IMAGE
 			}
 		}
 	}
 
 #ifdef DUMP_IMAGE
-	if (doDump)
+
+	if(doDump)
 	{
 		fwrite(ppm[0][0], 3000000, 1, f);
 		fclose(f);
 	}
+
 #endif //DUMP_IMAGE
 
 	return lastQueryResults;
