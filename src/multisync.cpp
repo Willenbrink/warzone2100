@@ -58,14 +58,14 @@ static uint8_t pingChallenge[8];                                // Random data s
 bool sendScoreCheck()
 {
 	// Broadcast any changes in other players, but not in FRONTEND!!!
-	if(titleMode != MULTIOPTION && titleMode != MULTILIMIT)
+	if (titleMode != MULTIOPTION && titleMode != MULTILIMIT)
 	{
 		uint8_t			i;
 
-		for(i = 0; i < game.maxPlayers; i++)
+		for (i = 0; i < game.maxPlayers; i++)
 		{
 			// Host controls AI's scores + his own...
-			if(myResponsibility(i))
+			if (myResponsibility(i))
 			{
 				// Send score to everyone else
 				setMultiStats(i, getMultiStats(i), false);
@@ -84,9 +84,9 @@ static UDWORD averagePing()
 {
 	UDWORD i, count = 0, total = 0;
 
-	for(i = 0; i < MAX_PLAYERS; i++)
+	for (i = 0; i < MAX_PLAYERS; i++)
 	{
-		if(isHumanPlayer(i))
+		if (isHumanPlayer(i))
 		{
 			total += ingame.PingTimes[i];
 			count ++;
@@ -105,12 +105,12 @@ bool sendPing()
 	static UDWORD	lastav = 0;		// Last time we updated average
 
 	// Only ping every so often
-	if(lastPing > realTime)
+	if (lastPing > realTime)
 	{
 		lastPing = 0;
 	}
 
-	if(realTime - lastPing < PING_FREQUENCY)
+	if (realTime - lastPing < PING_FREQUENCY)
 	{
 		return true;
 	}
@@ -118,14 +118,14 @@ bool sendPing()
 	lastPing = realTime;
 
 	// If host, also update the average ping stat for joiners
-	if(NetPlay.isHost)
+	if (NetPlay.isHost)
 	{
-		if(lastav > realTime)
+		if (lastav > realTime)
 		{
 			lastav = 0;
 		}
 
-		if(realTime - lastav > AV_PING_FREQUENCY)
+		if (realTime - lastav > AV_PING_FREQUENCY)
 		{
 			NETsetGameFlags(2, averagePing());
 			lastav = realTime;
@@ -137,19 +137,19 @@ bool sendPing()
 	 * we should re-enumerate the players.
 	 */
 
-	for(i = 0; i < MAX_PLAYERS; i++)
+	for (i = 0; i < MAX_PLAYERS; i++)
 	{
-		if(isHumanPlayer(i)
+		if (isHumanPlayer(i)
 		        && PingSend[i]
 		        && ingame.PingTimes[i]
 		        && i != selectedPlayer)
 		{
 			ingame.PingTimes[i] = PING_LIMIT;
 		}
-		else if(!isHumanPlayer(i)
-		        && PingSend[i]
-		        && ingame.PingTimes[i]
-		        && i != selectedPlayer)
+		else if (!isHumanPlayer(i)
+		         && PingSend[i]
+		         && ingame.PingTimes[i]
+		         && i != selectedPlayer)
 		{
 			ingame.PingTimes[i] = 0;
 		}
@@ -165,7 +165,7 @@ bool sendPing()
 	NETend();
 
 	// Note when we sent the ping
-	for(i = 0; i < MAX_PLAYERS; i++)
+	for (i = 0; i < MAX_PLAYERS; i++)
 	{
 		PingSend[i] = realTime;
 	}
@@ -185,7 +185,7 @@ bool recvPing(NETQUEUE queue)
 	NETuint8_t(&sender);
 	NETbool(&isNew);
 
-	if(isNew)
+	if (isNew)
 	{
 		NETbin(challenge, sizeof(pingChallenge));
 	}
@@ -196,14 +196,14 @@ bool recvPing(NETQUEUE queue)
 
 	NETend();
 
-	if(sender >= MAX_PLAYERS)
+	if (sender >= MAX_PLAYERS)
 	{
 		debug(LOG_ERROR, "Bad NET_PING packet, sender is %d", (int)sender);
 		return false;
 	}
 
 	// If this is a new ping, respond to it
-	if(isNew)
+	if (isNew)
 	{
 		challengeResponse = getMultiStats(us).identity.sign(&challenge, sizeof(pingChallenge));
 
@@ -219,7 +219,7 @@ bool recvPing(NETQUEUE queue)
 	// They are responding to one of our pings
 	else
 	{
-		if(!getMultiStats(sender).identity.empty() && !getMultiStats(sender).identity.verify(challengeResponse, pingChallenge, sizeof(pingChallenge)))
+		if (!getMultiStats(sender).identity.empty() && !getMultiStats(sender).identity.verify(challengeResponse, pingChallenge, sizeof(pingChallenge)))
 		{
 			// Either bad signature, or we sent more than one ping packet and this response is to an older one than the latest.
 			debug(LOG_NEVER, "Bad and/or old NET_PING packet, alleged sender is %d", (int)sender);

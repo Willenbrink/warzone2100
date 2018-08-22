@@ -147,7 +147,7 @@ struct STRUCTURE_STATS : public BASE_STATS
 	{
 		Vector2i size(baseWidth, baseBreadth);
 
-		if(((direction + 0x2000) & 0x4000) != 0)  // if building is rotated left or right by 90°, swap width and height
+		if (((direction + 0x2000) & 0x4000) != 0) // if building is rotated left or right by 90°, swap width and height
 		{
 			std::swap(size.x, size.y);
 		}

@@ -237,9 +237,9 @@ static KeyMapSaveEntry const keyMapSaveTable[] =
 
 KeyMapSaveEntry const *keymapEntryByFunction(void (*function)())
 {
-	for(auto &entry : keyMapSaveTable)
+	for (auto &entry : keyMapSaveTable)
 	{
-		if(entry.function == function)
+		if (entry.function == function)
 		{
 			return &entry;
 		}
@@ -250,9 +250,9 @@ KeyMapSaveEntry const *keymapEntryByFunction(void (*function)())
 
 KeyMapSaveEntry const *keymapEntryByName(std::string const &name)
 {
-	for(auto &entry : keyMapSaveTable)
+	for (auto &entry : keyMapSaveTable)
 	{
-		if(entry.name == name)
+		if (entry.name == name)
 		{
 			return &entry;
 		}
@@ -271,18 +271,18 @@ void keyInitMappings(bool bForceDefaults)
 {
 	keyMappings.clear();
 
-	for(unsigned n = 0; n < MAX_PLAYERS; ++n)
+	for (unsigned n = 0; n < MAX_PLAYERS; ++n)
 	{
 		processDebugMappings(n, false);
 	}
 
-	for(unsigned i = 0; i < NUM_QWERTY_KEYS; i++)
+	for (unsigned i = 0; i < NUM_QWERTY_KEYS; i++)
 	{
 		qwertyKeyMappings[i].psMapping = nullptr;
 	}
 
 	// load the mappings.
-	if(!bForceDefaults && loadKeyMap() == true)
+	if (!bForceDefaults && loadKeyMap() == true)
 	{
 		return;
 	}
@@ -498,19 +498,19 @@ KEY_MAPPING *keyAddMapping(KEY_STATUS status, KEY_CODE metaCode, KEY_CODE subCod
 	newMapping->altMetaKeyCode = KEY_IGNORE;
 
 	/* We always request only the left hand one */
-	if(metaCode == KEY_LCTRL)
+	if (metaCode == KEY_LCTRL)
 	{
 		newMapping->altMetaKeyCode = KEY_RCTRL;
 	}
-	else if(metaCode == KEY_LALT)
+	else if (metaCode == KEY_LALT)
 	{
 		newMapping->altMetaKeyCode = KEY_RALT;
 	}
-	else if(metaCode == KEY_LSHIFT)
+	else if (metaCode == KEY_LSHIFT)
 	{
 		newMapping->altMetaKeyCode = KEY_RSHIFT;
 	}
-	else if(metaCode == KEY_LMETA)
+	else if (metaCode == KEY_LMETA)
 	{
 		newMapping->altMetaKeyCode = KEY_RMETA;
 	}
@@ -538,7 +538,7 @@ static bool keyRemoveMappingPt(KEY_MAPPING *psToRemove)
 		return &mapping == psToRemove;
 	});
 
-	if(mapping != keyMappings.end())
+	if (mapping != keyMappings.end())
 	{
 		keyMappings.erase(mapping);
 		return true;
@@ -557,18 +557,18 @@ static bool checkQwertyKeys()
 	bool aquired = false;
 
 	/* Are we trying to make a new map marker? */
-	if(keyDown(KEY_LALT))
+	if (keyDown(KEY_LALT))
 	{
 		/* Did we press a key */
 		qKey = getQwertyKey();
 
-		if(qKey)
+		if (qKey)
 		{
 			tableEntry = asciiKeyCodeToTable(qKey);
 			/* We're assigning something to the key */
 			debug(LOG_NEVER, "Assigning keymapping to tableEntry: %i", tableEntry);
 
-			if(qwertyKeyMappings[tableEntry].psMapping)
+			if (qwertyKeyMappings[tableEntry].psMapping)
 			{
 				/* Get rid of the old mapping on this key if there was one */
 				keyRemoveMappingPt(qwertyKeyMappings[tableEntry].psMapping);
@@ -595,7 +595,7 @@ static bool checkQwertyKeys()
 void	keyProcessMappings(bool bExclude)
 {
 	/* Bomb out if there are none */
-	if(keyMappings.empty())
+	if (keyMappings.empty())
 	{
 		return;
 	}
@@ -609,33 +609,33 @@ void	keyProcessMappings(bool bExclude)
 	                    || keyDown(KEY_LMETA) || keyDown(KEY_RMETA);
 
 	/* Run through all our mappings */
-	for(auto keyToProcess = keyMappings.begin(); keyToProcess != keyMappings.end(); ++keyToProcess)
+	for (auto keyToProcess = keyMappings.begin(); keyToProcess != keyMappings.end(); ++keyToProcess)
 	{
 		/* Skip inappropriate ones when necessary */
-		if(bExclude && keyToProcess->status != KEYMAP_ALWAYS_PROCESS)
+		if (bExclude && keyToProcess->status != KEYMAP_ALWAYS_PROCESS)
 		{
 			break;
 		}
 
-		if(keyToProcess->subKeyCode == (KEY_CODE)KEY_MAXSCAN)
+		if (keyToProcess->subKeyCode == (KEY_CODE)KEY_MAXSCAN)
 		{
 			continue;
 		}
 
-		if(keyToProcess->function == nullptr)
+		if (keyToProcess->function == nullptr)
 		{
 			continue;
 		}
 
-		if(keyToProcess->metaKeyCode == KEY_IGNORE && !bMetaKeyDown &&
+		if (keyToProcess->metaKeyCode == KEY_IGNORE && !bMetaKeyDown &&
 		        !(keyToProcess->status == KEYMAP__DEBUG && !getDebugMappingStatus()))
 		{
-			switch(keyToProcess->action)
+			switch (keyToProcess->action)
 			{
 				case KEYMAP_PRESSED:
 
 					/* Were the right keys pressed? */
-					if(keyPressed(keyToProcess->subKeyCode))
+					if (keyPressed(keyToProcess->subKeyCode))
 					{
 						lastSubKey = keyToProcess->subKeyCode;
 						/* Jump to the associated function call */
@@ -647,7 +647,7 @@ void	keyProcessMappings(bool bExclude)
 				case KEYMAP_DOWN:
 
 					/* Is the key Down? */
-					if(keyDown(keyToProcess->subKeyCode))
+					if (keyDown(keyToProcess->subKeyCode))
 					{
 						lastSubKey = keyToProcess->subKeyCode;
 						/* Jump to the associated function call */
@@ -659,7 +659,7 @@ void	keyProcessMappings(bool bExclude)
 				case KEYMAP_RELEASED:
 
 					/* Has the key been released? */
-					if(keyReleased(keyToProcess->subKeyCode))
+					if (keyReleased(keyToProcess->subKeyCode))
 					{
 						lastSubKey = keyToProcess->subKeyCode;
 						/* Jump to the associated function call */
@@ -676,19 +676,19 @@ void	keyProcessMappings(bool bExclude)
 		}
 
 		/* Process the combi ones */
-		if((keyToProcess->metaKeyCode != KEY_IGNORE && bMetaKeyDown) &&
+		if ((keyToProcess->metaKeyCode != KEY_IGNORE && bMetaKeyDown) &&
 		        !(keyToProcess->status == KEYMAP__DEBUG && !getDebugMappingStatus()))
 		{
 			/* It's a combo keypress - one held down and the other pressed */
-			if(keyDown(keyToProcess->metaKeyCode) && keyPressed(keyToProcess->subKeyCode))
+			if (keyDown(keyToProcess->metaKeyCode) && keyPressed(keyToProcess->subKeyCode))
 			{
 				lastMetaKey = keyToProcess->metaKeyCode;
 				lastSubKey = keyToProcess->subKeyCode;
 				keyToProcess->function();
 			}
-			else if(keyToProcess->altMetaKeyCode != KEY_IGNORE)
+			else if (keyToProcess->altMetaKeyCode != KEY_IGNORE)
 			{
-				if(keyDown(keyToProcess->altMetaKeyCode) && keyPressed(keyToProcess->subKeyCode))
+				if (keyDown(keyToProcess->altMetaKeyCode) && keyPressed(keyToProcess->subKeyCode))
 				{
 					lastMetaKey = keyToProcess->metaKeyCode;
 					lastSubKey = keyToProcess->subKeyCode;
@@ -702,44 +702,44 @@ void	keyProcessMappings(bool bExclude)
 	int pressedMetaKey = KEY_IGNORE;
 
 	/* getLastMetaKey() can't be used here, have to do manually */
-	if(keyDown(KEY_LCTRL))
+	if (keyDown(KEY_LCTRL))
 	{
 		pressedMetaKey = KEY_LCTRL;
 	}
-	else if(keyDown(KEY_RCTRL))
+	else if (keyDown(KEY_RCTRL))
 	{
 		pressedMetaKey = KEY_RCTRL;
 	}
-	else if(keyDown(KEY_LALT))
+	else if (keyDown(KEY_LALT))
 	{
 		pressedMetaKey = KEY_LALT;
 	}
-	else if(keyDown(KEY_RALT))
+	else if (keyDown(KEY_RALT))
 	{
 		pressedMetaKey = KEY_RALT;
 	}
-	else if(keyDown(KEY_LSHIFT))
+	else if (keyDown(KEY_LSHIFT))
 	{
 		pressedMetaKey = KEY_LSHIFT;
 	}
-	else if(keyDown(KEY_RSHIFT))
+	else if (keyDown(KEY_RSHIFT))
 	{
 		pressedMetaKey = KEY_RSHIFT;
 	}
-	else if(keyDown(KEY_LMETA))
+	else if (keyDown(KEY_LMETA))
 	{
 		pressedMetaKey = KEY_LMETA;
 	}
-	else if(keyDown(KEY_RMETA))
+	else if (keyDown(KEY_RMETA))
 	{
 		pressedMetaKey = KEY_RMETA;
 	}
 
 	/* Find out what keys were pressed */
-	for(int i = 0; i < KEY_MAXSCAN; i++)
+	for (int i = 0; i < KEY_MAXSCAN; i++)
 	{
 		/* Skip meta keys */
-		switch(i)
+		switch (i)
 		{
 			case KEY_LCTRL:
 			case KEY_RCTRL:
@@ -754,7 +754,7 @@ void	keyProcessMappings(bool bExclude)
 		}
 
 		/* Let scripts process this key if it's pressed */
-		if(keyPressed((KEY_CODE)i))
+		if (keyPressed((KEY_CODE)i))
 		{
 			triggerEventKeyPressed(pressedMetaKey, i);
 		}
@@ -770,7 +770,7 @@ static void keyShowMapping(KEY_MAPPING *psMapping)
 
 	onlySub = true;
 
-	if(psMapping->metaKeyCode != KEY_IGNORE)
+	if (psMapping->metaKeyCode != KEY_IGNORE)
 	{
 		keyScanToString(psMapping->metaKeyCode, (char *)&asciiMeta, 20);
 		onlySub = false;
@@ -778,7 +778,7 @@ static void keyShowMapping(KEY_MAPPING *psMapping)
 
 	keyScanToString(psMapping->subKeyCode, (char *)&asciiSub, 20);
 
-	if(onlySub)
+	if (onlySub)
 	{
 		CONPRINTF(ConsoleString, (ConsoleString, "%s - %s", asciiSub, _(psMapping->name.c_str())));
 	}
@@ -794,7 +794,7 @@ static void keyShowMapping(KEY_MAPPING *psMapping)
 // this function isn't really module static - should be removed - debug only
 void keyShowMappings()
 {
-	for(auto &mapping : keyMappings)
+	for (auto &mapping : keyMappings)
 	{
 		keyShowMapping(&mapping);
 	}
@@ -831,9 +831,9 @@ static const KEY_CODE qwertyCodes[26] =
 /* Returns the key code of the first ascii key that its finds has been PRESSED */
 static KEY_CODE getQwertyKey()
 {
-	for(KEY_CODE code : qwertyCodes)
+	for (KEY_CODE code : qwertyCodes)
 	{
-		if(keyPressed(code))
+		if (keyPressed(code))
 		{
 			return code;  // Top-, middle- or bottom-row key pressed.
 		}
@@ -850,9 +850,9 @@ UDWORD asciiKeyCodeToTable(KEY_CODE code)
 {
 	unsigned i;
 
-	for(i = 0; i < ARRAY_SIZE(qwertyCodes); ++i)
+	for (i = 0; i < ARRAY_SIZE(qwertyCodes); ++i)
 	{
-		if(code == qwertyCodes[i])
+		if (code == qwertyCodes[i])
 		{
 			return i;
 		}
@@ -897,7 +897,7 @@ void processDebugMappings(unsigned player, bool val)
 	bWantDebugMappings[player] = val;
 	bDoingDebugMappings = true;
 
-	for(unsigned n = 0; n < MAX_PLAYERS; ++n)
+	for (unsigned n = 0; n < MAX_PLAYERS; ++n)
 	{
 		bDoingDebugMappings = bDoingDebugMappings && (bWantDebugMappings[n] || !NetPlay.players[n].allocated);
 	}
@@ -918,9 +918,9 @@ std::string getWantedDebugMappingStatuses(bool val)
 	char ret[MAX_PLAYERS + 1];
 	char *p = ret;
 
-	for(unsigned n = 0; n < MAX_PLAYERS; ++n)
+	for (unsigned n = 0; n < MAX_PLAYERS; ++n)
 	{
-		if(NetPlay.players[n].allocated && bWantDebugMappings[n] == val)
+		if (NetPlay.players[n].allocated && bWantDebugMappings[n] == val)
 		{
 			*p++ = '0' + NetPlay.players[n].position;
 		}
@@ -934,10 +934,10 @@ std::string getWantedDebugMappingStatuses(bool val)
 bool keyReAssignMapping(KEY_CODE origMetaCode, KEY_CODE origSubCode, KEY_CODE newMetaCode, KEY_CODE newSubCode)
 {
 	/* Find the original */
-	if(KEY_MAPPING *psMapping = keyFindMapping(origMetaCode, origSubCode))
+	if (KEY_MAPPING *psMapping = keyFindMapping(origMetaCode, origSubCode))
 	{
 		/* Not all can be remapped */
-		if(psMapping->status != KEYMAP_ALWAYS || psMapping->status == KEYMAP_ALWAYS_PROCESS)
+		if (psMapping->status != KEYMAP_ALWAYS || psMapping->status == KEYMAP_ALWAYS_PROCESS)
 		{
 			psMapping->metaKeyCode = newMetaCode;
 			psMapping->subKeyCode = newSubCode;

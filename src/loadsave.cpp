@@ -122,7 +122,7 @@ bool saveMidMission()
 
 void loadSaveScreenSizeDidChange(unsigned int oldWidth, unsigned int oldHeight, unsigned int newWidth, unsigned int newHeight)
 {
-	if(psRequestScreen == nullptr) return;
+	if (psRequestScreen == nullptr) return;
 
 	psRequestScreen->screenSizeDidChange(oldWidth, oldHeight, newWidth, newHeight);
 }
@@ -138,7 +138,7 @@ bool addLoadSave(LOADSAVE_MODE savemode, const char *title)
 	static char	sSlotTips[totalslots][totalslotspace];
 	char **i, **files;
 
-	switch(savemode)
+	switch (savemode)
 	{
 		case LOAD_FRONTEND_MISSION:
 		case LOAD_INGAME_MISSION:
@@ -171,14 +171,14 @@ bool addLoadSave(LOADSAVE_MODE savemode, const char *title)
 	mode = bLoad;
 	debug(LOG_SAVE, "called (%d, %s)", bLoad, title);
 
-	if((bLoadSaveMode == LOAD_INGAME_MISSION) || (bLoadSaveMode == SAVE_INGAME_MISSION)
+	if ((bLoadSaveMode == LOAD_INGAME_MISSION) || (bLoadSaveMode == SAVE_INGAME_MISSION)
 	        || (bLoadSaveMode == LOAD_INGAME_SKIRMISH) || (bLoadSaveMode == SAVE_INGAME_SKIRMISH))
 	{
-		if(!bMultiPlayer || (NetPlay.bComms == 0))
+		if (!bMultiPlayer || (NetPlay.bComms == 0))
 		{
 			gameTimeStop();
 
-			if(GetGameMode() == GS_NORMAL)
+			if (GetGameMode() == GS_NORMAL)
 			{
 				bool radOnScreen = radarOnScreen;				// Only do this in main game.
 
@@ -272,17 +272,17 @@ bool addLoadSave(LOADSAVE_MODE savemode, const char *title)
 		psWidget->pUserData = nullptr;
 	};
 
-	for(slotCount = 0; slotCount < totalslots; slotCount++)
+	for (slotCount = 0; slotCount < totalslots; slotCount++)
 	{
 		sButInit.id		= slotCount + LOADENTRY_START;
 
-		if(slotCount < slotsInColumn)
+		if (slotCount < slotsInColumn)
 		{
 			sButInit.x	= 22 + LOADSAVE_HGAP;
 			sButInit.y	= (SWORD)((LOADSAVE_BANNER_DEPTH + (2 * LOADSAVE_VGAP)) + (
 			                          slotCount * (LOADSAVE_VGAP + LOADENTRY_H)));
 		}
-		else if(slotCount >= slotsInColumn && (slotCount < (slotsInColumn * 2)))
+		else if (slotCount >= slotsInColumn && (slotCount < (slotsInColumn * 2)))
 		{
 			sButInit.x	= 22 + (2 * LOADSAVE_HGAP + LOADENTRY_W);
 			sButInit.y	= (SWORD)((LOADSAVE_BANNER_DEPTH + (2 * LOADSAVE_VGAP)) + (
@@ -306,7 +306,7 @@ bool addLoadSave(LOADSAVE_MODE savemode, const char *title)
 	// add savegame filenames minus extensions to buttons
 	files = PHYSFS_enumerateFiles(NewSaveGamePath);
 
-	for(i = files; *i != nullptr; ++i)
+	for (i = files; *i != nullptr; ++i)
 	{
 		W_BUTTON *button;
 		char savefile[256];
@@ -314,7 +314,7 @@ bool addLoadSave(LOADSAVE_MODE savemode, const char *title)
 		struct tm *timeinfo;
 
 		// See if this filename contains the extension we're looking for
-		if(!strstr(*i, sExt))
+		if (!strstr(*i, sExt))
 		{
 			// If it doesn't, move on to the next filename
 			continue;
@@ -339,7 +339,7 @@ bool addLoadSave(LOADSAVE_MODE savemode, const char *title)
 		button->pText = WzString::fromUtf8(sSlotCaps[slotCount]);
 		slotCount++;		// goto next but...
 
-		if(slotCount == totalslots)
+		if (slotCount == totalslots)
 		{
 			break;
 		}
@@ -356,11 +356,11 @@ bool closeLoadSave()
 {
 	bLoadSaveUp = false;
 
-	if((bLoadSaveMode == LOAD_INGAME_MISSION) || (bLoadSaveMode == SAVE_INGAME_MISSION)
+	if ((bLoadSaveMode == LOAD_INGAME_MISSION) || (bLoadSaveMode == SAVE_INGAME_MISSION)
 	        || (bLoadSaveMode == LOAD_INGAME_SKIRMISH) || (bLoadSaveMode == SAVE_INGAME_SKIRMISH))
 	{
 
-		if(!bMultiPlayer || (NetPlay.bComms == 0))
+		if (!bMultiPlayer || (NetPlay.bComms == 0))
 		{
 			gameTimeStart();
 			setGamePauseStatus(false);
@@ -403,7 +403,7 @@ void deleteSaveGame(char *saveGameName)
 	// check for a directory and remove that too.
 	files = PHYSFS_enumerateFiles(saveGameName);
 
-	for(i = files; *i != nullptr; ++i)
+	for (i = files; *i != nullptr; ++i)
 	{
 		char del_file[PATH_MAX];
 
@@ -414,7 +414,7 @@ void deleteSaveGame(char *saveGameName)
 		debug(LOG_SAVE, "Deleting [%s].", del_file);
 
 		// Delete the file
-		if(!PHYSFS_delete(del_file))
+		if (!PHYSFS_delete(del_file))
 		{
 			debug(LOG_ERROR, "Warning [%s] could not be deleted due to PhysicsFS error: %s", del_file, WZ_PHYSFS_getLastError());
 		}
@@ -422,7 +422,7 @@ void deleteSaveGame(char *saveGameName)
 
 	PHYSFS_freeList(files);
 
-	if(!PHYSFS_delete(saveGameName))		// now (should be)empty directory
+	if (!PHYSFS_delete(saveGameName))		// now (should be)empty directory
 	{
 		debug(LOG_ERROR, "Warning directory[%s] could not be deleted because %s", saveGameName, WZ_PHYSFS_getLastError());
 	}
@@ -448,12 +448,12 @@ bool runLoadSave(bool bResetMissionWidgets)
 	sstrcpy(sRequestResult, "");					// set returned filename to null;
 
 	// cancel this operation...
-	if(id == LOADSAVE_CANCEL || CancelPressed())
+	if (id == LOADSAVE_CANCEL || CancelPressed())
 	{
 		goto cleanup;
 	}
 
-	if(bMultiPlayer)
+	if (bMultiPlayer)
 	{
 		ssprintf(NewSaveGamePath, "%s%s/", SaveGamePath, "skirmish");
 	}
@@ -463,13 +463,13 @@ bool runLoadSave(bool bResetMissionWidgets)
 	}
 
 	// clicked a load entry
-	if(id >= LOADENTRY_START  &&  id <= LOADENTRY_END)
+	if (id >= LOADENTRY_START  &&  id <= LOADENTRY_END)
 	{
 		W_BUTTON *slotButton = (W_BUTTON *)widgGetFromID(psRequestScreen, id);
 
-		if(mode)								// Loading, return that entry.
+		if (mode)								// Loading, return that entry.
 		{
-			if(!slotButton->pText.isEmpty())
+			if (!slotButton->pText.isEmpty())
 			{
 				ssprintf(sRequestResult, "%s%s%s", NewSaveGamePath, ((W_BUTTON *)widgGetFromID(psRequestScreen, id))->pText.toUtf8().c_str(), sExt);
 			}
@@ -483,7 +483,7 @@ bool runLoadSave(bool bResetMissionWidgets)
 		else //  SAVING!add edit box at that position.
 		{
 
-			if(! widgGetFromID(psRequestScreen, SAVEENTRY_EDIT))
+			if (! widgGetFromID(psRequestScreen, SAVEENTRY_EDIT))
 			{
 				WIDGET *parent = widgGetFromID(psRequestScreen, LOADSAVE_FORM);
 
@@ -494,7 +494,7 @@ bool runLoadSave(bool bResetMissionWidgets)
 				saveEntryEdit->setString(slotButton->getString());
 				saveEntryEdit->setBoxColours(WZCOL_MENU_LOAD_BORDER, WZCOL_MENU_LOAD_BORDER, WZCOL_MENU_BACKGROUND);
 
-				if(!slotButton->pText.isEmpty())
+				if (!slotButton->pText.isEmpty())
 				{
 					ssprintf(sDelete, "%s%s%s", NewSaveGamePath, slotButton->pText.toUtf8().c_str(), sExt);
 				}
@@ -521,11 +521,11 @@ bool runLoadSave(bool bResetMissionWidgets)
 	}
 
 	// finished entering a name.
-	if(id == SAVEENTRY_EDIT)
+	if (id == SAVEENTRY_EDIT)
 	{
 		char sTemp[MAX_STR_LENGTH];
 
-		if(!keyPressed(KEY_RETURN) && !keyPressed(KEY_KPENTER))						// enter was not pushed, so not a vaild entry.
+		if (!keyPressed(KEY_RETURN) && !keyPressed(KEY_KPENTER))						// enter was not pushed, so not a vaild entry.
 		{
 			widgDelete(psRequestScreen, SAVEENTRY_EDIT);	//unselect this box, and go back ..
 			widgReveal(psRequestScreen, chosenSlotId);
@@ -536,12 +536,12 @@ bool runLoadSave(bool bResetMissionWidgets)
 		// scan to see if that game exists in another slot, if so then fail.
 		sstrcpy(sTemp, widgGetString(psRequestScreen, id));
 
-		for(i = LOADENTRY_START; i < LOADENTRY_END; i++)
+		for (i = LOADENTRY_START; i < LOADENTRY_END; i++)
 		{
-			if(i != chosenSlotId)
+			if (i != chosenSlotId)
 			{
 
-				if(!((W_BUTTON *)widgGetFromID(psRequestScreen, i))->pText.isEmpty()
+				if (!((W_BUTTON *)widgGetFromID(psRequestScreen, i))->pText.isEmpty()
 				        && strcmp(sTemp, ((W_BUTTON *)widgGetFromID(psRequestScreen, i))->pText.toUtf8().c_str()) == 0)
 				{
 					widgDelete(psRequestScreen, SAVEENTRY_EDIT);	//unselect this box, and go back ..
@@ -554,13 +554,13 @@ bool runLoadSave(bool bResetMissionWidgets)
 
 
 		// return with this name, as we've edited it.
-		if(strlen(widgGetString(psRequestScreen, id)))
+		if (strlen(widgGetString(psRequestScreen, id)))
 		{
 			sstrcpy(sTemp, widgGetString(psRequestScreen, id));
 			removeWildcards(sTemp);
 			snprintf(sRequestResult, sizeof(sRequestResult), "%s%s%s", NewSaveGamePath, sTemp, sExt);
 
-			if(strlen(sDelete) != 0)
+			if (strlen(sDelete) != 0)
 			{
 				deleteSaveGame(sDelete);	//only delete game if a new game fills the slot
 			}
@@ -576,7 +576,7 @@ cleanup:
 	closeLoadSave();
 	bRequestLoad = false;
 
-	if(bResetMissionWidgets && widgGetFromID(psWScreen, IDMISSIONRES_FORM) == nullptr)
+	if (bResetMissionWidgets && widgGetFromID(psWScreen, IDMISSIONRES_FORM) == nullptr)
 	{
 		resetMissionWidgets();			//reset the mission widgets here if necessary
 	}
@@ -612,26 +612,26 @@ void removeWildcards(char *pStr)
 
 	// Whitelist: Get rid of any characters except:
 	// a-z A-Z 0-9 - + ! , = ^ @ # $ % & ' ( ) [ ] (and space and unicode characters ≥ 0x80)
-	for(i = 0; i < strlen(pStr); i++)
+	for (i = 0; i < strlen(pStr); i++)
 	{
-		if(!isalnum(pStr[i])
+		if (!isalnum(pStr[i])
 		        && (pStr[i] != ' ' || i == 0 || pStr[i - 1] == ' ')
 		        // We allow spaces as long as they aren't the first char, or two spaces in a row
 		        && pStr[i] != '-'
 		        && pStr[i] != '+'
 		        && pStr[i] != '[' && pStr[i] != ']'
 		        && (pStr[i] & 0x80) != 0x80 // á é í ó ú α β γ δ ε
-		  )
+		   )
 		{
 			pStr[i] = '_';
 		}
 	}
 
-	if(strlen(pStr) >= MAX_SAVE_NAME)
+	if (strlen(pStr) >= MAX_SAVE_NAME)
 	{
 		pStr[MAX_SAVE_NAME - 1] = 0;
 	}
-	else if(strlen(pStr) == 0)
+	else if (strlen(pStr) == 0)
 	{
 		pStr[0] = '!';
 		pStr[1] = 0;
@@ -639,7 +639,7 @@ void removeWildcards(char *pStr)
 	}
 
 	// Trim trailing spaces
-	for(i = strlen(pStr); i > 0 && pStr[i - 1] == ' '; --i)
+	for (i = strlen(pStr); i > 0 && pStr[i - 1] == ' '; --i)
 	{}
 
 	pStr[i] = 0;
@@ -652,7 +652,7 @@ void removeWildcards(char *pStr)
 	 } */
 
 	// If that leaves us with a blank string, replace with '!'
-	if(pStr[0] == 0)
+	if (pStr[0] == 0)
 	{
 		pStr[0] = '!';
 		pStr[1] = 0;
@@ -672,7 +672,7 @@ static void displayLoadBanner(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	int x = xOffset + psWidget->x();
 	int y = yOffset + psWidget->y();
 
-	if(psWidget->pUserData)
+	if (psWidget->pUserData)
 	{
 		col = WZCOL_GREEN;
 	}
@@ -698,14 +698,14 @@ static void displayLoadSlot(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 
 	drawBlueBox(x, y, psWidget->width(), psWidget->height());  //draw box
 
-	if(!((W_BUTTON *)psWidget)->pText.isEmpty())
+	if (!((W_BUTTON *)psWidget)->pText.isEmpty())
 	{
 		sstrcpy(butString, ((W_BUTTON *)psWidget)->pText.toUtf8().c_str());
 
-		if(cache.fullText != butString)
+		if (cache.fullText != butString)
 		{
 			// Update cache
-			while(iV_GetTextWidth(butString, font_regular) > psWidget->width())
+			while (iV_GetTextWidth(butString, font_regular) > psWidget->width())
 			{
 				butString[strlen(butString) - 1] = '\0';
 			}

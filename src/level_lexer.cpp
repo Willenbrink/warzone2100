@@ -644,7 +644,7 @@ char *lev_text;
 // fwrite declared with warn_unused_result, resulting in mysterious errors in "%%" on some distros.
 static inline bool no_warn_unused_result(int ignore)
 {
-	if(ignore) {} return true;
+	if (ignore) {} return true;
 }
 #define fwrite(a, b, c, d) no_warn_unused_result(fwrite(a, b, c, d))
 
@@ -897,7 +897,7 @@ YY_DECL
 	/* Keywords */
 #line 859 "level_lexer.cpp"
 
-	if(!(yy_init))
+	if (!(yy_init))
 	{
 		(yy_init) = 1;
 
@@ -905,16 +905,16 @@ YY_DECL
 		YY_USER_INIT;
 #endif
 
-		if(!(yy_start))
+		if (!(yy_start))
 			(yy_start) = 1;	/* first start state */
 
-		if(! lev_in)
+		if (! lev_in)
 			lev_in = stdin;
 
-		if(! lev_out)
+		if (! lev_out)
 			lev_out = stdout;
 
-		if(! YY_CURRENT_BUFFER)
+		if (! YY_CURRENT_BUFFER)
 		{
 			lev_ensure_buffer_stack();
 			YY_CURRENT_BUFFER_LVALUE =
@@ -924,7 +924,7 @@ YY_DECL
 		lev__load_buffer_state();
 	}
 
-	while(1)		/* loops until end-of-file is reached */
+	while (1)		/* loops until end-of-file is reached */
 	{
 		yy_cp = (yy_c_buf_p);
 
@@ -943,23 +943,23 @@ yy_match:
 		{
 			YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
 
-			if(yy_accept[yy_current_state])
+			if (yy_accept[yy_current_state])
 			{
 				(yy_last_accepting_state) = yy_current_state;
 				(yy_last_accepting_cpos) = yy_cp;
 			}
 
-			while(yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state)
+			while (yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state)
 			{
 				yy_current_state = (int) yy_def[yy_current_state];
 
-				if(yy_current_state >= 120)
+				if (yy_current_state >= 120)
 					yy_c = yy_meta[(unsigned int) yy_c];
 			}
 
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
-		} while(yy_current_state != 119);
+		} while (yy_current_state != 119);
 
 		yy_cp = (yy_last_accepting_cpos);
 		yy_current_state = (yy_last_accepting_state);
@@ -969,12 +969,12 @@ yy_find_action:
 
 		YY_DO_BEFORE_ACTION;
 
-		if(yy_act != YY_END_OF_BUFFER && yy_rule_can_match_eol[yy_act])
+		if (yy_act != YY_END_OF_BUFFER && yy_rule_can_match_eol[yy_act])
 		{
 			int yyl;
 
-			for(yyl = 0; yyl < lev_leng; ++yyl)
-				if(lev_text[yyl] == '\n')
+			for (yyl = 0; yyl < lev_leng; ++yyl)
+				if (lev_text[yyl] == '\n')
 
 					lev_lineno++;
 
@@ -983,7 +983,7 @@ yy_find_action:
 
 do_action:	/* This label is used only to access EOF actions. */
 
-		switch(yy_act)
+		switch (yy_act)
 		{
 			/* beginning of action switch */
 			case 0: /* must back up */
@@ -1214,7 +1214,7 @@ do_action:	/* This label is used only to access EOF actions. */
 				*yy_cp = (yy_hold_char);
 				YY_RESTORE_YY_MORE_OFFSET
 
-				if(YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_NEW)
+				if (YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_NEW)
 				{
 					/* We're scanning a new file or input source.  It's
 					 * possible that this happened because the user
@@ -1237,7 +1237,7 @@ do_action:	/* This label is used only to access EOF actions. */
 				 * end-of-buffer state).  Contrast this with the test
 				 * in input().
 				 */
-				if((yy_c_buf_p) <= &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)])
+				if ((yy_c_buf_p) <= &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)])
 				{
 					/* This was really a NUL. */
 					yy_state_type yy_next_state;
@@ -1259,7 +1259,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 					yy_bp = (yytext_ptr) + YY_MORE_ADJ;
 
-					if(yy_next_state)
+					if (yy_next_state)
 					{
 						/* Consume the NUL. */
 						yy_cp = ++(yy_c_buf_p);
@@ -1275,13 +1275,13 @@ do_action:	/* This label is used only to access EOF actions. */
 					}
 				}
 
-				else switch(yy_get_next_buffer())
+				else switch (yy_get_next_buffer())
 					{
 						case EOB_ACT_END_OF_FILE:
 						{
 							(yy_did_buffer_switch_on_eof) = 0;
 
-							if(lev_wrap())
+							if (lev_wrap())
 							{
 								/* Note: because we've taken care in
 								 * yy_get_next_buffer() to have set up
@@ -1300,7 +1300,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 							else
 							{
-								if(!(yy_did_buffer_switch_on_eof))
+								if (!(yy_did_buffer_switch_on_eof))
 									YY_NEW_FILE;
 							}
 
@@ -1352,14 +1352,14 @@ static int yy_get_next_buffer(void)
 	int number_to_move, i;
 	int ret_val;
 
-	if((yy_c_buf_p) > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars) + 1])
+	if ((yy_c_buf_p) > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars) + 1])
 		YY_FATAL_ERROR(
 		    "fatal flex scanner internal error--end of buffer missed");
 
-	if(YY_CURRENT_BUFFER_LVALUE->yy_fill_buffer == 0)
+	if (YY_CURRENT_BUFFER_LVALUE->yy_fill_buffer == 0)
 	{
 		/* Don't try to fill the buffer, so this is an EOF. */
-		if((yy_c_buf_p) - (yytext_ptr) - YY_MORE_ADJ == 1)
+		if ((yy_c_buf_p) - (yytext_ptr) - YY_MORE_ADJ == 1)
 		{
 			/* We matched a single character, the EOB, so
 			 * treat this as a final EOF.
@@ -1381,10 +1381,10 @@ static int yy_get_next_buffer(void)
 	/* First move last chars to start of buffer. */
 	number_to_move = (int)((yy_c_buf_p) - (yytext_ptr)) - 1;
 
-	for(i = 0; i < number_to_move; ++i)
+	for (i = 0; i < number_to_move; ++i)
 		*(dest++) = *(source++);
 
-	if(YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_EOF_PENDING)
+	if (YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_EOF_PENDING)
 		/* don't do the read, it's not guaranteed to return an EOF,
 		 * just force an EOF
 		 */
@@ -1395,7 +1395,7 @@ static int yy_get_next_buffer(void)
 		int num_to_read =
 		    YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
-		while(num_to_read <= 0)
+		while (num_to_read <= 0)
 		{
 			/* Not enough room in the buffer - grow it. */
 
@@ -1405,11 +1405,11 @@ static int yy_get_next_buffer(void)
 			int yy_c_buf_p_offset =
 			    (int)((yy_c_buf_p) - b->yy_ch_buf);
 
-			if(b->yy_is_our_buffer)
+			if (b->yy_is_our_buffer)
 			{
 				int new_size = b->yy_buf_size * 2;
 
-				if(new_size <= 0)
+				if (new_size <= 0)
 					b->yy_buf_size += b->yy_buf_size / 8;
 				else
 					b->yy_buf_size *= 2;
@@ -1422,7 +1422,7 @@ static int yy_get_next_buffer(void)
 				/* Can't grow it, we don't own it. */
 				b->yy_ch_buf = 0;
 
-			if(! b->yy_ch_buf)
+			if (! b->yy_ch_buf)
 				YY_FATAL_ERROR(
 				    "fatal error - scanner input buffer overflow");
 
@@ -1433,7 +1433,7 @@ static int yy_get_next_buffer(void)
 
 		}
 
-		if(num_to_read > YY_READ_BUF_SIZE)
+		if (num_to_read > YY_READ_BUF_SIZE)
 			num_to_read = YY_READ_BUF_SIZE;
 
 		/* Read in more data. */
@@ -1443,9 +1443,9 @@ static int yy_get_next_buffer(void)
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars);
 	}
 
-	if((yy_n_chars) == 0)
+	if ((yy_n_chars) == 0)
 	{
-		if(number_to_move == YY_MORE_ADJ)
+		if (number_to_move == YY_MORE_ADJ)
 		{
 			ret_val = EOB_ACT_END_OF_FILE;
 			lev_restart(lev_in);
@@ -1462,13 +1462,13 @@ static int yy_get_next_buffer(void)
 	else
 		ret_val = EOB_ACT_CONTINUE_SCAN;
 
-	if((yy_size_t)((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size)
+	if ((yy_size_t)((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size)
 	{
 		/* Extend the array by 50%, plus the number we really need. */
 		yy_size_t new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
 		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) lev_realloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, new_size);
 
-		if(! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf)
+		if (! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf)
 			YY_FATAL_ERROR("out of dynamic memory in yy_get_next_buffer()");
 	}
 
@@ -1490,21 +1490,21 @@ static yy_state_type yy_get_previous_state(void)
 
 	yy_current_state = (yy_start);
 
-	for(yy_cp = (yytext_ptr) + YY_MORE_ADJ; yy_cp < (yy_c_buf_p); ++yy_cp)
+	for (yy_cp = (yytext_ptr) + YY_MORE_ADJ; yy_cp < (yy_c_buf_p); ++yy_cp)
 	{
 		YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
 
-		if(yy_accept[yy_current_state])
+		if (yy_accept[yy_current_state])
 		{
 			(yy_last_accepting_state) = yy_current_state;
 			(yy_last_accepting_cpos) = yy_cp;
 		}
 
-		while(yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state)
+		while (yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state)
 		{
 			yy_current_state = (int) yy_def[yy_current_state];
 
-			if(yy_current_state >= 120)
+			if (yy_current_state >= 120)
 				yy_c = yy_meta[(unsigned int) yy_c];
 		}
 
@@ -1526,17 +1526,17 @@ static yy_state_type yy_try_NUL_trans(yy_state_type yy_current_state)
 
 	YY_CHAR yy_c = 1;
 
-	if(yy_accept[yy_current_state])
+	if (yy_accept[yy_current_state])
 	{
 		(yy_last_accepting_state) = yy_current_state;
 		(yy_last_accepting_cpos) = yy_cp;
 	}
 
-	while(yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state)
+	while (yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state)
 	{
 		yy_current_state = (int) yy_def[yy_current_state];
 
-		if(yy_current_state >= 120)
+		if (yy_current_state >= 120)
 			yy_c = yy_meta[(unsigned int) yy_c];
 	}
 
@@ -1558,13 +1558,13 @@ static int input(void)
 
 	*(yy_c_buf_p) = (yy_hold_char);
 
-	if(*(yy_c_buf_p) == YY_END_OF_BUFFER_CHAR)
+	if (*(yy_c_buf_p) == YY_END_OF_BUFFER_CHAR)
 	{
 		/* yy_c_buf_p now points to the character we want to return.
 		 * If this occurs *before* the EOB characters, then it's a
 		 * valid NUL; if not, then we've hit the end of the buffer.
 		 */
-		if((yy_c_buf_p) < &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)])
+		if ((yy_c_buf_p) < &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)])
 			/* This was really a NUL. */
 			*(yy_c_buf_p) = '\0';
 
@@ -1574,7 +1574,7 @@ static int input(void)
 			int offset = (yy_c_buf_p) - (yytext_ptr);
 			++(yy_c_buf_p);
 
-			switch(yy_get_next_buffer())
+			switch (yy_get_next_buffer())
 			{
 				case EOB_ACT_LAST_MATCH:
 					/* This happens because yy_g_n_b()
@@ -1594,10 +1594,10 @@ static int input(void)
 
 				case EOB_ACT_END_OF_FILE:
 				{
-					if(lev_wrap())
+					if (lev_wrap())
 						return EOF;
 
-					if(!(yy_did_buffer_switch_on_eof))
+					if (!(yy_did_buffer_switch_on_eof))
 						YY_NEW_FILE;
 
 #ifdef __cplusplus
@@ -1618,7 +1618,7 @@ static int input(void)
 	*(yy_c_buf_p) = '\0';	/* preserve lev_text */
 	(yy_hold_char) = *++(yy_c_buf_p);
 
-	if(c == '\n')
+	if (c == '\n')
 
 		lev_lineno++;
 
@@ -1636,7 +1636,7 @@ static int input(void)
 void lev_restart(FILE * input_file)
 {
 
-	if(! YY_CURRENT_BUFFER)
+	if (! YY_CURRENT_BUFFER)
 	{
 		lev_ensure_buffer_stack();
 		YY_CURRENT_BUFFER_LVALUE =
@@ -1661,10 +1661,10 @@ void lev__switch_to_buffer(YY_BUFFER_STATE  new_buffer)
 	 */
 	lev_ensure_buffer_stack();
 
-	if(YY_CURRENT_BUFFER == new_buffer)
+	if (YY_CURRENT_BUFFER == new_buffer)
 		return;
 
-	if(YY_CURRENT_BUFFER)
+	if (YY_CURRENT_BUFFER)
 	{
 		/* Flush out information for old buffer. */
 		*(yy_c_buf_p) = (yy_hold_char);
@@ -1703,7 +1703,7 @@ YY_BUFFER_STATE lev__create_buffer(FILE * file, int  size)
 
 	b = (YY_BUFFER_STATE) lev_alloc(sizeof(struct yy_buffer_state));
 
-	if(! b)
+	if (! b)
 		YY_FATAL_ERROR("out of dynamic memory in lev__create_buffer()");
 
 	b->yy_buf_size = size;
@@ -1713,7 +1713,7 @@ YY_BUFFER_STATE lev__create_buffer(FILE * file, int  size)
 	 */
 	b->yy_ch_buf = (char *) lev_alloc(b->yy_buf_size + 2);
 
-	if(! b->yy_ch_buf)
+	if (! b->yy_ch_buf)
 		YY_FATAL_ERROR("out of dynamic memory in lev__create_buffer()");
 
 	b->yy_is_our_buffer = 1;
@@ -1730,13 +1730,13 @@ YY_BUFFER_STATE lev__create_buffer(FILE * file, int  size)
 void lev__delete_buffer(YY_BUFFER_STATE  b)
 {
 
-	if(! b)
+	if (! b)
 		return;
 
-	if(b == YY_CURRENT_BUFFER)    /* Not sure if we should pop here. */
+	if (b == YY_CURRENT_BUFFER)   /* Not sure if we should pop here. */
 		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE) 0;
 
-	if(b->yy_is_our_buffer)
+	if (b->yy_is_our_buffer)
 		lev_free((void *) b->yy_ch_buf);
 
 	lev_free((void *) b);
@@ -1760,7 +1760,7 @@ static void lev__init_buffer(YY_BUFFER_STATE  b, FILE * file)
 	 * called from lev_restart() or through yy_get_next_buffer.
 	 * In that case, we don't want to reset the lineno or column.
 	 */
-	if(b != YY_CURRENT_BUFFER)
+	if (b != YY_CURRENT_BUFFER)
 	{
 		b->yy_bs_lineno = 1;
 		b->yy_bs_column = 0;
@@ -1777,7 +1777,7 @@ static void lev__init_buffer(YY_BUFFER_STATE  b, FILE * file)
  */
 void lev__flush_buffer(YY_BUFFER_STATE  b)
 {
-	if(! b)
+	if (! b)
 		return;
 
 	b->yy_n_chars = 0;
@@ -1794,7 +1794,7 @@ void lev__flush_buffer(YY_BUFFER_STATE  b)
 	b->yy_at_bol = 1;
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
-	if(b == YY_CURRENT_BUFFER)
+	if (b == YY_CURRENT_BUFFER)
 		lev__load_buffer_state();
 }
 
@@ -1806,13 +1806,13 @@ void lev__flush_buffer(YY_BUFFER_STATE  b)
  */
 void lev_push_buffer_state(YY_BUFFER_STATE new_buffer)
 {
-	if(new_buffer == NULL)
+	if (new_buffer == NULL)
 		return;
 
 	lev_ensure_buffer_stack();
 
 	/* This block is copied from lev__switch_to_buffer. */
-	if(YY_CURRENT_BUFFER)
+	if (YY_CURRENT_BUFFER)
 	{
 		/* Flush out information for old buffer. */
 		*(yy_c_buf_p) = (yy_hold_char);
@@ -1821,7 +1821,7 @@ void lev_push_buffer_state(YY_BUFFER_STATE new_buffer)
 	}
 
 	/* Only push if top exists. Otherwise, replace top. */
-	if(YY_CURRENT_BUFFER)
+	if (YY_CURRENT_BUFFER)
 		(yy_buffer_stack_top)++;
 
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
@@ -1837,16 +1837,16 @@ void lev_push_buffer_state(YY_BUFFER_STATE new_buffer)
  */
 void lev_pop_buffer_state(void)
 {
-	if(!YY_CURRENT_BUFFER)
+	if (!YY_CURRENT_BUFFER)
 		return;
 
 	lev__delete_buffer(YY_CURRENT_BUFFER);
 	YY_CURRENT_BUFFER_LVALUE = NULL;
 
-	if((yy_buffer_stack_top) > 0)
+	if ((yy_buffer_stack_top) > 0)
 		--(yy_buffer_stack_top);
 
-	if(YY_CURRENT_BUFFER)
+	if (YY_CURRENT_BUFFER)
 	{
 		lev__load_buffer_state();
 		(yy_did_buffer_switch_on_eof) = 1;
@@ -1860,7 +1860,7 @@ static void lev_ensure_buffer_stack(void)
 {
 	int num_to_alloc;
 
-	if(!(yy_buffer_stack))
+	if (!(yy_buffer_stack))
 	{
 
 		/* First allocation is just for 2 elements, since we don't know if this
@@ -1872,7 +1872,7 @@ static void lev_ensure_buffer_stack(void)
 		                    (num_to_alloc * sizeof(struct yy_buffer_state*)
 		                    );
 
-		if(!(yy_buffer_stack))
+		if (!(yy_buffer_stack))
 			YY_FATAL_ERROR("out of dynamic memory in lev_ensure_buffer_stack()");
 
 		memset((yy_buffer_stack), 0, num_to_alloc * sizeof(struct yy_buffer_state*));
@@ -1882,7 +1882,7 @@ static void lev_ensure_buffer_stack(void)
 		return;
 	}
 
-	if((yy_buffer_stack_top) >= ((yy_buffer_stack_max)) - 1)
+	if ((yy_buffer_stack_top) >= ((yy_buffer_stack_max)) - 1)
 	{
 
 		/* Increase the buffer to prepare for a possible push. */
@@ -1894,7 +1894,7 @@ static void lev_ensure_buffer_stack(void)
 		                     num_to_alloc * sizeof(struct yy_buffer_state*)
 		                    );
 
-		if(!(yy_buffer_stack))
+		if (!(yy_buffer_stack))
 			YY_FATAL_ERROR("out of dynamic memory in lev_ensure_buffer_stack()");
 
 		/* zero only the new slots.*/
@@ -1913,7 +1913,7 @@ YY_BUFFER_STATE lev__scan_buffer(char * base, yy_size_t  size)
 {
 	YY_BUFFER_STATE b;
 
-	if(size < 2 ||
+	if (size < 2 ||
 	        base[size - 2] != YY_END_OF_BUFFER_CHAR ||
 	        base[size - 1] != YY_END_OF_BUFFER_CHAR)
 		/* They forgot to leave room for the EOB's. */
@@ -1921,7 +1921,7 @@ YY_BUFFER_STATE lev__scan_buffer(char * base, yy_size_t  size)
 
 	b = (YY_BUFFER_STATE) lev_alloc(sizeof(struct yy_buffer_state));
 
-	if(! b)
+	if (! b)
 		YY_FATAL_ERROR("out of dynamic memory in lev__scan_buffer()");
 
 	b->yy_buf_size = size - 2;	/* "- 2" to take care of EOB's */
@@ -1971,17 +1971,17 @@ YY_BUFFER_STATE lev__scan_bytes(yyconst char * yybytes, int  _yybytes_len)
 	n = _yybytes_len + 2;
 	buf = (char *) lev_alloc(n);
 
-	if(! buf)
+	if (! buf)
 		YY_FATAL_ERROR("out of dynamic memory in lev__scan_bytes()");
 
-	for(i = 0; i < _yybytes_len; ++i)
+	for (i = 0; i < _yybytes_len; ++i)
 		buf[i] = yybytes[i];
 
 	buf[_yybytes_len] = buf[_yybytes_len + 1] = YY_END_OF_BUFFER_CHAR;
 
 	b = lev__scan_buffer(buf, n);
 
-	if(! b)
+	if (! b)
 		YY_FATAL_ERROR("bad buffer in lev__scan_bytes()");
 
 	/* It's okay to grow etc. this buffer, and we should throw it
@@ -2135,7 +2135,7 @@ int lev_lex_destroy(void)
 {
 
 	/* Pop the buffer stack, destroying each element. */
-	while(YY_CURRENT_BUFFER)
+	while (YY_CURRENT_BUFFER)
 	{
 		lev__delete_buffer(YY_CURRENT_BUFFER);
 		YY_CURRENT_BUFFER_LVALUE = NULL;
@@ -2162,7 +2162,7 @@ static void yy_flex_strncpy(char* s1, yyconst char * s2, int n)
 {
 	int i;
 
-	for(i = 0; i < n; ++i)
+	for (i = 0; i < n; ++i)
 		s1[i] = s2[i];
 }
 #endif
@@ -2172,7 +2172,7 @@ static int yy_flex_strlen(yyconst char * s)
 {
 	int n;
 
-	for(n = 0; s[n]; ++n)
+	for (n = 0; s[n]; ++n)
 		;
 
 	return n;

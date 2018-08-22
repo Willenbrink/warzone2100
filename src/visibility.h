@@ -78,22 +78,22 @@ static inline bool visObjInRange(BASE_OBJECT *psObj1, BASE_OBJECT *psObj2, SDWOR
 // jamming range, which we do not want. Rather limit ECM unit sensor range to jammer range.
 static inline int objSensorRange(const BASE_OBJECT *psObj)
 {
-	if(psObj->type == OBJ_DROID)
+	if (psObj->type == OBJ_DROID)
 	{
 		const int ecmrange = asECMStats[((const DROID *)psObj)->asBits[COMP_ECM]].upgrade[psObj->player].range;
 
-		if(ecmrange > 0)
+		if (ecmrange > 0)
 		{
 			return ecmrange;
 		}
 
 		return asSensorStats[((const DROID *)psObj)->asBits[COMP_SENSOR]].upgrade[psObj->player].range;
 	}
-	else if(psObj->type == OBJ_STRUCTURE)
+	else if (psObj->type == OBJ_STRUCTURE)
 	{
 		const int ecmrange = ((const STRUCTURE *)psObj)->pStructureType->pECM->upgrade[psObj->player].range;
 
-		if(ecmrange)
+		if (ecmrange)
 		{
 			return ecmrange;
 		}
@@ -106,11 +106,11 @@ static inline int objSensorRange(const BASE_OBJECT *psObj)
 
 static inline int objJammerPower(const BASE_OBJECT *psObj)
 {
-	if(psObj->type == OBJ_DROID)
+	if (psObj->type == OBJ_DROID)
 	{
 		return asECMStats[((const DROID *)psObj)->asBits[COMP_ECM]].upgrade[psObj->player].range;
 	}
-	else if(psObj->type == OBJ_STRUCTURE)
+	else if (psObj->type == OBJ_STRUCTURE)
 	{
 		return ((const STRUCTURE *)psObj)->pStructureType->pECM->upgrade[psObj->player].range;
 	}

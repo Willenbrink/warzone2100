@@ -201,7 +201,7 @@ bool missionIsOffworld()
 //returns true if the correct type of mission for reinforcements
 bool missionForReInforcements()
 {
-	if(mission.type == LDS_CAMSTART || missionIsOffworld() || mission.type == LDS_CAMCHANGE)
+	if (mission.type == LDS_CAMSTART || missionIsOffworld() || mission.type == LDS_CAMCHANGE)
 	{
 		return true;
 	}
@@ -214,9 +214,9 @@ bool missionForReInforcements()
 //returns true if the correct type of mission and a reinforcement time has been set
 bool missionCanReEnforce()
 {
-	if(mission.ETA >= 0)
+	if (mission.ETA >= 0)
 	{
-		if(missionForReInforcements())
+		if (missionForReInforcements())
 		{
 			return true;
 		}
@@ -237,7 +237,7 @@ void initMission()
 	debug(LOG_SAVE, "*** Init Mission ***");
 	mission.type = LDS_NONE;
 
-	for(int inc = 0; inc < MAX_PLAYERS; inc++)
+	for (int inc = 0; inc < MAX_PLAYERS; inc++)
 	{
 		mission.apsStructLists[inc] = nullptr;
 		mission.apsDroidLists[inc] = nullptr;
@@ -259,24 +259,24 @@ void initMission()
 	mission.mapHeight = 0;
 	mission.mapWidth = 0;
 
-	for(auto &i : mission.psBlockMap)
+	for (auto &i : mission.psBlockMap)
 	{
 		i = nullptr;
 	}
 
-	for(auto &i : mission.psAuxMap)
+	for (auto &i : mission.psAuxMap)
 	{
 		i = nullptr;
 	}
 
 	//init all the landing zones
-	for(auto &inc : sLandingZone)
+	for (auto &inc : sLandingZone)
 	{
 		inc.x1 = inc.y1 = inc.x2 = inc.y2 = 0;
 	}
 
 	// init the vtol return pos
-	for(size_t i = 0; i < MAX_PLAYERS; ++i)
+	for (size_t i = 0; i < MAX_PLAYERS; ++i)
 	{
 		asVTOLReturnPos[i] = Vector2i(0, 0);
 	}
@@ -291,7 +291,7 @@ void initMission()
 // reset the vtol landing pos
 void resetVTOLLandingPos()
 {
-	for(size_t i = 0; i < MAX_PLAYERS; ++i)
+	for (size_t i = 0; i < MAX_PLAYERS; ++i)
 	{
 		asVTOLReturnPos[i] = Vector2i(0, 0);
 	}
@@ -312,7 +312,7 @@ bool missionShutDown()
 {
 	debug(LOG_SAVE, "called, mission is %s", missionIsOffworld() ? "off-world" : "main map");
 
-	if(missionIsOffworld())
+	if (missionIsOffworld())
 	{
 		//clear out the audio
 		audio_StopAll();
@@ -323,7 +323,7 @@ bool missionShutDown()
 		releaseAllProxDisp();
 		gwShutDown();
 
-		for(int inc = 0; inc < MAX_PLAYERS; inc++)
+		for (int inc = 0; inc < MAX_PLAYERS; inc++)
 		{
 			apsDroidLists[inc] = mission.apsDroidLists[inc];
 			mission.apsDroidLists[inc] = nullptr;
@@ -346,14 +346,14 @@ bool missionShutDown()
 		mapWidth = mission.mapWidth;
 		mapHeight = mission.mapHeight;
 
-		for(int i = 0; i < ARRAY_SIZE(mission.psBlockMap); ++i)
+		for (int i = 0; i < ARRAY_SIZE(mission.psBlockMap); ++i)
 		{
 			free(psBlockMap[i]);
 			psBlockMap[i] = mission.psBlockMap[i];
 			mission.psBlockMap[i] = nullptr;
 		}
 
-		for(int i = 0; i < ARRAY_SIZE(mission.psAuxMap); ++i)
+		for (int i = 0; i < ARRAY_SIZE(mission.psAuxMap); ++i)
 		{
 			free(psAuxMap[i]);
 			psAuxMap[i] = mission.psAuxMap[i];
@@ -377,7 +377,7 @@ void setMissionCountDown()
 
 	timeRemaining = mission.time - (gameTime - mission.startTime);
 
-	if(timeRemaining < 0)
+	if (timeRemaining < 0)
 	{
 		timeRemaining = 0;
 	}
@@ -385,27 +385,27 @@ void setMissionCountDown()
 	// Need to init the countdown played each time the mission time is changed
 	missionCountDown = NOT_PLAYED_ONE | NOT_PLAYED_TWO | NOT_PLAYED_THREE | NOT_PLAYED_FIVE | NOT_PLAYED_TEN | NOT_PLAYED_ACTIVATED;
 
-	if(timeRemaining < TEN_MINUTES - 1)
+	if (timeRemaining < TEN_MINUTES - 1)
 	{
 		missionCountDown &= ~NOT_PLAYED_TEN;
 	}
 
-	if(timeRemaining < FIVE_MINUTES - 1)
+	if (timeRemaining < FIVE_MINUTES - 1)
 	{
 		missionCountDown &= ~NOT_PLAYED_FIVE;
 	}
 
-	if(timeRemaining < THREE_MINUTES - 1)
+	if (timeRemaining < THREE_MINUTES - 1)
 	{
 		missionCountDown &= ~NOT_PLAYED_THREE;
 	}
 
-	if(timeRemaining < TWO_MINUTES - 1)
+	if (timeRemaining < TWO_MINUTES - 1)
 	{
 		missionCountDown &= ~NOT_PLAYED_TWO;
 	}
 
-	if(timeRemaining < ONE_MINUTE - 1)
+	if (timeRemaining < ONE_MINUTE - 1)
 	{
 		missionCountDown &= ~NOT_PLAYED_ONE;
 	}
@@ -428,7 +428,7 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 	// this inits the flag so that 'reinforcements have arrived' message isn't played for the first transporter load
 	initFirstTransporterFlag();
 
-	if(mission.type != LDS_NONE)
+	if (mission.type != LDS_NONE)
 	{
 		/*mission type gets set to none when you have returned from a mission
 		so don't want to go another mission when already on one! - so ignore*/
@@ -439,7 +439,7 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 	initEffectsSystem();
 
 	//load the game file for all types of mission except a Between Mission
-	if(missionType != LDS_BETWEEN)
+	if (missionType != LDS_BETWEEN)
 	{
 		loadGameInit(pGame);
 	}
@@ -447,10 +447,10 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 	//all proximity messages are removed between missions now
 	releaseAllProxDisp();
 
-	switch(missionType)
+	switch (missionType)
 	{
 		case LDS_CAMSTART:
-			if(!startMissionCampaignStart(pGame))
+			if (!startMissionCampaignStart(pGame))
 			{
 				loaded = false;
 			}
@@ -459,7 +459,7 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 
 		case LDS_MKEEP:
 		case LDS_MKEEP_LIMBO:
-			if(!startMissionOffKeep(pGame))
+			if (!startMissionOffKeep(pGame))
 			{
 				loaded = false;
 			}
@@ -469,7 +469,7 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 		case LDS_BETWEEN:
 
 			//do anything?
-			if(!startMissionBetween())
+			if (!startMissionBetween())
 			{
 				loaded = false;
 			}
@@ -477,7 +477,7 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 			break;
 
 		case LDS_CAMCHANGE:
-			if(!startMissionCampaignChange(pGame))
+			if (!startMissionCampaignChange(pGame))
 			{
 				loaded = false;
 			}
@@ -485,7 +485,7 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 			break;
 
 		case LDS_EXPAND:
-			if(!startMissionCampaignExpand(pGame))
+			if (!startMissionCampaignExpand(pGame))
 			{
 				loaded = false;
 			}
@@ -493,7 +493,7 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 			break;
 
 		case LDS_EXPAND_LIMBO:
-			if(!startMissionCampaignExpandLimbo(pGame))
+			if (!startMissionCampaignExpandLimbo(pGame))
 			{
 				loaded = false;
 			}
@@ -501,7 +501,7 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 			break;
 
 		case LDS_MCLEAR:
-			if(!startMissionOffClear(pGame))
+			if (!startMissionOffClear(pGame))
 			{
 				loaded = false;
 			}
@@ -515,7 +515,7 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 			loaded = false;
 	}
 
-	if(!loaded)
+	if (!loaded)
 	{
 		debug(LOG_ERROR, "Failed to start mission, missiontype = %d, game, %s", (int)missionType, pGame);
 		return false;
@@ -523,13 +523,13 @@ bool startMission(LEVEL_TYPE missionType, char *pGame)
 
 	mission.type = missionType;
 
-	if(missionIsOffworld())
+	if (missionIsOffworld())
 	{
 		//add what power have got from the home base
 		adjustMissionPower();
 	}
 
-	if(missionCanReEnforce())
+	if (missionCanReEnforce())
 	{
 		//add mission timer - if necessary
 		addMissionTimerInterface();
@@ -558,13 +558,13 @@ the display*/
 void addMissionTimerInterface()
 {
 	//don't add if the timer hasn't been set
-	if(mission.time < 0 && !challengeActive)
+	if (mission.time < 0 && !challengeActive)
 	{
 		return;
 	}
 
 	//check timer is not already on the screen
-	if(!widgGetFromID(psWScreen, IDTIMER_FORM))
+	if (!widgGetFromID(psWScreen, IDTIMER_FORM))
 	{
 		intAddMissionTimer();
 	}
@@ -579,24 +579,24 @@ void addTransporterTimerInterface()
 	W_CLICKFORM     *psForm;
 
 	//check if reinforcements are allowed
-	if(mission.ETA >= 0)
+	if (mission.ETA >= 0)
 	{
 		//check the player has at least one Transporter back at base
-		for(DROID *psDroid = mission.apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+		for (DROID *psDroid = mission.apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 		{
-			if(isTransporter(psDroid))
+			if (isTransporter(psDroid))
 			{
 				psTransporter = psDroid;
 				break;
 			}
 		}
 
-		if(psTransporter)
+		if (psTransporter)
 		{
 			bAddInterface = true;
 
 			//check timer is not already on the screen
-			if(!widgGetFromID(psWScreen, IDTRANTIMER_BUTTON))
+			if (!widgGetFromID(psWScreen, IDTRANTIMER_BUTTON))
 			{
 				intAddTransporterTimer();
 			}
@@ -605,12 +605,12 @@ void addTransporterTimerInterface()
 			widgSetUserData(psWScreen, IDTRANTIMER_DISPLAY, (void *)psTransporter);
 
 			// lock the button if necessary
-			if(transporterFlying(psTransporter))
+			if (transporterFlying(psTransporter))
 			{
 				// disable the form so can't add any more droids into the transporter
 				psForm = (W_CLICKFORM *)widgGetFromID(psWScreen, IDTRANTIMER_BUTTON);
 
-				if(psForm)
+				if (psForm)
 				{
 					psForm->setState(WBUT_LOCK);
 				}
@@ -619,7 +619,7 @@ void addTransporterTimerInterface()
 	}
 
 	// if criteria not met
-	if(!bAddInterface)
+	if (!bAddInterface)
 	{
 		// make sure its not there!
 		intRemoveTransporterTimer();
@@ -635,7 +635,7 @@ void missionGetNearestCorner(UWORD iX, UWORD iY, UWORD *piOffX, UWORD *piOffY)
 	UDWORD	iMidX = (scrollMinX + scrollMaxX) / 2,
 	        iMidY = (scrollMinY + scrollMaxY) / 2;
 
-	if(map_coord(iX) < iMidX)
+	if (map_coord(iX) < iMidX)
 	{
 		*piOffX = (UWORD)(world_coord(scrollMinX) + (EDGE_SIZE * TILE_UNITS));
 	}
@@ -644,7 +644,7 @@ void missionGetNearestCorner(UWORD iX, UWORD iY, UWORD *piOffX, UWORD *piOffY)
 		*piOffX = (UWORD)(world_coord(scrollMaxX) - (EDGE_SIZE * TILE_UNITS));
 	}
 
-	if(map_coord(iY) < iMidY)
+	if (map_coord(iY) < iMidY)
 	{
 		*piOffY = (UWORD)(world_coord(scrollMinY) + (EDGE_SIZE * TILE_UNITS));
 	}
@@ -671,15 +671,15 @@ void missionFlyTransportersIn(SDWORD iPlayer, bool bTrackTransporter)
 	psNext = nullptr;
 
 	//get the droids for the mission
-	for(psTransporter = mission.apsDroidLists[iPlayer]; psTransporter != nullptr; psTransporter = psNext)
+	for (psTransporter = mission.apsDroidLists[iPlayer]; psTransporter != nullptr; psTransporter = psNext)
 	{
 		psNext = psTransporter->psNext;
 
 		// FIXME: When we convert campaign scripts to use DROID_SUPERTRANSPORTER
-		if(psTransporter->droidType == DROID_TRANSPORTER)
+		if (psTransporter->droidType == DROID_TRANSPORTER)
 		{
 			// Check that this transporter actually contains some droids
-			if(psTransporter->psGroup && psTransporter->psGroup->refCount > 1)
+			if (psTransporter->psGroup && psTransporter->psGroup->refCount > 1)
 			{
 				// Remove map information from previous map
 				free(psTransporter->watchedTiles);
@@ -687,7 +687,7 @@ void missionFlyTransportersIn(SDWORD iPlayer, bool bTrackTransporter)
 				psTransporter->numWatchedTiles = 0;
 
 				// Remove out of stored list and add to current Droid list
-				if(droidRemove(psTransporter, mission.apsDroidLists))
+				if (droidRemove(psTransporter, mission.apsDroidLists))
 				{
 					// Do not want to add it unless managed to remove it from the previous list
 					addDroid(psTransporter, apsDroidLists);
@@ -705,12 +705,12 @@ void missionFlyTransportersIn(SDWORD iPlayer, bool bTrackTransporter)
 				psTransporter->rot.direction = iAtan2(iDx, iDy);
 
 				// Camera track requested and it's the selected player.
-				if((bTrackTransporter == true) && (iPlayer == (SDWORD)selectedPlayer))
+				if ((bTrackTransporter == true) && (iPlayer == (SDWORD)selectedPlayer))
 				{
 					/* deselect all droids */
 					selDroidDeselect(selectedPlayer);
 
-					if(getWarCamStatus())
+					if (getWarCamStatus())
 					{
 						camToggleStatus();
 					}
@@ -753,12 +753,12 @@ static void saveMissionData()
 	mission.mapWidth = mapWidth;
 	mission.mapHeight = mapHeight;
 
-	for(int i = 0; i < ARRAY_SIZE(mission.psBlockMap); ++i)
+	for (int i = 0; i < ARRAY_SIZE(mission.psBlockMap); ++i)
 	{
 		mission.psBlockMap[i] = psBlockMap[i];
 	}
 
-	for(int i = 0; i < ARRAY_SIZE(mission.psAuxMap); ++i)
+	for (int i = 0; i < ARRAY_SIZE(mission.psAuxMap); ++i)
 	{
 		mission.psAuxMap[i] = psAuxMap[i];
 	}
@@ -775,14 +775,14 @@ static void saveMissionData()
 	bRepairExists = false;
 
 	//set any structures currently being built to completed for the selected player
-	for(psStruct = apsStructLists[selectedPlayer]; psStruct; psStruct = psStruct->psNext)
+	for (psStruct = apsStructLists[selectedPlayer]; psStruct; psStruct = psStruct->psNext)
 	{
-		if(psStruct->status == SS_BEING_BUILT)
+		if (psStruct->status == SS_BEING_BUILT)
 		{
 			//find a droid working on it
-			for(psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+			for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 			{
-				if((psStructBeingBuilt = (STRUCTURE *)orderStateObj(psDroid, DORDER_BUILD))
+				if ((psStructBeingBuilt = (STRUCTURE *)orderStateObj(psDroid, DORDER_BUILD))
 				        && psStructBeingBuilt == psStruct)
 				{
 					// just give it all its build points
@@ -794,18 +794,18 @@ static void saveMissionData()
 		}
 
 		//check if have a completed repair facility on home world
-		if(psStruct->pStructureType->type == REF_REPAIR_FACILITY && psStruct->status == SS_BUILT)
+		if (psStruct->pStructureType->type == REF_REPAIR_FACILITY && psStruct->status == SS_BUILT)
 		{
 			bRepairExists = true;
 		}
 	}
 
 	//repair all droids back at home base if have a repair facility
-	if(bRepairExists)
+	if (bRepairExists)
 	{
-		for(psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+		for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 		{
-			if(droidIsDamaged(psDroid))
+			if (droidIsDamaged(psDroid))
 			{
 				psDroid->body = psDroid->originalBody;
 			}
@@ -813,11 +813,11 @@ static void saveMissionData()
 	}
 
 	//clear droid orders for all droids except constructors still building
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+	for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 	{
-		if((psStructBeingBuilt = (STRUCTURE *)orderStateObj(psDroid, DORDER_BUILD)))
+		if ((psStructBeingBuilt = (STRUCTURE *)orderStateObj(psDroid, DORDER_BUILD)))
 		{
-			if(psStructBeingBuilt->status == SS_BUILT)
+			if (psStructBeingBuilt->status == SS_BUILT)
 			{
 				orderDroid(psDroid, DORDER_STOP, ModeImmediate);
 			}
@@ -828,7 +828,7 @@ static void saveMissionData()
 		}
 	}
 
-	for(inc = 0; inc < MAX_PLAYERS; inc++)
+	for (inc = 0; inc < MAX_PLAYERS; inc++)
 	{
 		mission.apsStructLists[inc] = apsStructLists[inc];
 		mission.apsDroidLists[inc] = apsDroidLists[inc];
@@ -879,19 +879,19 @@ void restoreMissionData()
 	freeAllFeatures();
 	gwShutDown();
 
-	if(game.type != CAMPAIGN)
+	if (game.type != CAMPAIGN)
 	{
 		ASSERT(false, "game type isn't campaign, but we are in a campaign game!");
 		game.type = CAMPAIGN;	// fix the issue, since it is obviously a bug
 	}
 
 	//restore the game pointers
-	for(inc = 0; inc < MAX_PLAYERS; inc++)
+	for (inc = 0; inc < MAX_PLAYERS; inc++)
 	{
 		apsDroidLists[inc] = mission.apsDroidLists[inc];
 		mission.apsDroidLists[inc] = nullptr;
 
-		for(psObj = (BASE_OBJECT *)apsDroidLists[inc]; psObj; psObj = psObj->psNext)
+		for (psObj = (BASE_OBJECT *)apsDroidLists[inc]; psObj; psObj = psObj->psNext)
 		{
 			psObj->died = false;	//make sure the died flag is not set
 		}
@@ -919,13 +919,13 @@ void restoreMissionData()
 	mapWidth = mission.mapWidth;
 	mapHeight = mission.mapHeight;
 
-	for(int i = 0; i < ARRAY_SIZE(mission.psBlockMap); ++i)
+	for (int i = 0; i < ARRAY_SIZE(mission.psBlockMap); ++i)
 	{
 		psBlockMap[i] = mission.psBlockMap[i];
 		mission.psBlockMap[i] = nullptr;
 	}
 
-	for(int i = 0; i < ARRAY_SIZE(mission.psAuxMap); ++i)
+	for (int i = 0; i < ARRAY_SIZE(mission.psAuxMap); ++i)
 	{
 		psAuxMap[i] = mission.psAuxMap[i];
 		mission.psAuxMap[i] = nullptr;
@@ -973,11 +973,11 @@ void saveMissionLimboData()
 	processPreviousCampDroids();
 
 	// move droids properly - does all the clean up code
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
+	for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
 	{
 		psNext = psDroid->psNext;
 
-		if(droidRemove(psDroid, apsDroidLists))
+		if (droidRemove(psDroid, apsDroidLists))
 		{
 			addDroid(psDroid, mission.apsDroidLists);
 		}
@@ -986,13 +986,13 @@ void saveMissionLimboData()
 	apsDroidLists[selectedPlayer] = nullptr;
 
 	// any selectedPlayer's factories/research need to be put on holdProduction/holdresearch
-	for(psStruct = apsStructLists[selectedPlayer]; psStruct != nullptr; psStruct = psStruct->psNext)
+	for (psStruct = apsStructLists[selectedPlayer]; psStruct != nullptr; psStruct = psStruct->psNext)
 	{
-		if(StructIsFactory(psStruct))
+		if (StructIsFactory(psStruct))
 		{
 			holdProduction(psStruct, ModeImmediate);
 		}
-		else if(psStruct->pStructureType->type == REF_RESEARCH)
+		else if (psStruct->pStructureType->type == REF_RESEARCH)
 		{
 			holdResearch(psStruct, ModeImmediate);
 		}
@@ -1009,16 +1009,16 @@ void placeLimboDroids()
 	debug(LOG_SAVE, "called");
 
 	// Copy the droids across for the selected Player
-	for(psDroid = apsLimboDroids[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
+	for (psDroid = apsLimboDroids[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
 	{
 		psNext = psDroid->psNext;
 
-		if(droidRemove(psDroid, apsLimboDroids))
+		if (droidRemove(psDroid, apsLimboDroids))
 		{
 			addDroid(psDroid, apsDroidLists);
 
 			//KILL OFF TRANSPORTER - should never be one but....
-			if(isTransporter(psDroid))
+			if (isTransporter(psDroid))
 			{
 				vanishDroid(psDroid);
 				continue;
@@ -1029,7 +1029,7 @@ void placeLimboDroids()
 			droidY = map_coord(getLandingY(LIMBO_LANDING));
 			pickRes = pickHalfATile(&droidX, &droidY, LOOK_FOR_EMPTY_TILE);
 
-			if(pickRes == NO_FREE_TILE)
+			if (pickRes == NO_FREE_TILE)
 			{
 				ASSERT(false, "placeLimboUnits: Unable to find a free location");
 			}
@@ -1063,12 +1063,12 @@ void restoreMissionLimboData()
 
 	/*the droids stored in the mission droid list need to be added back
 	into the current droid list*/
-	for(psDroid = mission.apsDroidLists[selectedPlayer]; psDroid; psDroid = psNext)
+	for (psDroid = mission.apsDroidLists[selectedPlayer]; psDroid; psDroid = psNext)
 	{
 		psNext = psDroid->psNext;
 
 		//remove out of stored list and add to current Droid list
-		if(droidRemove(psDroid, mission.apsDroidLists))
+		if (droidRemove(psDroid, mission.apsDroidLists))
 		{
 			addDroid(psDroid, apsDroidLists);
 			//reset droid orders
@@ -1089,21 +1089,21 @@ void saveCampaignData()
 	debug(LOG_SAVE, "called");
 
 	// If the droids have been moved to safety then get any Transporters that exist
-	if(getDroidsToSafetyFlag())
+	if (getDroidsToSafetyFlag())
 	{
 		// Move any Transporters into the mission list
 		psDroid = apsDroidLists[selectedPlayer];
 
-		while(psDroid != nullptr)
+		while (psDroid != nullptr)
 		{
 			psNext = psDroid->psNext;
 
-			if(isTransporter(psDroid))
+			if (isTransporter(psDroid))
 			{
 				// Empty the transporter into the mission list
 				ASSERT_OR_RETURN(, psDroid->psGroup != nullptr, "Transporter does not have a group");
 
-				for(psCurr = psDroid->psGroup->psList; psCurr != nullptr && psCurr != psDroid; psCurr = psCurrNext)
+				for (psCurr = psDroid->psGroup->psList; psCurr != nullptr && psCurr != psDroid; psCurr = psCurrNext)
 				{
 					psCurrNext = psCurr->psGrpNext;
 					// Remove it from the transporter group
@@ -1116,7 +1116,7 @@ void saveCampaignData()
 				}
 
 				// Remove the transporter from the current list
-				if(droidRemove(psDroid, apsDroidLists))
+				if (droidRemove(psDroid, apsDroidLists))
 				{
 					//cam change add droid
 					psDroid->pos.x = INVALID_XY;
@@ -1135,7 +1135,7 @@ void saveCampaignData()
 		apsDroidLists[selectedPlayer] = nullptr;
 		psDroid = mission.apsDroidLists[selectedPlayer];
 
-		while(psDroid != nullptr)
+		while (psDroid != nullptr)
 		{
 			//cam change add droid
 			psDroid->pos.x = INVALID_XY;
@@ -1145,28 +1145,28 @@ void saveCampaignData()
 	}
 
 	//if the droids have been moved to safety then get any Transporters that exist
-	if(getDroidsToSafetyFlag())
+	if (getDroidsToSafetyFlag())
 	{
 		/*now that every unit for the selected player has been moved into the
 		mission list - reverse it and fill the transporter with the first ten units*/
 		reverseObjectList(&mission.apsDroidLists[selectedPlayer]);
 
 		//find the *first* transporter
-		for(psDroid = mission.apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+		for (psDroid = mission.apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 		{
-			if(isTransporter(psDroid))
+			if (isTransporter(psDroid))
 			{
 				//fill it with droids from the mission list
-				for(psSafeDroid = mission.apsDroidLists[selectedPlayer]; psSafeDroid; psSafeDroid = psNextSafe)
+				for (psSafeDroid = mission.apsDroidLists[selectedPlayer]; psSafeDroid; psSafeDroid = psNextSafe)
 				{
 					psNextSafe = psSafeDroid->psNext;
 
-					if(psSafeDroid != psDroid)
+					if (psSafeDroid != psDroid)
 					{
 						//add to the Transporter, checking for when full
-						if(checkTransporterSpace(psDroid, psSafeDroid))
+						if (checkTransporterSpace(psDroid, psSafeDroid))
 						{
-							if(droidRemove(psSafeDroid, mission.apsDroidLists))
+							if (droidRemove(psSafeDroid, mission.apsDroidLists))
 							{
 								psDroid->psGroup->add(psSafeDroid);
 							}
@@ -1186,11 +1186,11 @@ void saveCampaignData()
 	}
 
 	//clear all other droids
-	for(int inc = 0; inc < MAX_PLAYERS; inc++)
+	for (int inc = 0; inc < MAX_PLAYERS; inc++)
 	{
 		psDroid = apsDroidLists[inc];
 
-		while(psDroid != nullptr)
+		while (psDroid != nullptr)
 		{
 			psNext = psDroid->psNext;
 			vanishDroid(psDroid);
@@ -1215,7 +1215,7 @@ bool startMissionOffClear(char *pGame)
 	saveMissionData();
 
 	//load in the new game clearing the lists
-	if(!loadGame(pGame, !KEEPOBJECTS, !FREEMEM, false))
+	if (!loadGame(pGame, !KEEPOBJECTS, !FREEMEM, false))
 	{
 		return false;
 	}
@@ -1236,7 +1236,7 @@ bool startMissionOffKeep(char *pGame)
 	saveMissionData();
 
 	//load in the new game clearing the lists
-	if(!loadGame(pGame, !KEEPOBJECTS, !FREEMEM, false))
+	if (!loadGame(pGame, !KEEPOBJECTS, !FREEMEM, false))
 	{
 		return false;
 	}
@@ -1261,7 +1261,7 @@ bool startMissionCampaignStart(char *pGame)
 	clearCampaignUnits();
 
 	// Load in the new game details
-	if(!loadGame(pGame, !KEEPOBJECTS, FREEMEM, false))
+	if (!loadGame(pGame, !KEEPOBJECTS, FREEMEM, false))
 	{
 		return false;
 	}
@@ -1285,7 +1285,7 @@ bool startMissionCampaignChange(char *pGame)
 	saveCampaignData();
 
 	//load in the new game details
-	if(!loadGame(pGame, !KEEPOBJECTS, !FREEMEM, false))
+	if (!loadGame(pGame, !KEEPOBJECTS, !FREEMEM, false))
 	{
 		return false;
 	}
@@ -1299,7 +1299,7 @@ bool startMissionCampaignChange(char *pGame)
 bool startMissionCampaignExpand(char *pGame)
 {
 	//load in the new game details
-	if(!loadGame(pGame, KEEPOBJECTS, !FREEMEM, false))
+	if (!loadGame(pGame, KEEPOBJECTS, !FREEMEM, false))
 	{
 		return false;
 	}
@@ -1313,7 +1313,7 @@ bool startMissionCampaignExpandLimbo(char *pGame)
 	saveMissionLimboData();
 
 	//load in the new game details
-	if(!loadGame(pGame, KEEPOBJECTS, !FREEMEM, false))
+	if (!loadGame(pGame, KEEPOBJECTS, !FREEMEM, false))
 	{
 		return false;
 	}
@@ -1333,7 +1333,7 @@ static bool startMissionBetween()
 //check no units left with any settings that are invalid
 static void clearCampaignUnits()
 {
-	for(DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for (DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
 		orderDroid(psDroid, DORDER_STOP, ModeImmediate);
 		setDroidBase(psDroid, nullptr);
@@ -1351,7 +1351,7 @@ static void processMission()
 	PICKTILE		pickRes;
 
 	//and the rest on the mission map  - for now?
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
+	for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
 	{
 		psNext = psDroid->psNext;
 		//reset order - do this to all the droids that are returning from offWorld
@@ -1360,7 +1360,7 @@ static void processMission()
 		visRemoveVisibility((BASE_OBJECT *)psDroid);
 
 		//remove out of stored list and add to current Droid list
-		if(droidRemove(psDroid, apsDroidLists))
+		if (droidRemove(psDroid, apsDroidLists))
 		{
 			int	x, y;
 
@@ -1396,25 +1396,25 @@ void processMissionLimbo()
 	UDWORD	numDroidsAddedToLimboList = 0;
 
 	//all droids (for selectedPlayer only) are placed into the limbo list
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
+	for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
 	{
 		psNext = psDroid->psNext;
 
 		//KILL OFF TRANSPORTER - should never be one but....
-		if(isTransporter(psDroid))
+		if (isTransporter(psDroid))
 		{
 			vanishDroid(psDroid);
 		}
 		else
 		{
-			if(numDroidsAddedToLimboList >= MAXLIMBODROIDS)		// any room in limbo list
+			if (numDroidsAddedToLimboList >= MAXLIMBODROIDS)		// any room in limbo list
 			{
 				vanishDroid(psDroid);
 			}
 			else
 			{
 				// Remove out of stored list and add to current Droid list
-				if(droidRemove(psDroid, apsDroidLists))
+				if (droidRemove(psDroid, apsDroidLists))
 				{
 					// Limbo list invalidate XY
 					psDroid->pos.x = INVALID_XY;
@@ -1442,12 +1442,12 @@ void swapMissionPointers()
 	std::swap(mapWidth,   mission.mapWidth);
 	std::swap(mapHeight,  mission.mapHeight);
 
-	for(int i = 0; i < ARRAY_SIZE(mission.psBlockMap); ++i)
+	for (int i = 0; i < ARRAY_SIZE(mission.psBlockMap); ++i)
 	{
 		std::swap(psBlockMap[i], mission.psBlockMap[i]);
 	}
 
-	for(int i = 0; i < ARRAY_SIZE(mission.psAuxMap); ++i)
+	for (int i = 0; i < ARRAY_SIZE(mission.psAuxMap); ++i)
 	{
 		std::swap(psAuxMap[i],   mission.psAuxMap[i]);
 	}
@@ -1459,7 +1459,7 @@ void swapMissionPointers()
 	std::swap(scrollMaxX, mission.scrollMaxX);
 	std::swap(scrollMaxY, mission.scrollMaxY);
 
-	for(unsigned inc = 0; inc < MAX_PLAYERS; inc++)
+	for (unsigned inc = 0; inc < MAX_PLAYERS; inc++)
 	{
 		std::swap(apsDroidLists[inc],     mission.apsDroidLists[inc]);
 		std::swap(apsStructLists[inc],    mission.apsStructLists[inc]);
@@ -1474,14 +1474,14 @@ void swapMissionPointers()
 
 void endMission()
 {
-	if(mission.type == LDS_NONE)
+	if (mission.type == LDS_NONE)
 	{
 		//can't go back any further!!
 		debug(LOG_SAVE, "Already returned from mission");
 		return;
 	}
 
-	switch(mission.type)
+	switch (mission.type)
 	{
 		case LDS_CAMSTART:
 			//any transporters that are flying in need to be emptied
@@ -1537,7 +1537,7 @@ void endMission()
 			abort();
 	}
 
-	if(missionCanReEnforce())  //mission.type == LDS_MCLEAR || mission.type == LDS_MKEEP)
+	if (missionCanReEnforce()) //mission.type == LDS_MCLEAR || mission.type == LDS_MKEEP)
 	{
 		intRemoveMissionTimer();
 		intRemoveTransporterTimer();
@@ -1627,14 +1627,14 @@ void missionDroidUpdate(DROID *psDroid)
 	/*This is required for Transporters that are moved offWorld so the
 	saveGame doesn't try to set their position in the map - especially important
 	for endCam2 where there isn't a valid map!*/
-	if(isTransporter(psDroid))
+	if (isTransporter(psDroid))
 	{
 		psDroid->pos.x = INVALID_XY;
 		psDroid->pos.y = INVALID_XY;
 	}
 
 	//ignore all droids except Transporters
-	if(!isTransporter(psDroid)
+	if (!isTransporter(psDroid)
 	        || !(orderState(psDroid, DORDER_TRANSPORTOUT)  ||
 	             orderState(psDroid, DORDER_TRANSPORTIN)     ||
 	             orderState(psDroid, DORDER_TRANSPORTRETURN)))
@@ -1658,12 +1658,12 @@ static void missionResetDroids()
 {
 	debug(LOG_SAVE, "called");
 
-	for(unsigned int player = 0; player < MAX_PLAYERS; player++)
+	for (unsigned int player = 0; player < MAX_PLAYERS; player++)
 	{
-		for(DROID *psDroid = apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+		for (DROID *psDroid = apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
 		{
 			// Reset order - unless constructor droid that is mid-build
-			if((psDroid->droidType == DROID_CONSTRUCT
+			if ((psDroid->droidType == DROID_CONSTRUCT
 			        || psDroid->droidType == DROID_CYBORG_CONSTRUCT)
 			        && orderStateObj(psDroid, DORDER_BUILD))
 			{
@@ -1676,36 +1676,36 @@ static void missionResetDroids()
 			}
 
 			//KILL OFF TRANSPORTER
-			if(isTransporter(psDroid))
+			if (isTransporter(psDroid))
 			{
 				vanishDroid(psDroid);
 			}
 		}
 	}
 
-	for(DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+	for (DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 	{
 		bool	placed = false;
 
 		//for all droids that have never left home base
-		if(psDroid->pos.x == INVALID_XY && psDroid->pos.y == INVALID_XY)
+		if (psDroid->pos.x == INVALID_XY && psDroid->pos.y == INVALID_XY)
 		{
 			STRUCTURE	*psStruct = psDroid->psBaseStruct;
 			FACTORY		*psFactory = nullptr;
 
-			if(psStruct && StructIsFactory(psStruct))
+			if (psStruct && StructIsFactory(psStruct))
 			{
 				psFactory = (FACTORY *)psStruct->pFunctionality;
 			}
 
 			//find a location next to the factory
-			if(psFactory)
+			if (psFactory)
 			{
 				PICKTILE	pickRes;
 				UDWORD		x, y;
 
 				// Use factory DP if one
-				if(psFactory->psAssemblyPoint)
+				if (psFactory->psAssemblyPoint)
 				{
 					x = map_coord(psFactory->psAssemblyPoint->coords.x);
 					y = map_coord(psFactory->psAssemblyPoint->coords.y);
@@ -1718,7 +1718,7 @@ static void missionResetDroids()
 
 				pickRes = pickHalfATile(&x, &y, LOOK_FOR_EMPTY_TILE);
 
-				if(pickRes == NO_FREE_TILE)
+				if (pickRes == NO_FREE_TILE)
 				{
 					ASSERT(false, "missionResetUnits: Unable to find a free location");
 					psStruct = nullptr;
@@ -1734,15 +1734,15 @@ static void missionResetDroids()
 			}
 			else // if couldn't find the factory - try to place near HQ instead
 			{
-				for(psStruct = apsStructLists[psDroid->player]; psStruct != nullptr; psStruct = psStruct->psNext)
+				for (psStruct = apsStructLists[psDroid->player]; psStruct != nullptr; psStruct = psStruct->psNext)
 				{
-					if(psStruct->pStructureType->type == REF_HQ)
+					if (psStruct->pStructureType->type == REF_HQ)
 					{
 						UDWORD		x = map_coord(psStruct->pos.x);
 						UDWORD		y = map_coord(psStruct->pos.y);
 						PICKTILE	pickRes = pickHalfATile(&x, &y, LOOK_FOR_EMPTY_TILE);
 
-						if(pickRes == NO_FREE_TILE)
+						if (pickRes == NO_FREE_TILE)
 						{
 							ASSERT(false, "missionResetUnits: Unable to find a free location");
 							psStruct = nullptr;
@@ -1761,11 +1761,11 @@ static void missionResetDroids()
 				}
 			}
 
-			if(placed)
+			if (placed)
 			{
 				// Do all the things in build droid that never did when it was built!
 				// check the droid is a reasonable distance from the edge of the map
-				if(psDroid->pos.x <= world_coord(EDGE_SIZE) ||
+				if (psDroid->pos.x <= world_coord(EDGE_SIZE) ||
 				        psDroid->pos.y <= world_coord(EDGE_SIZE) ||
 				        psDroid->pos.x >= world_coord(mapWidth - EDGE_SIZE) ||
 				        psDroid->pos.y >= world_coord(mapHeight - EDGE_SIZE))
@@ -1776,7 +1776,7 @@ static void missionResetDroids()
 				}
 
 				// People always stand upright
-				if(psDroid->droidType != DROID_PERSON && !cyborgDroid(psDroid))
+				if (psDroid->droidType != DROID_PERSON && !cyborgDroid(psDroid))
 				{
 					updateDroidOrientation(psDroid);
 				}
@@ -1805,7 +1805,7 @@ void unloadTransporter(DROID *psTransporter, UDWORD x, UDWORD y, bool goingHome)
 
 	ASSERT_OR_RETURN(, psTransporter != nullptr, "Invalid transporter");
 
-	if(goingHome)
+	if (goingHome)
 	{
 		ppCurrentList = mission.apsDroidLists;
 	}
@@ -1815,9 +1815,9 @@ void unloadTransporter(DROID *psTransporter, UDWORD x, UDWORD y, bool goingHome)
 	}
 
 	//unload all the droids from within the current Transporter
-	if(isTransporter(psTransporter))
+	if (isTransporter(psTransporter))
 	{
-		for(psDroid = psTransporter->psGroup->psList; psDroid != nullptr && psDroid != psTransporter; psDroid = psNext)
+		for (psDroid = psTransporter->psGroup->psList; psDroid != nullptr && psDroid != psTransporter; psDroid = psNext)
 		{
 			psNext = psDroid->psGrpNext;
 			//add it back into current droid lists
@@ -1827,13 +1827,13 @@ void unloadTransporter(DROID *psTransporter, UDWORD x, UDWORD y, bool goingHome)
 			droidX = map_coord(x);
 			droidY = map_coord(y);
 
-			if(goingHome)
+			if (goingHome)
 			{
 				//swap the droid and map pointers
 				swapMissionPointers();
 			}
 
-			if(!pickATileGen(&droidX, &droidY, LOOK_FOR_EMPTY_TILE, zonedPAT))
+			if (!pickATileGen(&droidX, &droidY, LOOK_FOR_EMPTY_TILE, zonedPAT))
 			{
 				ASSERT(false, "unloadTransporter: Unable to find a valid location");
 				return;
@@ -1843,7 +1843,7 @@ void unloadTransporter(DROID *psTransporter, UDWORD x, UDWORD y, bool goingHome)
 			updateDroidOrientation(psDroid);
 
 			// a commander needs to get it's group back
-			if(psDroid->droidType == DROID_COMMAND)
+			if (psDroid->droidType == DROID_COMMAND)
 			{
 				psGroup = grpCreate();
 				psGroup->add(psDroid);
@@ -1854,13 +1854,13 @@ void unloadTransporter(DROID *psTransporter, UDWORD x, UDWORD y, bool goingHome)
 			orderDroid(psDroid, DORDER_STOP, ModeImmediate);
 			psDroid->selected = false;
 
-			if(!bMultiPlayer)
+			if (!bMultiPlayer)
 			{
 				// So VTOLs don't try to rearm on another map
 				setDroidBase(psDroid, nullptr);
 			}
 
-			if(goingHome)
+			if (goingHome)
 			{
 				//swap the droid and map pointers
 				swapMissionPointers();
@@ -1874,7 +1874,7 @@ void unloadTransporter(DROID *psTransporter, UDWORD x, UDWORD y, bool goingHome)
 		transporterSetScriptCurrent(nullptr);
 
 		/* remove droids from transporter group if not already transferred to script group */
-		for(psDroid = psTransporter->psGroup->psList; psDroid != nullptr
+		for (psDroid = psTransporter->psGroup->psList; psDroid != nullptr
 		        && psDroid != psTransporter; psDroid = psNext)
 		{
 			psNext = psDroid->psGrpNext;
@@ -1883,10 +1883,10 @@ void unloadTransporter(DROID *psTransporter, UDWORD x, UDWORD y, bool goingHome)
 	}
 
 	// Don't do this in multiPlayer
-	if(!bMultiPlayer)
+	if (!bMultiPlayer)
 	{
 		// Send all transporter Droids back to home base if off world
-		if(!goingHome)
+		if (!goingHome)
 		{
 			/* Stop the camera following the transporter */
 			psTransporter->selected = false;
@@ -1908,7 +1908,7 @@ void missionMoveTransporterOffWorld(DROID *psTransporter)
 	DROID           *psDroid;
 
 	// FIXME: When we convert campaign scripts, use DROID_SUPERTRANSPORTER
-	if(psTransporter->droidType == DROID_TRANSPORTER)
+	if (psTransporter->droidType == DROID_TRANSPORTER)
 	{
 		/* trigger script callback */
 		transporterSetScriptCurrent(psTransporter);
@@ -1916,7 +1916,7 @@ void missionMoveTransporterOffWorld(DROID *psTransporter)
 		triggerEvent(TRIGGER_TRANSPORTER_EXIT, psTransporter);
 		transporterSetScriptCurrent(nullptr);
 
-		if(droidRemove(psTransporter, apsDroidLists))
+		if (droidRemove(psTransporter, apsDroidLists))
 		{
 			addDroid(psTransporter, mission.apsDroidLists);
 		}
@@ -1926,7 +1926,7 @@ void missionMoveTransporterOffWorld(DROID *psTransporter)
 
 		//if offworld mission, then add the timer
 		//if (mission.type == LDS_MKEEP || mission.type == LDS_MCLEAR)
-		if(missionCanReEnforce() && psTransporter->player == selectedPlayer)
+		if (missionCanReEnforce() && psTransporter->player == selectedPlayer)
 		{
 			addTransporterTimerInterface();
 			//set the data for the transporter timer label
@@ -1935,26 +1935,26 @@ void missionMoveTransporterOffWorld(DROID *psTransporter)
 			//make sure the button is enabled
 			psForm = (W_CLICKFORM *)widgGetFromID(psWScreen, IDTRANTIMER_BUTTON);
 
-			if(psForm)
+			if (psForm)
 			{
 				psForm->setState(WBUT_PLAIN);
 			}
 		}
 
 		//need a callback for when all the selectedPlayers' reinforcements have been delivered
-		if(psTransporter->player == selectedPlayer)
+		if (psTransporter->player == selectedPlayer)
 		{
 			psDroid = nullptr;
 
-			for(psDroid = mission.apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+			for (psDroid = mission.apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 			{
-				if(!isTransporter(psDroid))
+				if (!isTransporter(psDroid))
 				{
 					break;
 				}
 			}
 
-			if(psDroid == nullptr)
+			if (psDroid == nullptr)
 			{
 				eventFireCallbackTrigger((TRIGGER_TYPE)CALL_NO_REINFORCEMENTS_LEFT);
 				triggerEvent(TRIGGER_TRANSPORTER_DONE, psTransporter);
@@ -1972,7 +1972,7 @@ void missionMoveTransporterOffWorld(DROID *psTransporter)
 bool intAddMissionTimer()
 {
 	//check to see if it exists already
-	if(widgGetFromID(psWScreen, IDTIMER_FORM) != nullptr)
+	if (widgGetFromID(psWScreen, IDTIMER_FORM) != nullptr)
 	{
 		return true;
 	}
@@ -1991,7 +1991,7 @@ bool intAddMissionTimer()
 	sFormInit.UserData = PACKDWORD_TRI(0, IMAGE_MISSION_CLOCK, IMAGE_MISSION_CLOCK_UP);
 	sFormInit.pDisplay = intDisplayMissionClock;
 
-	if(!widgAddForm(psWScreen, &sFormInit))
+	if (!widgAddForm(psWScreen, &sFormInit))
 	{
 		return false;
 	}
@@ -2008,7 +2008,7 @@ bool intAddMissionTimer()
 	sLabInit.pText = WzString::fromUtf8("00:00:00");
 	sLabInit.pCallback = intUpdateMissionTimer;
 
-	if(!widgAddLabel(psWScreen, &sLabInit))
+	if (!widgAddLabel(psWScreen, &sLabInit))
 	{
 		return false;
 	}
@@ -2023,7 +2023,7 @@ bool intAddTransporterTimer()
 	intRemoveTransporterLaunch();
 
 	//check to see if it exists already
-	if(widgGetFromID(psWScreen, IDTRANTIMER_BUTTON) != nullptr)
+	if (widgGetFromID(psWScreen, IDTRANTIMER_BUTTON) != nullptr)
 	{
 		return true;
 	}
@@ -2041,7 +2041,7 @@ bool intAddTransporterTimer()
 	sFormInit.pDisplay = intDisplayImageHilight;
 	sFormInit.UserData = PACKDWORD_TRI(0, IMAGE_TRANSETA_DOWN, IMAGE_TRANSETA_UP);
 
-	if(!widgAddForm(psWScreen, &sFormInit))
+	if (!widgAddForm(psWScreen, &sFormInit))
 	{
 		return false;
 	}
@@ -2057,7 +2057,7 @@ bool intAddTransporterTimer()
 	sLabInit.height = sFormInit.height;
 	sLabInit.pCallback = intUpdateTransporterTimer;
 
-	if(!widgAddLabel(psWScreen, &sLabInit))
+	if (!widgAddLabel(psWScreen, &sLabInit))
 	{
 		return false;
 	}
@@ -2073,7 +2073,7 @@ bool intAddTransporterTimer()
 	sLabInit.pText = WzString::fromUtf8("00/10");
 	sLabInit.pCallback = intUpdateTransCapacity;
 
-	if(!widgAddLabel(psWScreen, &sLabInit))
+	if (!widgAddLabel(psWScreen, &sLabInit))
 	{
 		return false;
 	}
@@ -2097,7 +2097,7 @@ static void fillTimeDisplay(WzString &text, UDWORD time, bool bHours)
 	char psText[100];
 
 	//this is only for the transporter timer - never have hours!
-	if(time == LZ_COMPROMISED_TIME)
+	if (time == LZ_COMPROMISED_TIME)
 	{
 		strcpy(psText, "--:--");
 	}
@@ -2120,7 +2120,7 @@ void intUpdateMissionTimer(WIDGET *psWidget, W_CONTEXT *psContext)
 	SDWORD		timeRemaining;
 
 	// If the cheatTime has been set, then don't want the timer to countdown until stop cheating
-	if(mission.cheatTime)
+	if (mission.cheatTime)
 	{
 		timeElapsed = mission.cheatTime - mission.startTime;
 	}
@@ -2129,11 +2129,11 @@ void intUpdateMissionTimer(WIDGET *psWidget, W_CONTEXT *psContext)
 		timeElapsed = gameTime - mission.startTime;
 	}
 
-	if(!challengeActive)
+	if (!challengeActive)
 	{
 		timeRemaining = mission.time - timeElapsed;
 
-		if(timeRemaining < 0)
+		if (timeRemaining < 0)
 		{
 			timeRemaining = 0;
 		}
@@ -2146,54 +2146,54 @@ void intUpdateMissionTimer(WIDGET *psWidget, W_CONTEXT *psContext)
 	fillTimeDisplay(Label->aText, timeRemaining, true);
 	Label->show();  // Make sure its visible
 
-	if(challengeActive)
+	if (challengeActive)
 	{
 		return;	// all done
 	}
 
 	//make timer flash if time remaining < 5 minutes
-	if(timeRemaining < FIVE_MINUTES)
+	if (timeRemaining < FIVE_MINUTES)
 	{
 		flashMissionButton(IDTIMER_FORM);
 	}
 
 	//stop timer from flashing when gets to < 4 minutes
-	if(timeRemaining < FOUR_MINUTES)
+	if (timeRemaining < FOUR_MINUTES)
 	{
 		stopMissionButtonFlash(IDTIMER_FORM);
 	}
 
 	//play audio the first time the timed mission is started
-	if(timeRemaining && (missionCountDown & NOT_PLAYED_ACTIVATED))
+	if (timeRemaining && (missionCountDown & NOT_PLAYED_ACTIVATED))
 	{
 		audio_QueueTrack(ID_SOUND_MISSION_TIMER_ACTIVATED);
 		missionCountDown &= ~NOT_PLAYED_ACTIVATED;
 	}
 
 	//play some audio for mission countdown - start at 10 minutes remaining
-	if(getPlayCountDown() && timeRemaining < TEN_MINUTES)
+	if (getPlayCountDown() && timeRemaining < TEN_MINUTES)
 	{
-		if(timeRemaining < TEN_MINUTES && (missionCountDown & NOT_PLAYED_TEN))
+		if (timeRemaining < TEN_MINUTES && (missionCountDown & NOT_PLAYED_TEN))
 		{
 			audio_QueueTrack(ID_SOUND_10_MINUTES_REMAINING);
 			missionCountDown &= ~NOT_PLAYED_TEN;
 		}
-		else if(timeRemaining < FIVE_MINUTES && (missionCountDown & NOT_PLAYED_FIVE))
+		else if (timeRemaining < FIVE_MINUTES && (missionCountDown & NOT_PLAYED_FIVE))
 		{
 			audio_QueueTrack(ID_SOUND_5_MINUTES_REMAINING);
 			missionCountDown &= ~NOT_PLAYED_FIVE;
 		}
-		else if(timeRemaining < THREE_MINUTES && (missionCountDown & NOT_PLAYED_THREE))
+		else if (timeRemaining < THREE_MINUTES && (missionCountDown & NOT_PLAYED_THREE))
 		{
 			audio_QueueTrack(ID_SOUND_3_MINUTES_REMAINING);
 			missionCountDown &= ~NOT_PLAYED_THREE;
 		}
-		else if(timeRemaining < TWO_MINUTES && (missionCountDown & NOT_PLAYED_TWO))
+		else if (timeRemaining < TWO_MINUTES && (missionCountDown & NOT_PLAYED_TWO))
 		{
 			audio_QueueTrack(ID_SOUND_2_MINUTES_REMAINING);
 			missionCountDown &= ~NOT_PLAYED_TWO;
 		}
-		else if(timeRemaining < ONE_MINUTE && (missionCountDown & NOT_PLAYED_ONE))
+		else if (timeRemaining < ONE_MINUTE && (missionCountDown & NOT_PLAYED_ONE))
 		{
 			audio_QueueTrack(ID_SOUND_1_MINUTE_REMAINING);
 			missionCountDown &= ~NOT_PLAYED_ONE;
@@ -2213,7 +2213,7 @@ void intUpdateTransporterTimer(WIDGET *psWidget, W_CONTEXT *psContext)
 
 	ETA = mission.ETA;
 
-	if(ETA < 0)
+	if (ETA < 0)
 	{
 		ETA = 0;
 	}
@@ -2221,15 +2221,15 @@ void intUpdateTransporterTimer(WIDGET *psWidget, W_CONTEXT *psContext)
 	// Get the object associated with this widget.
 	psTransporter = (DROID *)Label->pUserData;
 
-	if(psTransporter != nullptr)
+	if (psTransporter != nullptr)
 	{
 		ASSERT(psTransporter != nullptr,
 		       "intUpdateTransporterTimer: invalid Droid pointer");
 
-		if(psTransporter->action == DACTION_TRANSPORTIN ||
+		if (psTransporter->action == DACTION_TRANSPORTIN ||
 		        psTransporter->action == DACTION_TRANSPORTWAITTOFLYIN)
 		{
-			if(mission.ETA == LZ_COMPROMISED_TIME)
+			if (mission.ETA == LZ_COMPROMISED_TIME)
 			{
 				timeRemaining = LZ_COMPROMISED_TIME;
 			}
@@ -2237,16 +2237,16 @@ void intUpdateTransporterTimer(WIDGET *psWidget, W_CONTEXT *psContext)
 			{
 				timeRemaining = mission.ETA - (gameTime - g_iReinforceTime);
 
-				if(timeRemaining < 0)
+				if (timeRemaining < 0)
 				{
 					timeRemaining = 0;
 				}
 
-				if(timeRemaining < TRANSPORTER_REINFORCE_LEADIN)
+				if (timeRemaining < TRANSPORTER_REINFORCE_LEADIN)
 				{
 					// arrived: tell the transporter to move to the new onworld
 					// location if not already doing so
-					if(psTransporter->action == DACTION_TRANSPORTWAITTOFLYIN)
+					if (psTransporter->action == DACTION_TRANSPORTWAITTOFLYIN)
 					{
 						missionFlyTransportersIn(selectedPlayer, false);
 						eventFireCallbackTrigger((TRIGGER_TYPE)CALL_TRANSPORTER_REINFORCE);
@@ -2264,7 +2264,7 @@ void intUpdateTransporterTimer(WIDGET *psWidget, W_CONTEXT *psContext)
 	}
 	else
 	{
-		if(missionCanReEnforce())   // ((mission.type == LDS_MKEEP) || (mission.type == LDS_MCLEAR)) & (mission.ETA >= 0) ) {
+		if (missionCanReEnforce())  // ((mission.type == LDS_MKEEP) || (mission.type == LDS_MCLEAR)) & (mission.ETA >= 0) ) {
 		{
 			fillTimeDisplay(Label->aText, ETA, false);
 		}
@@ -2295,7 +2295,7 @@ void intUpdateTransporterTimer(WIDGET *psWidget, W_CONTEXT *psContext)
 void intRemoveMissionTimer()
 {
 	// Check it's up.
-	if(widgGetFromID(psWScreen, IDTIMER_FORM) != nullptr)
+	if (widgGetFromID(psWScreen, IDTIMER_FORM) != nullptr)
 	{
 		//and remove it.
 		widgDelete(psWScreen, IDTIMER_FORM);
@@ -2307,7 +2307,7 @@ void intRemoveTransporterTimer()
 {
 
 	//remove main screen
-	if(widgGetFromID(psWScreen, IDTRANTIMER_BUTTON) != nullptr)
+	if (widgGetFromID(psWScreen, IDTRANTIMER_BUTTON) != nullptr)
 	{
 		widgDelete(psWScreen, IDTRANTIMER_BUTTON);
 	}
@@ -2355,9 +2355,9 @@ static bool _intAddMissionResult(bool result, bool bPlaySuccess, bool showBackDr
 	// add some funky beats
 	cdAudio_PlayTrack(SONG_FRONTEND);
 
-	if(!bMultiPlayer && result && showBackDrop)
+	if (!bMultiPlayer && result && showBackDrop)
 	{
-		if(!screen_GetBackDrop())
+		if (!screen_GetBackDrop())
 		{
 			pie_LoadBackDrop(SCREEN_MISSIONEND);
 		}
@@ -2408,11 +2408,11 @@ static bool _intAddMissionResult(bool result, bool bPlaySuccess, bool showBackDr
 	sLabInit.width = MISSIONRES_TITLE_W;
 	sLabInit.height = 16;
 
-	if(result)
+	if (result)
 	{
 
 		//don't bother adding the text if haven't played the audio
-		if(bPlaySuccess)
+		if (bPlaySuccess)
 		{
 			sLabInit.pText = WzString::fromUtf8(Cheated ? _("OBJECTIVE ACHIEVED by cheating!") : _("OBJECTIVE ACHIEVED"));//"Objective Achieved";
 		}
@@ -2425,7 +2425,7 @@ static bool _intAddMissionResult(bool result, bool bPlaySuccess, bool showBackDr
 
 	sLabInit.FontID = font_regular;
 
-	if(!widgAddLabel(psWScreen, &sLabInit))
+	if (!widgAddLabel(psWScreen, &sLabInit))
 	{
 		return false;
 	}
@@ -2446,13 +2446,13 @@ static bool _intAddMissionResult(bool result, bool bPlaySuccess, bool showBackDr
 	};
 
 	//if won
-	if(result || bMultiPlayer)
+	if (result || bMultiPlayer)
 	{
 		//continue
 		sButInit.x			= MISSION_2_X;
 
 		// Won the game, so display "Quit to main menu"
-		if(testPlayerHasWon() && !bMultiPlayer)
+		if (testPlayerHasWon() && !bMultiPlayer)
 		{
 			sButInit.id			= IDMISSIONRES_QUIT;
 			sButInit.y			= MISSION_2_Y - 8;
@@ -2508,7 +2508,7 @@ static bool _intAddMissionResult(bool result, bool bPlaySuccess, bool showBackDr
 	MissionResUp = true;
 
 	/* play result audio */
-	if(result == true && bPlaySuccess)
+	if (result == true && bPlaySuccess)
 	{
 		audio_QueueTrack(ID_SOUND_OBJECTIVE_ACCOMPLISHED);
 	}
@@ -2546,15 +2546,15 @@ void intRunMissionResult()
 {
 	wzSetCursor(CURSOR_DEFAULT);
 
-	if(bLoadSaveUp)
+	if (bLoadSaveUp)
 	{
-		if(runLoadSave(false))  // check for file name.
+		if (runLoadSave(false)) // check for file name.
 		{
-			if(strlen(sRequestResult))
+			if (strlen(sRequestResult))
 			{
 				debug(LOG_SAVE, "Returned %s", sRequestResult);
 
-				if(!bRequestLoad)
+				if (!bRequestLoad)
 				{
 					char msg[256] = {'\0'};
 
@@ -2570,7 +2570,7 @@ void intRunMissionResult()
 
 static void missionContineButtonPressed()
 {
-	if(nextMissionType == LDS_CAMSTART
+	if (nextMissionType == LDS_CAMSTART
 	        || nextMissionType == LDS_BETWEEN
 	        || nextMissionType == LDS_EXPAND
 	        || nextMissionType == LDS_EXPAND_LIMBO)
@@ -2580,7 +2580,7 @@ static void missionContineButtonPressed()
 
 	widgDelete(psWScreen, IDMISSIONRES_FORM);	//close option box.
 
-	if(bMultiPlayer)
+	if (bMultiPlayer)
 	{
 		intRemoveMissionResultNoAnim();
 	}
@@ -2588,7 +2588,7 @@ static void missionContineButtonPressed()
 
 void intProcessMissionResult(UDWORD id)
 {
-	switch(id)
+	switch (id)
 	{
 		case IDMISSIONRES_LOAD:
 			// throw up some filerequester
@@ -2598,7 +2598,7 @@ void intProcessMissionResult(UDWORD id)
 		case IDMISSIONRES_SAVE:
 			addLoadSave(SAVE_MISSIONEND, _("Save Game"));
 
-			if(widgGetFromID(psWScreen, IDMISSIONRES_QUIT) == nullptr)
+			if (widgGetFromID(psWScreen, IDMISSIONRES_QUIT) == nullptr)
 			{
 				//Add Quit Button now save has been pressed
 				W_BUTINIT sButInit;
@@ -2628,7 +2628,7 @@ void intProcessMissionResult(UDWORD id)
 			break;
 
 		case IDMISSIONRES_CONTINUE:
-			if(bLoadSaveUp)
+			if (bLoadSaveUp)
 			{
 				closeLoadSave();				// close save interface if it's up.
 			}
@@ -2654,7 +2654,7 @@ DROID *buildMissionDroid(DROID_TEMPLATE *psTempl, UDWORD x, UDWORD y,
 
 	psNewDroid = buildDroid(psTempl, world_coord(x), world_coord(y), player, true, nullptr);
 
-	if(!psNewDroid)
+	if (!psNewDroid)
 	{
 		return nullptr;
 	}
@@ -2677,7 +2677,7 @@ DROID *buildMissionDroid(DROID_TEMPLATE *psTempl, UDWORD x, UDWORD y,
 void launchMission()
 {
 	//if (mission.type == MISSION_NONE)
-	if(mission.type == LDS_NONE)
+	if (mission.type == LDS_NONE)
 	{
 		// tell the loop that a new level has to be loaded up
 		loopMissionState = LMS_NEWLEVEL;
@@ -2699,46 +2699,46 @@ bool setUpMission(UDWORD type)
 	endMission();
 
 	//release the level data for the previous mission
-	if(!levReleaseMissionData())
+	if (!levReleaseMissionData())
 	{
 		return false;
 	}
 
-	if(type == LDS_CAMSTART)
+	if (type == LDS_CAMSTART)
 	{
 		// Another one of those lovely hacks!!
 		bool    bPlaySuccess = true;
 
 		// We don't want the 'mission accomplished' audio/text message at end of cam1
-		if(getCampaignNumber() == 2)
+		if (getCampaignNumber() == 2)
 		{
 			bPlaySuccess = false;
 		}
 
 		// Give the option of save/continue
-		if(!intAddMissionResult(true, bPlaySuccess, true))
+		if (!intAddMissionResult(true, bPlaySuccess, true))
 		{
 			return false;
 		}
 
 		loopMissionState = LMS_SAVECONTINUE;
 	}
-	else if(type == LDS_MKEEP
-	        || type == LDS_MCLEAR
-	        || type == LDS_MKEEP_LIMBO)
+	else if (type == LDS_MKEEP
+	         || type == LDS_MCLEAR
+	         || type == LDS_MKEEP_LIMBO)
 	{
 		launchMission();
 	}
 	else
 	{
-		if(!getWidgetsStatus())
+		if (!getWidgetsStatus())
 		{
 			setWidgetsStatus(true);
 			intResetScreen(false);
 		}
 
 		// Give the option of save / continue
-		if(!intAddMissionResult(true, true, true))
+		if (!intAddMissionResult(true, true, true))
 		{
 			return false;
 		}
@@ -2754,7 +2754,7 @@ void saveMissionPower()
 {
 	UDWORD	inc;
 
-	for(inc = 0; inc < MAX_PLAYERS; inc++)
+	for (inc = 0; inc < MAX_PLAYERS; inc++)
 	{
 		mission.asCurrentPower[inc] = getPower(inc);
 	}
@@ -2765,7 +2765,7 @@ void adjustMissionPower()
 {
 	UDWORD	inc;
 
-	for(inc = 0; inc < MAX_PLAYERS; inc++)
+	for (inc = 0; inc < MAX_PLAYERS; inc++)
 	{
 		addPower(inc, mission.asCurrentPower[inc]);
 	}
@@ -2775,7 +2775,7 @@ void adjustMissionPower()
 game needs to be paused*/
 void setMissionPauseState()
 {
-	if(!bMultiPlayer)
+	if (!bMultiPlayer)
 	{
 		gameTimeStop();
 		setGameUpdatePause(true);
@@ -2788,7 +2788,7 @@ void setMissionPauseState()
 /*resets the pause states */
 void resetMissionPauseState()
 {
-	if(!bMultiPlayer)
+	if (!bMultiPlayer)
 	{
 		setGameUpdatePause(false);
 		setAudioPause(false);
@@ -2811,9 +2811,9 @@ void initNoGoAreas()
 {
 	UBYTE	i;
 
-	for(i = 0; i < MAX_NOGO_AREAS; i++)
+	for (i = 0; i < MAX_NOGO_AREAS; i++)
 	{
-		if(i != LIMBO_LANDING)
+		if (i != LIMBO_LANDING)
 		{
 			sLandingZone[i].x1 = sLandingZone[i].y1 = sLandingZone[i].x2 =
 			                         sLandingZone[i].y2 = 0;
@@ -2825,12 +2825,12 @@ void initNoGoAreas()
 void setNoGoArea(UBYTE x1, UBYTE y1, UBYTE x2, UBYTE y2, UBYTE area)
 {
 	// make sure that x2 > x1 and y2 > y1
-	if(x2 < x1)
+	if (x2 < x1)
 	{
 		std::swap(x1, x2);
 	}
 
-	if(y2 < y1)
+	if (y2 < y1)
 	{
 		std::swap(y1, y2);
 	}
@@ -2840,7 +2840,7 @@ void setNoGoArea(UBYTE x1, UBYTE y1, UBYTE x2, UBYTE y2, UBYTE area)
 	sLandingZone[area].y1 = y1;
 	sLandingZone[area].y2 = y2;
 
-	if(area == 0 && x1 && y1)
+	if (area == 0 && x1 && y1)
 	{
 		addLandingLights(getLandingX(area) + 64, getLandingY(area) + 64);
 	}
@@ -2852,7 +2852,7 @@ static inline void addLandingLight(int x, int y, LAND_LIGHT_SPEC spec, bool lit)
 	static const unsigned int AboveGround = 16;
 	Vector3i pos;
 
-	if(x < 0 || y < 0)
+	if (x < 0 || y < 0)
 	{
 		return;
 	}
@@ -2891,9 +2891,9 @@ bool withinLandingZone(UDWORD x, UDWORD y)
 	ASSERT(y < mapHeight, "withinLandingZone: y coord bigger than mapHeight");
 
 
-	for(inc = 0; inc < MAX_NOGO_AREAS; inc++)
+	for (inc = 0; inc < MAX_NOGO_AREAS; inc++)
 	{
-		if((x >= (UDWORD)sLandingZone[inc].x1 && x <= (UDWORD)sLandingZone[inc].x2) &&
+		if ((x >= (UDWORD)sLandingZone[inc].x1 && x <= (UDWORD)sLandingZone[inc].x2) &&
 		        (y >= (UDWORD)sLandingZone[inc].y1 && y <= (UDWORD)sLandingZone[inc].y2))
 		{
 			return true;
@@ -2935,7 +2935,7 @@ void missionSetTransporterEntry(SDWORD iPlayer, SDWORD iEntryTileX, SDWORD iEntr
 {
 	ASSERT_OR_RETURN(, iPlayer < MAX_PLAYERS, "missionSetTransporterEntry: player %i too high", iPlayer);
 
-	if((iEntryTileX > scrollMinX) && (iEntryTileX < scrollMaxX))
+	if ((iEntryTileX > scrollMinX) && (iEntryTileX < scrollMaxX))
 	{
 		mission.iTranspEntryTileX[iPlayer] = (UWORD) iEntryTileX;
 	}
@@ -2945,7 +2945,7 @@ void missionSetTransporterEntry(SDWORD iPlayer, SDWORD iEntryTileX, SDWORD iEntr
 		mission.iTranspEntryTileX[iPlayer] = (UWORD)(scrollMinX + EDGE_SIZE);
 	}
 
-	if((iEntryTileY > scrollMinY) && (iEntryTileY < scrollMaxY))
+	if ((iEntryTileY > scrollMinY) && (iEntryTileY < scrollMaxY))
 	{
 		mission.iTranspEntryTileY[iPlayer] = (UWORD) iEntryTileY;
 	}
@@ -2960,7 +2960,7 @@ void missionSetTransporterExit(SDWORD iPlayer, SDWORD iExitTileX, SDWORD iExitTi
 {
 	ASSERT_OR_RETURN(, iPlayer < MAX_PLAYERS, "missionSetTransporterExit: player %i too high", iPlayer);
 
-	if((iExitTileX > scrollMinX) && (iExitTileX < scrollMaxX))
+	if ((iExitTileX > scrollMinX) && (iExitTileX < scrollMaxX))
 	{
 		mission.iTranspExitTileX[iPlayer] = (UWORD) iExitTileX;
 	}
@@ -2970,7 +2970,7 @@ void missionSetTransporterExit(SDWORD iPlayer, SDWORD iExitTileX, SDWORD iExitTi
 		mission.iTranspExitTileX[iPlayer] = (UWORD)(scrollMinX + EDGE_SIZE);
 	}
 
-	if((iExitTileY > scrollMinY) && (iExitTileY < scrollMaxY))
+	if ((iExitTileY > scrollMinY) && (iExitTileY < scrollMaxY))
 	{
 		mission.iTranspExitTileY[iPlayer] = (UWORD) iExitTileY;
 	}
@@ -3001,16 +3001,16 @@ void missionGetTransporterExit(SDWORD iPlayer, UDWORD *iX, UDWORD *iY)
 void missionTimerUpdate()
 {
 	//don't bother with the time check if have 'cheated'
-	if(!mission.cheatTime)
+	if (!mission.cheatTime)
 	{
 		//Want a mission timer on all types of missions now - AB 26/01/99
 		//only interested in off world missions (so far!) and if timer has been set
-		if(mission.time >= 0)   //&& (
+		if (mission.time >= 0)  //&& (
 			//mission.type == LDS_MKEEP || mission.type == LDS_MKEEP_LIMBO ||
 			//mission.type == LDS_MCLEAR || mission.type == LDS_BETWEEN))
 		{
 			//check if time is up
-			if((SDWORD)(gameTime - mission.startTime) > mission.time)
+			if ((SDWORD)(gameTime - mission.startTime) > mission.time)
 			{
 				//the script can call the end game cos have failed!
 				eventFireCallbackTrigger((TRIGGER_TYPE)CALL_MISSION_TIME);
@@ -3032,15 +3032,15 @@ void missionDestroyObjects()
 	debug(LOG_SAVE, "called");
 	proj_FreeAllProjectiles();
 
-	for(Player = 0; Player < MAX_PLAYERS; Player++)
+	for (Player = 0; Player < MAX_PLAYERS; Player++)
 	{
-		if(Player != selectedPlayer)
+		if (Player != selectedPlayer)
 		{
 			// AI player, clear out old data
 
 			psDroid = apsDroidLists[Player];
 
-			while(psDroid != nullptr)
+			while (psDroid != nullptr)
 			{
 				DROID *psNext = psDroid->psNext;
 				removeDroidBase(psDroid);
@@ -3051,7 +3051,7 @@ void missionDestroyObjects()
 			apsDroidLists[Player] = mission.apsDroidLists[Player];
 			psDroid = apsDroidLists[Player];
 
-			while(psDroid != nullptr)
+			while (psDroid != nullptr)
 			{
 				DROID *psNext = psDroid->psNext;
 
@@ -3065,7 +3065,7 @@ void missionDestroyObjects()
 
 			psStruct = apsStructLists[Player];
 
-			while(psStruct != nullptr)
+			while (psStruct != nullptr)
 			{
 				STRUCTURE *psNext = psStruct->psNext;
 				removeStruct(psStruct, true);
@@ -3079,22 +3079,22 @@ void missionDestroyObjects()
 
 	psDroid = apsDroidLists[Player];
 
-	while(psDroid != nullptr)
+	while (psDroid != nullptr)
 	{
 
-		if(psDroid->psBaseStruct && psDroid->psBaseStruct->died)
+		if (psDroid->psBaseStruct && psDroid->psBaseStruct->died)
 		{
 			setDroidBase(psDroid, nullptr);
 		}
 
-		for(i = 0; i < MAX_WEAPONS; i++)
+		for (i = 0; i < MAX_WEAPONS; i++)
 		{
-			if(psDroid->psActionTarget[i] && psDroid->psActionTarget[i]->died)
+			if (psDroid->psActionTarget[i] && psDroid->psActionTarget[i]->died)
 			{
 				setDroidActionTarget(psDroid, nullptr, i);
 
 				// Clear action too if this requires a valid first action target
-				if(i == 0
+				if (i == 0
 				        && psDroid->action != DACTION_MOVEFIRE
 				        && psDroid->action != DACTION_TRANSPORTIN
 				        && psDroid->action != DACTION_TRANSPORTOUT)
@@ -3104,7 +3104,7 @@ void missionDestroyObjects()
 			}
 		}
 
-		if(psDroid->order.psObj && psDroid->order.psObj->died)
+		if (psDroid->order.psObj && psDroid->order.psObj->died)
 		{
 			setDroidTarget(psDroid, nullptr);
 		}
@@ -3114,11 +3114,11 @@ void missionDestroyObjects()
 
 	psStruct = apsStructLists[Player];
 
-	while(psStruct != nullptr)
+	while (psStruct != nullptr)
 	{
-		for(i = 0; i < MAX_WEAPONS; i++)
+		for (i = 0; i < MAX_WEAPONS; i++)
 		{
-			if(psStruct->psTarget[i] && psStruct->psTarget[i]->died)
+			if (psStruct->psTarget[i] && psStruct->psTarget[i]->died)
 			{
 				setStructureTarget(psStruct, nullptr, i, ORIGIN_UNKNOWN);
 			}
@@ -3138,15 +3138,15 @@ void processPreviousCampDroids()
 	DROID           *psDroid, *psNext;
 
 	// See if any are left
-	if(mission.apsDroidLists[selectedPlayer])
+	if (mission.apsDroidLists[selectedPlayer])
 	{
-		for(psDroid = mission.apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
+		for (psDroid = mission.apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
 		{
 			psNext = psDroid->psNext;
 
 			// We want to kill off all droids now! - AB 27/01/99
 			// KILL OFF TRANSPORTER
-			if(droidRemove(psDroid, mission.apsDroidLists))
+			if (droidRemove(psDroid, mission.apsDroidLists))
 			{
 				addDroid(psDroid, apsDroidLists);
 				vanishDroid(psDroid);
@@ -3182,9 +3182,9 @@ bool getPlayCountDown()
 //checks to see if the player has any droids (except Transporters left)
 bool missionDroidsRemaining(UDWORD player)
 {
-	for(DROID *psDroid = apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
+	for (DROID *psDroid = apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
 	{
-		if(!isTransporter(psDroid))
+		if (!isTransporter(psDroid))
 		{
 			return true;
 		}
@@ -3203,7 +3203,7 @@ void moveDroidsToSafety(DROID *psTransporter)
 	ASSERT_OR_RETURN(, isTransporter(psTransporter), "unit not a Transporter");
 
 	//move droids out of Transporter into mission list
-	for(psDroid = psTransporter->psGroup->psList; psDroid != nullptr && psDroid != psTransporter; psDroid = psNext)
+	for (psDroid = psTransporter->psGroup->psList; psDroid != nullptr && psDroid != psTransporter; psDroid = psNext)
 	{
 		psNext = psDroid->psGrpNext;
 		psTransporter->psGroup->remove(psDroid);
@@ -3214,7 +3214,7 @@ void moveDroidsToSafety(DROID *psTransporter)
 	}
 
 	//move the transporter into the mission list also
-	if(droidRemove(psTransporter, apsDroidLists))
+	if (droidRemove(psTransporter, apsDroidLists))
 	{
 		addDroid(psTransporter, mission.apsDroidLists);
 	}
@@ -3223,12 +3223,12 @@ void moveDroidsToSafety(DROID *psTransporter)
 void clearMissionWidgets()
 {
 	//remove any widgets that are up due to the missions
-	if(mission.time > 0)
+	if (mission.time > 0)
 	{
 		intRemoveMissionTimer();
 	}
 
-	if(missionCanReEnforce())
+	if (missionCanReEnforce())
 	{
 		intRemoveTransporterTimer();
 	}
@@ -3241,23 +3241,23 @@ void resetMissionWidgets()
 	DROID       *psDroid;
 
 	//add back any widgets that should be up due to the missions
-	if(mission.time > 0)
+	if (mission.time > 0)
 	{
 		intAddMissionTimer();
 		//make sure its not flashing when added
 		stopMissionButtonFlash(IDTIMER_FORM);
 	}
 
-	if(missionCanReEnforce())
+	if (missionCanReEnforce())
 	{
 		addTransporterTimerInterface();
 	}
 	//check not a typical reinforcement mission
-	else if(!missionForReInforcements())
+	else if (!missionForReInforcements())
 	{
-		for(psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+		for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 		{
-			if(isTransporter(psDroid))
+			if (isTransporter(psDroid))
 			{
 				intAddTransporterLaunch(psDroid);
 				break;
@@ -3266,11 +3266,11 @@ void resetMissionWidgets()
 
 		/*if we got to the end without adding a transporter - there might be
 		one sitting in the mission list which is waiting to come back in*/
-		if(!psDroid)
+		if (!psDroid)
 		{
-			for(psDroid = mission.apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+			for (psDroid = mission.apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 			{
-				if(isTransporter(psDroid) &&
+				if (isTransporter(psDroid) &&
 				        psDroid->action == DACTION_TRANSPORTWAITTOFLYIN)
 				{
 					intAddTransporterLaunch(psDroid);
@@ -3300,20 +3300,20 @@ void emptyTransporters(bool bOffWorld)
 	DROID       *psTransporter, *psDroid, *psNext, *psNextTrans;
 
 	//see if there are any Transporters in the world
-	for(psTransporter = apsDroidLists[selectedPlayer]; psTransporter != nullptr; psTransporter = psNextTrans)
+	for (psTransporter = apsDroidLists[selectedPlayer]; psTransporter != nullptr; psTransporter = psNextTrans)
 	{
 		psNextTrans = psTransporter->psNext;
 
-		if(isTransporter(psTransporter))
+		if (isTransporter(psTransporter))
 		{
 			//if flying in, empty the contents
-			if(orderState(psTransporter, DORDER_TRANSPORTIN))
+			if (orderState(psTransporter, DORDER_TRANSPORTIN))
 			{
 				/* if we're offWorld, all we need to do is put the droids into the apsDroidList
 				and processMission() will assign them a location etc */
-				if(bOffWorld)
+				if (bOffWorld)
 				{
-					for(psDroid = psTransporter->psGroup->psList; psDroid != nullptr
+					for (psDroid = psTransporter->psGroup->psList; psDroid != nullptr
 					        && psDroid != psTransporter; psDroid = psNext)
 					{
 						psNext = psDroid->psGrpNext;
@@ -3327,7 +3327,7 @@ void emptyTransporters(bool bOffWorld)
 				processed by the endMission function */
 				else
 				{
-					for(psDroid = psTransporter->psGroup->psList; psDroid != nullptr
+					for (psDroid = psTransporter->psGroup->psList; psDroid != nullptr
 					        && psDroid != psTransporter; psDroid = psNext)
 					{
 						psNext = psDroid->psGrpNext;
@@ -3345,13 +3345,13 @@ void emptyTransporters(bool bOffWorld)
 	}
 
 	//deal with any transporters that are waiting to come over
-	for(psTransporter = mission.apsDroidLists[selectedPlayer]; psTransporter !=
+	for (psTransporter = mission.apsDroidLists[selectedPlayer]; psTransporter !=
 	        nullptr; psTransporter = psTransporter->psNext)
 	{
-		if(isTransporter(psTransporter))
+		if (isTransporter(psTransporter))
 		{
 			//for each droid within the transporter...
-			for(psDroid = psTransporter->psGroup->psList; psDroid != nullptr
+			for (psDroid = psTransporter->psGroup->psList; psDroid != nullptr
 			        && psDroid != psTransporter; psDroid = psNext)
 			{
 				psNext = psDroid->psGrpNext;
@@ -3370,7 +3370,7 @@ void emptyTransporters(bool bOffWorld)
 bCheating = false == end of cheat */
 void setMissionCheatTime(bool bCheating)
 {
-	if(bCheating)
+	if (bCheating)
 	{
 		mission.cheatTime = gameTime;
 	}

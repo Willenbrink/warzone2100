@@ -35,7 +35,7 @@ static void printBaseObjInfo(const BASE_OBJECT *psObj)
 {
 	const char *pType;
 
-	switch(psObj->type)
+	switch (psObj->type)
 	{
 		case OBJ_DROID:
 			pType = "UNIT";
@@ -76,7 +76,7 @@ static void printWeaponInfo(const WEAPON_STATS *psStats)
 {
 	const char *pWC, *pWSC, *pMM;
 
-	switch(psStats->weaponClass)
+	switch (psStats->weaponClass)
 	{
 		case WC_KINETIC:		//bullets etc
 			pWC = "WC_KINETIC";
@@ -91,7 +91,7 @@ static void printWeaponInfo(const WEAPON_STATS *psStats)
 			break;
 	}
 
-	switch(psStats->weaponSubClass)
+	switch (psStats->weaponSubClass)
 	{
 		case WSC_MGUN:
 			pWSC = "WSC_MGUN";
@@ -166,7 +166,7 @@ static void printWeaponInfo(const WEAPON_STATS *psStats)
 			break;
 	}
 
-	switch(psStats->movementModel)
+	switch (psStats->movementModel)
 	{
 		case MM_DIRECT:
 			pMM = "MM_DIRECT";
@@ -227,17 +227,17 @@ void printDroidInfo(const DROID *psDroid)
 	CONPRINTF(ConsoleString, (ConsoleString, "   wt %d bSpeed %d sRng %d ECM %d bdy %d\n",
 	                          psDroid->weight, psDroid->baseSpeed, droidSensorRange(psDroid), objJammerPower(psDroid), psDroid->body));
 
-	if(psDroid->asWeaps[0].nStat > 0)
+	if (psDroid->asWeaps[0].nStat > 0)
 	{
 		printWeaponInfo(asWeaponStats + psDroid->asWeaps[0].nStat);
 	}
 
-	for(int i = 0; i < COMP_NUMCOMPONENTS; ++i)
+	for (int i = 0; i < COMP_NUMCOMPONENTS; ++i)
 	{
-		switch(i)
+		switch (i)
 		{
 			case COMP_BODY:
-				if(psDroid->asBits[i] > 0)
+				if (psDroid->asBits[i] > 0)
 				{
 					CONPRINTF(ConsoleString, (ConsoleString, "Body: "));
 					psBdyStats = asBodyStats + psDroid->asBits[i];
@@ -254,7 +254,7 @@ void printDroidInfo(const DROID *psDroid)
 				break;
 
 			case COMP_PROPULSION:
-				if(psDroid->asBits[i] > 0)
+				if (psDroid->asBits[i] > 0)
 				{
 					CONPRINTF(ConsoleString, (ConsoleString, "Prop: "));
 					psPropStats = asPropulsionStats + psDroid->asBits[i];
@@ -268,7 +268,7 @@ void printDroidInfo(const DROID *psDroid)
 				break;
 
 			case COMP_ECM:
-				if(psDroid->asBits[i] > 0)
+				if (psDroid->asBits[i] > 0)
 				{
 					CONPRINTF(ConsoleString, (ConsoleString, "ECM: "));
 					psECMStats = asECMStats + psDroid->asBits[i];
@@ -285,7 +285,7 @@ void printDroidInfo(const DROID *psDroid)
 				break;
 
 			case COMP_SENSOR:
-				if(psDroid->asBits[i] > 0)
+				if (psDroid->asBits[i] > 0)
 				{
 					CONPRINTF(ConsoleString, (ConsoleString, "Sensor: "));
 					psSensStats = asSensorStats + psDroid->asBits[i];
@@ -302,7 +302,7 @@ void printDroidInfo(const DROID *psDroid)
 				break;
 
 			case COMP_CONSTRUCT:
-				if(psDroid->asBits[i] > 0)
+				if (psDroid->asBits[i] > 0)
 				{
 					CONPRINTF(ConsoleString, (ConsoleString, "Construct: "));
 					psConstStats = asConstructStats + psDroid->asBits[i];
@@ -315,7 +315,7 @@ void printDroidInfo(const DROID *psDroid)
 				break;
 
 			case COMP_REPAIRUNIT:
-				if(psDroid->asBits[i] > 0)
+				if (psDroid->asBits[i] > 0)
 				{
 					CONPRINTF(ConsoleString, (ConsoleString, "Repair: "));
 					psRepairStats = asRepairStats + psDroid->asBits[i];

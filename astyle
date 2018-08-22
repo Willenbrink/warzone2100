@@ -5,6 +5,7 @@ break-blocks
 indent=tab
 indent-switches
 pad-oper
+pad-header
 unpad-paren
 mode=c
 indent-preprocessor

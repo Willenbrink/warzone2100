@@ -45,7 +45,7 @@ struct PROJECTILE : public SIMPLE_OBJECT
 	void            update();
 	bool            deleteIfDead()
 	{
-		if(died == 0 || died >= gameTime - deltaGameTime)
+		if (died == 0 || died >= gameTime - deltaGameTime)
 		{
 			return false;
 		}

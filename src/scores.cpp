@@ -92,7 +92,7 @@ enum MR_STRING
 // return translated string
 static const char *getDescription(MR_STRING id)
 {
-	switch(id)
+	switch (id)
 	{
 		case STR_MR_UNITS_LOST   :
 			return _("Own Units: %u");
@@ -152,7 +152,7 @@ static const char *getDescription(MR_STRING id)
 
 static PIELIGHT getColour(int id)
 {
-	switch(id)
+	switch (id)
 	{
 		case STR_MR_STR_LOST	 :
 		case STR_MR_UNITS_LOST   :
@@ -246,7 +246,7 @@ bool	scoreInitSystem()
 // Updates a game statistic - more can be added if we need 'em
 void	scoreUpdateVar(DATA_INDEX var)
 {
-	switch(var)
+	switch (var)
 	{
 		case	WD_UNITS_BUILT:
 			missionData.unitsBuilt++;	// We've built another unit
@@ -309,7 +309,7 @@ void getAsciiTime(char *psText, unsigned time)
 
 	bool showMs = gameTimeGetMod() < Rational(1, 4);
 
-	if(showMs)
+	if (showMs)
 	{
 		sprintf(psText, "%.0d%s%02d:%02d.%03d", hours, hourColon, minutes, seconds, milliseconds);
 	}
@@ -324,7 +324,7 @@ void scoreDataToScreen(WIDGET *psWidget, ScoreDataToScreenCache& cache)
 	int index, x, y, width, height;
 	bool bMoreBars;
 
-	if(!bDispStarted)
+	if (!bDispStarted)
 	{
 		bDispStarted = true;
 		dispST = realTime;
@@ -346,13 +346,13 @@ void scoreDataToScreen(WIDGET *psWidget, ScoreDataToScreenCache& cache)
 	index = 0;
 	bMoreBars = true;
 
-	while(bMoreBars)
+	while (bMoreBars)
 	{
 		/* Is it time to display this bar? */
-		if(infoBars[index].bActive)
+		if (infoBars[index].bActive)
 		{
 			/* Has it been queued before? */
-			if(infoBars[index].bQueued == false)
+			if (infoBars[index].bQueued == false)
 			{
 				/* Don't do this next time...! */
 				infoBars[index].bQueued = true;
@@ -374,7 +374,7 @@ void scoreDataToScreen(WIDGET *psWidget, ScoreDataToScreenCache& cache)
 			/* Draw the interior grey */
 			pie_BoxFill(x, y, x + width, y + height, WZCOL_MENU_SCORES_INTERIOR);
 
-			if(((realTime - dispST) > infoBars[index].queTime))
+			if (((realTime - dispST) > infoBars[index].queTime))
 			{
 				/* Now draw amount filled */
 				const float mul = (realTime - dispST < BAR_CRAWL_TIME) ?
@@ -383,7 +383,7 @@ void scoreDataToScreen(WIDGET *psWidget, ScoreDataToScreenCache& cache)
 
 				const float length = (float)infoBars[index].percent / 100.f * (float)infoBars[index].width * mul;
 
-				if((int)length > 4)
+				if ((int)length > 4)
 				{
 
 					/* Black shadow */
@@ -397,7 +397,7 @@ void scoreDataToScreen(WIDGET *psWidget, ScoreDataToScreenCache& cache)
 			/* Now render the text by the bar */
 			sprintf(text, getDescription((MR_STRING)infoBars[index].stringID), infoBars[index].number);
 
-			if(index >= cache.wzInfoBarText.size())
+			if (index >= cache.wzInfoBarText.size())
 			{
 				cache.wzInfoBarText.resize(index + 1);
 			}
@@ -406,7 +406,7 @@ void scoreDataToScreen(WIDGET *psWidget, ScoreDataToScreenCache& cache)
 			cache.wzInfoBarText[index].render(x + width + 16, y + 12, WZCOL_FORM_TEXT);
 
 			/* If we're beyond STAT_ROOKIE, then we're on rankings */
-			if(index >= STAT_GREEN && index <= STAT_ACE)
+			if (index >= STAT_GREEN && index <= STAT_ACE)
 			{
 				iV_DrawImage(IntImages, (UWORD)(IMAGE_LEV_0 + (index - STAT_GREEN)), x - 8, y + 2);
 			}
@@ -415,7 +415,7 @@ void scoreDataToScreen(WIDGET *psWidget, ScoreDataToScreenCache& cache)
 		/* Move onto the next bar */
 		index++;
 
-		if((index > STAT_ACE) || (infoBars[index].topX == 0 && infoBars[index].topY == 0))
+		if ((index > STAT_ACE) || (infoBars[index].topX == 0 && infoBars[index].topY == 0))
 		{
 			bMoreBars = false;
 		}
@@ -440,7 +440,7 @@ void scoreDataToScreen(WIDGET *psWidget, ScoreDataToScreenCache& cache)
 	cache.wzInfoText_TotalGameTime.setText(text, font_regular);
 	cache.wzInfoText_TotalGameTime.render((pie_GetVideoBufferWidth() - cache.wzInfoText_TotalGameTime.width()) / 2, 340 + D_H, WZCOL_FORM_TEXT);
 
-	if(Cheated)
+	if (Cheated)
 	{
 		// A quick way to flash the text
 		PIELIGHT cheatedTextColor = ((realTime / 250) % 2) ? WZCOL_RED : WZCOL_YELLOW;
@@ -461,18 +461,18 @@ void	fillUpStats()
 	DROID	*psDroid;
 
 	/* Do rankings first cos they're easier */
-	for(i = 0, maxi = 0; i < DROID_LEVELS; i++)
+	for (i = 0, maxi = 0; i < DROID_LEVELS; i++)
 	{
 		num = getNumDroidsForLevel(i);
 
-		if(num > maxi)
+		if (num > maxi)
 		{
 			maxi = num;
 		}
 	}
 
 	/* Make sure we got something */
-	if(maxi == 0)
+	if (maxi == 0)
 	{
 		scaleFactor = 0.f;
 	}
@@ -482,7 +482,7 @@ void	fillUpStats()
 	}
 
 	/* Scale for percent */
-	for(i = 0; i < DROID_LEVELS; i++)
+	for (i = 0; i < DROID_LEVELS; i++)
 	{
 		length = scaleFactor * getNumDroidsForLevel(i);
 		infoBars[STAT_ROOKIE + i].percent = PERCENT(length, RANK_BAR_WIDTH);
@@ -493,7 +493,7 @@ void	fillUpStats()
 	/* Units killed and lost... */
 	maxi = MAX(missionData.unitsLost, missionData.unitsKilled);
 
-	if(maxi == 0)
+	if (maxi == 0)
 	{
 		scaleFactor = 0.f;
 	}
@@ -510,7 +510,7 @@ void	fillUpStats()
 	/* Now do the structure losses */
 	maxi = MAX(missionData.strLost, missionData.strKilled);
 
-	if(maxi == 0)
+	if (maxi == 0)
 	{
 		scaleFactor = 0.f;
 	}
@@ -525,14 +525,14 @@ void	fillUpStats()
 	infoBars[STAT_STR_BLOWN_UP].percent = PERCENT(length, STAT_BAR_WIDTH);
 
 	/* Finally the force information - need amount of droids as well*/
-	for(psDroid = apsDroidLists[selectedPlayer], numUnits = 0; psDroid; psDroid = psDroid->psNext, numUnits++) {}
+	for (psDroid = apsDroidLists[selectedPlayer], numUnits = 0; psDroid; psDroid = psDroid->psNext, numUnits++) {}
 
-	for(psDroid = mission.apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext, numUnits++) {}
+	for (psDroid = mission.apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext, numUnits++) {}
 
 	maxi = MAX(missionData.unitsBuilt, missionData.strBuilt);
 	maxi = MAX(maxi, numUnits);
 
-	if(maxi == 0)
+	if (maxi == 0)
 	{
 		scaleFactor = 0.f;
 	}

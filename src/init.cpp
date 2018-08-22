@@ -115,12 +115,12 @@ static bool InitialiseGlobals()
 	statsInitVars();
 	structureInitVars();
 
-	if(!messageInitVars())
+	if (!messageInitVars())
 	{
 		return false;
 	}
 
-	if(!researchInitVars())
+	if (!researchInitVars())
 	{
 		return false;
 	}
@@ -138,7 +138,7 @@ bool loadLevFile(const char *filename, searchPathMode datadir, bool ignoreWrf, c
 	char *pBuffer;
 	UDWORD size;
 
-	if(realFileName == nullptr)
+	if (realFileName == nullptr)
 	{
 		debug(LOG_WZ, "Loading lev file: \"%s\", builtin\n", filename);
 	}
@@ -147,13 +147,13 @@ bool loadLevFile(const char *filename, searchPathMode datadir, bool ignoreWrf, c
 		debug(LOG_WZ, "Loading lev file: \"%s\" from \"%s\"\n", filename, realFileName);
 	}
 
-	if(!PHYSFS_exists(filename) || !loadFile(filename, &pBuffer, &size))
+	if (!PHYSFS_exists(filename) || !loadFile(filename, &pBuffer, &size))
 	{
 		debug(LOG_ERROR, "File not found: %s\n", filename);
 		return false; // only in NDEBUG case
 	}
 
-	if(!levParse(pBuffer, size, datadir, ignoreWrf, realFileName))
+	if (!levParse(pBuffer, size, datadir, ignoreWrf, realFileName))
 	{
 		debug(LOG_ERROR, "Parse error in %s\n", filename);
 		free(pBuffer);
@@ -171,12 +171,12 @@ static void cleanSearchPath()
 	wzSearchPath *curSearchPath = searchPathRegistry, * tmpSearchPath = nullptr;
 
 	// Start at the lowest priority
-	while(curSearchPath->lowerPriority)
+	while (curSearchPath->lowerPriority)
 	{
 		curSearchPath = curSearchPath->lowerPriority;
 	}
 
-	while(curSearchPath)
+	while (curSearchPath)
 	{
 		tmpSearchPath = curSearchPath->higherPriority;
 		free(curSearchPath);
@@ -198,7 +198,7 @@ void registerSearchPath(const char path[], unsigned int priority)
 	tmpSearchPath = (wzSearchPath *)malloc(sizeof(*tmpSearchPath));
 	sstrcpy(tmpSearchPath->path, path);
 
-	if(path[strlen(path) - 1] != *PHYSFS_getDirSeparator())
+	if (path[strlen(path) - 1] != *PHYSFS_getDirSeparator())
 	{
 		sstrcat(tmpSearchPath->path, PHYSFS_getDirSeparator());
 	}
@@ -207,7 +207,7 @@ void registerSearchPath(const char path[], unsigned int priority)
 
 	debug(LOG_WZ, "registerSearchPath: Registering %s at priority %i", path, priority);
 
-	if(!curSearchPath)
+	if (!curSearchPath)
 	{
 		searchPathRegistry = tmpSearchPath;
 		searchPathRegistry->lowerPriority = nullptr;
@@ -215,17 +215,17 @@ void registerSearchPath(const char path[], unsigned int priority)
 		return;
 	}
 
-	while(curSearchPath->higherPriority && priority > curSearchPath->priority)
+	while (curSearchPath->higherPriority && priority > curSearchPath->priority)
 	{
 		curSearchPath = curSearchPath->higherPriority;
 	}
 
-	while(curSearchPath->lowerPriority && priority < curSearchPath->priority)
+	while (curSearchPath->lowerPriority && priority < curSearchPath->priority)
 	{
 		curSearchPath = curSearchPath->lowerPriority;
 	}
 
-	if(priority < curSearchPath->priority)
+	if (priority < curSearchPath->priority)
 	{
 		tmpSearchPath->lowerPriority = curSearchPath->lowerPriority;
 		tmpSearchPath->higherPriority = curSearchPath;
@@ -236,12 +236,12 @@ void registerSearchPath(const char path[], unsigned int priority)
 		tmpSearchPath->higherPriority = curSearchPath->higherPriority;
 	}
 
-	if(tmpSearchPath->lowerPriority)
+	if (tmpSearchPath->lowerPriority)
 	{
 		tmpSearchPath->lowerPriority->higherPriority = tmpSearchPath;
 	}
 
-	if(tmpSearchPath->higherPriority)
+	if (tmpSearchPath->higherPriority)
 	{
 		tmpSearchPath->higherPriority->lowerPriority = tmpSearchPath;
 	}
@@ -261,10 +261,10 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 	wzSearchPath *curSearchPath = searchPathRegistry;
 	char tmpstr[PATH_MAX] = "\0";
 
-	if(mode != current_mode || (current_map != nullptr ? current_map : "") != current_current_map || force ||
+	if (mode != current_mode || (current_map != nullptr ? current_map : "") != current_current_map || force ||
 	        (use_override_mods && override_mod_list != getModList()))
 	{
-		if(mode != mod_clean)
+		if (mode != mod_clean)
 		{
 			rebuildSearchPath(mod_clean, false);
 		}
@@ -273,18 +273,18 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 		current_current_map = current_map != nullptr ? current_map : "";
 
 		// Start at the lowest priority
-		while(curSearchPath->lowerPriority)
+		while (curSearchPath->lowerPriority)
 		{
 			curSearchPath = curSearchPath->lowerPriority;
 		}
 
-		switch(mode)
+		switch (mode)
 		{
 			case mod_clean:
 				debug(LOG_WZ, "Cleaning up");
 				clearLoadedMods();
 
-				while(curSearchPath)
+				while (curSearchPath)
 				{
 #ifdef DEBUG
 					debug(LOG_WZ, "Removing [%s] from search path", curSearchPath->path);
@@ -331,7 +331,7 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 				debug(LOG_WZ, "*** Switching to campaign mods ***");
 				clearLoadedMods();
 
-				while(curSearchPath)
+				while (curSearchPath)
 				{
 					// make sure videos override included files
 					sstrcpy(tmpstr, curSearchPath->path);
@@ -342,12 +342,12 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 
 				curSearchPath = searchPathRegistry;
 
-				while(curSearchPath->lowerPriority)
+				while (curSearchPath->lowerPriority)
 				{
 					curSearchPath = curSearchPath->lowerPriority;
 				}
 
-				while(curSearchPath)
+				while (curSearchPath)
 				{
 #ifdef DEBUG
 					debug(LOG_WZ, "Adding [%s] to search path", curSearchPath->path);
@@ -361,7 +361,7 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 					addSubdirs(curSearchPath->path, "mods/autoload", PHYSFS_APPEND, use_override_mods ? &override_mods : nullptr, true);
 					addSubdirs(curSearchPath->path, "mods/campaign", PHYSFS_APPEND, use_override_mods ? &override_mods : &campaign_mods, true);
 
-					if(!WZ_PHYSFS_unmount(curSearchPath->path))
+					if (!WZ_PHYSFS_unmount(curSearchPath->path))
 					{
 						debug(LOG_WZ, "* Failed to remove path %s again", curSearchPath->path);
 					}
@@ -386,7 +386,7 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 				debug(LOG_WZ, "*** Switching to multiplay mods ***");
 				clearLoadedMods();
 
-				while(curSearchPath)
+				while (curSearchPath)
 				{
 					// make sure videos override included files
 					sstrcpy(tmpstr, curSearchPath->path);
@@ -396,7 +396,7 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 				}
 
 				// Add the selected map first, for mapmod support
-				if(current_map != nullptr)
+				if (current_map != nullptr)
 				{
 					WzString realPathAndDir = WzString::fromUtf8(PHYSFS_getRealDir(current_map)) + current_map;
 					realPathAndDir.replace("/", PHYSFS_getDirSeparator()); // Windows fix
@@ -405,12 +405,12 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 
 				curSearchPath = searchPathRegistry;
 
-				while(curSearchPath->lowerPriority)
+				while (curSearchPath->lowerPriority)
 				{
 					curSearchPath = curSearchPath->lowerPriority;
 				}
 
-				while(curSearchPath)
+				while (curSearchPath)
 				{
 #ifdef DEBUG
 					debug(LOG_WZ, "Adding [%s] to search path", curSearchPath->path);
@@ -419,7 +419,7 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 					PHYSFS_mount(curSearchPath->path, NULL, PHYSFS_APPEND);
 					addSubdirs(curSearchPath->path, "mods/music", PHYSFS_APPEND, nullptr, false);
 
-					if(NetPlay.isHost || !NetPlay.bComms)
+					if (NetPlay.isHost || !NetPlay.bComms)
 					{
 						addSubdirs(curSearchPath->path, "mods/global", PHYSFS_APPEND, use_override_mods ? &override_mods : &global_mods, true);
 						addSubdirs(curSearchPath->path, "mods", PHYSFS_APPEND, use_override_mods ? &override_mods : &global_mods, true);
@@ -430,7 +430,7 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 					{
 						std::vector<std::string> hashList;
 
-						for(Sha256 &hash : game.modHashes)
+						for (Sha256 &hash : game.modHashes)
 						{
 							hashList = {hash.toString()};
 							addSubdirs(curSearchPath->path, "mods/downloads", PHYSFS_APPEND, &hashList, true);
@@ -468,9 +468,9 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 				return false;
 		}
 
-		if(use_override_mods && mode != mod_clean)
+		if (use_override_mods && mode != mod_clean)
 		{
-			if(getModList() != override_mod_list)
+			if (getModList() != override_mod_list)
 			{
 				debug(LOG_POPUP, _("The required mod could not be loaded: %s\n\nWarzone will try to load the game without it."), override_mod_list.c_str());
 			}
@@ -487,7 +487,7 @@ bool rebuildSearchPath(searchPathMode mode, bool force, const char *current_map)
 		printSearchPath();
 #endif // DEBUG
 	}
-	else if(use_override_mods)
+	else if (use_override_mods)
 	{
 		// override mods are already the same as current mods, so no need to do anything
 		clearOverrideMods();
@@ -503,11 +503,11 @@ static MapFileList listMapFiles()
 
 	char **subdirlist = PHYSFS_enumerateFiles("maps");
 
-	for(char **i = subdirlist; *i != nullptr; ++i)
+	for (char **i = subdirlist; *i != nullptr; ++i)
 	{
 		std::string wzfile = *i;
 
-		if(*i[0] == '.' || wzfile.substr(wzfile.find_last_of('.') + 1) != "wz")
+		if (*i[0] == '.' || wzfile.substr(wzfile.find_last_of('.') + 1) != "wz")
 		{
 			continue;
 		}
@@ -521,7 +521,7 @@ static MapFileList listMapFiles()
 	debug(LOG_WZ, "Map search paths:");
 	char **searchPath = PHYSFS_getSearchPath();
 
-	for(char **i = searchPath; *i != nullptr; i++)
+	for (char **i = searchPath; *i != nullptr; i++)
 	{
 		debug(LOG_WZ, "    [%s]", *i);
 		oldSearchPath.push_back(*i);
@@ -530,20 +530,20 @@ static MapFileList listMapFiles()
 
 	PHYSFS_freeList(searchPath);
 
-	for(const auto &realFileName : ret)
+	for (const auto &realFileName : ret)
 	{
 		std::string realFilePathAndName = PHYSFS_getWriteDir() + realFileName;
 
-		if(PHYSFS_mount(realFilePathAndName.c_str(), NULL, PHYSFS_APPEND))
+		if (PHYSFS_mount(realFilePathAndName.c_str(), NULL, PHYSFS_APPEND))
 		{
 			int unsafe = 0;
 			char **filelist = PHYSFS_enumerateFiles("multiplay/maps");
 
-			for(char **file = filelist; *file != nullptr; ++file)
+			for (char **file = filelist; *file != nullptr; ++file)
 			{
 				std::string isDir = std::string("multiplay/maps/") + *file;
 
-				if(WZ_PHYSFS_isDirectory(isDir.c_str()))
+				if (WZ_PHYSFS_isDirectory(isDir.c_str()))
 				{
 					continue;
 				}
@@ -551,9 +551,9 @@ static MapFileList listMapFiles()
 				std::string checkfile = *file;
 				debug(LOG_WZ, "checking ... %s", *file);
 
-				if(checkfile.substr(checkfile.find_last_of('.') + 1) == "gam")
+				if (checkfile.substr(checkfile.find_last_of('.') + 1) == "gam")
 				{
-					if(unsafe++ > 1)
+					if (unsafe++ > 1)
 					{
 						debug(LOG_ERROR, "Map packs are not supported! %s NOT added.", realFilePathAndName.c_str());
 						break;
@@ -563,7 +563,7 @@ static MapFileList listMapFiles()
 
 			PHYSFS_freeList(filelist);
 
-			if(unsafe < 2)
+			if (unsafe < 2)
 			{
 				filtered.push_back(realFileName);
 			}
@@ -577,7 +577,7 @@ static MapFileList listMapFiles()
 	}
 
 	// restore our search path(s) again
-	for(const auto &restorePaths : oldSearchPath)
+	for (const auto &restorePaths : oldSearchPath)
 	{
 		PHYSFS_mount(restorePaths.c_str(), NULL, PHYSFS_APPEND);
 	}
@@ -611,14 +611,14 @@ bool CheckForMod(char *theMap)
 {
 	std::vector<struct WZmaps>::iterator it;
 
-	if(theMap == nullptr)
+	if (theMap == nullptr)
 	{
 		return false;
 	}
 
 	it = std::find_if(WZ_Maps.begin(), WZ_Maps.end(), FindMap(theMap));
 
-	if(it != WZ_Maps.end())
+	if (it != WZ_Maps.end())
 	{
 		return it->isMapMod;
 	}
@@ -633,7 +633,7 @@ static bool CheckInMap(const char *archive, const char *mountpoint, const char *
 {
 	bool mapmod = false;
 
-	if(!PHYSFS_mount(archive, mountpoint, PHYSFS_APPEND))
+	if (!PHYSFS_mount(archive, mountpoint, PHYSFS_APPEND))
 	{
 		// We already checked to see if this was valid before, and now, something went seriously wrong.
 		debug(LOG_FATAL, "Could not mount %s, because: %s. Please delete the file, and run the game again. Game will now exit.", archive, WZ_PHYSFS_getLastError());
@@ -644,13 +644,13 @@ static bool CheckInMap(const char *archive, const char *mountpoint, const char *
 	checkpath.append("/");
 	char **filelist = PHYSFS_enumerateFiles(lookin);
 
-	for(char **file = filelist; *file != nullptr; ++file)
+	for (char **file = filelist; *file != nullptr; ++file)
 	{
 		std::string checkfile = *file;
 
-		if(WZ_PHYSFS_isDirectory((checkpath + checkfile).c_str()))
+		if (WZ_PHYSFS_isDirectory((checkpath + checkfile).c_str()))
 		{
-			if(checkfile.compare("wrf") == 0 || checkfile.compare("stats") == 0 || checkfile.compare("components") == 0
+			if (checkfile.compare("wrf") == 0 || checkfile.compare("stats") == 0 || checkfile.compare("components") == 0
 			        || checkfile.compare("effects") == 0 || checkfile.compare("messages") == 0
 			        || checkfile.compare("audio") == 0 || checkfile.compare("sequenceaudio") == 0 || checkfile.compare("misc") == 0
 			        || checkfile.compare("features") == 0 || checkfile.compare("script") == 0 || checkfile.compare("structs") == 0
@@ -666,7 +666,7 @@ static bool CheckInMap(const char *archive, const char *mountpoint, const char *
 
 	PHYSFS_freeList(filelist);
 
-	if(!WZ_PHYSFS_unmount(archive))
+	if (!WZ_PHYSFS_unmount(archive))
 	{
 		debug(LOG_ERROR, "Could not unmount %s, %s", archive, WZ_PHYSFS_getLastError());
 	}
@@ -676,7 +676,7 @@ static bool CheckInMap(const char *archive, const char *mountpoint, const char *
 
 bool buildMapList()
 {
-	if(!loadLevFile("gamedesc.lev", mod_campaign, false, nullptr))
+	if (!loadLevFile("gamedesc.lev", mod_campaign, false, nullptr))
 	{
 		return false;
 	}
@@ -685,7 +685,7 @@ bool buildMapList()
 	WZ_Maps.clear();
 	MapFileList realFileNames = listMapFiles();
 
-	for(auto &realFileName : realFileNames)
+	for (auto &realFileName : realFileNames)
 	{
 		bool mapmod = false;
 		struct WZmaps CurrentMap;
@@ -695,18 +695,18 @@ bool buildMapList()
 
 		char **filelist = PHYSFS_enumerateFiles("");
 
-		for(char **file = filelist; *file != nullptr; ++file)
+		for (char **file = filelist; *file != nullptr; ++file)
 		{
 			std::string checkfile = *file;
 			size_t len = strlen(*file);
 
-			if(len > 10 && !strcasecmp(*file + (len - 10), ".addon.lev"))   // Do not add addon.lev again
+			if (len > 10 && !strcasecmp(*file + (len - 10), ".addon.lev"))  // Do not add addon.lev again
 			{
 				loadLevFile(*file, mod_multiplay, true, realFileName.c_str());
 			}
 
 			// add support for X player maps using a new name to prevent conflicts.
-			if(len > 13 && !strcasecmp(*file + (len - 13), ".xplayers.lev"))
+			if (len > 13 && !strcasecmp(*file + (len - 13), ".xplayers.lev"))
 			{
 				loadLevFile(*file, mod_multiplay, true, realFileName.c_str());
 			}
@@ -714,14 +714,14 @@ bool buildMapList()
 
 		PHYSFS_freeList(filelist);
 
-		if(WZ_PHYSFS_unmount(realFilePathAndName.c_str()) == 0)
+		if (WZ_PHYSFS_unmount(realFilePathAndName.c_str()) == 0)
 		{
 			debug(LOG_ERROR, "Could not unmount %s, %s", realFilePathAndName.c_str(), WZ_PHYSFS_getLastError());
 		}
 
 		mapmod = CheckInMap(realFilePathAndName.c_str(), "WZMap", "WZMap");
 
-		if(!mapmod)
+		if (!mapmod)
 		{
 			mapmod = CheckInMap(realFilePathAndName.c_str(), "WZMap", "WZMap/multiplay");
 		}
@@ -740,7 +740,7 @@ bool buildMapList()
 //
 bool systemInitialise(float horizScaleFactor, float vertScaleFactor)
 {
-	if(!widgInitialise())
+	if (!widgInitialise())
 	{
 		return false;
 	}
@@ -748,18 +748,18 @@ bool systemInitialise(float horizScaleFactor, float vertScaleFactor)
 	buildMapList();
 
 	// Initialize render engine
-	if(!pie_Initialise())
+	if (!pie_Initialise())
 	{
 		debug(LOG_ERROR, "Unable to initialise renderer");
 		return false;
 	}
 
-	if(!audio_Init(droidAudioTrackStopped, war_getSoundEnabled()))
+	if (!audio_Init(droidAudioTrackStopped, war_getSoundEnabled()))
 	{
 		debug(LOG_SOUND, "Continuing without audio");
 	}
 
-	if(war_getSoundEnabled() && war_GetMusicEnabled())
+	if (war_getSoundEnabled() && war_GetMusicEnabled())
 	{
 		cdAudio_Open(UserMusicPath);
 	}
@@ -768,7 +768,7 @@ bool systemInitialise(float horizScaleFactor, float vertScaleFactor)
 		debug(LOG_SOUND, "Music disabled");
 	}
 
-	if(!dataInitLoadFuncs())  // Pass all the data loading functions to the framework library
+	if (!dataInitLoadFuncs()) // Pass all the data loading functions to the framework library
 	{
 		return false;
 	}
@@ -800,7 +800,7 @@ void systemShutdown()
 	// free up all the load functions (all the data should already have been freed)
 	resReleaseAll();
 
-	if(!multiShutdown())  // ajl. init net stuff
+	if (!multiShutdown()) // ajl. init net stuff
 	{
 		debug(LOG_FATAL, "Unable to multiShutdown() cleanly!");
 		abort();
@@ -811,7 +811,7 @@ void systemShutdown()
 	debug(LOG_MAIN, "shutting down CD audio");
 	cdAudio_Close();
 
-	if(audio_Disabled() == false && !audio_Shutdown())
+	if (audio_Disabled() == false && !audio_Shutdown())
 	{
 		debug(LOG_FATAL, "Unable to audio_Shutdown() cleanly!");
 		abort();
@@ -842,40 +842,40 @@ bool frontendInitialise(const char *ResourceFile)
 {
 	debug(LOG_WZ, "== Initializing frontend == : %s", ResourceFile);
 
-	if(!InitialiseGlobals())				// Initialise all globals and statics everywhere.
+	if (!InitialiseGlobals())				// Initialise all globals and statics everywhere.
 	{
 		return false;
 	}
 
-	if(!scrTabInitialise())				// Initialise the script system
+	if (!scrTabInitialise())				// Initialise the script system
 	{
 		return false;
 	}
 
-	if(!stringsInitialise())				// Initialise the string system
+	if (!stringsInitialise())				// Initialise the string system
 	{
 		return false;
 	}
 
-	if(!objInitialise())					// Initialise the object system
+	if (!objInitialise())					// Initialise the object system
 	{
 		return false;
 	}
 
-	if(!allocPlayerPower())	  //set up the PlayerPower for each player - this should only be done ONCE now
+	if (!allocPlayerPower())	 //set up the PlayerPower for each player - this should only be done ONCE now
 	{
 		return false;
 	}
 
 	debug(LOG_MAIN, "frontEndInitialise: loading resource file .....");
 
-	if(!resLoad(ResourceFile, 0))
+	if (!resLoad(ResourceFile, 0))
 	{
 		//need the object heaps to have been set up before loading in the save game
 		return false;
 	}
 
-	if(!dispInitialise())					// Initialise the display system
+	if (!dispInitialise())					// Initialise the display system
 	{
 		return false;
 	}
@@ -884,7 +884,7 @@ bool frontendInitialise(const char *ResourceFile)
 
 	/* Shift the interface initialisation here temporarily so that it
 		can pick up the stats after they have been loaded */
-	if(!intInitialise())
+	if (!intInitialise())
 	{
 		return false;
 	}
@@ -915,7 +915,7 @@ bool frontendShutdown()
 
 	saveConfig();// save settings to registry.
 
-	if(!mechanicsShutdown())
+	if (!mechanicsShutdown())
 	{
 		return false;
 	}
@@ -926,7 +926,7 @@ bool frontendShutdown()
 	//do this before shutting down the iV library
 	resReleaseAllData();
 
-	if(!objShutdown())
+	if (!objShutdown())
 	{
 		return false;
 	}
@@ -956,63 +956,63 @@ bool stageOneInitialise()
 	wzSceneBegin("Main game loop");
 
 	// Initialise all globals and statics everywhere.
-	if(!InitialiseGlobals())
+	if (!InitialiseGlobals())
 	{
 		return false;
 	}
 
-	if(!stringsInitialise())	/* Initialise the string system */
+	if (!stringsInitialise())	/* Initialise the string system */
 	{
 		return false;
 	}
 
-	if(!objInitialise())		/* Initialise the object system */
+	if (!objInitialise())		/* Initialise the object system */
 	{
 		return false;
 	}
 
-	if(!droidInit())
+	if (!droidInit())
 	{
 		return false;
 	}
 
-	if(!initViewData())
+	if (!initViewData())
 	{
 		return false;
 	}
 
-	if(!grpInitialise())
+	if (!grpInitialise())
 	{
 		return false;
 	}
 
-	if(!aiInitialise())		/* Initialise the AI system */  // pregame
+	if (!aiInitialise())		/* Initialise the AI system */ // pregame
 	{
 		return false;
 	}
 
-	if(!allocPlayerPower())	/*set up the PlayerPower for each player - this should only be done ONCE now*/
+	if (!allocPlayerPower())	/*set up the PlayerPower for each player - this should only be done ONCE now*/
 	{
 		return false;
 	}
 
 	// initialise the visibility stuff
-	if(!visInitialise())
+	if (!visInitialise())
 	{
 		return false;
 	}
 
-	if(!proj_InitSystem())
+	if (!proj_InitSystem())
 	{
 		return false;
 	}
 
-	if(!scrTabInitialise())	// Initialise the old wzscript system
+	if (!scrTabInitialise())	// Initialise the old wzscript system
 	{
 		return false;
 	}
 
-	if(!gridInitialise())
+	if (!gridInitialise())
 	{
 		return false;
 	}
@@ -1043,7 +1043,7 @@ bool stageOneShutDown()
 
 	pie_FreeShaders();
 
-	if(audio_Disabled() == false)
+	if (audio_Disabled() == false)
 	{
 		sound_CheckAllUnloaded();
 	}
@@ -1052,12 +1052,12 @@ bool stageOneShutDown()
 
 	releaseMission();
 
-	if(!aiShutdown())
+	if (!aiShutdown())
 	{
 		return false;
 	}
 
-	if(!objShutdown())
+	if (!objShutdown())
 	{
 		return false;
 	}
@@ -1071,7 +1071,7 @@ bool stageOneShutDown()
 
 	shutdownTerrain();
 
-	if(!mapShutdown())
+	if (!mapShutdown())
 	{
 		return false;
 	}
@@ -1106,24 +1106,24 @@ bool stageTwoInitialise()
 
 	// make sure we clear on loading; this a bad hack to fix a bug when
 	// loading a savegame where we are building a lassat
-	for(i = 0; i < MAX_PLAYERS; i++)
+	for (i = 0; i < MAX_PLAYERS; i++)
 	{
 		setLasSatExists(false, i);
 	}
 
-	if(!dispInitialise())		/* Initialise the display system */
+	if (!dispInitialise())		/* Initialise the display system */
 	{
 		return false;
 	}
 
-	if(!initMiscImds())			/* Set up the explosions */
+	if (!initMiscImds())			/* Set up the explosions */
 	{
 		debug(LOG_FATAL, "Can't find all the explosions graphics?");
 		abort();
 		return false;
 	}
 
-	if(!cmdDroidInit())
+	if (!cmdDroidInit())
 	{
 		return false;
 	}
@@ -1131,22 +1131,22 @@ bool stageTwoInitialise()
 	/* Shift the interface initialisation here temporarily so that it
 		can pick up the stats after they have been loaded */
 
-	if(!intInitialise())
+	if (!intInitialise())
 	{
 		return false;
 	}
 
-	if(!initMessage())			/* Initialise the message heaps */
+	if (!initMessage())			/* Initialise the message heaps */
 	{
 		return false;
 	}
 
-	if(!gwInitialise())
+	if (!gwInitialise())
 	{
 		return false;
 	}
 
-	if(!initScripts())		// Initialise the new javascript system
+	if (!initScripts())		// Initialise the new javascript system
 	{
 		return false;
 	}
@@ -1165,11 +1165,11 @@ bool stageTwoInitialise()
 	debug(LOG_MAIN, "Init game queues, I am %d.", selectedPlayer);
 	sendQueuedDroidInfo();  // Discard any pending orders which could later get flushed into the game queue.
 
-	for(i = 0; i < MAX_PLAYERS; ++i)
+	for (i = 0; i < MAX_PLAYERS; ++i)
 	{
 		NETinitQueue(NETgameQueue(i));
 
-		if(!myResponsibility(i))
+		if (!myResponsibility(i))
 		{
 			NETsetNoSendOverNetwork(NETgameQueue(i));
 		}
@@ -1179,7 +1179,7 @@ bool stageTwoInitialise()
 	// - Loading savegames calls `fPathDroidRoute` (from `loadSaveDroid`) before `stageThreeInitialise`
 	//   is called, hence removing this call to `fpathInitialise` will currently break loading certain
 	//   savegames (if they interact with the fPath system).
-	if(!fpathInitialise())
+	if (!fpathInitialise())
 	{
 		return false;
 	}
@@ -1206,18 +1206,18 @@ bool stageTwoShutDown()
 	freeAllFeatures();
 	freeAllFlagPositions();
 
-	if(!messageShutdown())
+	if (!messageShutdown())
 	{
 		return false;
 	}
 
-	if(!mechanicsShutdown())
+	if (!mechanicsShutdown())
 	{
 		return false;
 	}
 
 
-	if(!ShutdownRadar())
+	if (!ShutdownRadar())
 	{
 		return false;
 	}
@@ -1229,7 +1229,7 @@ bool stageTwoShutDown()
 	//free up the gateway stuff?
 	gwShutDown();
 
-	if(!mapShutdown())
+	if (!mapShutdown())
 	{
 		return false;
 	}
@@ -1248,7 +1248,7 @@ bool stageThreeInitialise()
 
 	loopMissionState = LMS_NORMAL;
 
-	if(!InitRadar()) 	// After resLoad cause it needs the game palette initialised.
+	if (!InitRadar()) 	// After resLoad cause it needs the game palette initialised.
 	{
 		return false;
 	}
@@ -1256,7 +1256,7 @@ bool stageThreeInitialise()
 	// reset the clock to normal speed
 	gameTimeResetMod();
 
-	if(!init3DView())	// Initialise 3d view stuff. After resLoad cause it needs the game palette initialised.
+	if (!init3DView())	// Initialise 3d view stuff. After resLoad cause it needs the game palette initialised.
 	{
 		return false;
 	}
@@ -1265,7 +1265,7 @@ bool stageThreeInitialise()
 	initLighting(0, 0, mapWidth, mapHeight);
 	pie_InitLighting();
 
-	if(fromSave)
+	if (fromSave)
 	{
 		// these two lines are the biggest hack in the world.
 		// the reticule seems to get detached from 'reticuleup'
@@ -1274,9 +1274,9 @@ bool stageThreeInitialise()
 		intAddReticule();
 	}
 
-	if(bMultiPlayer)
+	if (bMultiPlayer)
 	{
-		if(!fromSave)
+		if (!fromSave)
 		{
 			multiGameInit();
 		}
@@ -1288,7 +1288,7 @@ bool stageThreeInitialise()
 
 	prepareScripts(getLevelLoadType() == GTYPE_SAVE_MIDMISSION || getLevelLoadType() == GTYPE_SAVE_START);
 
-	if(!fpathInitialise())
+	if (!fpathInitialise())
 	{
 		return false;
 	}
@@ -1297,7 +1297,7 @@ bool stageThreeInitialise()
 	gridReset();
 
 	//if mission screen is up, close it.
-	if(MissionResUp)
+	if (MissionResUp)
 	{
 		intRemoveMissionResultNoAnim();
 	}
@@ -1309,28 +1309,28 @@ bool stageThreeInitialise()
 	setAllPauseStates(false);
 
 	/* decide if we have to create teams, ONLY in multiplayer mode!*/
-	if(bMultiPlayer && alliancesSharedVision(game.alliance))
+	if (bMultiPlayer && alliancesSharedVision(game.alliance))
 	{
 		createTeamAlliances();
 
 		/* Update ally vision for pre-placed structures and droids */
-		for(i = 0; i < MAX_PLAYERS; i++)
+		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			if(i != selectedPlayer)
+			if (i != selectedPlayer)
 			{
 				/* Structures */
-				for(psStr = apsStructLists[i]; psStr; psStr = psStr->psNext)
+				for (psStr = apsStructLists[i]; psStr; psStr = psStr->psNext)
 				{
-					if(aiCheckAlliances(psStr->player, selectedPlayer))
+					if (aiCheckAlliances(psStr->player, selectedPlayer))
 					{
 						visTilesUpdate((BASE_OBJECT *)psStr);
 					}
 				}
 
 				/* Droids */
-				for(psDroid = apsDroidLists[i]; psDroid; psDroid = psDroid->psNext)
+				for (psDroid = apsDroidLists[i]; psDroid; psDroid = psDroid->psNext)
 				{
-					if(aiCheckAlliances(psDroid->player, selectedPlayer))
+					if (aiCheckAlliances(psDroid->player, selectedPlayer))
 					{
 						visTilesUpdate((BASE_OBJECT *)psDroid);
 					}
@@ -1341,9 +1341,9 @@ bool stageThreeInitialise()
 
 	countUpdate();
 
-	if(getLevelLoadType() != GTYPE_SAVE_MIDMISSION)
+	if (getLevelLoadType() != GTYPE_SAVE_MIDMISSION)
 	{
-		if(getDebugMappingStatus())
+		if (getDebugMappingStatus())
 		{
 			triggerEventCheatMode(true);
 		}
@@ -1368,7 +1368,7 @@ bool stageThreeShutDown()
 
 	// There is an asymmetry in scripts initialization and destruction, due
 	// the many different ways scripts get loaded.
-	if(!shutdownScripts())
+	if (!shutdownScripts())
 	{
 		return false;
 	}
@@ -1384,7 +1384,7 @@ bool stageThreeShutDown()
 
 	audio_StopAll();
 
-	if(bMultiPlayer)
+	if (bMultiPlayer)
 	{
 		multiGameShutdown();
 	}
@@ -1395,7 +1395,7 @@ bool stageThreeShutDown()
 	scrvReset();
 
 	//call this here before mission data is released
-	if(!missionShutDown())
+	if (!missionShutDown())
 	{
 		return false;
 	}
@@ -1445,7 +1445,7 @@ bool saveGameReset()
 	intResetScreen(true);
 	intResetPreviousObj();
 
-	if(!mapShutdown())
+	if (!mapShutdown())
 	{
 		return false;
 	}
@@ -1468,7 +1468,7 @@ static void initMiscVars()
 	includeRedundantDesigns = false;
 	enableConsoleDisplay(true);
 
-	for(unsigned n = 0; n < MAX_PLAYERS; ++n)
+	for (unsigned n = 0; n < MAX_PLAYERS; ++n)
 	{
 		processDebugMappings(n, false);
 	}

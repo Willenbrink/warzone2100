@@ -3052,12 +3052,12 @@ TYPE_EQUIV asEquivTable[] =
 // Initialise the script system
 bool scrTabInitialise()
 {
-	if(!scriptInitialise())
+	if (!scriptInitialise())
 	{
 		return false;
 	}
 
-	if(!eventInitValueFuncs((INTERP_TYPE)ST_MAXTYPE))
+	if (!eventInitValueFuncs((INTERP_TYPE)ST_MAXTYPE))
 	{
 		return false;
 	}
@@ -3087,52 +3087,52 @@ bool scrTabInitialise()
 	scriptSetTypeEquiv(asEquivTable);
 
 	// Set the create and release functions
-	if(!eventAddValueCreate((INTERP_TYPE)ST_BASEOBJECT, scrvAddBasePointer))
+	if (!eventAddValueCreate((INTERP_TYPE)ST_BASEOBJECT, scrvAddBasePointer))
 	{
 		return false;
 	}
 
-	if(!eventAddValueRelease((INTERP_TYPE)ST_BASEOBJECT, scrvReleaseBasePointer))
+	if (!eventAddValueRelease((INTERP_TYPE)ST_BASEOBJECT, scrvReleaseBasePointer))
 	{
 		return false;
 	}
 
-	if(!eventAddValueCreate((INTERP_TYPE)ST_DROID, scrvAddBasePointer))
+	if (!eventAddValueCreate((INTERP_TYPE)ST_DROID, scrvAddBasePointer))
 	{
 		return false;
 	}
 
-	if(!eventAddValueRelease((INTERP_TYPE)ST_DROID, scrvReleaseBasePointer))
+	if (!eventAddValueRelease((INTERP_TYPE)ST_DROID, scrvReleaseBasePointer))
 	{
 		return false;
 	}
 
-	if(!eventAddValueCreate((INTERP_TYPE)ST_STRUCTURE, scrvAddBasePointer))
+	if (!eventAddValueCreate((INTERP_TYPE)ST_STRUCTURE, scrvAddBasePointer))
 	{
 		return false;
 	}
 
-	if(!eventAddValueRelease((INTERP_TYPE)ST_STRUCTURE, scrvReleaseBasePointer))
+	if (!eventAddValueRelease((INTERP_TYPE)ST_STRUCTURE, scrvReleaseBasePointer))
 	{
 		return false;
 	}
 
-	if(!eventAddValueCreate((INTERP_TYPE)ST_FEATURE, scrvAddBasePointer))
+	if (!eventAddValueCreate((INTERP_TYPE)ST_FEATURE, scrvAddBasePointer))
 	{
 		return false;
 	}
 
-	if(!eventAddValueRelease((INTERP_TYPE)ST_FEATURE, scrvReleaseBasePointer))
+	if (!eventAddValueRelease((INTERP_TYPE)ST_FEATURE, scrvReleaseBasePointer))
 	{
 		return false;
 	}
 
-	if(!eventAddValueCreate((INTERP_TYPE)ST_GROUP, scrvNewGroup))
+	if (!eventAddValueCreate((INTERP_TYPE)ST_GROUP, scrvNewGroup))
 	{
 		return false;
 	}
 
-	if(!eventAddValueRelease((INTERP_TYPE)ST_GROUP, scrvReleaseGroup))
+	if (!eventAddValueRelease((INTERP_TYPE)ST_GROUP, scrvReleaseGroup))
 	{
 		return false;
 	}

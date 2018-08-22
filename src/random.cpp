@@ -28,7 +28,7 @@ MersenneTwister::MersenneTwister(uint32_t seed)
 	// Set state to something pseudorandom. Exact constants aren't important here.
 	state[0] = seed;
 
-	for(unsigned i = 1; i != 624; ++i)
+	for (unsigned i = 1; i != 624; ++i)
 	{
 		state[i] = 0x6C078965 * (state[i - 1] ^ state[i - 1] >> 30) + i;
 	}
@@ -36,7 +36,7 @@ MersenneTwister::MersenneTwister(uint32_t seed)
 
 uint32_t MersenneTwister::u32()
 {
-	if(offset == 624)
+	if (offset == 624)
 	{
 		generate();
 	}
@@ -61,19 +61,19 @@ void MersenneTwister::generate()
 	// Don't change these constants, unless you have verified that the period is still 2**19937 - 1.
 	// Discards the lower 31 bits of state[0], since the state is 19937 = 624*32 - 31 bits.
 	// Loop tripled, to avoid using %624 everywhere.
-	for(unsigned i = 0; i != 227; ++i)
+	for (unsigned i = 0; i != 227; ++i)
 	{
 		unsigned v = (state[i] & 0x80000000) | (state[i + 1      ] & 0x7FFFFFFF);
 		state[i] = state[i + 397     ] ^ v >> 1 ^ ((v & 0x00000001) * 0x9908B0DF);
 	}
 
-	for(unsigned i = 227; i != 623; ++i)
+	for (unsigned i = 227; i != 623; ++i)
 	{
 		unsigned v = (state[i] & 0x80000000) | (state[i + 1      ] & 0x7FFFFFFF);
 		state[i] = state[i + 397 - 624] ^ v >> 1 ^ ((v & 0x00000001) * 0x9908B0DF);
 	}
 
-	for(unsigned i = 623; i != 624; ++i)   // Very short loop.
+	for (unsigned i = 623; i != 624; ++i)  // Very short loop.
 	{
 		unsigned v = (state[i] & 0x80000000) | (state[i + 1 - 624] & 0x7FFFFFFF);
 		state[i] = state[i + 397 - 624] ^ v >> 1 ^ ((v & 0x00000001) * 0x9908B0DF);

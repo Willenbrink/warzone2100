@@ -57,7 +57,7 @@ bool loadConfig()
 {
 	QSettings ini(PHYSFS_getWriteDir() + QString("/") + fileName, QSettings::IniFormat);
 
-	if(ini.status() != QSettings::NoError)
+	if (ini.status() != QSettings::NoError)
 	{
 		debug(LOG_ERROR, "Could not open configuration file \"%s\"", fileName);
 		return false;
@@ -65,59 +65,59 @@ bool loadConfig()
 
 	debug(LOG_WZ, "Reading configuration from %s", ini.fileName().toUtf8().constData());
 
-	if(ini.contains("voicevol"))
+	if (ini.contains("voicevol"))
 	{
 		sound_SetUIVolume(ini.value("voicevol").toDouble() / 100.0);
 	}
 
-	if(ini.contains("fxvol"))
+	if (ini.contains("fxvol"))
 	{
 		sound_SetEffectsVolume(ini.value("fxvol").toDouble() / 100.0);
 	}
 
-	if(ini.contains("cdvol"))
+	if (ini.contains("cdvol"))
 	{
 		sound_SetMusicVolume(ini.value("cdvol").toDouble() / 100.0);
 	}
 
-	if(ini.contains("music_enabled"))
+	if (ini.contains("music_enabled"))
 	{
 		war_SetMusicEnabled(ini.value("music_enabled").toBool());
 	}
 
-	if(ini.contains("mapZoom"))
+	if (ini.contains("mapZoom"))
 	{
 		war_SetMapZoom(ini.value("mapZoom").toInt());
 	}
 
-	if(ini.contains("mapZoomRate"))
+	if (ini.contains("mapZoomRate"))
 	{
 		war_SetMapZoomRate(ini.value("mapZoomRate").toInt());
 	}
 
-	if(ini.contains("radarZoom"))
+	if (ini.contains("radarZoom"))
 	{
 		war_SetRadarZoom(ini.value("radarZoom").toInt());
 	}
 
-	if(ini.contains("language"))
+	if (ini.contains("language"))
 	{
 		setLanguage(ini.value("language").toString().toUtf8().constData());
 	}
 
-	if(ini.contains("nomousewarp"))
+	if (ini.contains("nomousewarp"))
 	{
 		setMouseWarp(ini.value("nomousewarp").toBool());
 	}
 
-	if(ini.contains("notexturecompression"))
+	if (ini.contains("notexturecompression"))
 	{
 		wz_texture_compression = false;
 	}
 
 	showFPS = ini.value("showFPS", false).toBool();
 
-	if(ini.contains("cameraSpeed"))
+	if (ini.contains("cameraSpeed"))
 	{
 		war_SetCameraSpeed(ini.value("cameraSpeed").toInt());
 	}
@@ -129,12 +129,12 @@ bool loadConfig()
 	setRightClickOrders(ini.value("RightClickOrders", false).toBool());
 	setMiddleClickRotate(ini.value("MiddleClickRotate", false).toBool());
 
-	if(ini.contains("radarJump"))
+	if (ini.contains("radarJump"))
 	{
 		war_SetRadarJump(ini.value("radarJump").toBool());
 	}
 
-	if(ini.contains("scrollEvent"))
+	if (ini.contains("scrollEvent"))
 	{
 		war_SetScrollEvent(ini.value("scrollEvent").toInt());
 	}
@@ -171,11 +171,11 @@ bool loadConfig()
 	game.scavengers = ini.value("scavengers", false).toBool();
 	memset(&ingame.phrases, 0, sizeof(ingame.phrases));
 
-	for(int i = 1; i < 5; i++)
+	for (int i = 1; i < 5; i++)
 	{
 		QString key("phrase" + QString::number(i));
 
-		if(ini.contains(key))
+		if (ini.contains(key))
 		{
 			sstrcpy(ingame.phrases[i], ini.value(key).toString().toUtf8().constData());
 		}
@@ -185,14 +185,14 @@ bool loadConfig()
 	radarDrawMode = (RADAR_DRAW_MODE)ini.value("radarTerrainMode", RADAR_MODE_DEFAULT).toInt();
 	radarDrawMode = (RADAR_DRAW_MODE)MIN(NUM_RADAR_MODES - 1, radarDrawMode); // restrict to allowed values
 
-	if(ini.contains("textureSize"))
+	if (ini.contains("textureSize"))
 	{
 		setTextureSize(ini.value("textureSize").toInt());
 	}
 
 	NetPlay.isUPNP = ini.value("UPnP", true).toBool();
 
-	if(ini.contains("antialiasing"))
+	if (ini.contains("antialiasing"))
 	{
 		war_setAntialiasing(ini.value("antialiasing").toInt());
 	}
@@ -206,12 +206,12 @@ bool loadConfig()
 	// the default (and minimum) display scale is 100 (%)
 	unsigned int displayScale = ini.value("displayScale", war_GetDisplayScale()).toUInt();
 
-	if(displayScale < 100)
+	if (displayScale < 100)
 	{
 		displayScale = 100;
 	}
 
-	if(displayScale > 500)  // Maximum supported display scale of 500%. (Further testing needed for anything greater.)
+	if (displayScale > 500) // Maximum supported display scale of 500%. (Further testing needed for anything greater.)
 	{
 		displayScale = 500;
 	}
@@ -222,7 +222,7 @@ bool loadConfig()
 	int height = ini.value("height", war_GetHeight()).toInt();
 	int screen = ini.value("screen", 0).toInt();
 
-	if(width < 640 || height < 480)	// sanity check
+	if (width < 640 || height < 480)	// sanity check
 	{
 		width = 640;
 		height = 480;
@@ -234,7 +234,7 @@ bool loadConfig()
 	war_SetHeight(height);
 	war_SetScreen(screen);
 
-	if(ini.contains("bpp"))
+	if (ini.contains("bpp"))
 	{
 		pie_SetVideoBufferDepth(ini.value("bpp").toInt());
 	}
@@ -247,7 +247,7 @@ bool saveConfig()
 {
 	QSettings ini(PHYSFS_getWriteDir() + QString("/") + fileName, QSettings::IniFormat);
 
-	if(ini.status() != QSettings::NoError)
+	if (ini.status() != QSettings::NoError)
 	{
 		debug(LOG_ERROR, "Could not open configuration file \"%s\"", fileName);
 		return false;
@@ -272,7 +272,7 @@ bool saveConfig()
 	ini.setValue("language", getLanguage());
 
 	// don't save out the cheat mode.
-	if(getDifficultyLevel() != DL_KILLER && getDifficultyLevel() != DL_TOUGH)
+	if (getDifficultyLevel() != DL_KILLER && getDifficultyLevel() != DL_TOUGH)
 	{
 		ini.setValue("difficulty", getDifficultyLevel());		// level
 	}
@@ -308,15 +308,15 @@ bool saveConfig()
 	ini.setValue("masterserver_port", NETgetMasterserverPort());
 	ini.setValue("gameserver_port", NETgetGameserverPort());
 
-	if(!bMultiPlayer)
+	if (!bMultiPlayer)
 	{
 		ini.setValue("colour", getPlayerColour(0));			// favourite colour.
 	}
 	else
 	{
-		if(NetPlay.isHost && ingame.localJoiningInProgress)
+		if (NetPlay.isHost && ingame.localJoiningInProgress)
 		{
-			if(bMultiPlayer && NetPlay.bComms)
+			if (bMultiPlayer && NetPlay.bComms)
 			{
 				ini.setValue("gameName", game.name);			//  last hosted game
 			}
@@ -344,7 +344,7 @@ bool reloadMPConfig()
 {
 	QSettings ini(PHYSFS_getWriteDir() + QString("/") + fileName, QSettings::IniFormat);
 
-	if(ini.status() != QSettings::NoError)
+	if (ini.status() != QSettings::NoError)
 	{
 		debug(LOG_ERROR, "Could not open configuration file \"%s\"", fileName);
 		return false;
@@ -353,13 +353,13 @@ bool reloadMPConfig()
 	debug(LOG_WZ, "Reloading prefs prefs to registry");
 
 	// If we're in-game, we already have our own configuration set, so no need to reload it.
-	if(NetPlay.isHost && !ingame.localJoiningInProgress)
+	if (NetPlay.isHost && !ingame.localJoiningInProgress)
 	{
-		if(bMultiPlayer && !NetPlay.bComms)
+		if (bMultiPlayer && !NetPlay.bComms)
 		{
 			// one-player skirmish mode sets game name to "One Player Skirmish", so
 			// reset the name
-			if(ini.contains("gameName"))
+			if (ini.contains("gameName"))
 			{
 				sstrcpy(game.name, ini.value("gameName").toString().toUtf8().constData());
 			}
@@ -369,9 +369,9 @@ bool reloadMPConfig()
 	}
 
 	// If we're host and not in-game, we can safely save our settings and return.
-	if(NetPlay.isHost && ingame.localJoiningInProgress)
+	if (NetPlay.isHost && ingame.localJoiningInProgress)
 	{
-		if(bMultiPlayer && NetPlay.bComms)
+		if (bMultiPlayer && NetPlay.bComms)
 		{
 			ini.setValue("gameName", game.name);			//  last hosted game
 		}
@@ -379,7 +379,7 @@ bool reloadMPConfig()
 		{
 			// One-player skirmish mode sets game name to "One Player Skirmish", so
 			// reset the name
-			if(ini.contains("gameName"))
+			if (ini.contains("gameName"))
 			{
 				sstrcpy(game.name, ini.value("gameName").toString().toUtf8().constData());
 			}
@@ -399,7 +399,7 @@ bool reloadMPConfig()
 	// We're not host, so let's get rid of the host's game settings and restore our own.
 
 	// game name
-	if(ini.contains("gameName"))
+	if (ini.contains("gameName"))
 	{
 		sstrcpy(game.name, ini.value("gameName").toString().toUtf8().constData());
 	}

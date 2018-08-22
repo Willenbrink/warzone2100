@@ -74,7 +74,7 @@ bool scrGenExternGet(UDWORD index)
 	INTERP_TYPE		type;
 	INTERP_VAL	scrFunctionResult;	//function return value to be pushed to stack
 
-	switch(index)
+	switch (index)
 	{
 
 		case EXTID_TRACKTRANSPORTER:
@@ -168,7 +168,7 @@ bool scrGenExternGet(UDWORD index)
 			break;
 	}
 
-	if(!stackPushResult(type, &scrFunctionResult))
+	if (!stackPushResult(type, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -185,7 +185,7 @@ bool scrGenExternSet(UDWORD index)
 	SDWORD			val;
 
 	// Get the value and store it in type,val
-	if(!stackPop(&sVal))
+	if (!stackPop(&sVal))
 	{
 		return false;
 	}
@@ -193,10 +193,10 @@ bool scrGenExternSet(UDWORD index)
 	type = sVal.type;
 	val = sVal.v.ival;
 
-	switch(index)
+	switch (index)
 	{
 		case EXTID_GAMELEVEL:
-			if(type != VAL_INT)
+			if (type != VAL_INT)
 			{
 				ASSERT(false, "invalid type for gameLevel");
 				return false;
@@ -206,7 +206,7 @@ bool scrGenExternSet(UDWORD index)
 			break;
 
 		case EXTID_TUTORIAL:
-			if(type != VAL_BOOL)
+			if (type != VAL_BOOL)
 			{
 				ASSERT(false, "invalid type for inTutorial");
 				return false;
@@ -214,7 +214,7 @@ bool scrGenExternSet(UDWORD index)
 
 			bInTutorial = val;
 
-			if(val)
+			if (val)
 			{
 				// Since tutorial is skirmish
 				NetPlay.players[0].allocated = true;
@@ -223,7 +223,7 @@ bool scrGenExternSet(UDWORD index)
 			break;
 
 		case EXTID_EXTRAVICTORYFLAG:
-			if(type != VAL_BOOL)
+			if (type != VAL_BOOL)
 			{
 				ASSERT(false, "invalid type for extraVictoryFlag");
 				return false;
@@ -233,7 +233,7 @@ bool scrGenExternSet(UDWORD index)
 			break;
 
 		case EXTID_EXTRAFAILFLAG:
-			if(type != VAL_BOOL)
+			if (type != VAL_BOOL)
 			{
 				ASSERT(false, "invalid type for extraFailFlag");
 				return false;

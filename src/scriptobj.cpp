@@ -60,7 +60,7 @@ bool scrBaseObjGet(UDWORD index)
 	STRUCTURE		*psStruct;
 	FEATURE			*psFeature;
 
-	if(!stackPopParams(1, ST_BASEOBJECT, &psObj))
+	if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
 	{
 		debug(LOG_ERROR, "scrBaseObjGet: stackPopParams failed");
 		return false;
@@ -72,7 +72,7 @@ bool scrBaseObjGet(UDWORD index)
 	                 "Invalid object %p of type %d", static_cast<void *>(psObj), psObj->type);
 
 	// set the type and return value
-	switch(index)
+	switch (index)
 	{
 		case OBJID_POSX:
 			type = VAL_INT;
@@ -105,7 +105,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_ORDER:
-			if(psObj->type != OBJ_DROID)
+			if (psObj->type != OBJ_DROID)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: order only valid for a droid");
 				return false;
@@ -114,7 +114,7 @@ bool scrBaseObjGet(UDWORD index)
 			type = VAL_INT;
 			scrFunctionResult.v.ival = ((DROID *)psObj)->order.type;
 
-			if(scrFunctionResult.v.ival == DORDER_GUARD && ((DROID *)psObj)->order.psObj == nullptr)
+			if (scrFunctionResult.v.ival == DORDER_GUARD && ((DROID *)psObj)->order.psObj == nullptr)
 			{
 				scrFunctionResult.v.ival = DORDER_NONE;
 			}
@@ -123,7 +123,7 @@ bool scrBaseObjGet(UDWORD index)
 
 		//new member variable
 		case OBJID_ACTION:
-			if(psObj->type != OBJ_DROID)
+			if (psObj->type != OBJ_DROID)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: action only valid for a droid");
 				return false;
@@ -135,7 +135,7 @@ bool scrBaseObjGet(UDWORD index)
 
 		//new member variable - if droid is selected (humans only)
 		case OBJID_SELECTED:
-			if(psObj->type != OBJ_DROID)
+			if (psObj->type != OBJ_DROID)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: selected only valid for a droid");
 				return false;
@@ -146,7 +146,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_STRUCTSTATTYPE:
-			if(psObj->type == OBJ_STRUCTURE)
+			if (psObj->type == OBJ_STRUCTURE)
 			{
 				type = VAL_INT;
 				scrFunctionResult.v.ival = ((STRUCTURE *)psObj)->pStructureType->type;
@@ -160,7 +160,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_ORDERX:
-			if(psObj->type != OBJ_DROID)
+			if (psObj->type != OBJ_DROID)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: order only valid for a droid");
 				return false;
@@ -171,7 +171,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_ORDERY:
-			if(psObj->type != OBJ_DROID)
+			if (psObj->type != OBJ_DROID)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: order only valid for a droid");
 				return false;
@@ -182,7 +182,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_DROIDTYPE:
-			if(psObj->type != OBJ_DROID)
+			if (psObj->type != OBJ_DROID)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: droidType only valid for a droid");
 				return false;
@@ -193,7 +193,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_CLUSTERID:
-			if(psObj->type == OBJ_FEATURE)
+			if (psObj->type == OBJ_FEATURE)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: clusterID not valid for features");
 				return false;
@@ -205,7 +205,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_HEALTH:
-			switch(psObj->type)
+			switch (psObj->type)
 			{
 				case OBJ_DROID:
 					psDroid = (DROID *)psObj;
@@ -217,7 +217,7 @@ bool scrBaseObjGet(UDWORD index)
 					psFeature = (FEATURE *)psObj;
 					type = VAL_INT;
 
-					if(psFeature->psStats->damageable)
+					if (psFeature->psStats->damageable)
 					{
 						scrFunctionResult.v.ival = psFeature->body * 100 / psFeature->psStats->body;
 					}
@@ -242,7 +242,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_BODY:
-			if(psObj->type != OBJ_DROID)
+			if (psObj->type != OBJ_DROID)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: body only valid for a droid");
 				return false;
@@ -253,7 +253,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_PROPULSION:
-			if(psObj->type != OBJ_DROID)
+			if (psObj->type != OBJ_DROID)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: propulsion only valid for a droid");
 				return false;
@@ -266,10 +266,10 @@ bool scrBaseObjGet(UDWORD index)
 		case OBJID_WEAPON:		//TODO: only returns first weapon now
 			type = (INTERP_TYPE)ST_WEAPON;
 
-			switch(psObj->type)
+			switch (psObj->type)
 			{
 				case OBJ_DROID:
-					if(((DROID *)psObj)->asWeaps[0].nStat == 0)
+					if (((DROID *)psObj)->asWeaps[0].nStat == 0)
 					{
 						scrFunctionResult.v.ival = 0;
 					}
@@ -281,7 +281,7 @@ bool scrBaseObjGet(UDWORD index)
 					break;
 
 				case OBJ_STRUCTURE:
-					if(((STRUCTURE *)psObj)->numWeaps == 0 || ((STRUCTURE *)psObj)->asWeaps[0].nStat == 0)
+					if (((STRUCTURE *)psObj)->numWeaps == 0 || ((STRUCTURE *)psObj)->asWeaps[0].nStat == 0)
 					{
 						scrFunctionResult.v.ival = 0;
 					}
@@ -303,12 +303,12 @@ bool scrBaseObjGet(UDWORD index)
 		case OBJID_STRUCTSTAT:
 
 			//droid.stat - now returns the type of structure a truck is building for droids
-			if(psObj->type == OBJ_STRUCTURE)
+			if (psObj->type == OBJ_STRUCTURE)
 			{
 				type = (INTERP_TYPE)ST_STRUCTURESTAT;
 				scrFunctionResult.v.ival = ((STRUCTURE *)psObj)->pStructureType - asStructureStats;
 			}
-			else if(psObj->type == OBJ_DROID)
+			else if (psObj->type == OBJ_DROID)
 			{
 				type = (INTERP_TYPE)ST_STRUCTURESTAT;
 				scrFunctionResult.v.ival = ((DROID *)psObj)->order.psStats - asStructureStats;
@@ -324,12 +324,12 @@ bool scrBaseObjGet(UDWORD index)
 		case OBJID_TARGET:
 
 			//added object->psTarget
-			if(psObj->type == OBJ_STRUCTURE)
+			if (psObj->type == OBJ_STRUCTURE)
 			{
 				type = (INTERP_TYPE)ST_BASEOBJECT;
 				scrFunctionResult.v.oval = ((STRUCTURE *)psObj)->psTarget[0];
 			}
-			else if(psObj->type == OBJ_DROID)
+			else if (psObj->type == OBJ_DROID)
 			{
 				type = (INTERP_TYPE)ST_BASEOBJECT;
 				scrFunctionResult.v.oval = ((DROID *)psObj)->order.psObj;
@@ -343,7 +343,7 @@ bool scrBaseObjGet(UDWORD index)
 			break;
 
 		case OBJID_GROUP:
-			if(psObj->type != OBJ_DROID)
+			if (psObj->type != OBJ_DROID)
 			{
 				debug(LOG_ERROR, "scrBaseObjGet: group only valid for a droid");
 				return false;
@@ -356,7 +356,7 @@ bool scrBaseObjGet(UDWORD index)
 		case OBJID_HITPOINTS:
 			type = VAL_INT;
 
-			switch(psObj->type)
+			switch (psObj->type)
 			{
 				case OBJ_DROID:
 					scrFunctionResult.v.ival = (SDWORD)((DROID *)psObj)->body;
@@ -381,7 +381,7 @@ bool scrBaseObjGet(UDWORD index)
 		case OBJID_ORIG_HITPOINTS:
 			type = VAL_INT;
 
-			switch(psObj->type)
+			switch (psObj->type)
 			{
 				case OBJ_DROID:
 					scrFunctionResult.v.ival = (SDWORD)((DROID *)psObj)->originalBody;
@@ -410,7 +410,7 @@ bool scrBaseObjGet(UDWORD index)
 	}
 
 	// Return the value
-	if(!stackPushResult(type, &scrFunctionResult))
+	if (!stackPushResult(type, &scrFunctionResult))
 	{
 		debug(LOG_ERROR, "scrBaseObjGet: stackPushResult() failed");
 		return false;
@@ -425,20 +425,20 @@ bool scrObjToDroid()
 {
 	BASE_OBJECT		*psObj;
 
-	if(!stackPopParams(1, ST_BASEOBJECT, &psObj))
+	if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
 	{
 		return false;
 	}
 
 	// return NULL if not a droid
-	if(psObj->type != OBJ_DROID)
+	if (psObj->type != OBJ_DROID)
 	{
 		psObj = nullptr;
 	}
 
 	scrFunctionResult.v.oval = psObj;
 
-	if(!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
+	if (!stackPushResult((INTERP_TYPE)ST_DROID, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -452,20 +452,20 @@ bool scrObjToStructure()
 {
 	BASE_OBJECT		*psObj;
 
-	if(!stackPopParams(1, ST_BASEOBJECT, &psObj))
+	if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
 	{
 		return false;
 	}
 
 	// return NULL if not a droid
-	if(psObj->type != OBJ_STRUCTURE)
+	if (psObj->type != OBJ_STRUCTURE)
 	{
 		psObj = nullptr;
 	}
 
 	scrFunctionResult.v.oval = psObj;
 
-	if(!stackPushResult((INTERP_TYPE)ST_STRUCTURE, &scrFunctionResult))
+	if (!stackPushResult((INTERP_TYPE)ST_STRUCTURE, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -479,20 +479,20 @@ bool scrObjToFeature()
 {
 	BASE_OBJECT		*psObj;
 
-	if(!stackPopParams(1, ST_BASEOBJECT, &psObj))
+	if (!stackPopParams(1, ST_BASEOBJECT, &psObj))
 	{
 		return false;
 	}
 
 	// return NULL if not a droid
-	if(psObj->type != OBJ_FEATURE)
+	if (psObj->type != OBJ_FEATURE)
 	{
 		psObj = nullptr;
 	}
 
 	scrFunctionResult.v.oval = psObj;
 
-	if(!stackPushResult((INTERP_TYPE)ST_FEATURE, &scrFunctionResult))
+	if (!stackPushResult((INTERP_TYPE)ST_FEATURE, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -511,12 +511,12 @@ bool scrWeaponObjGet(UDWORD index)
 	INTERP_TYPE		type;
 	SDWORD			weapIndex;
 
-	if(!stackPopParams(1, ST_WEAPON, &weapIndex))
+	if (!stackPopParams(1, ST_WEAPON, &weapIndex))
 	{
 		return false;
 	}
 
-	switch(index)
+	switch (index)
 	{
 		case WEAPID_LONG_RANGE:
 			type = VAL_INT;
@@ -555,7 +555,7 @@ bool scrWeaponObjGet(UDWORD index)
 	}
 
 	// Return the value
-	if(!stackPushResult(type, &scrFunctionResult))
+	if (!stackPushResult(type, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -570,24 +570,24 @@ bool scrGroupObjGet(UDWORD index)
 	DROID_GROUP		*psGroup;
 	DROID			*psCurr;
 
-	if(!stackPopParams(1, ST_GROUP, &psGroup))
+	if (!stackPopParams(1, ST_GROUP, &psGroup))
 	{
 		return false;
 	}
 
-	switch(index)
+	switch (index)
 	{
 		case GROUPID_POSX:
 			lgX = 0;
 			lgMembers = 0;
 
-			for(psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
+			for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
 			{
 				lgMembers += 1;
 				lgX += (SDWORD)psCurr->pos.x;
 			}
 
-			if(lgMembers > 0)
+			if (lgMembers > 0)
 			{
 				lgX = lgX / lgMembers;
 			}
@@ -600,13 +600,13 @@ bool scrGroupObjGet(UDWORD index)
 			lgY = 0;
 			lgMembers = 0;
 
-			for(psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
+			for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
 			{
 				lgMembers += 1;
 				lgY += (SDWORD)psCurr->pos.y;
 			}
 
-			if(lgMembers > 0)
+			if (lgMembers > 0)
 			{
 				lgY = lgY / lgMembers;
 			}
@@ -618,7 +618,7 @@ bool scrGroupObjGet(UDWORD index)
 		case GROUPID_MEMBERS:
 			lgMembers = 0;
 
-			for(psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
+			for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
 			{
 				lgMembers += 1;
 			}
@@ -631,13 +631,13 @@ bool scrGroupObjGet(UDWORD index)
 			lgHealth = 0;
 			lgMembers = 0;
 
-			for(psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
+			for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
 			{
 				lgMembers += 1;
 				lgHealth += (SDWORD)((100 * psCurr->body) / psCurr->originalBody);
 			}
 
-			if(lgMembers > 0)
+			if (lgMembers > 0)
 			{
 				lgHealth = lgHealth / lgMembers;
 			}
@@ -663,7 +663,7 @@ bool scrGroupObjGet(UDWORD index)
 	}
 
 	// Return the value
-	if(!stackPushResult(type, &scrFunctionResult))
+	if (!stackPushResult(type, &scrFunctionResult))
 	{
 		return false;
 	}
@@ -677,10 +677,10 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 {
 	WzString pName;
 
-	switch((unsigned)type)   // Unsigned cast to suppress compiler warnings due to enum abuse.
+	switch ((unsigned)type)  // Unsigned cast to suppress compiler warnings due to enum abuse.
 	{
 		case ST_STRUCTURESTAT:
-			if(data < numStructureStats)
+			if (data < numStructureStats)
 			{
 				pName = asStructureStats[data].id;
 			}
@@ -688,7 +688,7 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 			break;
 
 		case ST_FEATURESTAT:
-			if(data < numFeatureStats)
+			if (data < numFeatureStats)
 			{
 				pName = asFeatureStats[data].id;
 			}
@@ -696,7 +696,7 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 			break;
 
 		case ST_BODY:
-			if(data < numBodyStats)
+			if (data < numBodyStats)
 			{
 				pName = asBodyStats[data].id;
 			}
@@ -704,7 +704,7 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 			break;
 
 		case ST_PROPULSION:
-			if(data < numPropulsionStats)
+			if (data < numPropulsionStats)
 			{
 				pName = asPropulsionStats[data].id;
 			}
@@ -712,7 +712,7 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 			break;
 
 		case ST_ECM:
-			if(data < numECMStats)
+			if (data < numECMStats)
 			{
 				pName = asECMStats[data].id;
 			}
@@ -720,7 +720,7 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 			break;
 
 		case ST_SENSOR:
-			if(data < numSensorStats)
+			if (data < numSensorStats)
 			{
 				pName = asSensorStats[data].id;
 			}
@@ -728,7 +728,7 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 			break;
 
 		case ST_CONSTRUCT:
-			if(data < numConstructStats)
+			if (data < numConstructStats)
 			{
 				pName = asConstructStats[data].id;
 			}
@@ -736,7 +736,7 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 			break;
 
 		case ST_WEAPON:
-			if(data < numWeaponStats)
+			if (data < numWeaponStats)
 			{
 				pName = asWeaponStats[data].id;
 			}
@@ -744,7 +744,7 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 			break;
 
 		case ST_REPAIR:
-			if(data < numRepairStats)
+			if (data < numRepairStats)
 			{
 				pName = asRepairStats[data].id;
 			}
@@ -752,7 +752,7 @@ static const WzString scrGetStatName(INTERP_TYPE type, UDWORD data)
 			break;
 
 		case ST_BRAIN:
-			if(data < numBrainStats)
+			if (data < numBrainStats)
 			{
 				pName = asBrainStats[data].id;
 			}
@@ -782,13 +782,13 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 	RESEARCH	*psResearch;
 	DROID		*psCDroid;
 
-	switch((unsigned)psVal->type)   // Unsigned cast to suppress compiler warnings due to enum abuse.
+	switch ((unsigned)psVal->type)  // Unsigned cast to suppress compiler warnings due to enum abuse.
 	{
 		case ST_INTMESSAGE:
 			// save the name
 			psIntMessage = (VIEWDATA *)psVal->v.oval;
 
-			if(psIntMessage != nullptr)
+			if (psIntMessage != nullptr)
 			{
 				ini.setValue("data", psIntMessage->name);
 			}
@@ -801,7 +801,7 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_FEATURE:
 
 			// just save the id
-			if(psVal->v.oval && ((BASE_OBJECT *)psVal->v.oval)->died <= NOT_CURRENT_LIST)
+			if (psVal->v.oval && ((BASE_OBJECT *)psVal->v.oval)->died <= NOT_CURRENT_LIST)
 			{
 				ini.setValue("data", ((BASE_OBJECT *)psVal->v.oval)->id);
 			}
@@ -822,7 +822,7 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_BRAIN:
 			pName = scrGetStatName(psVal->type, psVal->v.ival);
 
-			if(!pName.isEmpty())
+			if (!pName.isEmpty())
 			{
 				ini.setValue("data", pName);
 			}
@@ -830,7 +830,7 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 			break;
 
 		case ST_TEMPLATE:
-			if(psVal->v.oval)
+			if (psVal->v.oval)
 			{
 				ini.setValue("data", ((DROID_TEMPLATE *)psVal->v.oval)->multiPlayerID);
 			}
@@ -841,7 +841,7 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 		{
 			const char *const idStr = psVal->v.sval ? strresGetIDfromString(psStringRes, psVal->v.sval) : nullptr;
 
-			if(idStr)
+			if (idStr)
 			{
 				ini.setValue("data", WzString(idStr));
 			}
@@ -850,7 +850,7 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 		}
 
 		case ST_LEVEL:
-			if(psVal->v.sval)
+			if (psVal->v.sval)
 			{
 				ini.setValue("data", WzString(psVal->v.sval));
 			}
@@ -860,7 +860,7 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_RESEARCH:
 			psResearch = (RESEARCH *)psVal->v.oval;
 
-			if(psResearch && !psResearch->id.isEmpty())
+			if (psResearch && !psResearch->id.isEmpty())
 			{
 				ini.setValue("data", psResearch->id);
 				ASSERT(psResearch == getResearch(getID(psResearch)), "Research %s not found!", getID(psResearch));
@@ -872,12 +872,12 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 		{
 			DROID_GROUP *const psGroup = (DROID_GROUP *)psVal->v.oval;
 
-			if(psGroup)
+			if (psGroup)
 			{
 				const int members = psGroup->getNumMembers();
 				std::vector<WzString> droids;
 
-				for(psCDroid = psGroup->psList; psCDroid; psCDroid = psCDroid->psGrpNext)
+				for (psCDroid = psGroup->psList; psCDroid; psCDroid = psCDroid->psGrpNext)
 				{
 					checkValidId(psCDroid->id);
 					droids.push_back(WzString::number(psCDroid->id));
@@ -886,7 +886,7 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 				ASSERT(members == droids.size(), "Group membership count");
 				ini.setValue("members", droids.size());
 
-				if(!droids.empty())
+				if (!droids.empty())
 				{
 					ini.setValue("data", droids);
 				}
@@ -901,13 +901,13 @@ bool scrValDefSave(INTERP_VAL *psVal, WzConfig &ini)
 		}
 
 		case ST_SOUND:
-			if(psVal->v.ival)
+			if (psVal->v.ival)
 			{
 				// can also return NULL
 				pName = WzString::fromUtf8(sound_GetTrackName((UDWORD)psVal->v.ival));
 			}
 
-			if(pName.isEmpty())
+			if (pName.isEmpty())
 			{
 				debug(LOG_WARNING, "Could not get sound track name");
 			}
@@ -940,10 +940,10 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 	LEVEL_DATASET	*psLevel;
 	DROID_GROUP		*psGroup = nullptr;
 
-	switch((unsigned)psVal->type)   // Unsigned cast to suppress compiler warnings due to enum abuse.
+	switch ((unsigned)psVal->type)  // Unsigned cast to suppress compiler warnings due to enum abuse.
 	{
 		case ST_INTMESSAGE:
-			if(ini.contains("data"))
+			if (ini.contains("data"))
 			{
 				psVal->v.oval = (void *)getViewData(ini.value("data").toWzString());
 			}
@@ -958,7 +958,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_DROID:
 		case ST_STRUCTURE:
 		case ST_FEATURE:
-			if(ini.contains("data"))
+			if (ini.contains("data"))
 			{
 				psVal->v.oval = (void *)getBaseObjFromId(ini.value("data").toInt());
 			}
@@ -976,11 +976,11 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_STRUCTURESTAT:
 			index = 0;
 
-			if(ini.contains("data"))
+			if (ini.contains("data"))
 			{
 				index = getStructStatFromName(ini.value("data").toWzString());
 
-				if(index == -1)
+				if (index == -1)
 				{
 					debug(LOG_FATAL, "Could not find stat");
 					index = 0;
@@ -993,11 +993,11 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_FEATURESTAT:
 			index = 0;
 
-			if(ini.contains("data"))
+			if (ini.contains("data"))
 			{
 				index = getFeatureStatFromName(ini.value("data").toWzString());
 
-				if(index == -1)
+				if (index == -1)
 				{
 					debug(LOG_FATAL, "Could not find stat");
 					index = 0;
@@ -1010,7 +1010,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_BODY:
 			index = getCompFromName(COMP_BODY, ini.value("data").toWzString());
 
-			if(index == -1)
+			if (index == -1)
 			{
 				debug(LOG_FATAL, "Could not find body component");
 				index = 0;
@@ -1022,7 +1022,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_PROPULSION:
 			index = getCompFromName(COMP_PROPULSION, ini.value("data").toWzString());
 
-			if(index == -1)
+			if (index == -1)
 			{
 				debug(LOG_FATAL, "Could not find propulsion component");
 				index = 0;
@@ -1034,7 +1034,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_ECM:
 			index = getCompFromName(COMP_ECM, ini.value("data").toWzString());
 
-			if(index == -1)
+			if (index == -1)
 			{
 				debug(LOG_FATAL, "Could not find ECM component");
 				index = 0;
@@ -1046,7 +1046,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_SENSOR:
 			index = getCompFromName(COMP_SENSOR, ini.value("data").toWzString());
 
-			if(index == -1)
+			if (index == -1)
 			{
 				debug(LOG_FATAL, "Could not find sensor component");
 				index = 0;
@@ -1058,7 +1058,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_CONSTRUCT:
 			index = getCompFromName(COMP_CONSTRUCT, ini.value("data").toWzString());
 
-			if(index == -1)
+			if (index == -1)
 			{
 				debug(LOG_FATAL, "Could not find constructor component");
 				index = 0;
@@ -1070,7 +1070,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_WEAPON:
 			index = getCompFromName(COMP_WEAPON, ini.value("data").toWzString());
 
-			if(index == -1)
+			if (index == -1)
 			{
 				debug(LOG_FATAL, "Could not find weapon");
 				index = 0;
@@ -1082,7 +1082,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_REPAIR:
 			index = getCompFromName(COMP_REPAIRUNIT, ini.value("data").toWzString());
 
-			if(index == -1)
+			if (index == -1)
 			{
 				debug(LOG_FATAL, "Could not find repair component");
 				index = 0;
@@ -1094,7 +1094,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_BRAIN:
 			index = getCompFromName(COMP_BRAIN, ini.value("data").toWzString());
 
-			if(index == -1)
+			if (index == -1)
 			{
 				debug(LOG_FATAL, "Could not find repair brain");
 				index = 0;
@@ -1106,12 +1106,12 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_TEMPLATE:
 			psVal->v.oval = nullptr;
 
-			if(ini.contains("data"))
+			if (ini.contains("data"))
 			{
 				// FIXME: Ugh. Find a better way to show full template info
 				psVal->v.oval = (void *)IdToTemplate(ini.value("data").toInt(), ANYPLAYER);
 
-				if((DROID_TEMPLATE *)(psVal->v.oval) == nullptr)
+				if ((DROID_TEMPLATE *)(psVal->v.oval) == nullptr)
 				{
 					debug(LOG_FATAL, "Could not find template %d", ini.value("data").toInt());
 				}
@@ -1122,7 +1122,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_TEXTSTRING:
 			psVal->v.sval = nullptr;
 
-			if(ini.contains("data"))
+			if (ini.contains("data"))
 			{
 				psVal->v.sval = strdup(ini.value("data").toWzString().toUtf8().c_str());
 			}
@@ -1132,11 +1132,11 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_LEVEL:
 			psVal->v.sval = nullptr;
 
-			if(ini.contains("data"))
+			if (ini.contains("data"))
 			{
 				psLevel = levFindDataSet(ini.value("data").toWzString().toUtf8().c_str());
 
-				if(psLevel == nullptr)
+				if (psLevel == nullptr)
 				{
 					debug(LOG_FATAL, "Could not find level dataset");
 					return false;	// FIXME: Why are we saying fatal, if this isn't?
@@ -1150,11 +1150,11 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 		case ST_RESEARCH:
 			psVal->v.oval = nullptr;
 
-			if(ini.contains("data"))
+			if (ini.contains("data"))
 			{
 				WzString research = ini.value("data").toWzString();
 
-				if(!research.isEmpty())
+				if (!research.isEmpty())
 				{
 					psVal->v.oval = (void *)getResearch(research.toUtf8().c_str());
 					ASSERT_OR_RETURN(false, psVal->v.oval, "Could not find research %s", research.toUtf8().c_str());
@@ -1164,7 +1164,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 			break;
 
 		case ST_GROUP:
-			if(psVal->v.oval == nullptr)
+			if (psVal->v.oval == nullptr)
 			{
 				DROID_GROUP *tmp = grpCreate();
 				tmp->add(nullptr);
@@ -1174,7 +1174,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 			psGroup = (DROID_GROUP *)(psVal->v.oval);
 			members = ini.value("members", 0).toInt();
 
-			if(psGroup && members > 0)
+			if (psGroup && members > 0)
 			{
 				std::vector<WzString> droids = ini.value("data").toWzStringList();
 
@@ -1187,13 +1187,13 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 				// load the droids
 				size_t i = droids.size();
 
-				while(i > 0)
+				while (i > 0)
 				{
 					i--;
 					id = droids[i].toInt();
 					psCDroid = (DROID *)getBaseObjFromId(id);
 
-					if(!psCDroid)
+					if (!psCDroid)
 					{
 						debug(LOG_ERROR, "Could not find object id %d", id);
 					}
@@ -1211,7 +1211,7 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 			// find audio id
 
 			// don't use sound if it's disabled
-			if(audio_Disabled())
+			if (audio_Disabled())
 			{
 				psVal->v.ival = NO_SOUND;
 				break;
@@ -1219,13 +1219,13 @@ bool scrValDefLoad(INTERP_VAL *psVal, WzConfig &ini)
 
 			index = audio_GetTrackID(ini.value("data").toWzString().toUtf8().c_str());
 
-			if(index == SAMPLE_NOT_FOUND)
+			if (index == SAMPLE_NOT_FOUND)
 			{
 				// find empty id and set track vals
 				WzString soundname = ini.value("data").toWzString();
 				index = audio_SetTrackVals(soundname.toUtf8().c_str(), false, 100, 1800);
 
-				if(!index)			// this is a NON fatal error.
+				if (!index)			// this is a NON fatal error.
 				{
 					// We can't find filename of the sound for some reason.
 					debug(LOG_ERROR, "Sound ID not available %s not found", soundname.toUtf8().c_str());

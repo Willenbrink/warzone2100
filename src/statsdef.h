@@ -294,7 +294,7 @@ struct PROPULSION_STATS : public COMPONENT_STATS
 	{
 		pBase = &base;
 
-		for(int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
+		for (int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
 	}
 
 	PROPULSION_TYPE propulsionType = PROPULSION_TYPE_NUM;
@@ -319,7 +319,7 @@ struct SENSOR_STATS : public COMPONENT_STATS
 	{
 		pBase = &base;
 
-		for(int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
+		for (int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
 	}
 
 	iIMDShape *pMountGraphic = nullptr;     ///< The turret mount to use
@@ -338,7 +338,7 @@ struct ECM_STATS : public COMPONENT_STATS
 	{
 		pBase = &base;
 
-		for(int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
+		for (int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
 	}
 
 	iIMDShape *pMountGraphic = nullptr;   ///< The turret mount to use
@@ -356,7 +356,7 @@ struct REPAIR_STATS : public COMPONENT_STATS
 	{
 		pBase = &base;
 
-		for(int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
+		for (int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
 	}
 
 	iIMDShape *pMountGraphic = nullptr;	///< The turret mount to use
@@ -379,7 +379,7 @@ struct WEAPON_STATS : public COMPONENT_STATS
 	{
 		pBase = &base;
 
-		for(int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
+		for (int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
 	}
 
 	struct : UPGRADE
@@ -449,7 +449,7 @@ struct CONSTRUCT_STATS : public COMPONENT_STATS
 	{
 		pBase = &base;
 
-		for(int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
+		for (int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
 	}
 
 	iIMDShape *pMountGraphic = nullptr;      ///< The turret mount to use
@@ -466,7 +466,7 @@ struct BRAIN_STATS : public COMPONENT_STATS
 	{
 		pBase = &base;
 
-		for(int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
+		for (int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
 	}
 
 	WEAPON_STATS *psWeaponStat = nullptr;  ///< weapon stats associated with this brain - for Command Droids
@@ -492,7 +492,7 @@ struct BODY_STATS : public COMPONENT_STATS
 	{
 		pBase = &base;
 
-		for(int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
+		for (int i = 0; i < MAX_PLAYERS; i++) pUpgrade[i] = &upgrade[i];
 	}
 
 	BODY_SIZE size = SIZE_NUM;      ///< How big the body is - affects how hit

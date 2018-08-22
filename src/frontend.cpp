@@ -107,7 +107,7 @@ bool CancelPressed()
 {
 	const bool cancel = keyPressed(KEY_ESC);
 
-	if(cancel)
+	if (cancel)
 	{
 		inputLoseFocus();	// clear the input buffer.
 	}
@@ -148,7 +148,7 @@ static bool startTitleMenu()
 	addTextButton(FRONTEND_OPTIONS, FRONTEND_POS5X, FRONTEND_POS5Y, _("Options"), WBUT_TXTCENTRE);
 
 	// check whether video sequences are installed
-	if(PHYSFS_exists("sequences/devastation.ogg"))
+	if (PHYSFS_exists("sequences/devastation.ogg"))
 	{
 		addTextButton(FRONTEND_PLAYINTRO, FRONTEND_POS6X, FRONTEND_POS6Y, _("View Intro"), WBUT_TXTCENTRE);
 	}
@@ -198,7 +198,7 @@ static void runUpgrdHyperlink()
 	std::string link = "http://gamecheck.wz2100.net/";
 	std::string version = version_getVersionString();
 
-	for(char ch : version)
+	for (char ch : version)
 	{
 		link += ch == ' ' ? '_' : ch;
 	}
@@ -226,7 +226,7 @@ bool runTitleMenu()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	switch(id)
+	switch (id)
 	{
 		case FRONTEND_QUIT:
 			changeTitleMode(QUIT);
@@ -301,7 +301,7 @@ bool runTutorialMenu()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	switch(id)
+	switch (id)
 	{
 		case FRONTEND_TUTORIAL:
 			NetPlay.players[0].allocated = true;
@@ -327,7 +327,7 @@ bool runTutorialMenu()
 	}
 
 	// If close button pressed then return from this menu.
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(TITLE);
 	}
@@ -357,7 +357,7 @@ static void startSinglePlayerMenu()
 	addMultiBut(psWScreen, FRONTEND_BOTFORM, FRONTEND_QUIT, 10, 10, 30, 29, P_("menu", "Return"), IMAGE_RETURN, IMAGE_RETURN_HI, IMAGE_RETURN_HI);
 
 	// show this only when the video sequences are not installed
-	if(!PHYSFS_exists("sequences/devastation.ogg"))
+	if (!PHYSFS_exists("sequences/devastation.ogg"))
 	{
 		addSmallTextButton(FRONTEND_HYPERLINK, FRONTEND_POS8X, FRONTEND_POS8Y, _("Campaign videos are missing! Get them from http://wz2100.net"), 0);
 	}
@@ -368,13 +368,13 @@ static std::vector<CAMPAIGN_FILE> readCampaignFiles()
 	std::vector<CAMPAIGN_FILE> result;
 	char **files = PHYSFS_enumerateFiles("campaigns");
 
-	for(char **i = files; *i != nullptr; ++i)
+	for (char **i = files; *i != nullptr; ++i)
 	{
 		CAMPAIGN_FILE c;
 		WzString filename("campaigns/");
 		filename += *i;
 
-		if(!filename.endsWith(".json"))
+		if (!filename.endsWith(".json"))
 		{
 			continue;
 		}
@@ -401,7 +401,7 @@ static void startCampaignSelector()
 
 	std::vector<CAMPAIGN_FILE> list = readCampaignFiles();
 
-	for(size_t i = 0; i < list.size(); i++)
+	for (size_t i = 0; i < list.size(); i++)
 	{
 		addTextButton(FRONTEND_CAMPAIGN_1 + i, FRONTEND_POS1X, FRONTEND_POS2Y + 40 * i, gettext(list[i].name.toUtf8().c_str()), WBUT_TXTCENTRE);
 	}
@@ -410,7 +410,7 @@ static void startCampaignSelector()
 	addMultiBut(psWScreen, FRONTEND_BOTFORM, FRONTEND_QUIT, 10, 10, 30, 29, P_("menu", "Return"), IMAGE_RETURN, IMAGE_RETURN_HI, IMAGE_RETURN_HI);
 
 	// show this only when the video sequences are not installed
-	if(!PHYSFS_exists("sequences/devastation.ogg"))
+	if (!PHYSFS_exists("sequences/devastation.ogg"))
 	{
 		addSmallTextButton(FRONTEND_HYPERLINK, FRONTEND_POS8X, FRONTEND_POS8Y, _("Campaign videos are missing! Get them from http://wz2100.net"), 0);
 	}
@@ -422,9 +422,9 @@ static void frontEndNewGame(int which)
 	sstrcpy(aLevelName, list[which].level.toUtf8().c_str());
 
 	// show this only when the video sequences are installed
-	if(PHYSFS_exists("sequences/devastation.ogg"))
+	if (PHYSFS_exists("sequences/devastation.ogg"))
 	{
-		if(!list[which].video.isEmpty())
+		if (!list[which].video.isEmpty())
 		{
 			seq_ClearSeqList();
 			seq_AddSeqToList(list[which].video.toUtf8().c_str(), nullptr, list[which].captions.toUtf8().c_str(), false);
@@ -432,7 +432,7 @@ static void frontEndNewGame(int which)
 		}
 	}
 
-	if(!list[which].package.isEmpty())
+	if (!list[which].package.isEmpty())
 	{
 		WzString path;
 		path += PHYSFS_getWriteDir();
@@ -441,18 +441,18 @@ static void frontEndNewGame(int which)
 		path += PHYSFS_getDirSeparator();
 		path += list[which].package;
 
-		if(!PHYSFS_mount(path.toUtf8().c_str(), NULL, PHYSFS_APPEND))
+		if (!PHYSFS_mount(path.toUtf8().c_str(), NULL, PHYSFS_APPEND))
 		{
 			debug(LOG_ERROR, "Failed to load campaign mod \"%s\": %s",
 			      path.toUtf8().c_str(), WZ_PHYSFS_getLastError());
 		}
 	}
 
-	if(!list[which].loading.isEmpty())
+	if (!list[which].loading.isEmpty())
 	{
 		debug(LOG_WZ, "Adding campaign mod level \"%s\"", list[which].loading.toUtf8().c_str());
 
-		if(!loadLevFile(list[which].loading.toUtf8().c_str(), mod_campaign, false, nullptr))
+		if (!loadLevFile(list[which].loading.toUtf8().c_str(), mod_campaign, false, nullptr))
 		{
 			debug(LOG_ERROR, "Failed to load %s", list[which].loading.toUtf8().c_str());
 			return;
@@ -465,7 +465,7 @@ static void frontEndNewGame(int which)
 
 static void loadOK()
 {
-	if(strlen(sRequestResult))
+	if (strlen(sRequestResult))
 	{
 		sstrcpy(saveGameName, sRequestResult);
 		changeTitleMode(LOADSAVEGAME);
@@ -490,7 +490,7 @@ void SPinit()
 	// make sure we have a valid color choice for our SP game. Valid values are 0, 4-7
 	playercolor = war_GetSPcolor();
 
-	if(playercolor >= 1 && playercolor <= 3)
+	if (playercolor >= 1 && playercolor <= 3)
 	{
 		playercolor = 0;	// default is green
 	}
@@ -504,11 +504,11 @@ bool runCampaignSelector()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	if(id == FRONTEND_QUIT)
+	if (id == FRONTEND_QUIT)
 	{
 		changeTitleMode(SINGLE); // go back
 	}
-	else if(id >= FRONTEND_CAMPAIGN_1 && id <= FRONTEND_CAMPAIGN_6)  // chose a campaign
+	else if (id >= FRONTEND_CAMPAIGN_1 && id <= FRONTEND_CAMPAIGN_6) // chose a campaign
 	{
 		SPinit();
 		frontEndNewGame(id - FRONTEND_CAMPAIGN_1);
@@ -516,7 +516,7 @@ bool runCampaignSelector()
 
 	widgDisplayScreen(psWScreen); // show the widgets currently running
 
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(SINGLE);
 	}
@@ -526,14 +526,14 @@ bool runCampaignSelector()
 
 bool runSinglePlayerMenu()
 {
-	if(bLoadSaveUp)
+	if (bLoadSaveUp)
 	{
-		if(runLoadSave(false))  // check for file name.
+		if (runLoadSave(false)) // check for file name.
 		{
 			loadOK();
 		}
 	}
-	else if(challengesUp)
+	else if (challengesUp)
 	{
 		runChallenges();
 	}
@@ -542,7 +542,7 @@ bool runSinglePlayerMenu()
 		WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 		unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-		switch(id)
+		switch (id)
 		{
 			case FRONTEND_NEWGAME:
 				changeTitleMode(CAMPAIGNS);
@@ -579,22 +579,22 @@ bool runSinglePlayerMenu()
 				break;
 		}
 
-		if(CancelPressed())
+		if (CancelPressed())
 		{
 			changeTitleMode(TITLE);
 		}
 	}
 
-	if(!bLoadSaveUp && !challengesUp)						// if save/load screen is up
+	if (!bLoadSaveUp && !challengesUp)						// if save/load screen is up
 	{
 		widgDisplayScreen(psWScreen);						// show the widgets currently running
 	}
 
-	if(bLoadSaveUp)								// if save/load screen is up
+	if (bLoadSaveUp)								// if save/load screen is up
 	{
 		displayLoadSave();
 	}
-	else if(challengesUp)
+	else if (challengesUp)
 	{
 		displayChallenges();
 	}
@@ -629,7 +629,7 @@ bool runMultiPlayerMenu()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	switch(id)
+	switch (id)
 	{
 		case FRONTEND_HOST:
 			// don't pretend we are running a network game. Really do it!
@@ -650,7 +650,7 @@ bool runMultiPlayerMenu()
 			NETinit(true);
 			ingame.bHostSetup = false;
 
-			if(getLobbyError() != ERROR_INVALID)
+			if (getLobbyError() != ERROR_INVALID)
 			{
 				setLobbyError(ERROR_NOERROR);
 			}
@@ -668,7 +668,7 @@ bool runMultiPlayerMenu()
 
 	widgDisplayScreen(psWScreen); // show the widgets currently running
 
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(TITLE);
 	}
@@ -704,7 +704,7 @@ bool runOptionsMenu()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	switch(id)
+	switch (id)
 	{
 		case FRONTEND_GAMEOPTIONS:
 			changeTitleMode(GAME);
@@ -739,7 +739,7 @@ bool runOptionsMenu()
 	}
 
 	// If close button pressed then return from this menu.
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(TITLE);
 	}
@@ -751,7 +751,7 @@ bool runOptionsMenu()
 
 static char const *graphicsOptionsFmvmodeString()
 {
-	switch(war_GetFMVmode())
+	switch (war_GetFMVmode())
 	{
 		case FMV_1X:
 			return _("1×");
@@ -769,7 +769,7 @@ static char const *graphicsOptionsFmvmodeString()
 
 static char const *graphicsOptionsScanlinesString()
 {
-	switch(war_getScanlineMode())
+	switch (war_getScanlineMode())
 	{
 		case SCANLINES_OFF:
 			return _("Off");
@@ -855,7 +855,7 @@ bool runGraphicsOptionsMenu()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	switch(id)
+	switch (id)
 	{
 		case FRONTEND_QUIT:
 			changeTitleMode(OPTIONS);
@@ -903,7 +903,7 @@ bool runGraphicsOptionsMenu()
 
 
 	// If close button pressed then return from this menu.
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(OPTIONS);
 	}
@@ -981,7 +981,7 @@ bool runAudioAndZoomOptionsMenu()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	switch(id)
+	switch (id)
 	{
 		case FRONTEND_FX:
 		case FRONTEND_3D_FX:
@@ -1033,7 +1033,7 @@ bool runAudioAndZoomOptionsMenu()
 	}
 
 	// If close button pressed then return from this menu.
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(OPTIONS);
 	}
@@ -1071,7 +1071,7 @@ static char const *videoOptionsWindowModeString()
 
 static std::string videoOptionsAntialiasingString()
 {
-	if(war_getAntialiasing() == 0)
+	if (war_getAntialiasing() == 0)
 	{
 		return _("Off");
 	}
@@ -1129,13 +1129,13 @@ void refreshCurrentVideoOptionsValues()
 	widgSetString(psWScreen, FRONTEND_WINDOWMODE_R, videoOptionsWindowModeString());
 	widgSetString(psWScreen, FRONTEND_FSAA_R, videoOptionsAntialiasingString().c_str());
 
-	if(widgGetFromID(psWScreen, FRONTEND_RESOLUTION_R))  // Resolution option may not be available
+	if (widgGetFromID(psWScreen, FRONTEND_RESOLUTION_R)) // Resolution option may not be available
 	{
 		widgSetString(psWScreen, FRONTEND_RESOLUTION_R, videoOptionsResolutionString().c_str());
 
-		if(canChangeResolutionLive())
+		if (canChangeResolutionLive())
 		{
-			if(!war_getFullscreen())
+			if (!war_getFullscreen())
 			{
 				// If live window resizing is supported & the current mode is "windowed", disable the Resolution option and add a tooltip
 				// explaining the user can now resize the window normally.
@@ -1155,7 +1155,7 @@ void refreshCurrentVideoOptionsValues()
 	widgSetString(psWScreen, FRONTEND_TEXTURESZ_R, videoOptionsTextureSizeString().c_str());
 	widgSetString(psWScreen, FRONTEND_VSYNC_R, videoOptionsVsyncString());
 
-	if(widgGetFromID(psWScreen, FRONTEND_DISPLAYSCALE_R))  // Display Scale option may not be available
+	if (widgGetFromID(psWScreen, FRONTEND_DISPLAYSCALE_R)) // Display Scale option may not be available
 	{
 		widgSetString(psWScreen, FRONTEND_DISPLAYSCALE_R, videoOptionsDisplayScaleString().c_str());
 	}
@@ -1203,7 +1203,7 @@ static bool startVideoOptionsMenu()
 	antialiasing_label->setTextAlignment(WLAB_ALIGNBOTTOMLEFT);
 
 	// Display Scale
-	if(wzAvailableDisplayScales().size() > 1)
+	if (wzAvailableDisplayScales().size() > 1)
 	{
 		addTextButton(FRONTEND_DISPLAYSCALE, FRONTEND_POS6X - 35, FRONTEND_POS7Y, videoOptionsDisplayScaleLabel(), WBUT_SECONDARY);
 		addTextButton(FRONTEND_DISPLAYSCALE_R, FRONTEND_POS6M - 55, FRONTEND_POS7Y, videoOptionsDisplayScaleString(), WBUT_SECONDARY);
@@ -1269,7 +1269,7 @@ bool runVideoOptionsMenu()
 		return compareKey(a) == compareKey(b);
 	};
 
-	switch(id)
+	switch (id)
 	{
 		case FRONTEND_WINDOWMODE:
 		case FRONTEND_WINDOWMODE_R:
@@ -1277,7 +1277,7 @@ bool runVideoOptionsMenu()
 			war_setFullscreen(!war_getFullscreen());
 			widgSetString(psWScreen, FRONTEND_WINDOWMODE_R, videoOptionsWindowModeString());
 
-			if(!wzSupportsLiveResolutionChanges())
+			if (!wzSupportsLiveResolutionChanges())
 			{
 				refreshCurrentVideoOptionsValues();
 				break;
@@ -1307,7 +1307,7 @@ bool runVideoOptionsMenu()
 			std::vector<screeninfo> modes = availableResolutionsSorted();
 
 			// We can't pick resolutions if there aren't any.
-			if(modes.empty())
+			if (modes.empty())
 			{
 				debug(LOG_ERROR, "No resolutions available to change.");
 				break;
@@ -1323,9 +1323,9 @@ bool runVideoOptionsMenu()
 			// Find current resolution in list.
 			auto current = std::lower_bound(modes.begin(), modes.end(), config, compareLess);
 
-			if(current == modes.end() || !compareEq(*current, config))
+			if (current == modes.end() || !compareEq(*current, config))
 			{
-				if(current != modes.begin())
+				if (current != modes.begin())
 				{
 					--current;  // If current resolution doesn't exist, round down to next-highest one.
 				}
@@ -1336,7 +1336,7 @@ bool runVideoOptionsMenu()
 			bool successfulResolutionChange = false;
 			current = seqCycle(current, modes.begin(), 1, modes.end() - 1);
 
-			if(canChangeResolutionLive())
+			if (canChangeResolutionLive())
 			{
 				// Disable the ability to use the Video options menu to live-change the window size when in windowed mode.
 				// Why?
@@ -1345,12 +1345,12 @@ bool runVideoOptionsMenu()
 				//	   tiling window manager (ex. i3), but SDL thinks the window size has been set to 800x600. This obviously
 				//     breaks things.)
 				//  - Manual window resizing is supported (so there is no need for this functionality in the Video menu).
-				if(!wzIsFullscreen()) break;
+				if (!wzIsFullscreen()) break;
 
-				while(current != startingResolution)
+				while (current != startingResolution)
 				{
 					// Attempt to change the resolution
-					if(!wzChangeWindowResolution(current->screen, current->width, current->height))
+					if (!wzChangeWindowResolution(current->screen, current->width, current->height))
 					{
 						debug(LOG_WARNING, "Failed to change active resolution from: [%d] %d x %d to: [%d] %d x %d", config.screen, config.width, config.height, current->screen, current->width, current->height);
 
@@ -1365,7 +1365,7 @@ bool runVideoOptionsMenu()
 					}
 				}
 
-				if(!successfulResolutionChange) break;
+				if (!successfulResolutionChange) break;
 			}
 			else
 			{
@@ -1373,7 +1373,7 @@ bool runVideoOptionsMenu()
 				unsigned int maxDisplayScale = wzGetMaximumDisplayScaleForWindowSize(current->width, current->height);
 				unsigned int current_displayScale = war_GetDisplayScale();
 
-				if(maxDisplayScale < current_displayScale)
+				if (maxDisplayScale < current_displayScale)
 				{
 					// Reduce the display scale to the maximum supported for this resolution
 					war_SetDisplayScale(maxDisplayScale);
@@ -1423,7 +1423,7 @@ bool runVideoOptionsMenu()
 			// Find current display scale in list.
 			auto current = std::lower_bound(displayScales.begin(), displayScales.end(), current_displayScale);
 
-			if(current == displayScales.end() || *current != current_displayScale)
+			if (current == displayScales.end() || *current != current_displayScale)
 			{
 				--current;  // If current display scale doesn't exist, round down to next-highest one.
 			}
@@ -1435,12 +1435,12 @@ bool runVideoOptionsMenu()
 
 			unsigned int maxDisplayScale = wzGetMaximumDisplayScaleForWindowSize(war_GetWidth(), war_GetHeight());
 
-			while(current != startingDisplayScale)
+			while (current != startingDisplayScale)
 			{
-				if(canChangeResolutionLive())
+				if (canChangeResolutionLive())
 				{
 					// Attempt to change the display scale
-					if(!wzChangeDisplayScale(*current))
+					if (!wzChangeDisplayScale(*current))
 					{
 						debug(LOG_WARNING, "Failed to change display scale from: %d to: %d", current_displayScale, *current);
 
@@ -1457,7 +1457,7 @@ bool runVideoOptionsMenu()
 				else
 				{
 					// when live resolution changes are unavailable, check to see if the display scale is supported at the desired resolution
-					if(maxDisplayScale < *current)
+					if (maxDisplayScale < *current)
 					{
 						// try the next display scale factor, and loop
 						current = seqCycle(current, displayScales.begin(), 1, displayScales.end() - 1);
@@ -1471,7 +1471,7 @@ bool runVideoOptionsMenu()
 				}
 			}
 
-			if(!successfulDisplayScaleChange) break;
+			if (!successfulDisplayScaleChange) break;
 
 			// Store the new display scale
 			war_SetDisplayScale(*current);
@@ -1490,7 +1490,7 @@ bool runVideoOptionsMenu()
 			break;
 	}
 
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(OPTIONS);
 	}
@@ -1528,7 +1528,7 @@ static char const *mouseOptionsCursorModeString()
 
 static char const *mouseOptionsScrollEventString()
 {
-	switch(war_GetScrollEvent())
+	switch (war_GetScrollEvent())
 	{
 		case 0:
 			return _("Map/Radar Zoom");
@@ -1593,7 +1593,7 @@ bool runMouseOptionsMenu()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	switch(id)
+	switch (id)
 	{
 		case FRONTEND_MFLIP:
 		case FRONTEND_MFLIP_R:
@@ -1642,7 +1642,7 @@ bool runMouseOptionsMenu()
 			break;
 	}
 
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(OPTIONS);
 	}
@@ -1654,7 +1654,7 @@ bool runMouseOptionsMenu()
 
 static char const *gameOptionsDifficultyString()
 {
-	switch(getDifficultyLevel())
+	switch (getDifficultyLevel())
 	{
 		case DL_EASY:
 			return _("Easy");
@@ -1682,7 +1682,7 @@ static std::string gameOptionsCameraSpeedString()
 {
 	char cameraSpeed[20];
 
-	if(getCameraAccel())
+	if (getCameraAccel())
 	{
 		ssprintf(cameraSpeed, "%d", war_GetCameraSpeed());
 	}
@@ -1734,7 +1734,7 @@ static bool startGameOptionsMenu()
 	// This is a workaround, until we find what is setting that to 1-3.  See configuration.c:701
 	playercolor = war_GetSPcolor();
 
-	if(playercolor >= 1 && playercolor <= 3)
+	if (playercolor >= 1 && playercolor <= 3)
 	{
 		playercolor = 0;
 	}
@@ -1744,7 +1744,7 @@ static bool startGameOptionsMenu()
 
 	playercolor = war_getMPcolour();
 
-	for(int colour = -1; colour < MAX_PLAYERS_IN_GUI; ++colour)
+	for (int colour = -1; colour < MAX_PLAYERS_IN_GUI; ++colour)
 	{
 		int cellX = (colour + 1) % 7;
 		int cellY = (colour + 1) / 7;
@@ -1768,7 +1768,7 @@ bool runGameOptionsMenu()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	switch(id)
+	switch (id)
 	{
 		case FRONTEND_LANGUAGE:
 		case FRONTEND_LANGUAGE_R:
@@ -1852,11 +1852,11 @@ bool runGameOptionsMenu()
 			break;
 	}
 
-	if(id >= FE_MP_PR && id <= FE_MP_PMAX)
+	if (id >= FE_MP_PR && id <= FE_MP_PMAX)
 	{
 		int chosenColour = id - FE_MP_PR - 1;
 
-		for(int colour = -1; colour < MAX_PLAYERS_IN_GUI; ++colour)
+		for (int colour = -1; colour < MAX_PLAYERS_IN_GUI; ++colour)
 		{
 			unsigned thisID = FE_MP_PR + colour + 1;
 			widgSetButtonState(psWScreen, thisID, id == thisID ? WBUT_LOCK : 0);
@@ -1866,7 +1866,7 @@ bool runGameOptionsMenu()
 	}
 
 	// If close button pressed then return from this menu.
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(OPTIONS);
 	}
@@ -1890,7 +1890,7 @@ static void displayTitleBitmap(WZ_DECL_UNUSED WIDGET *psWidget, WZ_DECL_UNUSED U
 {
 	char modListText[MAX_STR_LENGTH] = "";
 
-	if(!getModList().empty())
+	if (!getModList().empty())
 	{
 		sstrcat(modListText, _("Mod: "));
 		sstrcat(modListText, getModList().c_str());
@@ -1904,7 +1904,7 @@ static void displayTitleBitmap(WZ_DECL_UNUSED WIDGET *psWidget, WZ_DECL_UNUSED U
 
 	cache.formattedVersionString.render(pie_GetVideoBufferWidth() - 9, pie_GetVideoBufferHeight() - 14, WZCOL_GREY, 270.f);
 
-	if(!getModList().empty())
+	if (!getModList().empty())
 	{
 		cache.modListText.render(9, 14, WZCOL_GREY);
 	}
@@ -1912,7 +1912,7 @@ static void displayTitleBitmap(WZ_DECL_UNUSED WIDGET *psWidget, WZ_DECL_UNUSED U
 	cache.formattedVersionString.render(pie_GetVideoBufferWidth() - 10, pie_GetVideoBufferHeight() - 15, WZCOL_TEXT_BRIGHT, 270.f);
 
 
-	if(!getModList().empty())
+	if (!getModList().empty())
 	{
 		cache.modListText.render(10, 15, WZCOL_TEXT_BRIGHT);
 	}
@@ -1977,7 +1977,7 @@ void displayTextOption(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 
 	cache.wzText.setText(psBut->pText.toUtf8(), psBut->FontID);
 
-	if(widgGetMouseOver(psWScreen) == psBut->id)					// if mouse is over text then hilight.
+	if (widgGetMouseOver(psWScreen) == psBut->id)					// if mouse is over text then hilight.
 	{
 		hilight = true;
 	}
@@ -1985,7 +1985,7 @@ void displayTextOption(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	fw = cache.wzText.width();
 	fy = yOffset + psWidget->y() + (psWidget->height() - cache.wzText.lineSize()) / 2 - cache.wzText.aboveBase();
 
-	if(psWidget->style & WBUT_TXTCENTRE)							//check for centering, calculate offset.
+	if (psWidget->style & WBUT_TXTCENTRE)							//check for centering, calculate offset.
 	{
 		fx = xOffset + psWidget->x() + ((psWidget->width() - fw) / 2);
 	}
@@ -1996,17 +1996,17 @@ void displayTextOption(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 
 	PIELIGHT colour;
 
-	if(greyOut)														// unavailable
+	if (greyOut)														// unavailable
 	{
 		colour = WZCOL_TEXT_DARK;
 	}
 	else															// available
 	{
-		if(hilight)													// hilight
+		if (hilight)													// hilight
 		{
 			colour = WZCOL_TEXT_BRIGHT;
 		}
-		else if(psWidget->id == FRONTEND_HYPERLINK || psWidget->id == FRONTEND_DONATELINK || psWidget->id == FRONTEND_CHATLINK)  // special case for our hyperlink
+		else if (psWidget->id == FRONTEND_HYPERLINK || psWidget->id == FRONTEND_DONATELINK || psWidget->id == FRONTEND_CHATLINK) // special case for our hyperlink
 		{
 			colour = WZCOL_YELLOW;
 		}
@@ -2045,7 +2045,7 @@ void addBackdrop()
 	sFormInit.onDelete = [](WIDGET * psWidget)
 	{
 		assert(psWidget->pUserData != nullptr);
-		delete((TitleBitmapCache *)psWidget->pUserData);
+		delete ((TitleBitmapCache *)psWidget->pUserData);
 		psWidget->pUserData = nullptr;
 	};
 	widgAddForm(psWScreen, &sFormInit);
@@ -2060,7 +2060,7 @@ void addTopForm()
 	topForm->id = FRONTEND_TOPFORM;
 	topForm->setCalcLayout(LAMBDA_CALCLAYOUT_SIMPLE(
 	{
-		if(titleMode == MULTIOPTION)
+		if (titleMode == MULTIOPTION)
 		{
 			psWidget->setGeometry(FRONTEND_TOPFORM_WIDEX, FRONTEND_TOPFORM_WIDEY, FRONTEND_TOPFORM_WIDEW, FRONTEND_TOPFORM_WIDEH);
 		}
@@ -2078,11 +2078,11 @@ void addTopForm()
 	int dstW = topForm->width();
 	int dstH = topForm->height();
 
-	if(imgW * dstH < imgH * dstW)  // Want to set aspect ratio dstW/dstH = imgW/imgH.
+	if (imgW * dstH < imgH * dstW) // Want to set aspect ratio dstW/dstH = imgW/imgH.
 	{
 		dstW = imgW * dstH / imgH; // Too wide.
 	}
-	else if(imgW * dstH > imgH * dstW)
+	else if (imgW * dstH > imgH * dstW)
 	{
 		dstH = imgH * dstW / imgW; // Too high.
 	}
@@ -2158,7 +2158,7 @@ void addTextButton(UDWORD id,  UDWORD PosX, UDWORD PosY, const std::string &txt,
 	sButInit.y = (short)PosY;
 
 	// Align
-	if(!(style & WBUT_TXTCENTRE))
+	if (!(style & WBUT_TXTCENTRE))
 	{
 		sButInit.width = (short)(iV_GetTextWidth(txt.c_str(), font_large) + 10);
 		sButInit.x += 35;
@@ -2170,7 +2170,7 @@ void addTextButton(UDWORD id,  UDWORD PosX, UDWORD PosY, const std::string &txt,
 	}
 
 	// Enable right clicks
-	if(style & WBUT_SECONDARY)
+	if (style & WBUT_SECONDARY)
 	{
 		sButInit.style |= WBUT_SECONDARY;
 	}
@@ -2191,7 +2191,7 @@ void addTextButton(UDWORD id,  UDWORD PosX, UDWORD PosY, const std::string &txt,
 	widgAddButton(psWScreen, &sButInit);
 
 	// Disable button
-	if(style & WBUT_DISABLE)
+	if (style & WBUT_DISABLE)
 	{
 		widgSetButtonState(psWScreen, id, WBUT_DISABLE);
 	}
@@ -2207,7 +2207,7 @@ void addSmallTextButton(UDWORD id,  UDWORD PosX, UDWORD PosY, const char *txt, u
 	sButInit.y = (short)PosY;
 
 	// Align
-	if(!(style & WBUT_TXTCENTRE))
+	if (!(style & WBUT_TXTCENTRE))
 	{
 		sButInit.width = (short)(iV_GetTextWidth(txt, font_small) + 10);
 		sButInit.x += 35;
@@ -2219,7 +2219,7 @@ void addSmallTextButton(UDWORD id,  UDWORD PosX, UDWORD PosY, const char *txt, u
 	}
 
 	// Enable right clicks
-	if(style & WBUT_SECONDARY)
+	if (style & WBUT_SECONDARY)
 	{
 		sButInit.style |= WBUT_SECONDARY;
 	}
@@ -2240,7 +2240,7 @@ void addSmallTextButton(UDWORD id,  UDWORD PosX, UDWORD PosY, const char *txt, u
 	widgAddButton(psWScreen, &sButInit);
 
 	// Disable button
-	if(style & WBUT_DISABLE)
+	if (style & WBUT_DISABLE)
 	{
 		widgSetButtonState(psWScreen, id, WBUT_DISABLE);
 	}
@@ -2275,7 +2275,7 @@ void changeTitleMode(tMode mode)
 	oldMode = titleMode;							// store old mode
 	titleMode = mode;								// set new mode
 
-	switch(mode)
+	switch (mode)
 	{
 		case CAMPAIGNS:
 			startCampaignSelector();
@@ -2373,7 +2373,7 @@ void frontendScreenSizeDidChange(int oldWidth, int oldHeight, int newWidth, int 
 	// they should automatically recalculate their layout on screen resize.
 
 	// If the Video Options screen is up, the current resolution text (and other values) should be refreshed
-	if(titleMode == VIDEO_OPTIONS)
+	if (titleMode == VIDEO_OPTIONS)
 	{
 		ASSERT(widgGetFromID(psWScreen, FRONTEND_WINDOWMODE_R) != nullptr, "Expected the Video options menu to be open.");
 		refreshCurrentVideoOptionsValues();

@@ -109,7 +109,7 @@ static bool addQuitOptions()
 
 	addIGTextButton(INTINGAMEOP_RESUME, INTINGAMEOP_1_X, INTINGAMEOP_1_Y, INTINGAMEOP_OP_W, _("Resume Game"), OPALIGN);
 
-	if(NetPlay.isHost && bMultiPlayer && NetPlay.bComms)		// only show for real MP games
+	if (NetPlay.isHost && bMultiPlayer && NetPlay.bComms)		// only show for real MP games
 	{
 		auto inGamePopup = new IntFormAnimated(parent);
 		inGamePopup->id = INTINGAMEPOPUP;
@@ -170,7 +170,7 @@ static bool addSlideOptions()
 #ifdef DEBUG
 
 	// Tactical UI: Target Origin
-	if(tuiTargetOrigin)
+	if (tuiTargetOrigin)
 	{
 		addIGTextButton(INTINGAMEOP_TUI_TARGET_ORIGIN_SW, INTINGAMEOP_2_X, INTINGAMEOP_4_Y, INTINGAMEOP_SW_W,
 		                _("Tactical UI (Target Origin Icon): Show"), WBUT_PLAIN);
@@ -202,7 +202,7 @@ static bool _intAddInGameOptions()
 	setWidgetsStatus(true);
 
 	//if already open, then close!
-	if(widgGetFromID(psWScreen, INTINGAMEOP))
+	if (widgGetFromID(psWScreen, INTINGAMEOP))
 	{
 		intCloseInGameOptions(false, true);
 		return true;
@@ -212,7 +212,7 @@ static bool _intAddInGameOptions()
 
 
 	// Pause the game.
-	if(!gamePaused())
+	if (!gamePaused())
 	{
 		kf_TogglePauseMode();
 	}
@@ -231,7 +231,7 @@ static bool _intAddInGameOptions()
 	}));
 
 	// add 'quit' text
-	if(NetPlay.isHost && bMultiPlayer && NetPlay.bComms)
+	if (NetPlay.isHost && bMultiPlayer && NetPlay.bComms)
 	{
 		addIGTextButton(quitConfirmation ? INTINGAMEOP_QUIT : INTINGAMEOP_QUIT_CONFIRM, INTINGAMEOP_1_X, s ? INTINGAMEOP_3_Y : INTINGAMEOP_5_Y, INTINGAMEOP_OP_W, _("Host Quit"), OPALIGN);
 	}
@@ -246,9 +246,9 @@ static bool _intAddInGameOptions()
 	// add 'options'
 	addIGTextButton(INTINGAMEOP_OPTIONS, INTINGAMEOP_1_X, INTINGAMEOP_2_Y, INTINGAMEOP_OP_W, _("Audio Options"), OPALIGN);
 
-	if(!s)
+	if (!s)
 	{
-		if(!bMultiPlayer)
+		if (!bMultiPlayer)
 		{
 			// add 'load'
 			addIGTextButton(INTINGAMEOP_LOAD_MISSION, INTINGAMEOP_1_X, INTINGAMEOP_3_Y, INTINGAMEOP_OP_W, _("Load Game"), OPALIGN);
@@ -289,14 +289,14 @@ void intAddInGamePopup()
 	setWidgetsStatus(true);
 	intResetScreen(false);
 
-	if(isInGamePopupUp)
+	if (isInGamePopupUp)
 	{
 		return;
 	}
 
 	audio_StopAll();
 
-	if(!gamePaused())
+	if (!gamePaused())
 	{
 		kf_TogglePauseMode();	// Pause the game.
 	}
@@ -359,7 +359,7 @@ static void ProcessOptionFinished()
 
 
 	//unpause.
-	if(gamePaused())
+	if (gamePaused())
 	{
 		kf_TogglePauseMode();
 	}
@@ -369,7 +369,7 @@ static void ProcessOptionFinished()
 
 void intCloseInGameOptionsNoAnim(bool bResetMissionWidgets)
 {
-	if(NetPlay.isHost)
+	if (NetPlay.isHost)
 	{
 		widgDelete(psWScreen, INTINGAMEPOPUP);
 	}
@@ -380,7 +380,7 @@ void intCloseInGameOptionsNoAnim(bool bResetMissionWidgets)
 	ProcessOptionFinished();
 
 	//don't add the widgets if the load/save screen is put up or exiting to front end
-	if(bResetMissionWidgets)
+	if (bResetMissionWidgets)
 	{
 		//put any widgets back on for the missions
 		resetMissionWidgets();
@@ -392,16 +392,16 @@ void intCloseInGameOptionsNoAnim(bool bResetMissionWidgets)
 bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 {
 
-	if(NetPlay.isHost)
+	if (NetPlay.isHost)
 	{
 		widgDelete(psWScreen, INTINGAMEPOPUP);
 	}
 
-	if(bPutUpLoadSave)
+	if (bPutUpLoadSave)
 	{
 		WIDGET *widg = widgGetFromID(psWScreen, INTINGAMEOP);
 
-		if(widg)
+		if (widg)
 		{
 			widgDelete(psWScreen, INTINGAMEOP);
 		}
@@ -414,7 +414,7 @@ bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 		// Start the window close animation.
 		IntFormAnimated *form;
 
-		if(isInGamePopupUp)	// FIXME: we hijack this routine for the popup close.
+		if (isInGamePopupUp)	// FIXME: we hijack this routine for the popup close.
 		{
 			form = (IntFormAnimated *)widgGetFromID(psWScreen, INTINGAMEPOPUP);
 			isInGamePopupUp = false;
@@ -424,7 +424,7 @@ bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 			form = (IntFormAnimated *)widgGetFromID(psWScreen, INTINGAMEOP);
 		}
 
-		if(form)
+		if (form)
 		{
 			form->closeAnimateDelete();
 			InGameOpUp			 = false;
@@ -434,7 +434,7 @@ bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 	ProcessOptionFinished();
 
 	//don't add the widgets if the load/save screen is put up or exiting to front end
-	if(bResetMissionWidgets)
+	if (bResetMissionWidgets)
 	{
 		//put any widgets back on for the missions
 		resetMissionWidgets();
@@ -448,7 +448,7 @@ bool intCloseInGameOptions(bool bPutUpLoadSave, bool bResetMissionWidgets)
 // process clicks made by user.
 void intProcessInGameOptions(UDWORD id)
 {
-	switch(id)
+	switch (id)
 	{
 		// NORMAL KEYS
 		case INTINGAMEOP_QUIT:				//quit was pressed
@@ -519,7 +519,7 @@ void intProcessInGameOptions(UDWORD id)
 		case INTINGAMEOP_TUI_TARGET_ORIGIN_SW:
 			tuiTargetOrigin = !tuiTargetOrigin;
 
-			if(tuiTargetOrigin)
+			if (tuiTargetOrigin)
 			{
 				widgSetString(psWScreen, INTINGAMEOP_TUI_TARGET_ORIGIN_SW, _("Tactical UI (Target Origin Icon): Show"));
 			}

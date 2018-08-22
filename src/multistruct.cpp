@@ -92,7 +92,7 @@ bool recvBuildFinished(NETQUEUE queue)
 
 	ASSERT_OR_RETURN(false, player < MAX_PLAYERS, "invalid player %u", player);
 
-	if(!getDebugMappingStatus() && bMultiPlayer)
+	if (!getDebugMappingStatus() && bMultiPlayer)
 	{
 		debug(LOG_WARNING, "Failed to add structure for player %u.", NetPlay.players[queue.index].position);
 		return false;
@@ -100,12 +100,12 @@ bool recvBuildFinished(NETQUEUE queue)
 
 	psStruct = IdToStruct(structId, ANYPLAYER);
 
-	if(psStruct)
+	if (psStruct)
 	{
 		// make it complete.
 		psStruct->currentBuildPts = psStruct->pStructureType->buildPoints + 1;
 
-		if(psStruct->status != SS_BUILT)
+		if (psStruct->status != SS_BUILT)
 		{
 			debug(LOG_SYNC, "Synch error, structure %u was not complete, and should have been.", structId);
 			psStruct->status = SS_BUILT;
@@ -119,15 +119,15 @@ bool recvBuildFinished(NETQUEUE queue)
 	// The building wasn't started, so we'll have to just plonk it down in the map.
 
 	// Find the structures stats
-	for(typeindex = 0; typeindex < numStructureStats && asStructureStats[typeindex].ref != type; typeindex++) {}	// Find structure target
+	for (typeindex = 0; typeindex < numStructureStats && asStructureStats[typeindex].ref != type; typeindex++) {}	// Find structure target
 
 	// Check for similar buildings, to avoid overlaps
-	if(TileHasStructure(mapTile(map_coord(pos.x), map_coord(pos.y))))
+	if (TileHasStructure(mapTile(map_coord(pos.x), map_coord(pos.y))))
 	{
 		// Get the current structure
 		psStruct = getTileStructure(map_coord(pos.x), map_coord(pos.y));
 
-		if(asStructureStats[typeindex].type == psStruct->pStructureType->type)
+		if (asStructureStats[typeindex].type == psStruct->pStructureType->type)
 		{
 			// Correct type, correct location, just rename the id's to sync it.. (urgh)
 			psStruct->id = structId;
@@ -144,7 +144,7 @@ bool recvBuildFinished(NETQUEUE queue)
 	// Build the structure
 	psStruct = buildStructure(&(asStructureStats[typeindex]), pos.x, pos.y, player, true);
 
-	if(psStruct)
+	if (psStruct)
 	{
 		psStruct->id		= structId;
 		psStruct->status	= SS_BUILT;
@@ -188,7 +188,7 @@ bool recvDestroyStructure(NETQUEUE queue)
 	NETuint32_t(&structID);
 	NETend();
 
-	if(!getDebugMappingStatus() && bMultiPlayer)
+	if (!getDebugMappingStatus() && bMultiPlayer)
 	{
 		debug(LOG_WARNING, "Failed to remove structure for player %u.", NetPlay.players[queue.index].position);
 		return false;
@@ -197,7 +197,7 @@ bool recvDestroyStructure(NETQUEUE queue)
 	// Struct to destroy
 	psStruct = IdToStruct(structID, ANYPLAYER);
 
-	if(psStruct)
+	if (psStruct)
 	{
 		turnOffMultiMsg(true);
 		// Remove the struct from remote players machine
@@ -241,24 +241,24 @@ bool recvLasSat(NETQUEUE queue)
 	psStruct = IdToStruct(id, player);
 	psObj	 = IdToPointer(targetid, targetplayer);
 
-	if(psStruct && !canGiveOrdersFor(queue.index, psStruct->player))
+	if (psStruct && !canGiveOrdersFor(queue.index, psStruct->player))
 	{
 		syncDebug("Wrong player.");
 		return false;
 	}
 
-	if(psStruct && psObj && psStruct->pStructureType->psWeapStat[0]->weaponSubClass == WSC_LAS_SAT)
+	if (psStruct && psObj && psStruct->pStructureType->psWeapStat[0]->weaponSubClass == WSC_LAS_SAT)
 	{
 		// Lassats have just one weapon
 		unsigned firePause = weaponFirePause(&asWeaponStats[psStruct->asWeaps[0].nStat], player);
 		unsigned damLevel = PERCENT(psStruct->body, structureBody(psStruct));
 
-		if(damLevel < HEAVY_DAMAGE_LEVEL)
+		if (damLevel < HEAVY_DAMAGE_LEVEL)
 		{
 			firePause += firePause;
 		}
 
-		if(isHumanPlayer(player) && gameTime - psStruct->asWeaps[0].lastFired <= firePause)
+		if (isHumanPlayer(player) && gameTime - psStruct->asWeaps[0].lastFired <= firePause)
 		{
 			/* Too soon to fire again */
 			return true ^ false;  // Return value meaningless and ignored.
@@ -287,7 +287,7 @@ void sendStructureInfo(STRUCTURE *psStruct, STRUCTURE_INFO structureInfo_, DROID
 	NETuint32_t(&structId);
 	NETuint8_t(&structureInfo);
 
-	if(structureInfo_ == STRUCTUREINFO_MANUFACTURE)
+	if (structureInfo_ == STRUCTUREINFO_MANUFACTURE)
 	{
 		int32_t droidType = pT->droidType;
 		WzString name = pT->name;
@@ -303,7 +303,7 @@ void sendStructureInfo(STRUCTURE *psStruct, STRUCTURE_INFO structureInfo_, DROID
 		NETuint8_t(&pT->asParts[COMP_CONSTRUCT]);
 		NETint8_t(&pT->numWeaps);
 
-		for(int i = 0; i < pT->numWeaps; i++)
+		for (int i = 0; i < pT->numWeaps; i++)
 		{
 			NETuint32_t(&pT->asWeaps[i]);
 		}
@@ -326,7 +326,7 @@ void recvStructureInfo(NETQUEUE queue)
 	NETuint32_t(&structId);
 	NETuint8_t(&structureInfo);
 
-	if(structureInfo == STRUCTUREINFO_MANUFACTURE)
+	if (structureInfo == STRUCTUREINFO_MANUFACTURE)
 	{
 		WzString name;
 		NETwzstring(name);
@@ -343,7 +343,7 @@ void recvStructureInfo(NETQUEUE queue)
 		NETint8_t(&pT->numWeaps);
 		ASSERT_OR_RETURN(, pT->numWeaps >= 0 && pT->numWeaps <= ARRAY_SIZE(pT->asWeaps), "Bad numWeaps %d", pT->numWeaps);
 
-		for(int i = 0; i < pT->numWeaps; i++)
+		for (int i = 0; i < pT->numWeaps; i++)
 		{
 			NETuint32_t(&pT->asWeaps[i]);
 		}
@@ -358,13 +358,13 @@ void recvStructureInfo(NETQUEUE queue)
 
 	syncDebug("player%d,structId%u%c,structureInfo%u", player, structId, psStruct == nullptr ? '^' : '*', structureInfo);
 
-	if(psStruct == nullptr)
+	if (psStruct == nullptr)
 	{
 		debug(LOG_WARNING, "Could not find structure %u to change production for", structId);
 		return;
 	}
 
-	if(!canGiveOrdersFor(queue.index, psStruct->player))
+	if (!canGiveOrdersFor(queue.index, psStruct->player))
 	{
 		syncDebug("Wrong player.");
 		return;
@@ -372,30 +372,30 @@ void recvStructureInfo(NETQUEUE queue)
 
 	CHECK_STRUCTURE(psStruct);
 
-	if(structureInfo == STRUCTUREINFO_MANUFACTURE && !researchedTemplate(pT, player, true, true))
+	if (structureInfo == STRUCTUREINFO_MANUFACTURE && !researchedTemplate(pT, player, true, true))
 	{
 		debug(LOG_ERROR, "Invalid droid received from player %d with name %s", (int)player, pT->name.toUtf8().c_str());
 		return;
 	}
 
-	if(structureInfo == STRUCTUREINFO_MANUFACTURE && !intValidTemplate(pT, nullptr, true, player))
+	if (structureInfo == STRUCTUREINFO_MANUFACTURE && !intValidTemplate(pT, nullptr, true, player))
 	{
 		debug(LOG_ERROR, "Illegal droid received from player %d with name %s", (int)player, pT->name.toUtf8().c_str());
 		return;
 	}
 
-	if(StructIsFactory(psStruct))
+	if (StructIsFactory(psStruct))
 	{
 		popStatusPending(psStruct->pFunctionality->factory);
 	}
-	else if(psStruct->pStructureType->type == REF_RESEARCH)
+	else if (psStruct->pStructureType->type == REF_RESEARCH)
 	{
 		popStatusPending(psStruct->pFunctionality->researchFacility);
 	}
 
 	syncDebugStructure(psStruct, '<');
 
-	switch(structureInfo)
+	switch (structureInfo)
 	{
 		case STRUCTUREINFO_MANUFACTURE:
 			structSetManufacture(psStruct, pT, ModeImmediate);

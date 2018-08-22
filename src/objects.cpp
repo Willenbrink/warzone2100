@@ -32,7 +32,7 @@
 /* Initialise the object system */
 bool objInitialise()
 {
-	if(!objmemInitialise())
+	if (!objmemInitialise())
 	{
 		return false;
 	}
@@ -57,7 +57,7 @@ void reverseObjectList(BASE_OBJECT **ppsList)
 	BASE_OBJECT *psPrev = nullptr;
 	BASE_OBJECT *psCurrent = *ppsList;
 
-	while(psCurrent != nullptr)
+	while (psCurrent != nullptr)
 	{
 		BASE_OBJECT *psNext = psCurrent->psNext;
 		psCurrent->psNext = psPrev;
@@ -73,12 +73,12 @@ const char *objInfo(const BASE_OBJECT *psObj)
 {
 	static char	info[PATH_MAX];
 
-	if(!psObj)
+	if (!psObj)
 	{
 		return "null";
 	}
 
-	switch(psObj->type)
+	switch (psObj->type)
 	{
 		case OBJ_DROID:
 		{

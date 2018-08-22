@@ -52,7 +52,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	ASSERT(psWeap != nullptr, "Invalid weapon pointer");
 
 	/* Don't shoot if the weapon_slot of a vtol is empty */
-	if(psAttacker->type == OBJ_DROID && isVtolDroid(((DROID *)psAttacker))
+	if (psAttacker->type == OBJ_DROID && isVtolDroid(((DROID *)psAttacker))
 	        && psWeap->usedAmmo >= getNumAttackRuns(((DROID *)psAttacker), weapon_slot))
 	{
 		objTrace(psAttacker->id, "VTOL slot %d is empty", weapon_slot);
@@ -65,7 +65,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	psStats = asWeaponStats + compIndex;
 
 	// check valid weapon/prop combination
-	if(!validTarget(psAttacker, psTarget, weapon_slot))
+	if (!validTarget(psAttacker, psTarget, weapon_slot))
 	{
 		return false;
 	}
@@ -73,21 +73,21 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	unsigned fireTime = gameTime - deltaGameTime + 1;  // Can fire earliest at the start of the tick.
 
 	// See if reloadable weapon.
-	if(psStats->upgrade[psAttacker->player].reloadTime)
+	if (psStats->upgrade[psAttacker->player].reloadTime)
 	{
 		unsigned reloadTime = psWeap->lastFired + weaponReloadTime(psStats, psAttacker->player);
 
-		if(psWeap->ammo == 0)   // Out of ammo?
+		if (psWeap->ammo == 0)  // Out of ammo?
 		{
 			fireTime = std::max(fireTime, reloadTime);  // Have to wait for weapon to reload before firing.
 
-			if(gameTime < fireTime)
+			if (gameTime < fireTime)
 			{
 				return false;
 			}
 		}
 
-		if(reloadTime <= fireTime)
+		if (reloadTime <= fireTime)
 		{
 			//reset the ammo level
 			psWeap->ammo = psStats->upgrade[psAttacker->player].numRounds;
@@ -99,13 +99,13 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	firePause = std::max(firePause, 1u);  // Don't shoot infinitely many shots at once.
 	fireTime = std::max(fireTime, psWeap->lastFired + firePause);
 
-	if(gameTime < fireTime)
+	if (gameTime < fireTime)
 	{
 		/* Too soon to fire again */
 		return false;
 	}
 
-	if(psTarget->visible[psAttacker->player] != UBYTE_MAX)
+	if (psTarget->visible[psAttacker->player] != UBYTE_MAX)
 	{
 		// Can't see it - can't hit it
 		objTrace(psAttacker->id, "combFire(%u[%s]->%u): Object has no indirect sight of target", psAttacker->id, getName(psStats), psTarget->id);
@@ -116,7 +116,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	bool tall = (psAttacker->type == OBJ_DROID && isVtolDroid((DROID *)psAttacker))
 	            || (psAttacker->type == OBJ_STRUCTURE && ((STRUCTURE *)psAttacker)->pStructureType->height > 1);
 
-	if(proj_Direct(psStats) && !lineOfFire(psAttacker, psTarget, weapon_slot, tall))
+	if (proj_Direct(psStats) && !lineOfFire(psAttacker, psTarget, weapon_slot, tall))
 	{
 		// Can't see the target - can't hit it with direct fire
 		objTrace(psAttacker->id, "combFire(%u[%s]->%u): No direct line of sight to target",
@@ -127,12 +127,12 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	Vector3i deltaPos = psTarget->pos - psAttacker->pos;
 
 	// if the turret doesn't turn, check if the attacker is in alignment with the target
-	if(psAttacker->type == OBJ_DROID && !psStats->rotate)
+	if (psAttacker->type == OBJ_DROID && !psStats->rotate)
 	{
 		uint16_t targetDir = iAtan2(deltaPos.xy);
 		int dirDiff = abs(angleDelta(targetDir - psAttacker->rot.direction));
 
-		if(dirDiff > FIXED_TURRET_DIR)
+		if (dirDiff > FIXED_TURRET_DIR)
 		{
 			return false;
 		}
@@ -145,7 +145,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	int min_angle = 0;
 
 	// Calculate angle for indirect shots
-	if(!proj_Direct(psStats) && dist > 0)
+	if (!proj_Direct(psStats) && dist > 0)
 	{
 		min_angle = arcOfFire(psAttacker, psTarget, weapon_slot, true);
 
@@ -153,10 +153,10 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 		min_angle = std::min(min_angle, DEG(PROJ_ULTIMATE_PITCH));
 
 		// adjust maximum range of unit if forced to shoot very steep
-		if(min_angle > DEG(PROJ_MAX_PITCH))
+		if (min_angle > DEG(PROJ_MAX_PITCH))
 		{
 			//do not allow increase of max range though
-			if(iSin(2 * min_angle) < iSin(2 * DEG(PROJ_MAX_PITCH)))  // If PROJ_MAX_PITCH == 45, then always iSin(2*min_angle) <= iSin(2*DEG(PROJ_MAX_PITCH)), and the test is redundant.
+			if (iSin(2 * min_angle) < iSin(2 * DEG(PROJ_MAX_PITCH))) // If PROJ_MAX_PITCH == 45, then always iSin(2*min_angle) <= iSin(2*DEG(PROJ_MAX_PITCH)), and the test is redundant.
 			{
 				longRange = longRange * iSin(2 * min_angle) / iSin(2 * DEG(PROJ_MAX_PITCH));
 			}
@@ -165,13 +165,13 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 
 	int baseHitChance = 0;
 
-	if(dist <= longRange && dist >= psStats->upgrade[psAttacker->player].minRange)
+	if (dist <= longRange && dist >= psStats->upgrade[psAttacker->player].minRange)
 	{
 		// get weapon chance to hit in the long range
 		baseHitChance = weaponLongHit(psStats, psAttacker->player);
 
 		// adapt for height adjusted artillery shots
-		if(min_angle > DEG(PROJ_MAX_PITCH))
+		if (min_angle > DEG(PROJ_MAX_PITCH))
 		{
 			baseHitChance = baseHitChance * iCos(min_angle) / iCos(DEG(PROJ_MAX_PITCH));
 		}
@@ -188,7 +188,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	int resultHitChance = baseHitChance;
 
 	// add the attacker's experience
-	if(psAttacker->type == OBJ_DROID)
+	if (psAttacker->type == OBJ_DROID)
 	{
 		SDWORD	level = getDroidEffectiveLevel((DROID *) psAttacker);
 
@@ -197,7 +197,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	}
 
 	// subtract the defender's experience
-	if(psTarget->type == OBJ_DROID)
+	if (psTarget->type == OBJ_DROID)
 	{
 		SDWORD	level = getDroidEffectiveLevel((DROID *) psTarget);
 
@@ -205,7 +205,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 		resultHitChance -= EXP_ACCURACY_BONUS * level * baseHitChance / 100;
 	}
 
-	if(psAttacker->type == OBJ_DROID && ((DROID *)psAttacker)->sMove.Status != MOVEINACTIVE
+	if (psAttacker->type == OBJ_DROID && ((DROID *)psAttacker)->sMove.Status != MOVEINACTIVE
 	        && !psStats->fireOnMove)
 	{
 		return false;	// Can't fire while moving
@@ -217,7 +217,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	psWeap->lastFired = fireTime;
 
 	/* reduce ammo if salvo */
-	if(psStats->upgrade[psAttacker->player].reloadTime)
+	if (psStats->upgrade[psAttacker->player].reloadTime)
 	{
 		psWeap->ammo--;
 	}
@@ -229,13 +229,13 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	Vector3i predict = psTarget->pos;
 
 	// Target prediction
-	if(isDroid(psTarget) && castDroid(psTarget)->sMove.bumpTime == 0)
+	if (isDroid(psTarget) && castDroid(psTarget)->sMove.bumpTime == 0)
 	{
 		DROID *psDroid = castDroid(psTarget);
 
 		int32_t flightTime;
 
-		if(proj_Direct(psStats) || dist <= psStats->upgrade[psAttacker->player].minRange)
+		if (proj_Direct(psStats) || dist <= psStats->upgrade[psAttacker->player].minRange)
 		{
 			flightTime = dist * GAME_TICKS_PER_SEC / psStats->flightSpeed;
 		}
@@ -245,12 +245,12 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 			flightTime = projCalcIndirectVelocities(dist, deltaPos.z, psStats->flightSpeed, &vXY, &vZ, min_angle);
 		}
 
-		if(psTarget->lastHitWeapon == WSC_EMP)
+		if (psTarget->lastHitWeapon == WSC_EMP)
 		{
 			int empTime = EMP_DISABLE_TIME - (gameTime - psTarget->timeLastHit);
 			CLIP(empTime, 0, EMP_DISABLE_TIME);
 
-			if(empTime >= EMP_DISABLE_TIME * 9 / 10)
+			if (empTime >= EMP_DISABLE_TIME * 9 / 10)
 			{
 				flightTime = 0;  /* Just hit.  Assume they'll get hit again */
 			}
@@ -262,7 +262,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 
 		predict += Vector3i(iSinCosR(psDroid->sMove.moveDir, psDroid->sMove.speed * flightTime / GAME_TICKS_PER_SEC), 0);
 
-		if(!isFlying(psDroid))
+		if (!isFlying(psDroid))
 		{
 			predict.z = map_Height(predict.xy);  // Predict that the object will be on the ground.
 		}
@@ -275,7 +275,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	// see if we were lucky to hit the target
 	bool isHit = gameRand(100) <= resultHitChance;
 
-	if(isHit)
+	if (isHit)
 	{
 		/* Kerrrbaaang !!!!! a hit */
 		objTrace(psAttacker->id, "combFire: [%s]->%u: resultHitChance=%d, visibility=%d", getName(psStats), psTarget->id, resultHitChance, (int)psTarget->visible[psAttacker->player]);
@@ -311,7 +311,7 @@ void counterBatteryFire(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget)
 	projectile is sent - we may have to cater for these at some point*/
 	// also ignore cases where you attack your own player
 	// Also ignore cases where there are already 1000 missiles heading towards the attacker.
-	if(psTarget == nullptr
+	if (psTarget == nullptr
 	        || (psAttacker != nullptr && psAttacker->player == psTarget->player)
 	        || (psAttacker != nullptr && aiObjectIsProbablyDoomed(psAttacker, false)))
 	{
@@ -320,11 +320,11 @@ void counterBatteryFire(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget)
 
 	CHECK_OBJECT(psTarget);
 
-	for(BASE_OBJECT *psViewer = apsSensorList[0]; psViewer; psViewer = psViewer->psNextFunc)
+	for (BASE_OBJECT *psViewer = apsSensorList[0]; psViewer; psViewer = psViewer->psNextFunc)
 	{
-		if(aiCheckAlliances(psTarget->player, psViewer->player))
+		if (aiCheckAlliances(psTarget->player, psViewer->player))
 		{
-			if((psViewer->type == OBJ_STRUCTURE && !structCBSensor((STRUCTURE *)psViewer))
+			if ((psViewer->type == OBJ_STRUCTURE && !structCBSensor((STRUCTURE *)psViewer))
 			        || (psViewer->type == OBJ_DROID && !cbSensorDroid((DROID *)psViewer)))
 			{
 				continue;
@@ -336,14 +336,14 @@ void counterBatteryFire(BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget)
 			const int xDiff = psViewer->pos.x - psTarget->pos.x;
 			const int yDiff = psViewer->pos.y - psTarget->pos.y;
 
-			if(xDiff * xDiff + yDiff * yDiff < sensorRange * sensorRange)
+			if (xDiff * xDiff + yDiff * yDiff < sensorRange * sensorRange)
 			{
 				// Inform viewer of target
-				if(psViewer->type == OBJ_DROID)
+				if (psViewer->type == OBJ_DROID)
 				{
 					orderDroidObj((DROID *)psViewer, DORDER_OBSERVE, psAttacker, ModeImmediate);
 				}
-				else if(psViewer->type == OBJ_STRUCTURE)
+				else if (psViewer->type == OBJ_STRUCTURE)
 				{
 					setStructureTarget((STRUCTURE *)psViewer, psAttacker, 0, ORIGIN_CB_SENSOR);
 				}
@@ -356,19 +356,19 @@ int objArmour(BASE_OBJECT *psObj, WEAPON_CLASS weaponClass)
 {
 	int armour = 0;
 
-	if(psObj->type == OBJ_DROID)
+	if (psObj->type == OBJ_DROID)
 	{
 		armour = bodyArmour(asBodyStats + ((DROID *)psObj)->asBits[COMP_BODY], psObj->player, weaponClass);
 	}
-	else if(psObj->type == OBJ_STRUCTURE && weaponClass == WC_KINETIC && ((STRUCTURE *)psObj)->status != SS_BEING_BUILT)
+	else if (psObj->type == OBJ_STRUCTURE && weaponClass == WC_KINETIC && ((STRUCTURE *)psObj)->status != SS_BEING_BUILT)
 	{
 		armour = ((STRUCTURE *)psObj)->pStructureType->upgrade[psObj->player].armour;
 	}
-	else if(psObj->type == OBJ_STRUCTURE && weaponClass == WC_HEAT && ((STRUCTURE *)psObj)->status != SS_BEING_BUILT)
+	else if (psObj->type == OBJ_STRUCTURE && weaponClass == WC_HEAT && ((STRUCTURE *)psObj)->status != SS_BEING_BUILT)
 	{
 		armour = ((STRUCTURE *)psObj)->pStructureType->upgrade[psObj->player].thermal;
 	}
-	else if(psObj->type == OBJ_FEATURE && weaponClass == WC_KINETIC)
+	else if (psObj->type == OBJ_FEATURE && weaponClass == WC_KINETIC)
 	{
 		armour = ((FEATURE *)psObj)->psStats->armourValue;
 	}
@@ -392,14 +392,14 @@ int32_t objDamage(BASE_OBJECT *psObj, unsigned damage, unsigned originalhp, WEAP
 	// If the previous hit was by an EMP cannon and this one is not:
 	// don't reset the weapon class and hit time
 	// (Giel: I guess we need this to determine when the EMP-"shock" is over)
-	if(psObj->lastHitWeapon != WSC_EMP || weaponSubClass == WSC_EMP)
+	if (psObj->lastHitWeapon != WSC_EMP || weaponSubClass == WSC_EMP)
 	{
 		psObj->timeLastHit = gameTime;
 		psObj->lastHitWeapon = weaponSubClass;
 	}
 
 	// EMP cannons do no damage, if we are one return now
-	if(weaponSubClass == WSC_EMP)
+	if (weaponSubClass == WSC_EMP)
 	{
 		return 0;
 	}
@@ -407,7 +407,7 @@ int32_t objDamage(BASE_OBJECT *psObj, unsigned damage, unsigned originalhp, WEAP
 	// apply game difficulty setting
 	damage = modifyForDifficultyLevel(damage, psObj->player != selectedPlayer);
 
-	if(psObj->type == OBJ_STRUCTURE || psObj->type == OBJ_DROID)
+	if (psObj->type == OBJ_STRUCTURE || psObj->type == OBJ_DROID)
 	{
 		// Force sending messages, even if messages were turned off, since a non-synchronised script will execute here. (Aaargh!)
 		bool bMultiMessagesBackup = bMultiMessages;
@@ -418,7 +418,7 @@ int32_t objDamage(BASE_OBJECT *psObj, unsigned damage, unsigned originalhp, WEAP
 		bMultiMessages = bMultiMessagesBackup;
 	}
 
-	if(psObj->type == OBJ_DROID)
+	if (psObj->type == OBJ_DROID)
 	{
 		DROID *psDroid = (DROID *)psObj;
 
@@ -437,11 +437,11 @@ int32_t objDamage(BASE_OBJECT *psObj, unsigned damage, unsigned originalhp, WEAP
 
 	debug(LOG_ATTACK, "objDamage(%d): body: %d, armour: %d, basic damage: %d, actual damage: %d", psObj->id, psObj->body, armour, damage, actualDamage);
 
-	if(isDamagePerSecond)
+	if (isDamagePerSecond)
 	{
 		int deltaDamageRate = actualDamage - psObj->periodicalDamage;
 
-		if(deltaDamageRate <= 0)
+		if (deltaDamageRate <= 0)
 		{
 			return 0;  // Did this much damage already, this tick, so don't do more.
 		}
@@ -454,14 +454,14 @@ int32_t objDamage(BASE_OBJECT *psObj, unsigned damage, unsigned originalhp, WEAP
 	syncDebug("damage%u dam%u,o%u,wc%d.%d,ar%d,lev%d,aDam%d,isDps%d", psObj->id, damage, originalhp, weaponClass, weaponSubClass, armour, level, actualDamage, isDamagePerSecond);
 
 	// for some odd reason, we have 0 hitpoints.
-	if(!originalhp)
+	if (!originalhp)
 	{
 		ASSERT(originalhp, "original hitpoints are 0 ?");
 		return -65536;  // it is dead
 	}
 
 	// If the shell did sufficient damage to destroy the object, deal with it and return
-	if(actualDamage >= psObj->body)
+	if (actualDamage >= psObj->body)
 	{
 		return -(int64_t)65536 * psObj->body / originalhp;
 	}
@@ -486,7 +486,7 @@ unsigned int objGuessFutureDamage(WEAPON_STATS *psStats, unsigned int player, BA
 	unsigned int damage;
 	int actualDamage, armour, level = 1;
 
-	if(psTarget == nullptr)
+	if (psTarget == nullptr)
 	{
 		return 0;    // Hard to destroy the ground. The armour on the mud is very strong and blocks all damage.
 	}
@@ -494,7 +494,7 @@ unsigned int objGuessFutureDamage(WEAPON_STATS *psStats, unsigned int player, BA
 	damage = calcDamage(weaponDamage(psStats, player), psStats->weaponEffect, psTarget);
 
 	// EMP cannons do no damage, if we are one return now
-	if(psStats->weaponSubClass == WSC_EMP)
+	if (psStats->weaponSubClass == WSC_EMP)
 	{
 		return 0;
 	}
@@ -503,7 +503,7 @@ unsigned int objGuessFutureDamage(WEAPON_STATS *psStats, unsigned int player, BA
 	damage = modifyForDifficultyLevel(damage, psTarget->player != selectedPlayer);
 	armour = objArmour(psTarget, psStats->weaponClass);
 
-	if(psTarget->type == OBJ_DROID)
+	if (psTarget->type == OBJ_DROID)
 	{
 		DROID *psDroid = (DROID *)psTarget;
 

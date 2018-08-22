@@ -61,7 +61,7 @@ static Spacetime interpolateSpacetime(Spacetime st1, Spacetime st2, uint32_t t)
 
 Spacetime interpolateObjectSpacetime(const SIMPLE_OBJECT *obj, uint32_t t)
 {
-	switch(obj->type)
+	switch (obj->type)
 	{
 		default:
 			return getSpacetime(obj);
@@ -129,14 +129,14 @@ BASE_OBJECT::~BASE_OBJECT()
 
 void checkObject(const SIMPLE_OBJECT *psObject, const char *const location_description, const char *function, const int recurse)
 {
-	if(recurse < 0)
+	if (recurse < 0)
 	{
 		return;
 	}
 
 	ASSERT(psObject != nullptr, "NULL pointer");
 
-	switch(psObject->type)
+	switch (psObject->type)
 	{
 		case OBJ_DROID:
 			checkDroid((const DROID *)psObject, location_description, function, recurse - 1);
@@ -162,7 +162,7 @@ void checkObject(const SIMPLE_OBJECT *psObject, const char *const location_descr
 
 void _syncDebugObject(const char *function, SIMPLE_OBJECT const *psObject, char ch)
 {
-	switch(psObject->type)
+	switch (psObject->type)
 	{
 		case OBJ_DROID:
 			_syncDebugDroid(function, (const DROID *)     psObject, ch);
@@ -189,11 +189,11 @@ void _syncDebugObject(const char *function, SIMPLE_OBJECT const *psObject, char 
 
 Vector2i getStatsSize(BASE_STATS const *pType, uint16_t direction)
 {
-	if(StatIsStructure(pType))
+	if (StatIsStructure(pType))
 	{
 		return static_cast<STRUCTURE_STATS const *>(pType)->size(direction);
 	}
-	else if(StatIsFeature(pType))
+	else if (StatIsFeature(pType))
 	{
 		return static_cast<FEATURE_STATS const *>(pType)->size();
 	}
@@ -206,11 +206,11 @@ StructureBounds getStructureBounds(BASE_OBJECT const *object)
 	STRUCTURE const *psStructure = castStructure(object);
 	FEATURE const *psFeature = castFeature(object);
 
-	if(psStructure != nullptr)
+	if (psStructure != nullptr)
 	{
 		return getStructureBounds(psStructure);
 	}
-	else if(psFeature != nullptr)
+	else if (psFeature != nullptr)
 	{
 		return getStructureBounds(psFeature);
 	}
@@ -220,11 +220,11 @@ StructureBounds getStructureBounds(BASE_OBJECT const *object)
 
 StructureBounds getStructureBounds(BASE_STATS const *stats, Vector2i pos, uint16_t direction)
 {
-	if(StatIsStructure(stats))
+	if (StatIsStructure(stats))
 	{
 		return getStructureBounds(static_cast<STRUCTURE_STATS const *>(stats), pos, direction);
 	}
-	else if(StatIsFeature(stats))
+	else if (StatIsFeature(stats))
 	{
 		return getStructureBounds(static_cast<FEATURE_STATS const *>(stats), pos);
 	}

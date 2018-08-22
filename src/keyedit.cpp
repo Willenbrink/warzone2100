@@ -95,7 +95,7 @@ static bool pushedKeyMap(UDWORD key)
 {
 	selectedKeyMap = static_cast<DisplayKeyMapData *>(widgGetFromID(psWScreen, key)->pUserData)->psMapping;
 
-	if(selectedKeyMap && selectedKeyMap->status != KEYMAP_ASSIGNABLE)
+	if (selectedKeyMap && selectedKeyMap->status != KEYMAP_ASSIGNABLE)
 	{
 		selectedKeyMap = nullptr;
 		audio_PlayTrack(ID_SOUND_BUILD_FAIL);
@@ -117,25 +117,25 @@ static bool pushedKeyCombo(KEY_CODE subkey)
 	// alt
 	alt = (KEY_CODE)0;
 
-	if(keyDown(KEY_RALT) || keyDown(KEY_LALT))
+	if (keyDown(KEY_RALT) || keyDown(KEY_LALT))
 	{
 		metakey = KEY_LALT;
 		alt = KEY_RALT;
 	}
 	// ctrl
-	else if(keyDown(KEY_RCTRL) || keyDown(KEY_LCTRL))
+	else if (keyDown(KEY_RCTRL) || keyDown(KEY_LCTRL))
 	{
 		metakey = KEY_LCTRL;
 		alt = KEY_RCTRL;
 	}
 	// shift
-	else if(keyDown(KEY_RSHIFT) || keyDown(KEY_LSHIFT))
+	else if (keyDown(KEY_RSHIFT) || keyDown(KEY_LSHIFT))
 	{
 		metakey = KEY_LSHIFT;
 		alt = KEY_RSHIFT;
 	}
 	// meta (cmd)
-	else if(keyDown(KEY_RMETA) || keyDown(KEY_LMETA))
+	else if (keyDown(KEY_RMETA) || keyDown(KEY_LMETA))
 	{
 		metakey = KEY_LMETA;
 		alt = KEY_RMETA;
@@ -144,7 +144,7 @@ static bool pushedKeyCombo(KEY_CODE subkey)
 	// check if bound to a fixed combo.
 	pExist = keyFindMapping(metakey,  subkey);
 
-	if(pExist && (pExist->status == KEYMAP_ALWAYS || pExist->status == KEYMAP_ALWAYS_PROCESS))
+	if (pExist && (pExist->status == KEYMAP_ALWAYS || pExist->status == KEYMAP_ALWAYS_PROCESS))
 	{
 		selectedKeyMap = nullptr;	// unhighlight selected.
 		return false;
@@ -165,7 +165,7 @@ static bool pushedKeyCombo(KEY_CODE subkey)
 	// was "=="
 	psMapping->status = KEYMAP_ASSIGNABLE; //must be
 
-	if(alt)
+	if (alt)
 	{
 		psMapping->altMetaKeyCode = alt;
 	}
@@ -179,11 +179,11 @@ static KEY_CODE scanKeyBoardForBinding()
 {
 	UDWORD i;
 
-	for(i = 0; i < KEY_MAXSCAN; i++)
+	for (i = 0; i < KEY_MAXSCAN; i++)
 	{
-		if(keyPressed((KEY_CODE)i))
+		if (keyPressed((KEY_CODE)i))
 		{
-			if(i !=	KEY_RALT			// exceptions
+			if (i !=	KEY_RALT			// exceptions
 			        && i !=	KEY_LALT
 			        && i != KEY_RCTRL
 			        && i != KEY_LCTRL
@@ -191,7 +191,7 @@ static KEY_CODE scanKeyBoardForBinding()
 			        && i != KEY_LSHIFT
 			        && i != KEY_LMETA
 			        && i != KEY_RMETA
-			  )
+			   )
 			{
 				return (KEY_CODE)i;             // top row key pressed
 			}
@@ -207,29 +207,29 @@ bool runKeyMapEditor()
 	WidgetTriggers const &triggers = widgRunScreen(psWScreen);
 	unsigned id = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
 
-	if(id == KM_RETURN)			// return
+	if (id == KM_RETURN)			// return
 	{
 		saveKeyMap();
 		changeTitleMode(OPTIONS);
 	}
 
-	if(id == KM_DEFAULT)
+	if (id == KM_DEFAULT)
 	{
 		// reinitialise key mappings
 		keyInitMappings(true);
 		widgDelete(psWScreen, FRONTEND_BACKDROP); // readd the widgets
 		startKeyMapEditor(false);
 	}
-	else if(id >= KM_START && id <= KM_END)
+	else if (id >= KM_START && id <= KM_END)
 	{
 		pushedKeyMap(id);
 	}
 
-	if(selectedKeyMap)
+	if (selectedKeyMap)
 	{
 		KEY_CODE kc = scanKeyBoardForBinding();
 
-		if(kc)
+		if (kc)
 		{
 			pushedKeyCombo(kc);
 		}
@@ -237,7 +237,7 @@ bool runKeyMapEditor()
 
 	widgDisplayScreen(psWScreen);				// show the widgets currently running
 
-	if(CancelPressed())
+	if (CancelPressed())
 	{
 		changeTitleMode(OPTIONS);
 	}
@@ -252,7 +252,7 @@ static bool keyMapToString(char *pStr, KEY_MAPPING *psMapping)
 	bool	onlySub = true;
 	char	asciiSub[20], asciiMeta[20];
 
-	if(psMapping->metaKeyCode != KEY_IGNORE)
+	if (psMapping->metaKeyCode != KEY_IGNORE)
 	{
 		keyScanToString(psMapping->metaKeyCode, (char *)&asciiMeta, 20);
 		onlySub = false;
@@ -260,7 +260,7 @@ static bool keyMapToString(char *pStr, KEY_MAPPING *psMapping)
 
 	keyScanToString(psMapping->subKeyCode, (char *)&asciiSub, 20);
 
-	if(onlySub)
+	if (onlySub)
 	{
 		sprintf(pStr, "%s", asciiSub);
 	}
@@ -287,11 +287,11 @@ static void displayKeyMap(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	KEY_MAPPING *psMapping = data.psMapping;
 	char sKey[MAX_STR_LENGTH];
 
-	if(psMapping == selectedKeyMap)
+	if (psMapping == selectedKeyMap)
 	{
 		pie_BoxFill(x, y, x + w, y + h, WZCOL_KEYMAP_ACTIVE);
 	}
-	else if(psMapping->status == KEYMAP_ALWAYS || psMapping->status == KEYMAP_ALWAYS_PROCESS)
+	else if (psMapping->status == KEYMAP_ALWAYS || psMapping->status == KEYMAP_ALWAYS_PROCESS)
 	{
 		// when user can't edit something...
 		pie_BoxFill(x, y, x + w, y + h, WZCOL_KEYMAP_FIXED);
@@ -310,7 +310,7 @@ static void displayKeyMap(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	// Check to see if key is on the numpad, if so tell user and change color
 	PIELIGHT bindingTextColor = WZCOL_FORM_TEXT;
 
-	if(psMapping->subKeyCode >= KEY_KP_0 && psMapping->subKeyCode <= KEY_KPENTER)
+	if (psMapping->subKeyCode >= KEY_KP_0 && psMapping->subKeyCode <= KEY_KPENTER)
 	{
 		bindingTextColor = WZCOL_YELLOW;
 		sstrcat(sKey, " (numpad)");
@@ -326,7 +326,7 @@ bool startKeyMapEditor(bool first)
 	addBackdrop();
 	addSideText(FRONTEND_SIDETEXT, KM_SX, KM_Y, _("KEY MAPPING"));
 
-	if(first)
+	if (first)
 	{
 		loadKeyMap();									// get the current mappings.
 	}
@@ -361,9 +361,9 @@ bool startKeyMapEditor(bool first)
 	//Put the buttons on it
 	std::vector<KEY_MAPPING *> mappings;
 
-	for(KEY_MAPPING &m : keyMappings)
+	for (KEY_MAPPING &m : keyMappings)
 	{
-		if(m.status != KEYMAP__DEBUG && m.status != KEYMAP___HIDE)   // if it's not a debug mapping..
+		if (m.status != KEYMAP__DEBUG && m.status != KEYMAP___HIDE)  // if it's not a debug mapping..
 		{
 			mappings.push_back(&m);
 		}
@@ -376,7 +376,7 @@ bool startKeyMapEditor(bool first)
 
 	/* Add our first mapping to the form */
 	/* Now add the others... */
-	for(std::vector<KEY_MAPPING *>::const_iterator i = mappings.begin(); i != mappings.end(); ++i)
+	for (std::vector<KEY_MAPPING *>::const_iterator i = mappings.begin(); i != mappings.end(); ++i)
 	{
 		W_BUTTON *button = new W_BUTTON(kmList);
 		button->id = KM_START + (i - mappings.begin());
@@ -404,7 +404,7 @@ bool saveKeyMap()
 {
 	WzConfig ini(KeyMapPath, WzConfig::ReadAndWrite);
 
-	if(!ini.status() || !ini.isWritable())
+	if (!ini.status() || !ini.isWritable())
 	{
 		// NOTE: Changed to LOG_FATAL, since we want to inform user via pop-up (windows only)
 		debug(LOG_FATAL, "Could not open %s", ini.fileName().toUtf8().c_str());
@@ -415,7 +415,7 @@ bool saveKeyMap()
 
 	ini.beginArray("mappings");
 
-	for(auto const &mapping : keyMappings)
+	for (auto const &mapping : keyMappings)
 	{
 		ini.setValue("name", mapping.name.c_str());
 		ini.setValue("status", mapping.status);
@@ -423,7 +423,7 @@ bool saveKeyMap()
 		ini.setValue("sub", mapping.subKeyCode);
 		ini.setValue("action", mapping.action);
 
-		if(auto function = keymapEntryByFunction(mapping.function))
+		if (auto function = keymapEntryByFunction(mapping.function))
 		{
 			ini.setValue("function", function->name);
 		}
@@ -446,13 +446,13 @@ bool loadKeyMap()
 
 	WzConfig ini(KeyMapPath, WzConfig::ReadOnly);
 
-	if(!ini.status())
+	if (!ini.status())
 	{
 		debug(LOG_WZ, "%s not found", KeyMapPath);
 		return false;
 	}
 
-	for(ini.beginArray("mappings"); ini.remainingArrayItems(); ini.nextArrayItem())
+	for (ini.beginArray("mappings"); ini.remainingArrayItems(); ini.nextArrayItem())
 	{
 		auto name = ini.value("name", "").toWzString();
 		auto status = (KEY_STATUS)ini.value("status", 0).toInt();
@@ -462,7 +462,7 @@ bool loadKeyMap()
 		auto functionName = ini.value("function", "").toWzString();
 		auto function = keymapEntryByName(functionName.toUtf8().c_str());
 
-		if(function == nullptr)
+		if (function == nullptr)
 		{
 			debug(LOG_WARNING, "Skipping unknown keymap function \"%s\".", functionName.toUtf8().c_str());
 			continue;

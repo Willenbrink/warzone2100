@@ -98,24 +98,24 @@ void objmemShutdown()
 #endif
 static bool checkReferences(BASE_OBJECT *psVictim)
 {
-	for(int plr = 0; plr < MAX_PLAYERS; ++plr)
+	for (int plr = 0; plr < MAX_PLAYERS; ++plr)
 	{
-		for(STRUCTURE *psStruct = apsStructLists[plr]; psStruct != nullptr; psStruct = psStruct->psNext)
+		for (STRUCTURE *psStruct = apsStructLists[plr]; psStruct != nullptr; psStruct = psStruct->psNext)
 		{
-			if(psStruct == psVictim)
+			if (psStruct == psVictim)
 			{
 				continue;  // Don't worry about self references.
 			}
 
-			for(unsigned i = 0; i < psStruct->numWeaps; ++i)
+			for (unsigned i = 0; i < psStruct->numWeaps; ++i)
 			{
 				ASSERT_OR_RETURN(false, psStruct->psTarget[i] != psVictim, BADREF(psStruct->targetFunc[i], psStruct->targetLine[i]));
 			}
 		}
 
-		for(DROID *psDroid = apsDroidLists[plr]; psDroid != nullptr; psDroid = psDroid->psNext)
+		for (DROID *psDroid = apsDroidLists[plr]; psDroid != nullptr; psDroid = psDroid->psNext)
 		{
-			if(psDroid == psVictim)
+			if (psDroid == psVictim)
 			{
 				continue;  // Don't worry about self references.
 			}
@@ -124,9 +124,9 @@ static bool checkReferences(BASE_OBJECT *psVictim)
 
 			ASSERT_OR_RETURN(false, psDroid->psBaseStruct != psVictim, "Illegal reference to object %d", psVictim->id);
 
-			for(unsigned i = 0; i < psDroid->numWeaps; ++i)
+			for (unsigned i = 0; i < psDroid->numWeaps; ++i)
 			{
-				if(psDroid->psActionTarget[i] == psVictim)
+				if (psDroid->psActionTarget[i] == psVictim)
 				{
 					ASSERT_OR_RETURN(false, psDroid->psActionTarget[i] != psVictim, BADREF(psDroid->actionTargetFunc[i], psDroid->actionTargetLine[i]));
 				}
@@ -141,7 +141,7 @@ static bool checkReferences(BASE_OBJECT *psVictim)
  * Hopefully by this time, no pointers still refer to it! */
 static bool objmemDestroy(BASE_OBJECT *psObj)
 {
-	switch(psObj->type)
+	switch (psObj->type)
 	{
 		case OBJ_DROID:
 			debug(LOG_MEMORY, "freeing droid at %p", static_cast<void *>(psObj));
@@ -159,7 +159,7 @@ static bool objmemDestroy(BASE_OBJECT *psObj)
 			ASSERT(!"unknown object type", "unknown object type in destroyed list at 0x%p", static_cast<void *>(psObj));
 	}
 
-	if(!checkReferences(psObj))
+	if (!checkReferences(psObj))
 	{
 		return false;
 	}
@@ -180,7 +180,7 @@ void objmemUpdate()
 #endif
 
 	// tell the script system about any destroyed objects
-	if(psDestroyedObj != nullptr)
+	if (psDestroyedObj != nullptr)
 	{
 		scrvUpdateBasePointers();
 	}
@@ -189,7 +189,7 @@ void objmemUpdate()
 	   were destroyed before this turn */
 
 	/* First remove the objects from the start of the list */
-	while(psDestroyedObj != nullptr && psDestroyedObj->died <= gameTime - deltaGameTime)
+	while (psDestroyedObj != nullptr && psDestroyedObj->died <= gameTime - deltaGameTime)
 	{
 		psNext = psDestroyedObj->psNext;
 		objmemDestroy(psDestroyedObj);
@@ -198,11 +198,11 @@ void objmemUpdate()
 
 	/* Now see if there are any further down the list
 	Keep track of the previous object to set its Next pointer*/
-	for(psCurr = psPrev = psDestroyedObj; psCurr != nullptr; psCurr = psNext)
+	for (psCurr = psPrev = psDestroyedObj; psCurr != nullptr; psCurr = psNext)
 	{
 		psNext = psCurr->psNext;
 
-		if(psCurr->died <= gameTime - deltaGameTime)
+		if (psCurr->died <= gameTime - deltaGameTime)
 		{
 			/*set the linked list up - you will never be deleting the top
 			of the list, so don't have to check*/
@@ -215,7 +215,7 @@ void objmemUpdate()
 			psCBObjDestroyed = psCurr;
 			eventFireCallbackTrigger((TRIGGER_TYPE)CALL_OBJ_DESTROYED);
 
-			switch(psCurr->type)
+			switch (psCurr->type)
 			{
 				case OBJ_DROID:
 					eventFireCallbackTrigger((TRIGGER_TYPE)CALL_DROID_DESTROYED);
@@ -293,7 +293,7 @@ static inline void destroyObject(OBJECT *list[], OBJECT *object)
 	ASSERT(gameTime - deltaGameTime <= gameTime || gameTime == 2, "Expected %u <= %u, bad time", gameTime - deltaGameTime, gameTime);
 
 	// If the message to remove is the first one in the list then mark the next one as the first
-	if(list[object->player] == object)
+	if (list[object->player] == object)
 	{
 		list[object->player] = list[object->player]->psNext;
 		object->psNext = psDestroyedObj;
@@ -306,14 +306,14 @@ static inline void destroyObject(OBJECT *list[], OBJECT *object)
 	// Iterate through the list and find the item before the object to delete
 	OBJECT *psPrev = nullptr, *psCurr;
 
-	for(psCurr = list[object->player]; (psCurr != object) && (psCurr != nullptr); psCurr = psCurr->psNext)
+	for (psCurr = list[object->player]; (psCurr != object) && (psCurr != nullptr); psCurr = psCurr->psNext)
 	{
 		psPrev = psCurr;
 	}
 
 	ASSERT(psCurr != nullptr, "Object %s(%d) not found in list", objInfo(object), object->id);
 
-	if(psCurr != nullptr)
+	if (psCurr != nullptr)
 	{
 		// Modify the "next" pointer of the previous item to
 		// point to the "next" item of the item to delete.
@@ -341,7 +341,7 @@ static inline void removeObjectFromList(OBJECT *list[], OBJECT *object, int play
 	ASSERT_OR_RETURN(, object != nullptr, "Invalid pointer");
 
 	// If the message to remove is the first one in the list then mark the next one as the first
-	if(list[player] == object)
+	if (list[player] == object)
 	{
 		list[player] = list[player]->psNext;
 		return;
@@ -350,7 +350,7 @@ static inline void removeObjectFromList(OBJECT *list[], OBJECT *object, int play
 	// Iterate through the list and find the item before the object to delete
 	OBJECT *psPrev = nullptr, *psCurr;
 
-	for(psCurr = list[player]; (psCurr != object) && (psCurr != nullptr); psCurr = psCurr->psNext)
+	for (psCurr = list[player]; (psCurr != object) && (psCurr != nullptr); psCurr = psCurr->psNext)
 	{
 		psPrev = psCurr;
 	}
@@ -373,7 +373,7 @@ static inline void removeObjectFromFuncList(OBJECT *list[], OBJECT *object, int 
 	ASSERT_OR_RETURN(, object != nullptr, "Invalid pointer");
 
 	// If the message to remove is the first one in the list then mark the next one as the first
-	if(list[player] == object)
+	if (list[player] == object)
 	{
 		list[player] = list[player]->psNextFunc;
 		object->psNextFunc = nullptr;
@@ -383,7 +383,7 @@ static inline void removeObjectFromFuncList(OBJECT *list[], OBJECT *object, int 
 	// Iterate through the list and find the item before the object to delete
 	OBJECT *psPrev = nullptr, *psCurr;
 
-	for(psCurr = list[player]; psCurr != object && psCurr != nullptr; psCurr = psCurr->psNextFunc)
+	for (psCurr = list[player]; psCurr != object && psCurr != nullptr; psCurr = psCurr->psNextFunc)
 	{
 		psPrev = psCurr;
 	}
@@ -400,12 +400,12 @@ template <typename OBJECT>
 static inline void releaseAllObjectsInList(OBJECT *list[])
 {
 	// Iterate through all players' object lists
-	for(unsigned i = 0; i < MAX_PLAYERS; ++i)
+	for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 	{
 		// Iterate through all objects in list
 		OBJECT *psNext;
 
-		for(OBJECT *psCurr = list[i]; psCurr != nullptr; psCurr = psNext)
+		for (OBJECT *psCurr = list[i]; psCurr != nullptr; psCurr = psNext)
 		{
 			psNext = psCurr->psNext;
 
@@ -437,25 +437,25 @@ void addDroid(DROID *psDroidToAdd, DROID *pList[MAX_PLAYERS])
 	/* Whenever a droid gets added to a list other than the current list
 	 * its died flag is set to NOT_CURRENT_LIST so that anything targetting
 	 * it will cancel itself - HACK?! */
-	if(pList[psDroidToAdd->player] == apsDroidLists[psDroidToAdd->player])
+	if (pList[psDroidToAdd->player] == apsDroidLists[psDroidToAdd->player])
 	{
 		psDroidToAdd->died = false;
 
-		if(psDroidToAdd->droidType == DROID_SENSOR)
+		if (psDroidToAdd->droidType == DROID_SENSOR)
 		{
 			addObjectToFuncList(apsSensorList, (BASE_OBJECT *)psDroidToAdd, 0);
 		}
 
 		// commanders have to get their group back if not already loaded
-		if(psDroidToAdd->droidType == DROID_COMMAND && !psDroidToAdd->psGroup)
+		if (psDroidToAdd->droidType == DROID_COMMAND && !psDroidToAdd->psGroup)
 		{
 			psGroup = grpCreate();
 			psGroup->add(psDroidToAdd);
 		}
 	}
-	else if(pList[psDroidToAdd->player] == mission.apsDroidLists[psDroidToAdd->player])
+	else if (pList[psDroidToAdd->player] == mission.apsDroidLists[psDroidToAdd->player])
 	{
-		if(psDroidToAdd->droidType == DROID_SENSOR)
+		if (psDroidToAdd->droidType == DROID_SENSOR)
 		{
 			addObjectToFuncList(mission.apsSensorList, (BASE_OBJECT *)psDroidToAdd, 0);
 		}
@@ -474,14 +474,14 @@ void killDroid(DROID *psDel)
 
 	setDroidTarget(psDel, nullptr);
 
-	for(i = 0; i < MAX_WEAPONS; i++)
+	for (i = 0; i < MAX_WEAPONS; i++)
 	{
 		setDroidActionTarget(psDel, nullptr, i);
 	}
 
 	setDroidBase(psDel, nullptr);
 
-	if(psDel->droidType == DROID_SENSOR)
+	if (psDel->droidType == DROID_SENSOR)
 	{
 		removeObjectFromFuncList(apsSensorList, (BASE_OBJECT *)psDel, 0);
 	}
@@ -505,18 +505,18 @@ void removeDroid(DROID *psDroidToRemove, DROID *pList[MAX_PLAYERS])
 	/* Whenever a droid is removed from the current list its died
 	 * flag is set to NOT_CURRENT_LIST so that anything targetting
 	 * it will cancel itself, and we know it is not really on the map. */
-	if(pList[psDroidToRemove->player] == apsDroidLists[psDroidToRemove->player])
+	if (pList[psDroidToRemove->player] == apsDroidLists[psDroidToRemove->player])
 	{
-		if(psDroidToRemove->droidType == DROID_SENSOR)
+		if (psDroidToRemove->droidType == DROID_SENSOR)
 		{
 			removeObjectFromFuncList(apsSensorList, (BASE_OBJECT *)psDroidToRemove, 0);
 		}
 
 		psDroidToRemove->died = NOT_CURRENT_LIST;
 	}
-	else if(pList[psDroidToRemove->player] == mission.apsDroidLists[psDroidToRemove->player])
+	else if (pList[psDroidToRemove->player] == mission.apsDroidLists[psDroidToRemove->player])
 	{
-		if(psDroidToRemove->droidType == DROID_SENSOR)
+		if (psDroidToRemove->droidType == DROID_SENSOR)
 		{
 			removeObjectFromFuncList(mission.apsSensorList, (BASE_OBJECT *)psDroidToRemove, 0);
 		}
@@ -542,12 +542,12 @@ void addStructure(STRUCTURE *psStructToAdd)
 {
 	addObjectToList(apsStructLists, psStructToAdd, psStructToAdd->player);
 
-	if(psStructToAdd->pStructureType->pSensor
+	if (psStructToAdd->pStructureType->pSensor
 	        && psStructToAdd->pStructureType->pSensor->location == LOC_TURRET)
 	{
 		addObjectToFuncList(apsSensorList, (BASE_OBJECT *)psStructToAdd, 0);
 	}
-	else if(psStructToAdd->pStructureType->type == REF_RESOURCE_EXTRACTOR)
+	else if (psStructToAdd->pStructureType->type == REF_RESOURCE_EXTRACTOR)
 	{
 		addObjectToFuncList(apsExtractorLists, psStructToAdd, psStructToAdd->player);
 	}
@@ -563,45 +563,45 @@ void killStruct(STRUCTURE *psBuilding)
 	ASSERT(psBuilding->player < MAX_PLAYERS,
 	       "killStruct: invalid player for stucture");
 
-	if(psBuilding->pStructureType->pSensor
+	if (psBuilding->pStructureType->pSensor
 	        && psBuilding->pStructureType->pSensor->location == LOC_TURRET)
 	{
 		removeObjectFromFuncList(apsSensorList, (BASE_OBJECT *)psBuilding, 0);
 	}
-	else if(psBuilding->pStructureType->type == REF_RESOURCE_EXTRACTOR)
+	else if (psBuilding->pStructureType->type == REF_RESOURCE_EXTRACTOR)
 	{
 		removeObjectFromFuncList(apsExtractorLists, psBuilding, psBuilding->player);
 	}
 
-	for(i = 0; i < MAX_WEAPONS; i++)
+	for (i = 0; i < MAX_WEAPONS; i++)
 	{
 		setStructureTarget(psBuilding, nullptr, i, ORIGIN_UNKNOWN);
 	}
 
-	if(psBuilding->pFunctionality != nullptr)
+	if (psBuilding->pFunctionality != nullptr)
 	{
-		if(StructIsFactory(psBuilding))
+		if (StructIsFactory(psBuilding))
 		{
 			FACTORY *psFactory = &psBuilding->pFunctionality->factory;
 
 			// remove any commander from the factory
-			if(psFactory->psCommander != nullptr)
+			if (psFactory->psCommander != nullptr)
 			{
 				assignFactoryCommandDroid(psBuilding, nullptr);
 			}
 
 			// remove any assembly points
-			if(psFactory->psAssemblyPoint != nullptr)
+			if (psFactory->psAssemblyPoint != nullptr)
 			{
 				removeFlagPosition(psFactory->psAssemblyPoint);
 				psFactory->psAssemblyPoint = nullptr;
 			}
 		}
-		else if(psBuilding->pStructureType->type == REF_REPAIR_FACILITY)
+		else if (psBuilding->pStructureType->type == REF_REPAIR_FACILITY)
 		{
 			REPAIR_FACILITY *psRepair = &psBuilding->pFunctionality->repairFacility;
 
-			if(psRepair->psDeliveryPoint)
+			if (psRepair->psDeliveryPoint)
 			{
 				// free up repair fac stuff
 				removeFlagPosition(psRepair->psDeliveryPoint);
@@ -628,12 +628,12 @@ void removeStructureFromList(STRUCTURE *psStructToRemove, STRUCTURE *pList[MAX_P
 	       "removeStructureFromList: invalid player for structure");
 	removeObjectFromList(pList, psStructToRemove, psStructToRemove->player);
 
-	if(psStructToRemove->pStructureType->pSensor
+	if (psStructToRemove->pStructureType->pSensor
 	        && psStructToRemove->pStructureType->pSensor->location == LOC_TURRET)
 	{
 		removeObjectFromFuncList(apsSensorList, (BASE_OBJECT *)psStructToRemove, 0);
 	}
-	else if(psStructToRemove->pStructureType->type == REF_RESOURCE_EXTRACTOR)
+	else if (psStructToRemove->pStructureType->type == REF_RESOURCE_EXTRACTOR)
 	{
 		removeObjectFromFuncList(apsExtractorLists, psStructToRemove, psStructToRemove->player);
 	}
@@ -646,7 +646,7 @@ void addFeature(FEATURE *psFeatureToAdd)
 {
 	addObjectToList(apsFeatureLists, psFeatureToAdd, 0);
 
-	if(psFeatureToAdd->psStats->subType == FEAT_OIL_RESOURCE)
+	if (psFeatureToAdd->psStats->subType == FEAT_OIL_RESOURCE)
 	{
 		addObjectToFuncList(apsOilList, psFeatureToAdd, 0);
 	}
@@ -662,7 +662,7 @@ void killFeature(FEATURE *psDel)
 	psDel->player = 0;
 	destroyObject(apsFeatureLists, psDel);
 
-	if(psDel->psStats->subType == FEAT_OIL_RESOURCE)
+	if (psDel->psStats->subType == FEAT_OIL_RESOURCE)
 	{
 		removeObjectFromFuncList(apsOilList, psDel, 0);
 	}
@@ -683,7 +683,7 @@ bool createFlagPosition(FLAG_POSITION **ppsNew, UDWORD player)
 
 	*ppsNew = (FLAG_POSITION *)calloc(1, sizeof(FLAG_POSITION));
 
-	if(*ppsNew == nullptr)
+	if (*ppsNew == nullptr)
 	{
 		debug(LOG_ERROR, "Out of memory");
 		return false;
@@ -716,20 +716,20 @@ void removeFlagPosition(FLAG_POSITION *psDel)
 
 	ASSERT_OR_RETURN(, psDel != nullptr, "Invalid Flag Position pointer");
 
-	if(apsFlagPosLists[psDel->player] == psDel)
+	if (apsFlagPosLists[psDel->player] == psDel)
 	{
 		apsFlagPosLists[psDel->player] = apsFlagPosLists[psDel->player]->psNext;
 		free(psDel);
 	}
 	else
 	{
-		for(psCurr = apsFlagPosLists[psDel->player]; (psCurr != psDel) &&
+		for (psCurr = apsFlagPosLists[psDel->player]; (psCurr != psDel) &&
 		        (psCurr != nullptr); psCurr = psCurr->psNext)
 		{
 			psPrev = psCurr;
 		}
 
-		if(psCurr != nullptr)
+		if (psCurr != nullptr)
 		{
 			psPrev->psNext = psCurr->psNext;
 			free(psCurr);
@@ -744,9 +744,9 @@ void freeAllFlagPositions()
 	FLAG_POSITION	*psNext;
 	SDWORD			player;
 
-	for(player = 0; player < MAX_PLAYERS; player++)
+	for (player = 0; player < MAX_PLAYERS; player++)
 	{
-		while(apsFlagPosLists[player])
+		while (apsFlagPosLists[player])
 		{
 			psNext = apsFlagPosLists[player]->psNext;
 			free(apsFlagPosLists[player]);
@@ -763,19 +763,19 @@ void checkFactoryFlags()
 	static std::vector<unsigned> factoryDeliveryPointCheck[NUM_FLAG_TYPES];  // Static to save allocations.
 
 	//check the flags
-	for(unsigned player = 0; player < MAX_PLAYERS; ++player)
+	for (unsigned player = 0; player < MAX_PLAYERS; ++player)
 	{
 		//clear the check array
-		for(int type = 0; type < NUM_FLAG_TYPES; ++type)
+		for (int type = 0; type < NUM_FLAG_TYPES; ++type)
 		{
 			factoryDeliveryPointCheck[type].clear();
 		}
 
 		FLAG_POSITION *psFlag = apsFlagPosLists[player];
 
-		while(psFlag)
+		while (psFlag)
 		{
-			if((psFlag->type == POS_DELIVERY) && //check this is attached to a unique factory
+			if ((psFlag->type == POS_DELIVERY) && //check this is attached to a unique factory
 			        (psFlag->factoryType != REPAIR_FLAG))
 			{
 				unsigned type = psFlag->factoryType;
@@ -786,7 +786,7 @@ void checkFactoryFlags()
 			psFlag = psFlag->psNext;
 		}
 
-		for(int type = 0; type < NUM_FLAG_TYPES; ++type)
+		for (int type = 0; type < NUM_FLAG_TYPES; ++type)
 		{
 			std::sort(factoryDeliveryPointCheck[type].begin(), factoryDeliveryPointCheck[type].end());
 			ASSERT(std::unique(factoryDeliveryPointCheck[type].begin(), factoryDeliveryPointCheck[type].end()) == factoryDeliveryPointCheck[type].end(), "DUPLICATE FACTORY DELIVERY POINT FOUND");
@@ -804,14 +804,14 @@ BASE_OBJECT *getBaseObjFromData(unsigned id, unsigned player, OBJECT_TYPE type)
 	BASE_OBJECT		*psObj;
 	DROID			*psTrans;
 
-	for(int i = 0; i < 3; ++i)
+	for (int i = 0; i < 3; ++i)
 	{
 		psObj = nullptr;
 
-		switch(i)
+		switch (i)
 		{
 			case 0:
-				switch(type)
+				switch (type)
 				{
 					case OBJ_DROID:
 						psObj = apsDroidLists[player];
@@ -831,7 +831,7 @@ BASE_OBJECT *getBaseObjFromData(unsigned id, unsigned player, OBJECT_TYPE type)
 				break;
 
 			case 1:
-				switch(type)
+				switch (type)
 				{
 					case OBJ_DROID:
 						psObj = mission.apsDroidLists[player];
@@ -852,7 +852,7 @@ BASE_OBJECT *getBaseObjFromData(unsigned id, unsigned player, OBJECT_TYPE type)
 				break;
 
 			case 2:
-				if(player == 0 && type == OBJ_DROID)
+				if (player == 0 && type == OBJ_DROID)
 				{
 					psObj = apsLimboDroids[0];
 				}
@@ -860,19 +860,19 @@ BASE_OBJECT *getBaseObjFromData(unsigned id, unsigned player, OBJECT_TYPE type)
 				break;
 		}
 
-		while(psObj)
+		while (psObj)
 		{
-			if(psObj->id == id)
+			if (psObj->id == id)
 			{
 				return psObj;
 			}
 
 			// if transporter check any droids in the grp
-			if((psObj->type == OBJ_DROID) && isTransporter((DROID *)psObj))
+			if ((psObj->type == OBJ_DROID) && isTransporter((DROID *)psObj))
 			{
-				for(psTrans = ((DROID *)psObj)->psGroup->psList; psTrans != nullptr; psTrans = psTrans->psGrpNext)
+				for (psTrans = ((DROID *)psObj)->psGroup->psList; psTrans != nullptr; psTrans = psTrans->psGrpNext)
 				{
-					if(psTrans->id == id)
+					if (psTrans->id == id)
 					{
 						return (BASE_OBJECT *)psTrans;
 					}
@@ -896,11 +896,11 @@ BASE_OBJECT *getBaseObjFromId(UDWORD id)
 	BASE_OBJECT		*psObj;
 	DROID			*psTrans;
 
-	for(i = 0; i < 7; ++i)
+	for (i = 0; i < 7; ++i)
 	{
-		for(player = 0; player < MAX_PLAYERS; ++player)
+		for (player = 0; player < MAX_PLAYERS; ++player)
 		{
-			switch(i)
+			switch (i)
 			{
 				case 0:
 					psObj = (BASE_OBJECT *)apsDroidLists[player];
@@ -911,7 +911,7 @@ BASE_OBJECT *getBaseObjFromId(UDWORD id)
 					break;
 
 				case 2:
-					if(player == 0)
+					if (player == 0)
 					{
 						psObj = (BASE_OBJECT *)apsFeatureLists[0];
 					}
@@ -931,7 +931,7 @@ BASE_OBJECT *getBaseObjFromId(UDWORD id)
 					break;
 
 				case 5:
-					if(player == 0)
+					if (player == 0)
 					{
 						psObj = (BASE_OBJECT *)mission.apsFeatureLists[0];
 					}
@@ -943,7 +943,7 @@ BASE_OBJECT *getBaseObjFromId(UDWORD id)
 					break;
 
 				case 6:
-					if(player == 0)
+					if (player == 0)
 					{
 						psObj = (BASE_OBJECT *)apsLimboDroids[0];
 					}
@@ -959,19 +959,19 @@ BASE_OBJECT *getBaseObjFromId(UDWORD id)
 					break;
 			}
 
-			while(psObj)
+			while (psObj)
 			{
-				if(psObj->id == id)
+				if (psObj->id == id)
 				{
 					return psObj;
 				}
 
 				// if transporter check any droids in the grp
-				if((psObj->type == OBJ_DROID) && isTransporter((DROID *)psObj))
+				if ((psObj->type == OBJ_DROID) && isTransporter((DROID *)psObj))
 				{
-					for(psTrans = ((DROID *)psObj)->psGroup->psList; psTrans != nullptr; psTrans = psTrans->psGrpNext)
+					for (psTrans = ((DROID *)psObj)->psGroup->psList; psTrans != nullptr; psTrans = psTrans->psGrpNext)
 					{
-						if(psTrans->id == id)
+						if (psTrans->id == id)
 						{
 							return (BASE_OBJECT *)psTrans;
 						}
@@ -999,9 +999,9 @@ UDWORD getRepairIdFromFlag(FLAG_POSITION *psFlag)
 	player = psFlag->player;
 
 	//probably don't need to check mission list
-	for(i = 0; i < 2; ++i)
+	for (i = 0; i < 2; ++i)
 	{
-		switch(i)
+		switch (i)
 		{
 			case 0:
 				psObj = (STRUCTURE *)apsStructLists[player];
@@ -1016,16 +1016,16 @@ UDWORD getRepairIdFromFlag(FLAG_POSITION *psFlag)
 				break;
 		}
 
-		while(psObj)
+		while (psObj)
 		{
-			if(psObj->pFunctionality)
+			if (psObj->pFunctionality)
 			{
-				if(psObj->pStructureType->type == REF_REPAIR_FACILITY)
+				if (psObj->pStructureType->type == REF_REPAIR_FACILITY)
 				{
 					//check for matching delivery point
 					psRepair = ((REPAIR_FACILITY *)psObj->pFunctionality);
 
-					if(psRepair->psDeliveryPoint == psFlag)
+					if (psRepair->psDeliveryPoint == psFlag)
 					{
 						return psObj->id;
 					}
@@ -1056,9 +1056,9 @@ static void objListIntegCheck()
 	SDWORD			player;
 	BASE_OBJECT		*psCurr;
 
-	for(player = 0; player < MAX_PLAYERS; player += 1)
+	for (player = 0; player < MAX_PLAYERS; player += 1)
 	{
-		for(psCurr = (BASE_OBJECT *)apsDroidLists[player]; psCurr; psCurr = psCurr->psNext)
+		for (psCurr = (BASE_OBJECT *)apsDroidLists[player]; psCurr; psCurr = psCurr->psNext)
 		{
 			ASSERT(psCurr->type == OBJ_DROID &&
 			       (SDWORD)psCurr->player == player,
@@ -1067,9 +1067,9 @@ static void objListIntegCheck()
 		}
 	}
 
-	for(player = 0; player < MAX_PLAYERS; player += 1)
+	for (player = 0; player < MAX_PLAYERS; player += 1)
 	{
-		for(psCurr = (BASE_OBJECT *)apsStructLists[player]; psCurr; psCurr = psCurr->psNext)
+		for (psCurr = (BASE_OBJECT *)apsStructLists[player]; psCurr; psCurr = psCurr->psNext)
 		{
 			ASSERT(psCurr->type == OBJ_STRUCTURE &&
 			       (SDWORD)psCurr->player == player,
@@ -1078,13 +1078,13 @@ static void objListIntegCheck()
 		}
 	}
 
-	for(psCurr = (BASE_OBJECT *)apsFeatureLists[0]; psCurr; psCurr = psCurr->psNext)
+	for (psCurr = (BASE_OBJECT *)apsFeatureLists[0]; psCurr; psCurr = psCurr->psNext)
 	{
 		ASSERT(psCurr->type == OBJ_FEATURE,
 		       "objListIntegCheck: misplaced object in the feature list");
 	}
 
-	for(psCurr = (BASE_OBJECT *)psDestroyedObj; psCurr; psCurr = psCurr->psNext)
+	for (psCurr = (BASE_OBJECT *)psDestroyedObj; psCurr; psCurr = psCurr->psNext)
 	{
 		ASSERT(psCurr->died > 0, "objListIntegCheck: Object in destroyed list but not dead!");
 	}
@@ -1097,30 +1097,30 @@ void objCount(int *droids, int *structures, int *features)
 	*structures = 0;
 	*features = 0;
 
-	for(int i = 0; i < MAX_PLAYERS; i++)
+	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		for(DROID *psDroid = apsDroidLists[i]; psDroid; psDroid = psDroid->psNext)
+		for (DROID *psDroid = apsDroidLists[i]; psDroid; psDroid = psDroid->psNext)
 		{
 			(*droids)++;
 
-			if(isTransporter(psDroid))
+			if (isTransporter(psDroid))
 			{
 				DROID *psTrans = psDroid->psGroup->psList;
 
-				for(psTrans = psTrans->psGrpNext; psTrans != nullptr; psTrans = psTrans->psGrpNext)
+				for (psTrans = psTrans->psGrpNext; psTrans != nullptr; psTrans = psTrans->psGrpNext)
 				{
 					(*droids)++;
 				}
 			}
 		}
 
-		for(STRUCTURE *psStruct = apsStructLists[i]; psStruct; psStruct = psStruct->psNext)
+		for (STRUCTURE *psStruct = apsStructLists[i]; psStruct; psStruct = psStruct->psNext)
 		{
 			(*structures)++;
 		}
 	}
 
-	for(FEATURE *psFeat = apsFeatureLists[0]; psFeat; psFeat = psFeat->psNext)
+	for (FEATURE *psFeat = apsFeatureLists[0]; psFeat; psFeat = psFeat->psNext)
 	{
 		(*features)++;
 	}

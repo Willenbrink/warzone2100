@@ -34,14 +34,14 @@
 bool audio_ObjectDead(const SIMPLE_OBJECT *psSimpleObj)
 {
 	/* check is valid simple object pointer */
-	if(psSimpleObj == nullptr)
+	if (psSimpleObj == nullptr)
 	{
 		debug(LOG_NEVER, "audio_ObjectDead: simple object pointer invalid");
 		return true;
 	}
 
 	/* check projectiles */
-	if(isProjectile(psSimpleObj))
+	if (isProjectile(psSimpleObj))
 	{
 		return castProjectile(psSimpleObj)->state == PROJ_POSTIMPACT;
 	}

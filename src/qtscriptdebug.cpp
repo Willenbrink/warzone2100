@@ -133,7 +133,7 @@ static void fillViewdataModel(QStandardItemModel &m)
 	m.setHorizontalHeaderLabels({"Name", "Type", "Source"});
 	std::vector<WzString> keys = getViewDataKeys();
 
-	for(const WzString& key : keys)
+	for (const WzString& key : keys)
 	{
 		VIEWDATA *ptr = getViewData(key);
 		m.setItem(row, 0, new QStandardItem(QString::fromUtf8(key.toUtf8().c_str())));
@@ -153,9 +153,9 @@ static void fillMessageModel(QStandardItemModel &m)
 	m.setRowCount(0);
 	m.setHorizontalHeaderLabels({"ID", "Type", "Data Type", "Player", "Name", "ViewData Type"});
 
-	for(int i = 0; i < MAX_PLAYERS; i++)
+	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		for(const MESSAGE *psCurr = apsMessages[i]; psCurr != nullptr; psCurr = psCurr->psNext)
+		for (const MESSAGE *psCurr = apsMessages[i]; psCurr != nullptr; psCurr = psCurr->psNext)
 		{
 			ASSERT(psCurr->type < msg_type.size(), "Bad message type");
 			ASSERT(psCurr->dataType < msg_data_type.size(), "Bad viewdata type");
@@ -165,13 +165,13 @@ static void fillMessageModel(QStandardItemModel &m)
 			m.setItem(row, 3, new QStandardItem(QString::number(psCurr->player)));
 			ASSERT(!psCurr->pViewData || !psCurr->psObj, "Both viewdata and object in message should be impossible!");
 
-			if(psCurr->pViewData)
+			if (psCurr->pViewData)
 			{
 				ASSERT(psCurr->pViewData->type < view_type.size(), "Bad viewdata type");
 				m.setItem(row, 4, new QStandardItem(QString::fromUtf8(psCurr->pViewData->name.toUtf8().c_str())));
 				m.setItem(row, 5, new QStandardItem(view_type.at(psCurr->pViewData->type)));
 			}
-			else if(psCurr->psObj)
+			else if (psCurr->psObj)
 			{
 				m.setItem(row, 4, new QStandardItem(objInfo(psCurr->psObj)));
 				m.setItem(row, 5, new QStandardItem(obj_type.at(psCurr->psObj->type)));
@@ -280,7 +280,7 @@ ScriptDebugger::ScriptDebugger(const MODELMAP &models, QStandardItemModel *trigg
 	QLabel *selectPlayerLabel = new QLabel("Selected Player:", this);
 	QComboBox *playerComboBox = new QComboBox(this);
 
-	for(int i = 0; i < game.maxPlayers; i++)
+	for (int i = 0; i < game.maxPlayers; i++)
 	{
 		playerComboBox->addItem(QString::number(i));
 	}
@@ -293,14 +293,14 @@ ScriptDebugger::ScriptDebugger(const MODELMAP &models, QStandardItemModel *trigg
 	QHBoxLayout *addAILayout = new QHBoxLayout;
 	QLabel *addAILabel = new QLabel("Attach AI to player:", this);
 
-	for(int i = 0; i < game.maxPlayers; i++)
+	for (int i = 0; i < game.maxPlayers; i++)
 	{
 		aiPlayerComboBox.addItem(QString::number(i));
 	}
 
 	const std::vector<WzString> AIs = getAINames();
 
-	for(const WzString &name : AIs)
+	for (const WzString &name : AIs)
 	{
 		aiScriptComboBox.addItem(QString::fromUtf8(name.toUtf8().c_str()));
 	}
@@ -338,7 +338,7 @@ ScriptDebugger::ScriptDebugger(const MODELMAP &models, QStandardItemModel *trigg
 	// Add globals
 	QTabWidget *contextsTab = new QTabWidget(this);
 
-	for(MODELMAP::const_iterator i = models.constBegin(); i != models.constEnd(); ++i)
+	for (MODELMAP::const_iterator i = models.constBegin(); i != models.constEnd(); ++i)
 	{
 		QWidget *dummyWidget = new QWidget(this);
 		QScriptEngine *engine = i.key();
@@ -372,7 +372,7 @@ ScriptDebugger::ScriptDebugger(const MODELMAP &models, QStandardItemModel *trigg
 
 	QTabWidget *playersTab = new QTabWidget(this);
 
-	for(int i = 0; i < MAX_PLAYERS; i++)
+	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		QTreeView *view = new QTreeView(this);
 		view->setSelectionMode(QAbstractItemView::NoSelection);
@@ -468,7 +468,7 @@ void ScriptDebugger::update()
 	fillMainModel(mainModel);
 	mainView.resizeColumnToContents(0);
 
-	for(int i = 0; i < MAX_PLAYERS; i++)
+	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		fillPlayerModel(playerModel[i], i);
 	}
@@ -479,7 +479,7 @@ void ScriptDebugger::runClicked(QObject *obj)
 	QScriptEngine *engine = (QScriptEngine *)obj;
 	QLineEdit *line = editMap.value(engine);
 
-	if(line)
+	if (line)
 	{
 		jsEvaluate(engine, line->text());
 	}
@@ -511,12 +511,12 @@ void ScriptDebugger::labelClicked()
 {
 	QItemSelectionModel *selected = labelView.selectionModel();
 
-	if(selected)
+	if (selected)
 	{
 		QModelIndex idx = selected->currentIndex();
 		QStandardItem *item = labelModel->itemFromIndex(labelModel->index(idx.row(), 0));
 
-		if(item)
+		if (item)
 		{
 			showLabel(item->text());
 		}
@@ -561,7 +561,7 @@ void ScriptDebugger::labelClickedIdx(const QModelIndex &idx)
 {
 	QStandardItem *item = labelModel->itemFromIndex(labelModel->index(idx.row(), 0));
 
-	if(item)
+	if (item)
 	{
 		showLabel(item->text());
 	}
@@ -582,7 +582,7 @@ static void setPair(int &row, QStandardItemModel &model, const QStandardItemList
 
 static const char *getObjType(const BASE_OBJECT *psObj)
 {
-	switch(psObj->type)
+	switch (psObj->type)
 	{
 		case OBJ_DROID:
 			return "Droid";
@@ -608,7 +608,7 @@ static QString arrayToString(const T *array, int length)
 {
 	QStringList l;
 
-	for(int i = 0; i < length; i++)
+	for (int i = 0; i < length; i++)
 	{
 		l.append(QString::number(array[i]));
 	}
@@ -630,14 +630,14 @@ QStandardItemList componentToString(const QString &name, const COMPONENT_STATS *
 	key->appendRow(QStandardItemList{ new QStandardItem("^Hit points +% of total"), new QStandardItem(QString::number(psStats->pUpgrade[player]->hitpointPct)) });
 	key->appendRow(QStandardItemList{ new QStandardItem("^Designable"), new QStandardItem(QString::number(psStats->designable)) });
 
-	if(psStats->compType == COMP_BODY)
+	if (psStats->compType == COMP_BODY)
 	{
 		const BODY_STATS *psBody = (const BODY_STATS *)psStats;
 		key->appendRow(QStandardItemList{ new QStandardItem("^Size"), new QStandardItem(QString::number(psBody->size)) });
 		key->appendRow(QStandardItemList{ new QStandardItem("^Max weapons"), new QStandardItem(QString::number(psBody->weaponSlots)) });
 		key->appendRow(QStandardItemList{ new QStandardItem("^Body class"), new QStandardItem(QString::fromUtf8(psBody->bodyClass.toUtf8().c_str())) });
 	}
-	else if(psStats->compType == COMP_PROPULSION)
+	else if (psStats->compType == COMP_PROPULSION)
 	{
 		const PROPULSION_STATS *psProp = (const PROPULSION_STATS *)psStats;
 		key->appendRow(QStandardItemList{ new QStandardItem("^Hit points +% of body"), new QStandardItem(QString::number(psProp->upgrade[player].hitpointPctOfBody)) });
@@ -650,19 +650,19 @@ QStandardItemList componentToString(const QString &name, const COMPONENT_STATS *
 		key->appendRow(QStandardItemList{ new QStandardItem("^Deceleration"), new QStandardItem(QString::number(psProp->deceleration)) });
 		key->appendRow(QStandardItemList{ new QStandardItem("^Acceleration"), new QStandardItem(QString::number(psProp->acceleration)) });
 	}
-	else if(psStats->compType == COMP_BRAIN)
+	else if (psStats->compType == COMP_BRAIN)
 	{
 		const BRAIN_STATS *psBrain = (const BRAIN_STATS *)psStats;
 		QStringList ranks;
 
-		for(const std::string &s : psBrain->rankNames)
+		for (const std::string &s : psBrain->rankNames)
 		{
 			ranks.append(QString::fromStdString(s));
 		}
 
 		QStringList thresholds;
 
-		for(int t : psBrain->upgrade[player].rankThresholds)
+		for (int t : psBrain->upgrade[player].rankThresholds)
 		{
 			thresholds.append(QString::number(t));
 		}
@@ -672,24 +672,24 @@ QStandardItemList componentToString(const QString &name, const COMPONENT_STATS *
 		key->appendRow(QStandardItemList{ new QStandardItem("^Rank names"), new QStandardItem(ranks.join(", ")) });
 		key->appendRow(QStandardItemList{ new QStandardItem("^Rank thresholds"), new QStandardItem(thresholds.join(", ")) });
 	}
-	else if(psStats->compType == COMP_REPAIRUNIT)
+	else if (psStats->compType == COMP_REPAIRUNIT)
 	{
 		const REPAIR_STATS *psRepair = (const REPAIR_STATS *)psStats;
 		key->appendRow(QStandardItemList{ new QStandardItem("^Repair time"), new QStandardItem(QString::number(psRepair->time)) });
 		key->appendRow(QStandardItemList{ new QStandardItem("^Base repair points"), new QStandardItem(QString::number(psRepair->upgrade[player].repairPoints)) });
 	}
-	else if(psStats->compType == COMP_ECM)
+	else if (psStats->compType == COMP_ECM)
 	{
 		const ECM_STATS *psECM = (const ECM_STATS *)psStats;
 		key->appendRow(QStandardItemList{ new QStandardItem("^Base range"), new QStandardItem(QString::number(psECM->upgrade[player].range)) });
 	}
-	else if(psStats->compType == COMP_SENSOR)
+	else if (psStats->compType == COMP_SENSOR)
 	{
 		const SENSOR_STATS *psSensor = (const SENSOR_STATS *)psStats;
 		key->appendRow(QStandardItemList{ new QStandardItem("^Sensor type"), new QStandardItem(QString::number(psSensor->type)) });
 		key->appendRow(QStandardItemList{ new QStandardItem("^Base range"), new QStandardItem(QString::number(psSensor->upgrade[player].range)) });
 	}
-	else if(psStats->compType == COMP_CONSTRUCT)
+	else if (psStats->compType == COMP_CONSTRUCT)
 	{
 		const CONSTRUCT_STATS *psCon = (const CONSTRUCT_STATS *)psStats;
 		key->appendRow(QStandardItemList{ new QStandardItem("^Base construct points"), new QStandardItem(QString::number(psCon->upgrade[player].constructPoints)) });
@@ -722,9 +722,9 @@ void ScriptDebugger::selected(const BASE_OBJECT *psObj)
 	setPair(row, selectedModel, "Seen last tick", arrayToString(psObj->seenThisTick, MAX_PLAYERS));
 	QStandardItem *weapKey = new QStandardItem("Weapons");
 
-	for(int i = 0; i < psObj->numWeaps; i++)
+	for (int i = 0; i < psObj->numWeaps; i++)
 	{
-		if(psObj->asWeaps[i].nStat > 0)
+		if (psObj->asWeaps[i].nStat > 0)
 		{
 			WEAPON_STATS *psWeap = asWeaponStats + psObj->asWeaps[i].nStat;
 			QStandardItemList list = componentToString(QString::number(i), psWeap, psObj->player);
@@ -740,7 +740,7 @@ void ScriptDebugger::selected(const BASE_OBJECT *psObj)
 
 	selectedModel.setItem(row++, 0, weapKey);
 
-	if(psObj->type == OBJ_DROID)
+	if (psObj->type == OBJ_DROID)
 	{
 		const DROID *psDroid = castDroid(psObj);
 		setPair(row, selectedModel, "Droid type", QString::number(psDroid->droidType));
@@ -780,7 +780,7 @@ void ScriptDebugger::selected(const BASE_OBJECT *psObj)
 		setPair(row, selectedModel, componentToString("Construct", asConstructStats + psDroid->asBits[COMP_CONSTRUCT], psObj->player));
 		setPair(row, selectedModel, componentToString("Repair", asRepairStats + psDroid->asBits[COMP_REPAIRUNIT], psObj->player));
 	}
-	else if(psObj->type == OBJ_STRUCTURE)
+	else if (psObj->type == OBJ_STRUCTURE)
 	{
 		const STRUCTURE *psStruct = castStructure(psObj);
 		setPair(row, selectedModel, "Build points", QString::number(psStruct->currentBuildPts));
@@ -795,14 +795,14 @@ void ScriptDebugger::selected(const BASE_OBJECT *psObj)
 		setPair(row, selectedModel, componentToString("ECM", psStruct->pStructureType->pECM, psObj->player));
 		setPair(row, selectedModel, componentToString("Sensor", psStruct->pStructureType->pSensor, psObj->player));
 
-		if(psStruct->pStructureType->type == REF_REARM_PAD)
+		if (psStruct->pStructureType->type == REF_REARM_PAD)
 		{
 			setPair(row, selectedModel, ":timeStarted", QString::number(psStruct->pFunctionality->rearmPad.timeStarted));
 			setPair(row, selectedModel, ":timeLastUpdated", QString::number(psStruct->pFunctionality->rearmPad.timeLastUpdated));
 			setPair(row, selectedModel, ":Rearm target", QString(objInfo(psStruct->pFunctionality->rearmPad.psObj)));
 		}
 	}
-	else if(psObj->type == OBJ_FEATURE)
+	else if (psObj->type == OBJ_FEATURE)
 	{
 		const FEATURE *psFeat = castFeature(psObj);
 		setPair(row, selectedModel, "^Feature type", QString::number(psFeat->psStats->subType));
@@ -822,7 +822,7 @@ ScriptDebugger::~ScriptDebugger()
 
 void jsDebugMessageUpdate()
 {
-	if(globalDialog)
+	if (globalDialog)
 	{
 		globalDialog->updateMessages();
 	}
@@ -830,7 +830,7 @@ void jsDebugMessageUpdate()
 
 void jsDebugUpdate()
 {
-	if(globalDialog)
+	if (globalDialog)
 	{
 		globalDialog->update(); // quick update every second
 	}
@@ -838,7 +838,7 @@ void jsDebugUpdate()
 
 void jsDebugSelected(const BASE_OBJECT *psObj)
 {
-	if(globalDialog)
+	if (globalDialog)
 	{
 		globalDialog->selected(psObj);
 	}

@@ -71,7 +71,7 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 	const iIMDShape		*pImd;
 	Spacetime               spacetime;
 
-	switch(objectType)
+	switch (objectType)
 	{
 		case RENDER_PARTICLE:
 			position.x = ((ATPART *)pObject)->position.x;
@@ -84,14 +84,14 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 			/* 16 below is HACK!!! */
 			z = pie_RotateProject(&position, viewMatrix, &pixel) - 16;
 
-			if(z > 0)
+			if (z > 0)
 			{
 				//particle use the image radius
 				radius = ((ATPART *)pObject)->imd->radius;
 				radius *= SCALE_DEPTH;
 				radius /= z;
 
-				if((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
+				if ((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
 				        || (pixel.y + radius < CLIP_TOP) || (pixel.y - radius > CLIP_BOTTOM))
 				{
 					z = -1;
@@ -101,7 +101,7 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 			break;
 
 		case RENDER_PROJECTILE:
-			if(((PROJECTILE *)pObject)->psWStats->weaponSubClass == WSC_FLAME ||
+			if (((PROJECTILE *)pObject)->psWStats->weaponSubClass == WSC_FLAME ||
 			        ((PROJECTILE *)pObject)->psWStats->weaponSubClass == WSC_COMMAND ||
 			        ((PROJECTILE *)pObject)->psWStats->weaponSubClass == WSC_EMP)
 			{
@@ -122,14 +122,14 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 
 				z = pie_RotateProject(&position, viewMatrix, &pixel);
 
-				if(z > 0)
+				if (z > 0)
 				{
 					//particle use the image radius
 					radius = pImd->radius;
 					radius *= SCALE_DEPTH;
 					radius /= z;
 
-					if((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
+					if ((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
 					        || (pixel.y + radius < CLIP_TOP) || (pixel.y - radius > CLIP_BOTTOM))
 					{
 						z = -1;
@@ -144,7 +144,7 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 			position.x = psSimpObj->pos.x - player.p.x;
 			position.z = -(psSimpObj->pos.y - player.p.z);
 
-			if((objectType == RENDER_STRUCTURE) &&
+			if ((objectType == RENDER_STRUCTURE) &&
 			        ((((STRUCTURE *)pObject)->pStructureType->type == REF_DEFENSE) ||
 			         (((STRUCTURE *)pObject)->pStructureType->type == REF_WALL) ||
 			         (((STRUCTURE *)pObject)->pStructureType->type == REF_WALLCORNER)))
@@ -160,13 +160,13 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 
 			z = pie_RotateProject(&position, viewMatrix, &pixel);
 
-			if(z > 0)
+			if (z > 0)
 			{
 				//particle use the image radius
 				radius *= SCALE_DEPTH;
 				radius /= z;
 
-				if((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
+				if ((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
 				        || (pixel.y + radius < CLIP_TOP) || (pixel.y - radius > CLIP_BOTTOM))
 				{
 					z = -1;
@@ -184,14 +184,14 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 
 			z = pie_RotateProject(&position, viewMatrix, &pixel);
 
-			if(z > 0)
+			if (z > 0)
 			{
 				//particle use the image radius
 				radius = ((FEATURE *)pObject)->sDisplay.imd->radius;
 				radius *= SCALE_DEPTH;
 				radius /= z;
 
-				if((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
+				if ((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
 				        || (pixel.y + radius < CLIP_TOP) || (pixel.y - radius > CLIP_BOTTOM))
 				{
 					z = -1;
@@ -212,14 +212,14 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 			droidSize = psBStats->pIMD->radius;
 			z = pie_RotateProject(&position, viewMatrix, &pixel) - (droidSize * 2);
 
-			if(z > 0)
+			if (z > 0)
 			{
 				//particle use the image radius
 				radius = droidSize;
 				radius *= SCALE_DEPTH;
 				radius /= z;
 
-				if((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
+				if ((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
 				        || (pixel.y + radius < CLIP_TOP) || (pixel.y - radius > CLIP_BOTTOM))
 				{
 					z = -1;
@@ -229,7 +229,7 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 			break;
 
 		case RENDER_PROXMSG:
-			if(((PROXIMITY_DISPLAY *)pObject)->type == POS_PROXDATA)
+			if (((PROXIMITY_DISPLAY *)pObject)->type == POS_PROXDATA)
 			{
 				const PROXIMITY_DISPLAY *ptr = (PROXIMITY_DISPLAY *)pObject;
 				position.x = ((VIEW_PROXIMITY *)ptr->psMessage->pViewData->pData)->x - player.p.x;
@@ -243,7 +243,7 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 #endif
 				position.y = ((VIEW_PROXIMITY *)ptr->psMessage->pViewData->pData)->z;
 			}
-			else if(((PROXIMITY_DISPLAY *)pObject)->type == POS_PROXOBJ)
+			else if (((PROXIMITY_DISPLAY *)pObject)->type == POS_PROXOBJ)
 			{
 				const PROXIMITY_DISPLAY *ptr = (PROXIMITY_DISPLAY *)pObject;
 				position.x = ptr->psMessage->psObj->pos.x - player.p.x;
@@ -253,7 +253,7 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 
 			z = pie_RotateProject(&position, viewMatrix, &pixel);
 
-			if(z > 0)
+			if (z > 0)
 			{
 				//particle use the image radius
 				pImd = getImdFromIndex(MI_BLIP_ENEMY);//use MI_BLIP_ENEMY as all are same radius
@@ -261,7 +261,7 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 				radius *= SCALE_DEPTH;
 				radius /= z;
 
-				if((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
+				if ((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
 				        || (pixel.y + radius < CLIP_TOP) || (pixel.y - radius > CLIP_BOTTOM))
 				{
 					z = -1;
@@ -278,18 +278,18 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 			/* 16 below is HACK!!! */
 			z = pie_RotateProject(&position, viewMatrix, &pixel) - 16;
 
-			if(z > 0)
+			if (z > 0)
 			{
 				//particle use the image radius
 				pImd = ((EFFECT *)pObject)->imd;
 
-				if(pImd != nullptr)
+				if (pImd != nullptr)
 				{
 					radius = pImd->radius;
 					radius *= SCALE_DEPTH;
 					radius /= z;
 
-					if((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
+					if ((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
 					        || (pixel.y + radius < CLIP_TOP) || (pixel.y - radius > CLIP_BOTTOM))
 					{
 						z = -1;
@@ -307,14 +307,14 @@ static SDWORD bucketCalculateZ(RENDER_TYPE objectType, void *pObject, const glm:
 
 			z = pie_RotateProject(&position, viewMatrix, &pixel);
 
-			if(z > 0)
+			if (z > 0)
 			{
 				//particle use the image radius
 				radius = pAssemblyPointIMDs[((FLAG_POSITION *)pObject)->factoryType][((FLAG_POSITION *)pObject)->factoryInc]->radius;
 				radius *= SCALE_DEPTH;
 				radius /= z;
 
-				if((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
+				if ((pixel.x + radius < CLIP_LEFT) || (pixel.x - radius > CLIP_RIGHT)
 				        || (pixel.y + radius < CLIP_TOP) || (pixel.y - radius > CLIP_BOTTOM))
 				{
 					z = -1;
@@ -337,10 +337,10 @@ void bucketAddTypeToList(RENDER_TYPE objectType, void *pObject, const glm::mat4 
 	BUCKET_TAG	newTag;
 	int32_t		z = bucketCalculateZ(objectType, pObject, viewMatrix);
 
-	if(z < 0)
+	if (z < 0)
 	{
 		/* Object will not be render - has been clipped! */
-		if(objectType == RENDER_DROID || objectType == RENDER_STRUCTURE)
+		if (objectType == RENDER_DROID || objectType == RENDER_STRUCTURE)
 		{
 			/* Won't draw selection boxes */
 			((BASE_OBJECT *)pObject)->sDisplay.frameNumber = 0;
@@ -349,10 +349,10 @@ void bucketAddTypeToList(RENDER_TYPE objectType, void *pObject, const glm::mat4 
 		return;
 	}
 
-	switch(objectType)
+	switch (objectType)
 	{
 		case RENDER_EFFECT:
-			switch(((EFFECT *)pObject)->group)
+			switch (((EFFECT *)pObject)->group)
 			{
 				case EFFECT_EXPLOSION:
 				case EFFECT_CONSTRUCTION:
@@ -417,9 +417,9 @@ void bucketRenderCurrentList(const glm::mat4 &viewMatrix)
 {
 	std::sort(bucketArray.begin(), bucketArray.end());
 
-	for(std::vector<BUCKET_TAG>::const_iterator thisTag = bucketArray.begin(); thisTag != bucketArray.end(); ++thisTag)
+	for (std::vector<BUCKET_TAG>::const_iterator thisTag = bucketArray.begin(); thisTag != bucketArray.end(); ++thisTag)
 	{
-		switch(thisTag->objectType)
+		switch (thisTag->objectType)
 		{
 			case RENDER_PARTICLE:
 				renderParticle((ATPART *)thisTag->pObject, viewMatrix);

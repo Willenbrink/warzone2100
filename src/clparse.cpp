@@ -87,16 +87,16 @@ static void poptPrintHelp(poptContext ctx, FILE *output, bool show_all)
 {
 	fprintf(output, "Usage: %s [OPTION...]\n", ctx->argv[0]);
 
-	for(int i = 0; i < ctx->size; i++)
+	for (int i = 0; i < ctx->size; i++)
 	{
 		char txt[128];
 
-		if(ctx->table[i].hidden && !show_all)
+		if (ctx->table[i].hidden && !show_all)
 		{
 			continue;
 		}
 
-		if(ctx->table[i].short_form != '\0')
+		if (ctx->table[i].short_form != '\0')
 		{
 			ssprintf(txt, "  -%c, --%s", ctx->table[i].short_form, ctx->table[i].string);
 		}
@@ -105,7 +105,7 @@ static void poptPrintHelp(poptContext ctx, FILE *output, bool show_all)
 			ssprintf(txt, "  --%s", ctx->table[i].string);
 		}
 
-		if(ctx->table[i].argument)
+		if (ctx->table[i].argument)
 		{
 			sstrcat(txt, "=");
 			sstrcat(txt, ctx->table[i].argDescrip);
@@ -113,7 +113,7 @@ static void poptPrintHelp(poptContext ctx, FILE *output, bool show_all)
 
 		fprintf(output, "%-40s", txt);
 
-		if(ctx->table[i].descrip)
+		if (ctx->table[i].descrip)
 		{
 			fprintf(output, "%s", ctx->table[i].descrip);
 		}
@@ -144,12 +144,12 @@ static int poptGetNextOpt(poptContext ctx)
 	parameter[0] = '\0';
 	match[0] = '\0';
 
-	if(ctx->current >= ctx->argc)	// counts from 1
+	if (ctx->current >= ctx->argc)	// counts from 1
 	{
 		return 0;
 	}
 
-	if(strstr(ctx->argv[ctx->current], "-psn_"))
+	if (strstr(ctx->argv[ctx->current], "-psn_"))
 	{
 		ctx->current++;	// skip mac -psn_*  Yum!
 		return POPT_SKIP_MAC_PSN;
@@ -159,18 +159,18 @@ static int poptGetNextOpt(poptContext ctx)
 	ctx->current++;
 	pparam = strrchr(match, '=');
 
-	if(pparam)									// option's got a parameter
+	if (pparam)									// option's got a parameter
 	{
 		*pparam++ = '\0';							// split option from parameter and increment past '='
 
-		if(pparam[0] == '"')							// found scary quotes
+		if (pparam[0] == '"')							// found scary quotes
 		{
 			pparam++;							// skip start quote
 			sstrcpy(parameter, pparam);					// copy first parameter
 
-			if(!strrchr(pparam, '"'))					// if no end quote, then find it
+			if (!strrchr(pparam, '"'))					// if no end quote, then find it
 			{
-				while(!strrchr(parameter, '"') && ctx->current < ctx->argc)
+				while (!strrchr(parameter, '"') && ctx->current < ctx->argc)
 				{
 					sstrcat(parameter, " ");			// insert space
 					sstrcat(parameter, ctx->argv[ctx->current]);
@@ -178,7 +178,7 @@ static int poptGetNextOpt(poptContext ctx)
 				}
 			}
 
-			if(strrchr(parameter, '"'))					// its not an else for above!
+			if (strrchr(parameter, '"'))					// its not an else for above!
 			{
 				*strrchr(parameter, '"') = '\0';			// remove end qoute
 			}
@@ -189,7 +189,7 @@ static int poptGetNextOpt(poptContext ctx)
 		}
 	}
 
-	for(i = 0; i < ctx->size; i++)
+	for (i = 0; i < ctx->size; i++)
 	{
 		char sshort[3];
 		char slong[64];
@@ -197,9 +197,9 @@ static int poptGetNextOpt(poptContext ctx)
 		ssprintf(sshort, "-%c", ctx->table[i].short_form);
 		ssprintf(slong, "--%s", ctx->table[i].string);
 
-		if((strcmp(sshort, match) == 0 && ctx->table[i].short_form != '\0') || strcmp(slong, match) == 0)
+		if ((strcmp(sshort, match) == 0 && ctx->table[i].short_form != '\0') || strcmp(slong, match) == 0)
 		{
-			if(ctx->table[i].argument && pparam)
+			if (ctx->table[i].argument && pparam)
 			{
 				ctx->parameter = parameter;
 			}
@@ -223,7 +223,7 @@ static poptContext poptGetContext(WZ_DECL_UNUSED void *unused, int argc, const c
 	ctx.current = 1;
 	ctx.parameter = nullptr;
 
-	for(ctx.size = 0; table[ctx.size].string; ctx.size++) ;	// count table size
+	for (ctx.size = 0; table[ctx.size].string; ctx.size++) ;	// count table size
 
 	return &ctx;
 }
@@ -305,22 +305,22 @@ static const struct poptOption *getOptionsTable()
 	static struct poptOption TranslatedOptionsTable[sizeof(optionsTable) / sizeof(struct poptOption)];
 	static bool translated = false;
 
-	if(translated == false)
+	if (translated == false)
 	{
 		unsigned int table_size = sizeof(optionsTable) / sizeof(struct poptOption) - 1;
 		unsigned int i;
 
-		for(i = 0; i < table_size; ++i)
+		for (i = 0; i < table_size; ++i)
 		{
 			TranslatedOptionsTable[i] = optionsTable[i];
 
 			// If there is a description, make sure to translate it with gettext
-			if(TranslatedOptionsTable[i].descrip != nullptr)
+			if (TranslatedOptionsTable[i].descrip != nullptr)
 			{
 				TranslatedOptionsTable[i].descrip = gettext(TranslatedOptionsTable[i].descrip);
 			}
 
-			if(TranslatedOptionsTable[i].argDescrip != nullptr)
+			if (TranslatedOptionsTable[i].argDescrip != nullptr)
 			{
 				TranslatedOptionsTable[i].argDescrip = gettext(TranslatedOptionsTable[i].argDescrip);
 			}
@@ -351,29 +351,29 @@ bool ParseCommandLineEarly(int argc, const char * const *argv)
 #endif /* WZ_OS_MAC && DEBUG */
 
 	/* loop through command line */
-	while((iOption = poptGetNextOpt(poptCon)) > 0 || iOption == POPT_ERROR_BADOPT)
+	while ((iOption = poptGetNextOpt(poptCon)) > 0 || iOption == POPT_ERROR_BADOPT)
 	{
 		CLI_OPTIONS option = (CLI_OPTIONS)iOption;
 		const char *token;
 
-		if(iOption == POPT_ERROR_BADOPT)
+		if (iOption == POPT_ERROR_BADOPT)
 		{
 			qFatal("Unrecognized option: %s", poptBadOption(poptCon, 0));
 		}
 
-		switch(option)
+		switch (option)
 		{
 			case CLI_DEBUG:
 				// retrieve the debug section name
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Usage: --debug=<flag>");
 				}
 
 				// Attempt to enable the given debug section
-				if(!debug_enable_switch(token))
+				if (!debug_enable_switch(token))
 				{
 					qFatal("Debug flag \"%s\" not found!", token);
 				}
@@ -385,7 +385,7 @@ bool ParseCommandLineEarly(int argc, const char * const *argv)
 				// find the file name
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Missing debugfile filename?");
 				}
@@ -405,12 +405,12 @@ bool ParseCommandLineEarly(int argc, const char * const *argv)
 				// retrieve the configuration directory
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Unrecognised configuration directory");
 				}
 
-				if(strlen(token) >= (sizeof(configdir) / sizeof(configdir[0])))
+				if (strlen(token) >= (sizeof(configdir) / sizeof(configdir[0])))
 				{
 					qFatal("Configuration directory exceeds maximum supported length on this platform");
 				}
@@ -448,12 +448,12 @@ bool ParseCommandLine(int argc, const char * const *argv)
 	int iOption;
 
 	/* loop through command line */
-	while((iOption = poptGetNextOpt(poptCon)) > 0)
+	while ((iOption = poptGetNextOpt(poptCon)) > 0)
 	{
 		const char *token;
 		CLI_OPTIONS option = (CLI_OPTIONS)iOption;
 
-		switch(option)
+		switch (option)
 		{
 			case CLI_DEBUG:
 			case CLI_DEBUGFILE:
@@ -481,7 +481,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				// retrieve the quoted path name
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Unrecognised datadir");
 				}
@@ -497,7 +497,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				//get the ip we want to connect with, and go directly to join screen.
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("No IP/hostname given");
 				}
@@ -514,7 +514,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				// retrieve the game name
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr
+				if (token == nullptr
 				        || (strcmp(token, "CAM_1A") && strcmp(token, "CAM_2A") && strcmp(token, "CAM_3A")
 				            && strcmp(token, "TUTORIAL3") && strcmp(token, "FASTPLAY")))
 				{
@@ -526,7 +526,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				bMultiPlayer = false;
 				bMultiMessages = false;
 
-				for(int i = 0; i < MAX_PLAYERS; i++)
+				for (int i = 0; i < MAX_PLAYERS; i++)
 				{
 					NET_InitPlayer(i, true, false);
 				}
@@ -534,7 +534,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				//NET_InitPlayer deallocates Player 0, who must be allocated so that a later invocation of processDebugMappings does not trigger DEBUG mode
 				NetPlay.players[0].allocated = true;
 
-				if(!strcmp(token, "CAM_1A") || !strcmp(token, "CAM_2A") || !strcmp(token, "CAM_3A"))
+				if (!strcmp(token, "CAM_1A") || !strcmp(token, "CAM_2A") || !strcmp(token, "CAM_3A"))
 				{
 					game.type = CAMPAIGN;
 				}
@@ -552,7 +552,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				// retrieve the file name
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Missing mod name?");
 				}
@@ -566,7 +566,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				// retrieve the file name
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Missing mod name?");
 				}
@@ -580,7 +580,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				// retrieve the file name
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Missing mod name?");
 				}
@@ -595,18 +595,18 @@ bool ParseCommandLine(int argc, const char * const *argv)
 
 				token = poptGetOptArg(poptCon);
 
-				if(sscanf(token, "%ux%u", &width, &height) != 2)
+				if (sscanf(token, "%ux%u", &width, &height) != 2)
 				{
 					qFatal("Invalid parameter specified (format is WIDTHxHEIGHT, e.g. 800x600)");
 				}
 
-				if(width < 640)
+				if (width < 640)
 				{
 					debug(LOG_ERROR, "Screen width < 640 unsupported, using 640");
 					width = 640;
 				}
 
-				if(height < 480)
+				if (height < 480)
 				{
 					debug(LOG_ERROR, "Screen height < 480 unsupported, using 480");
 					height = 480;
@@ -625,7 +625,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				// retrieve the game name
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Unrecognised skirmish savegame name");
 				}
@@ -641,7 +641,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				// retrieve the game name
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Unrecognised campaign savegame name");
 				}
@@ -686,7 +686,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 			case CLI_SAVEANDQUIT:
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr || !strchr(token, '/'))
+				if (token == nullptr || !strchr(token, '/'))
 				{
 					qFatal("Bad savegame name (needs to be a full path)");
 				}
@@ -698,7 +698,7 @@ bool ParseCommandLine(int argc, const char * const *argv)
 				hostlaunch = 2;
 				token = poptGetOptArg(poptCon);
 
-				if(token == nullptr)
+				if (token == nullptr)
 				{
 					qFatal("Bad test key");
 				}

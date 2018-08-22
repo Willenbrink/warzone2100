@@ -61,9 +61,9 @@ void cmdDroidShutDown()
  */
 void cmdDroidUpdate()
 {
-	for(auto &i : apsCmdDesignator)
+	for (auto &i : apsCmdDesignator)
 	{
-		if(i && i->died)
+		if (i && i->died)
 		{
 			i = nullptr;
 		}
@@ -78,14 +78,14 @@ void cmdDroidAddDroid(DROID *psCommander, DROID *psDroid)
 {
 	DROID_GROUP	*psGroup;
 
-	if(psCommander->psGroup == nullptr)
+	if (psCommander->psGroup == nullptr)
 	{
 		psGroup = grpCreate();
 		psGroup->add(psCommander);
 		psDroid->group = UBYTE_MAX;
 	}
 
-	if(psCommander->psGroup->getNumMembers() < cmdDroidMaxGroup(psCommander))
+	if (psCommander->psGroup->getNumMembers() < cmdDroidMaxGroup(psCommander))
 	{
 		psCommander->psGroup->add(psDroid);
 		psDroid->group = UBYTE_MAX;
@@ -112,7 +112,7 @@ void cmdDroidSetDesignator(DROID *psDroid)
 {
 	ASSERT_OR_RETURN(, psDroid != nullptr, "Invalid droid!");
 
-	if(psDroid->droidType != DROID_COMMAND)
+	if (psDroid->droidType != DROID_COMMAND)
 	{
 		return;
 	}
@@ -134,14 +134,14 @@ SDWORD cmdDroidGetIndex(DROID *psCommander)
 	SDWORD	index = 1;
 	DROID	*psCurr;
 
-	if(psCommander->droidType != DROID_COMMAND)
+	if (psCommander->droidType != DROID_COMMAND)
 	{
 		return 0;
 	}
 
-	for(psCurr = apsDroidLists[psCommander->player]; psCurr; psCurr = psCurr->psNext)
+	for (psCurr = apsDroidLists[psCommander->player]; psCurr; psCurr = psCurr->psNext)
 	{
-		if(psCurr->droidType == DROID_COMMAND &&
+		if (psCurr->droidType == DROID_COMMAND &&
 		        psCurr->id < psCommander->id)
 		{
 			index += 1;
@@ -163,7 +163,7 @@ void cmdDroidUpdateKills(DROID *psKiller, uint32_t experienceInc)
 {
 	ASSERT_OR_RETURN(, psKiller != nullptr, "invalid Unit pointer");
 
-	if(hasCommander(psKiller))
+	if (hasCommander(psKiller))
 	{
 		DROID *psCommander = psKiller->psGroup->psCommander;
 		psCommander->experience += MIN(experienceInc, UINT32_MAX - psCommander->experience);
@@ -175,7 +175,7 @@ bool hasCommander(const DROID *psDroid)
 {
 	ASSERT_OR_RETURN(false, psDroid != nullptr, "invalid droid pointer");
 
-	if(psDroid->droidType != DROID_COMMAND &&
+	if (psDroid->droidType != DROID_COMMAND &&
 	        psDroid->psGroup != nullptr &&
 	        psDroid->psGroup->type == GT_COMMAND)
 	{
@@ -194,7 +194,7 @@ unsigned int cmdGetCommanderLevel(const DROID *psDroid)
 
 	// If this droid is not the member of a Commander's group
 	// Return an experience level of 0
-	if(!hasCommander(psDroid))
+	if (!hasCommander(psDroid))
 	{
 		return 0;
 	}

@@ -113,26 +113,26 @@ static bool scrvCheckArrayIndex(SDWORD base, ARRAY_INDEXES *psIndexes, UDWORD *p
 {
 	SDWORD	i, size;
 
-	if(!psCurrScript || psCurrScript->psDebug == nullptr)
+	if (!psCurrScript || psCurrScript->psDebug == nullptr)
 	{
 		return false;
 	}
 
-	if(base < 0 || base >= psCurrScript->numArrays)
+	if (base < 0 || base >= psCurrScript->numArrays)
 	{
 		yyerror("Array index out of range");
 		return false;
 	}
 
-	if(psIndexes->dimensions != psCurrScript->psArrayInfo[base].dimensions)
+	if (psIndexes->dimensions != psCurrScript->psArrayInfo[base].dimensions)
 	{
 		yyerror("Invalid number of dimensions for array initialiser");
 		return false;
 	}
 
-	for(i = 0; i < psCurrScript->psArrayInfo[base].dimensions; i++)
+	for (i = 0; i < psCurrScript->psArrayInfo[base].dimensions; i++)
 	{
-		if((psIndexes->elements[i] < 0) ||
+		if ((psIndexes->elements[i] < 0) ||
 		        (psIndexes->elements[i] >= psCurrScript->psArrayInfo[base].elements[i]))
 		{
 			yyerror("Invalid index for dimension %d", i);
@@ -143,7 +143,7 @@ static bool scrvCheckArrayIndex(SDWORD base, ARRAY_INDEXES *psIndexes, UDWORD *p
 	*pIndex = 0;
 	size = 1;
 
-	for(i = psCurrScript->psArrayInfo[base].dimensions - 1; i >= 0; i--)
+	for (i = psCurrScript->psArrayInfo[base].dimensions - 1; i >= 0; i--)
 	{
 		*pIndex += psIndexes->elements[i] * size;
 		size *= psCurrScript->psArrayInfo[base].elements[i];
@@ -784,19 +784,19 @@ int yytype;
 YYSTYPE const * const yyvaluep;
 #endif
 {
-	if(!yyvaluep)
+	if (!yyvaluep)
 		return;
 
 # ifdef YYPRINT
 
-	if(yytype < YYNTOKENS)
+	if (yytype < YYNTOKENS)
 		YYPRINT(yyoutput, yytoknum[yytype], *yyvaluep);
 
 # else
 	YYUSE(yyoutput);
 # endif
 
-	switch(yytype)
+	switch (yytype)
 	{
 		default:
 			break;
@@ -820,7 +820,7 @@ int yytype;
 YYSTYPE const * const yyvaluep;
 #endif
 {
-	if(yytype < YYNTOKENS)
+	if (yytype < YYNTOKENS)
 		YYFPRINTF(yyoutput, "token %s (", yytname[yytype]);
 	else
 		YYFPRINTF(yyoutput, "nterm %s (", yytname[yytype]);
@@ -847,7 +847,7 @@ yytype_int16 *yytop;
 {
 	YYFPRINTF(stderr, "Stack now");
 
-	for(; yybottom <= yytop; yybottom++)
+	for (; yybottom <= yytop; yybottom++)
 	{
 		int yybot = *yybottom;
 		YYFPRINTF(stderr, " %d", yybot);
@@ -885,7 +885,7 @@ int yyrule;
 	          yyrule - 1, yylno);
 
 	/* The symbols being reduced.  */
-	for(yyi = 0; yyi < yynrhs; yyi++)
+	for (yyi = 0; yyi < yynrhs; yyi++)
 	{
 		YYFPRINTF(stderr, "   $%d = ", yyi + 1);
 		yy_symbol_print(stderr, yyrhs[yyprhs[yyrule] + yyi],
@@ -948,7 +948,7 @@ const char *yystr;
 {
 	YYSIZE_T yylen;
 
-	for(yylen = 0; yystr[yylen]; yylen++)
+	for (yylen = 0; yystr[yylen]; yylen++)
 		continue;
 
 	return yylen;
@@ -976,7 +976,7 @@ const char *yysrc;
 	char *yyd = yydest;
 	const char *yys = yysrc;
 
-	while((*yyd++ = *yys++) != '\0')
+	while ((*yyd++ = *yys++) != '\0')
 		continue;
 
 	return yyd - 1;
@@ -995,32 +995,32 @@ const char *yysrc;
 static YYSIZE_T
 yytnamerr(char *yyres, const char *yystr)
 {
-	if(*yystr == '"')
+	if (*yystr == '"')
 	{
 		YYSIZE_T yyn = 0;
 		char const *yyp = yystr;
 
-		for(;;)
-			switch(*++yyp)
+		for (;;)
+			switch (*++yyp)
 			{
 				case '\'':
 				case ',':
 					goto do_not_strip_quotes;
 
 				case '\\':
-					if(*++yyp != '\\')
+					if (*++yyp != '\\')
 						goto do_not_strip_quotes;
 
 				/* Fall through.  */
 				default:
-					if(yyres)
+					if (yyres)
 						yyres[yyn] = *yyp;
 
 					yyn++;
 					break;
 
 				case '"':
-					if(yyres)
+					if (yyres)
 						yyres[yyn] = '\0';
 
 					return yyn;
@@ -1030,7 +1030,7 @@ do_not_strip_quotes:
 		;
 	}
 
-	if(! yyres)
+	if (! yyres)
 		return yystrlen(yystr);
 
 	return yystpcpy(yyres, yystr) - yyres;
@@ -1088,12 +1088,12 @@ yysyntax_error(YYSIZE_T *yymsg_alloc, char **yymsg,
 	     one exception: it will still contain any token that will not be
 	     accepted due to an error action in a later state.
 	*/
-	if(yytoken != YYEMPTY)
+	if (yytoken != YYEMPTY)
 	{
 		int yyn = yypact[*yyssp];
 		yyarg[yycount++] = yytname[yytoken];
 
-		if(!yypact_value_is_default(yyn))
+		if (!yypact_value_is_default(yyn))
 		{
 			/* Start YYX at -YYN if negative to avoid negative indexes in
 			   YYCHECK.  In other words, skip the first -YYN actions for
@@ -1104,11 +1104,11 @@ yysyntax_error(YYSIZE_T *yymsg_alloc, char **yymsg,
 			int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
 			int yyx;
 
-			for(yyx = yyxbegin; yyx < yyxend; ++yyx)
-				if(yycheck[yyx + yyn] == yyx && yyx != YYTERROR
+			for (yyx = yyxbegin; yyx < yyxend; ++yyx)
+				if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR
 				        && !yytable_value_is_error(yytable[yyx + yyn]))
 				{
-					if(yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
+					if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
 					{
 						yycount = 1;
 						yysize = yysize0;
@@ -1118,7 +1118,7 @@ yysyntax_error(YYSIZE_T *yymsg_alloc, char **yymsg,
 					yyarg[yycount++] = yytname[yyx];
 					yysize1 = yysize + yytnamerr(nullptr, yytname[yyx]);
 
-					if(!(yysize <= yysize1
+					if (!(yysize <= yysize1
 					        && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
 						return 2;
 
@@ -1127,7 +1127,7 @@ yysyntax_error(YYSIZE_T *yymsg_alloc, char **yymsg,
 		}
 	}
 
-	switch(yycount)
+	switch (yycount)
 	{
 # define YYCASE_(N, S)                      \
 case N:                               \
@@ -1144,16 +1144,16 @@ case N:                               \
 
 	yysize1 = yysize + yystrlen(yyformat);
 
-	if(!(yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+	if (!(yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
 		return 2;
 
 	yysize = yysize1;
 
-	if(*yymsg_alloc < yysize)
+	if (*yymsg_alloc < yysize)
 	{
 		*yymsg_alloc = 2 * yysize;
 
-		if(!(yysize <= *yymsg_alloc
+		if (!(yysize <= *yymsg_alloc
 		        && *yymsg_alloc <= YYSTACK_ALLOC_MAXIMUM))
 			*yymsg_alloc = YYSTACK_ALLOC_MAXIMUM;
 
@@ -1167,8 +1167,8 @@ case N:                               \
 		char *yyp = *yymsg;
 		int yyi = 0;
 
-		while((*yyp = *yyformat) != '\0')
-			if(*yyp == '%' && yyformat[1] == 's' && yyi < yycount)
+		while ((*yyp = *yyformat) != '\0')
+			if (*yyp == '%' && yyformat[1] == 's' && yyi < yycount)
 			{
 				yyp += yytnamerr(yyp, yyarg[yyi++]);
 				yyformat += 2;
@@ -1202,12 +1202,12 @@ YYSTYPE *yyvaluep;
 {
 	YYUSE(yyvaluep);
 
-	if(!yymsg)
+	if (!yymsg)
 		yymsg = "Deleting";
 
 	YY_SYMBOL_PRINT(yymsg, yytype, yyvaluep, yylocationp);
 
-	switch(yytype)
+	switch (yytype)
 	{
 
 		default:
@@ -1344,7 +1344,7 @@ yynewstate:
 yysetstate:
 	*yyssp = yystate;
 
-	if(yyss + yystacksize - 1 <= yyssp)
+	if (yyss + yystacksize - 1 <= yyssp)
 	{
 		/* Get the current used size of the three stacks, in elements.  */
 		YYSIZE_T yysize = yyssp - yyss + 1;
@@ -1375,12 +1375,12 @@ yysetstate:
 # else
 
 		/* Extend the stack our own way.  */
-		if(YYMAXDEPTH <= yystacksize)
+		if (YYMAXDEPTH <= yystacksize)
 			goto yyexhaustedlab;
 
 		yystacksize *= 2;
 
-		if(YYMAXDEPTH < yystacksize)
+		if (YYMAXDEPTH < yystacksize)
 			yystacksize = YYMAXDEPTH;
 
 		{
@@ -1388,14 +1388,14 @@ yysetstate:
 			union yyalloc *yyptr =
 				    (union yyalloc *) YYSTACK_ALLOC(YYSTACK_BYTES(yystacksize));
 
-			if(! yyptr)
+			if (! yyptr)
 				goto yyexhaustedlab;
 
 			YYSTACK_RELOCATE(yyss_alloc, yyss);
 			YYSTACK_RELOCATE(yyvs_alloc, yyvs);
 #  undef YYSTACK_RELOCATE
 
-			if(yyss1 != yyssa)
+			if (yyss1 != yyssa)
 				YYSTACK_FREE(yyss1);
 		}
 # endif
@@ -1407,13 +1407,13 @@ yysetstate:
 		YYDPRINTF((stderr, "Stack size increased to %lu\n",
 		           (unsigned long int) yystacksize));
 
-		if(yyss + yystacksize - 1 <= yyssp)
+		if (yyss + yystacksize - 1 <= yyssp)
 			YYABORT;
 	}
 
 	YYDPRINTF((stderr, "Entering state %d\n", yystate));
 
-	if(yystate == YYFINAL)
+	if (yystate == YYFINAL)
 		YYACCEPT;
 
 	goto yybackup;
@@ -1429,19 +1429,19 @@ yybackup:
 	/* First try to decide what to do without reference to lookahead token.  */
 	yyn = yypact[yystate];
 
-	if(yypact_value_is_default(yyn))
+	if (yypact_value_is_default(yyn))
 		goto yydefault;
 
 	/* Not known => get a lookahead token if don't already have one.  */
 
 	/* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
-	if(yychar == YYEMPTY)
+	if (yychar == YYEMPTY)
 	{
 		YYDPRINTF((stderr, "Reading a token: "));
 		yychar = YYLEX;
 	}
 
-	if(yychar <= YYEOF)
+	if (yychar <= YYEOF)
 	{
 		yychar = yytoken = YYEOF;
 		YYDPRINTF((stderr, "Now at end of input.\n"));
@@ -1456,14 +1456,14 @@ yybackup:
 	   detect an error, take that action.  */
 	yyn += yytoken;
 
-	if(yyn < 0 || YYLAST < yyn || yycheck[yyn] != yytoken)
+	if (yyn < 0 || YYLAST < yyn || yycheck[yyn] != yytoken)
 		goto yydefault;
 
 	yyn = yytable[yyn];
 
-	if(yyn <= 0)
+	if (yyn <= 0)
 	{
-		if(yytable_value_is_error(yyn))
+		if (yytable_value_is_error(yyn))
 			goto yyerrlab;
 
 		yyn = -yyn;
@@ -1472,7 +1472,7 @@ yybackup:
 
 	/* Count tokens shifted since error; after three, turn off error
 	   status.  */
-	if(yyerrstatus)
+	if (yyerrstatus)
 		yyerrstatus--;
 
 	/* Shift the lookahead token.  */
@@ -1493,7 +1493,7 @@ yybackup:
 yydefault:
 	yyn = yydefact[yystate];
 
-	if(yyn == 0)
+	if (yyn == 0)
 		goto yyerrlab;
 
 	goto yyreduce;
@@ -1519,20 +1519,20 @@ yyreduce:
 
 	YY_REDUCE_PRINT(yyn);
 
-	switch(yyn)
+	switch (yyn)
 	{
 		case 4:
 
 			/* Line 1806 of yacc.c  */
 #line 158 "scriptvals_parser.ypp"
 			{
-				if(!eventNewContext(psCurrScript, CR_RELEASE, &psCurrContext))
+				if (!eventNewContext(psCurrScript, CR_RELEASE, &psCurrContext))
 				{
 					yyerror("Couldn't create context");
 					YYABORT;
 				}
 
-				if(!scrvAddContext((yyvsp[(1) - (2)].sval), psCurrContext, SCRV_EXEC))
+				if (!scrvAddContext((yyvsp[(1) - (2)].sval), psCurrContext, SCRV_EXEC))
 				{
 					yyerror("Couldn't store context");
 					YYABORT;
@@ -1545,7 +1545,7 @@ yyreduce:
 			/* Line 1806 of yacc.c  */
 #line 171 "scriptvals_parser.ypp"
 			{
-				if(!eventRunContext(psCurrContext, gameTime / SCR_TICKRATE))
+				if (!eventRunContext(psCurrContext, gameTime / SCR_TICKRATE))
 				{
 					YYABORT;
 				}
@@ -1557,13 +1557,13 @@ yyreduce:
 			/* Line 1806 of yacc.c  */
 #line 178 "scriptvals_parser.ypp"
 			{
-				if(!eventNewContext(psCurrScript, CR_NORELEASE, &psCurrContext))
+				if (!eventNewContext(psCurrScript, CR_NORELEASE, &psCurrContext))
 				{
 					yyerror("Couldn't create context");
 					YYABORT;
 				}
 
-				if(!scrvAddContext((yyvsp[(3) - (3)].sval), psCurrContext, SCRV_NOEXEC))
+				if (!scrvAddContext((yyvsp[(3) - (3)].sval), psCurrContext, SCRV_NOEXEC))
 				{
 					yyerror("Couldn't store context");
 					YYABORT;
@@ -1585,9 +1585,9 @@ yyreduce:
 				namelen = strlen(stringname);
 				extpos = namelen - 3;
 
-				if(strncmp(&stringname[extpos], "blo", 3) == 0)
+				if (strncmp(&stringname[extpos], "blo", 3) == 0)
 				{
-					if(resPresent("BLO", stringname) == true)
+					if (resPresent("BLO", stringname) == true)
 					{
 						psCurrScript = (SCRIPT_CODE*)resGetData("BLO", stringname);
 					}
@@ -1598,15 +1598,15 @@ yyreduce:
 						psCurrScript = (SCRIPT_CODE*)resGetData("SCRIPT", stringname);
 					}
 				}
-				else if(strncmp(&stringname[extpos], "slo", 3) == 0)
+				else if (strncmp(&stringname[extpos], "slo", 3) == 0)
 				{
-					if(resPresent("SCRIPT", stringname) == true)
+					if (resPresent("SCRIPT", stringname) == true)
 					{
 						psCurrScript = (SCRIPT_CODE*)resGetData("SCRIPT", stringname);
 					}
 				}
 
-				if(!psCurrScript)
+				if (!psCurrScript)
 				{
 					yyerror("Script file %s not found", stringname);
 					YYABORT;
@@ -1628,12 +1628,12 @@ yyreduce:
 				/* set type */
 				data.type = (yyvsp[(2) - (3)].tval);
 
-				switch((unsigned)(yyvsp[(2) - (3)].tval))   // Unsigned cast to suppress compiler warnings due to enum abuse.
+				switch ((unsigned)(yyvsp[(2) - (3)].tval))  // Unsigned cast to suppress compiler warnings due to enum abuse.
 				{
 					case VAL_INT:
 						data.v.ival = (yyvsp[(3) - (3)].sInit).index;	//index = integer value of the variable, not var index
 
-						if((yyvsp[(3) - (3)].sInit).type != IT_INDEX ||
+						if ((yyvsp[(3) - (3)].sInit).type != IT_INDEX ||
 						        !eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
@@ -1643,7 +1643,7 @@ yyreduce:
 						break;
 
 					case ST_DROID:
-						if((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1651,7 +1651,7 @@ yyreduce:
 
 						psObj = getBaseObjFromId((UDWORD)(yyvsp[(3) - (3)].sInit).index);
 
-						if(!psObj)
+						if (!psObj)
 						{
 							yyerror("Droid id %d not found", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
@@ -1659,14 +1659,14 @@ yyreduce:
 
 						data.v.oval = psObj;	/* store as pointer */
 
-						if(psObj->type != OBJ_DROID)
+						if (psObj->type != OBJ_DROID)
 						{
 							yyerror("Object id %d is not a droid", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
 						}
 						else
 						{
-							if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+							if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 							{
 								yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 								YYABORT;
@@ -1676,7 +1676,7 @@ yyreduce:
 						break;
 
 					case ST_STRUCTURE:
-						if((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1684,7 +1684,7 @@ yyreduce:
 
 						psObj = getBaseObjFromId((UDWORD)(yyvsp[(3) - (3)].sInit).index);
 
-						if(!psObj)
+						if (!psObj)
 						{
 							yyerror("Structure id %d not found", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
@@ -1692,14 +1692,14 @@ yyreduce:
 
 						data.v.oval = psObj;
 
-						if(psObj->type != OBJ_STRUCTURE)
+						if (psObj->type != OBJ_STRUCTURE)
 						{
 							yyerror("Object id %d is not a structure", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
 						}
 						else
 						{
-							if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+							if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 							{
 								yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 								YYABORT;
@@ -1709,7 +1709,7 @@ yyreduce:
 						break;
 
 					case ST_FEATURE:
-						if((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1717,7 +1717,7 @@ yyreduce:
 
 						psObj = getBaseObjFromId((UDWORD)(yyvsp[(3) - (3)].sInit).index);
 
-						if(!psObj)
+						if (!psObj)
 						{
 							yyerror("Feature id %d not found", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
@@ -1725,14 +1725,14 @@ yyreduce:
 
 						data.v.oval = psObj;
 
-						if(psObj->type != OBJ_FEATURE)
+						if (psObj->type != OBJ_FEATURE)
 						{
 							yyerror("Object id %d is not a feature", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
 						}
 						else
 						{
-							if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+							if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 							{
 								yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 								YYABORT;
@@ -1742,7 +1742,7 @@ yyreduce:
 						break;
 
 					case ST_FEATURESTAT:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1750,13 +1750,13 @@ yyreduce:
 
 						data.v.ival = getFeatureStatFromName((yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("Feature Stat %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1767,7 +1767,7 @@ yyreduce:
 					case VAL_BOOL:
 						data.v.bval = (yyvsp[(3) - (3)].sInit).index;	//index = boolean value, not var index
 
-						if((yyvsp[(3) - (3)].sInit).type != IT_BOOL ||
+						if ((yyvsp[(3) - (3)].sInit).type != IT_BOOL ||
 						        !eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
@@ -1777,7 +1777,7 @@ yyreduce:
 						break;
 
 					case ST_BODY:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1785,13 +1785,13 @@ yyreduce:
 
 						data.v.ival = getCompFromName(COMP_BODY, (yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("body component %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1800,7 +1800,7 @@ yyreduce:
 						break;
 
 					case ST_PROPULSION:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1808,13 +1808,13 @@ yyreduce:
 
 						data.v.ival = getCompFromName(COMP_PROPULSION, (yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("Propulsion component %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1823,7 +1823,7 @@ yyreduce:
 						break;
 
 					case ST_ECM:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1831,13 +1831,13 @@ yyreduce:
 
 						data.v.ival = getCompFromName(COMP_ECM, (yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("ECM component %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1846,7 +1846,7 @@ yyreduce:
 						break;
 
 					case ST_SENSOR:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1854,13 +1854,13 @@ yyreduce:
 
 						data.v.ival = getCompFromName(COMP_SENSOR, (yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("Sensor component %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1869,7 +1869,7 @@ yyreduce:
 						break;
 
 					case ST_CONSTRUCT:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1877,13 +1877,13 @@ yyreduce:
 
 						data.v.ival = getCompFromName(COMP_CONSTRUCT, (yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("Construct component %s not found",	(yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1892,7 +1892,7 @@ yyreduce:
 						break;
 
 					case ST_REPAIR:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1900,13 +1900,13 @@ yyreduce:
 
 						data.v.ival = getCompFromName(COMP_REPAIRUNIT, (yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("Repair component %s not found",	(yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1915,7 +1915,7 @@ yyreduce:
 						break;
 
 					case ST_BRAIN:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1923,13 +1923,13 @@ yyreduce:
 
 						data.v.ival = getCompFromName(COMP_BRAIN, (yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("Brain component %s not found",	(yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1938,7 +1938,7 @@ yyreduce:
 						break;
 
 					case ST_WEAPON:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1946,13 +1946,13 @@ yyreduce:
 
 						data.v.ival = getCompFromName(COMP_WEAPON, (yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("Weapon component %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1961,7 +1961,7 @@ yyreduce:
 						break;
 
 					case ST_TEMPLATE:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1969,13 +1969,13 @@ yyreduce:
 
 						data.v.oval = getTemplateFromTranslatedNameNoPlayer((yyvsp[(3) - (3)].sInit).pString);	/* store pointer to the template */
 
-						if(data.v.oval == nullptr)
+						if (data.v.oval == nullptr)
 						{
 							yyerror("Template %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1984,7 +1984,7 @@ yyreduce:
 						break;
 
 					case ST_STRUCTURESTAT:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -1992,13 +1992,13 @@ yyreduce:
 
 						data.v.ival = getStructStatFromName((yyvsp[(3) - (3)].sInit).pString);
 
-						if(data.v.ival == -1)
+						if (data.v.ival == -1)
 						{
 							yyerror("Structure Stat %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2007,7 +2007,7 @@ yyreduce:
 						break;
 
 					case ST_STRUCTUREID:
-						if((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2015,7 +2015,7 @@ yyreduce:
 
 						psObj = getBaseObjFromId((UDWORD)(yyvsp[(3) - (3)].sInit).index);
 
-						if(!psObj)
+						if (!psObj)
 						{
 							yyerror("Structure id %d not found", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
@@ -2023,14 +2023,14 @@ yyreduce:
 
 						data.v.ival = (yyvsp[(3) - (3)].sInit).index;	/* store structure id */
 
-						if(psObj->type != OBJ_STRUCTURE)
+						if (psObj->type != OBJ_STRUCTURE)
 						{
 							yyerror("Object id %d is not a structure", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
 						}
 						else
 						{
-							if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+							if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 							{
 								yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 								YYABORT;
@@ -2040,7 +2040,7 @@ yyreduce:
 						break;
 
 					case ST_DROIDID:
-						if((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_INDEX)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2048,7 +2048,7 @@ yyreduce:
 
 						psObj = getBaseObjFromId((UDWORD)(yyvsp[(3) - (3)].sInit).index);
 
-						if(!psObj)
+						if (!psObj)
 						{
 							yyerror("Droid id %d not found", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
@@ -2056,14 +2056,14 @@ yyreduce:
 
 						data.v.ival = (yyvsp[(3) - (3)].sInit).index;	/* store id*/
 
-						if(psObj->type != OBJ_DROID)
+						if (psObj->type != OBJ_DROID)
 						{
 							yyerror("Object id %d is not a droid", (UDWORD)(yyvsp[(3) - (3)].sInit).index);
 							YYABORT;
 						}
 						else
 						{
-							if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+							if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 							{
 								yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 								YYABORT;
@@ -2073,7 +2073,7 @@ yyreduce:
 						break;
 
 					case ST_INTMESSAGE:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2081,13 +2081,13 @@ yyreduce:
 
 						data.v.oval = getViewData((yyvsp[(3) - (3)].sInit).pString);	/* store pointer to the intelligence message */
 
-						if(data.v.oval == nullptr)
+						if (data.v.oval == nullptr)
 						{
 							yyerror("Message %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2099,7 +2099,7 @@ yyreduce:
 					{
 						const char* pString;
 
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2107,7 +2107,7 @@ yyreduce:
 
 						pString = strresGetString(psStringRes, (yyvsp[(3) - (3)].sInit).pString);
 
-						if(!pString)
+						if (!pString)
 						{
 							yyerror("Cannot find the string for id \"%s\"", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
@@ -2115,14 +2115,14 @@ yyreduce:
 
 						data.v.sval = strdup(pString);
 
-						if(!data.v.sval)
+						if (!data.v.sval)
 						{
 							debug(LOG_ERROR, "Out of memory");
 							abort();
 							YYABORT;
 						}
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2135,7 +2135,7 @@ yyreduce:
 					{
 						LEVEL_DATASET	*psLevel;
 
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2144,7 +2144,7 @@ yyreduce:
 						// just check the level exists
 						psLevel = levFindDataSet((yyvsp[(3) - (3)].sInit).pString);
 
-						if(psLevel == nullptr)
+						if (psLevel == nullptr)
 						{
 							yyerror("Level %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
@@ -2152,7 +2152,7 @@ yyreduce:
 
 						data.v.sval = psLevel->pName; /* store string pointer */
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2161,7 +2161,7 @@ yyreduce:
 					break;
 
 					case ST_SOUND:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2170,7 +2170,7 @@ yyreduce:
 						/* find audio id */
 						compIndex = audio_GetTrackID((yyvsp[(3) - (3)].sInit).pString);
 
-						if(compIndex == SAMPLE_NOT_FOUND)
+						if (compIndex == SAMPLE_NOT_FOUND)
 						{
 							/* set track vals */
 							compIndex = audio_SetTrackVals((yyvsp[(3) - (3)].sInit).pString, false, 100, 1800);
@@ -2179,7 +2179,7 @@ yyreduce:
 						/* save track ID */
 						data.v.ival = compIndex;
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2188,7 +2188,7 @@ yyreduce:
 						break;
 
 					case ST_RESEARCH:
-						if((yyvsp[(3) - (3)].sInit).type != IT_STRING)
+						if ((yyvsp[(3) - (3)].sInit).type != IT_STRING)
 						{
 							yyerror("Typemismatch for variable %d", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2197,7 +2197,7 @@ yyreduce:
 						data.v.oval = getResearch((yyvsp[(3) - (3)].sInit).pString);	/* store pointer */
 #if 0
 
-						if(data.v.oval == NULL)
+						if (data.v.oval == NULL)
 						{
 							yyerror("Research %s not found", (yyvsp[(3) - (3)].sInit).pString);
 							YYABORT;
@@ -2205,7 +2205,7 @@ yyreduce:
 
 #endif
 
-						if(!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
+						if (!eventSetContextVar(psCurrContext, (yyvsp[(1) - (3)].vindex), &data))
 						{
 							yyerror("Set Value Failed for %u", (yyvsp[(1) - (3)].vindex));
 							YYABORT;
@@ -2247,7 +2247,7 @@ yyreduce:
 			/* Line 1806 of yacc.c  */
 #line 744 "scriptvals_parser.ypp"
 			{
-				if((yyvsp[(1) - (4)].arrayIndex)->dimensions >= VAR_MAX_DIMENSIONS)
+				if ((yyvsp[(1) - (4)].arrayIndex)->dimensions >= VAR_MAX_DIMENSIONS)
 				{
 					yyerror("Too many dimensions for array");
 					YYABORT;
@@ -2274,7 +2274,7 @@ yyreduce:
 			{
 				UDWORD	index;
 
-				if(!scrvCheckArrayIndex((yyvsp[(1) - (2)].vindex), (yyvsp[(2) - (2)].arrayIndex), &index))
+				if (!scrvCheckArrayIndex((yyvsp[(1) - (2)].vindex), (yyvsp[(2) - (2)].arrayIndex), &index))
 				{
 					YYABORT;
 				}
@@ -2349,7 +2349,7 @@ yyreduce:
 
 	yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
 
-	if(0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
+	if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
 		yystate = yytable[yystate];
 	else
 		yystate = yydefgoto[yyn - YYNTOKENS];
@@ -2366,7 +2366,7 @@ yyerrlab:
 	yytoken = yychar == YYEMPTY ? YYEMPTY : YYTRANSLATE(yychar);
 
 	/* If not already recovering from an error, report this error.  */
-	if(!yyerrstatus)
+	if (!yyerrstatus)
 	{
 		++yynerrs;
 #if ! YYERROR_VERBOSE
@@ -2379,16 +2379,16 @@ yyerrlab:
 			int yysyntax_error_status;
 			yysyntax_error_status = YYSYNTAX_ERROR;
 
-			if(yysyntax_error_status == 0)
+			if (yysyntax_error_status == 0)
 				yymsgp = yymsg;
-			else if(yysyntax_error_status == 1)
+			else if (yysyntax_error_status == 1)
 			{
-				if(yymsg != yymsgbuf)
+				if (yymsg != yymsgbuf)
 					YYSTACK_FREE(yymsg);
 
 				yymsg = (char *) YYSTACK_ALLOC(yymsg_alloc);
 
-				if(!yymsg)
+				if (!yymsg)
 				{
 					yymsg = yymsgbuf;
 					yymsg_alloc = sizeof yymsgbuf;
@@ -2403,7 +2403,7 @@ yyerrlab:
 
 			yyerror(yymsgp);
 
-			if(yysyntax_error_status == 2)
+			if (yysyntax_error_status == 2)
 				goto yyexhaustedlab;
 		}
 # undef YYSYNTAX_ERROR
@@ -2412,15 +2412,15 @@ yyerrlab:
 
 
 
-	if(yyerrstatus == 3)
+	if (yyerrstatus == 3)
 	{
 		/* If just tried and failed to reuse lookahead token after an
 		error, discard it.  */
 
-		if(yychar <= YYEOF)
+		if (yychar <= YYEOF)
 		{
 			/* Return failure if at end of input.  */
-			if(yychar == YYEOF)
+			if (yychar == YYEOF)
 				YYABORT;
 		}
 		else
@@ -2444,7 +2444,7 @@ yyerrorlab:
 	/* Pacify compilers like GCC when the user code never invokes
 	   YYERROR and the label yyerrorlab therefore never appears in user
 	   code.  */
-	if(/*CONSTCOND*/ 0)
+	if (/*CONSTCOND*/ 0)
 		goto yyerrorlab;
 
 	/* Do not reclaim the symbols of the rule which action triggered
@@ -2462,25 +2462,25 @@ yyerrorlab:
 yyerrlab1:
 	yyerrstatus = 3;	/* Each real token shifted decrements this.  */
 
-	for(;;)
+	for (;;)
 	{
 		yyn = yypact[yystate];
 
-		if(!yypact_value_is_default(yyn))
+		if (!yypact_value_is_default(yyn))
 		{
 			yyn += YYTERROR;
 
-			if(0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
+			if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
 			{
 				yyn = yytable[yyn];
 
-				if(0 < yyn)
+				if (0 < yyn)
 					break;
 			}
 		}
 
 		/* Pop the current state because it cannot handle the error token.  */
-		if(yyssp == yyss)
+		if (yyssp == yyss)
 			YYABORT;
 
 
@@ -2527,7 +2527,7 @@ yyexhaustedlab:
 
 yyreturn:
 
-	if(yychar != YYEMPTY)
+	if (yychar != YYEMPTY)
 	{
 		/* Make sure we have latest lookahead translation.  See comments at
 		   user semantic actions for why this is necessary.  */
@@ -2541,7 +2541,7 @@ yyreturn:
 	YYPOPSTACK(yylen);
 	YY_STACK_PRINT(yyss, yyssp);
 
-	while(yyssp != yyss)
+	while (yyssp != yyss)
 	{
 		yydestruct("Cleanup: popping",
 		           yystos[*yyssp], yyvsp);
@@ -2550,13 +2550,13 @@ yyreturn:
 
 #ifndef yyoverflow
 
-	if(yyss != yyssa)
+	if (yyss != yyssa)
 		YYSTACK_FREE(yyss);
 
 #endif
 #if YYERROR_VERBOSE
 
-	if(yymsg != yymsgbuf)
+	if (yymsg != yymsgbuf)
 		YYSTACK_FREE(yymsg);
 
 #endif
@@ -2575,9 +2575,9 @@ bool scrvLookUpType(const char *pIdent, INTERP_TYPE *pType)
 {
 	TYPE_SYMBOL		*psCurr;
 
-	for(psCurr = asTypeTable; psCurr->typeID != 0; psCurr++)
+	for (psCurr = asTypeTable; psCurr->typeID != 0; psCurr++)
 	{
-		if(strcmp(psCurr->pIdent, pIdent) == 0)
+		if (strcmp(psCurr->pIdent, pIdent) == 0)
 		{
 			*pType = psCurr->typeID;
 			return true;
@@ -2593,14 +2593,14 @@ bool scrvLookUpVar(const char *pIdent, UDWORD *pIndex)
 {
 	UDWORD	i;
 
-	if(!psCurrScript || psCurrScript->psDebug == nullptr)
+	if (!psCurrScript || psCurrScript->psDebug == nullptr)
 	{
 		return false;
 	}
 
-	for(i = 0; i < psCurrScript->numGlobals; i++)
+	for (i = 0; i < psCurrScript->numGlobals; i++)
 	{
-		if(psCurrScript->psVarDebug[i].pIdent != nullptr &&
+		if (psCurrScript->psVarDebug[i].pIdent != nullptr &&
 		        strcmp(psCurrScript->psVarDebug[i].pIdent, pIdent) == 0)
 		{
 			*pIndex = i;
@@ -2617,14 +2617,14 @@ bool scrvLookUpArray(const char *pIdent, UDWORD *pIndex)
 {
 	UDWORD	i;
 
-	if(!psCurrScript || psCurrScript->psDebug == nullptr)
+	if (!psCurrScript || psCurrScript->psDebug == nullptr)
 	{
 		return false;
 	}
 
-	for(i = 0; i < psCurrScript->numArrays; i++)
+	for (i = 0; i < psCurrScript->numArrays; i++)
 	{
-		if(psCurrScript->psArrayDebug[i].pIdent != nullptr &&
+		if (psCurrScript->psArrayDebug[i].pIdent != nullptr &&
 		        strcmp(psCurrScript->psArrayDebug[i].pIdent, pIdent) == 0)
 		{
 			*pIndex = i;

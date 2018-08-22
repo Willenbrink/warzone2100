@@ -141,13 +141,13 @@ static std::wstring getCurrentApplicationPath_WIN()
 	DWORD moduleFileNameLen = GetModuleFileNameW(NULL, &buffer[0], buffer.size() - 1);
 	DWORD lastError = GetLastError();
 
-	if((moduleFileNameLen == 0) && (lastError != ERROR_SUCCESS))
+	if ((moduleFileNameLen == 0) && (lastError != ERROR_SUCCESS))
 	{
 		// GetModuleFileName failed
 		debug(LOG_ERROR, "GetModuleFileName failed: %lu", moduleFileNameLen);
 		return std::wstring();
 	}
-	else if(moduleFileNameLen > (buffer.size() - 1))
+	else if (moduleFileNameLen > (buffer.size() - 1))
 	{
 		debug(LOG_ERROR, "GetModuleFileName returned a length: %lu >= buffer length: %zu", moduleFileNameLen, buffer.size());
 		return std::wstring();
@@ -165,7 +165,7 @@ static std::wstring getCurrentApplicationFolder_WIN()
 {
 	std::wstring applicationExecutablePath = getCurrentApplicationPath_WIN();
 
-	if(applicationExecutablePath.empty())
+	if (applicationExecutablePath.empty())
 	{
 		return std::wstring();
 	}
@@ -173,7 +173,7 @@ static std::wstring getCurrentApplicationFolder_WIN()
 	// Find the position of the last slash in the application executable path
 	size_t lastSlash = applicationExecutablePath.find_last_of(L"\\/", std::wstring::npos);
 
-	if(lastSlash == std::wstring::npos)
+	if (lastSlash == std::wstring::npos)
 	{
 		// Did not find a path separator - does not appear to be a valid application executable path?
 		debug(LOG_ERROR, "Unable to find path separator in application executable path");
@@ -194,7 +194,7 @@ static std::string getCurrentApplicationFolder()
 	// Convert the UTF-16 to UTF-8
 	int outputLength = WideCharToMultiByte(CP_UTF8, 0, applicationFolderPath_utf16.c_str(), -1, NULL, 0, NULL, NULL);
 
-	if(outputLength <= 0)
+	if (outputLength <= 0)
 	{
 		debug(LOG_ERROR, "Encoding conversion error.");
 		return std::string();
@@ -202,7 +202,7 @@ static std::string getCurrentApplicationFolder()
 
 	std::vector<char> u8_buffer(outputLength, 0);
 
-	if(WideCharToMultiByte(CP_UTF8, 0, applicationFolderPath_utf16.c_str(), -1, &u8_buffer[0], outputLength, NULL, NULL) == 0)
+	if (WideCharToMultiByte(CP_UTF8, 0, applicationFolderPath_utf16.c_str(), -1, &u8_buffer[0], outputLength, NULL, NULL) == 0)
 	{
 		debug(LOG_ERROR, "Encoding conversion error.");
 		return std::string();
@@ -221,13 +221,13 @@ static std::string getCurrentApplicationFolderPrefix()
 	// Remove the last path component
 	std::string appPath = getCurrentApplicationFolder();
 
-	if(appPath.empty())
+	if (appPath.empty())
 	{
 		return appPath;
 	}
 
 	// Remove trailing path separators (slashes)
-	while(!appPath.empty() && (appPath.back() == '\\' || appPath.back() == '/'))
+	while (!appPath.empty() && (appPath.back() == '\\' || appPath.back() == '/'))
 	{
 		appPath.pop_back();
 	}
@@ -235,7 +235,7 @@ static std::string getCurrentApplicationFolderPrefix()
 	// Find the position of the last slash in the application folder
 	size_t lastSlash = appPath.find_last_of("\\/", std::string::npos);
 
-	if(lastSlash == std::string::npos)
+	if (lastSlash == std::string::npos)
 	{
 		// Did not find a path separator - does not appear to be a valid app folder?
 		debug(LOG_ERROR, "Unable to find path separator in application executable path");
@@ -251,14 +251,14 @@ static bool isPortableMode()
 	static bool _checkedMode = false;
 	static bool _isPortableMode = false;
 
-	if(!_checkedMode)
+	if (!_checkedMode)
 	{
 #if defined(WZ_OS_WIN)
 		// On Windows, check for the presence of a ".portable" file in the same directory as the application EXE
 		std::wstring portableFilePath = getCurrentApplicationFolder_WIN();
 		portableFilePath += L"\\.portable";
 
-		if(GetFileAttributesW(portableFilePath.c_str()) != INVALID_FILE_ATTRIBUTES)
+		if (GetFileAttributesW(portableFilePath.c_str()) != INVALID_FILE_ATTRIBUTES)
 		{
 			// A .portable file exists in the application directory
 			debug(LOG_WARNING, ".portable file detected - enabling portable mode");
@@ -285,9 +285,9 @@ static bool getCurrentDir(char *const dest, size_t const size)
 {
 #if defined(WZ_OS_UNIX)
 
-	if(getcwd(dest, size) == nullptr)
+	if (getcwd(dest, size) == nullptr)
 	{
-		if(errno == ERANGE)
+		if (errno == ERANGE)
 		{
 			debug(LOG_ERROR, "The buffer to contain our current directory is too small (%u bytes and more needed)", (unsigned int)size);
 		}
@@ -303,7 +303,7 @@ static bool getCurrentDir(char *const dest, size_t const size)
 	wchar_t tmpWStr[PATH_MAX];
 	const int len = GetCurrentDirectoryW(PATH_MAX, tmpWStr);
 
-	if(len == 0)
+	if (len == 0)
 	{
 		// Retrieve Windows' error number
 		const int err = GetLastError();
@@ -320,14 +320,14 @@ static bool getCurrentDir(char *const dest, size_t const size)
 
 		return false;
 	}
-	else if(len > size)
+	else if (len > size)
 	{
 		debug(LOG_ERROR, "The buffer to contain our current directory is too small (%u bytes and %d needed)", (unsigned int)size, len);
 
 		return false;
 	}
 
-	if(WideCharToMultiByte(CP_UTF8, 0, tmpWStr, -1, dest, size, NULL, NULL) == 0)
+	if (WideCharToMultiByte(CP_UTF8, 0, tmpWStr, -1, dest, size, NULL, NULL) == 0)
 	{
 		dest[0] = '\0';
 		debug(LOG_ERROR, "Encoding conversion error.");
@@ -355,9 +355,9 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 #if defined(WZ_OS_WIN)
 	wchar_t tmpWStr[MAX_PATH];
 
-	if(SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, tmpWStr)))
+	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, tmpWStr)))
 	{
-		if(WideCharToMultiByte(CP_UTF8, 0, tmpWStr, -1, tmpstr, size, NULL, NULL) == 0)
+		if (WideCharToMultiByte(CP_UTF8, 0, tmpWStr, -1, tmpstr, size, NULL, NULL) == 0)
 		{
 			debug(LOG_FATAL, "Config directory encoding conversion error.");
 			exit(1);
@@ -373,7 +373,7 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 	}
 	else
 #elif defined(WZ_OS_MAC)
-	if(cocoaGetApplicationSupportDir(tmpstr, size))
+	if (cocoaGetApplicationSupportDir(tmpstr, size))
 	{
 		basePath = WzString::fromUtf8(tmpstr);
 		appendPath = WzString::fromUtf8(app);
@@ -384,13 +384,13 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 	// Reference: https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 	const char *envPath = getenv("XDG_DATA_HOME");
 
-	if(envPath == nullptr)
+	if (envPath == nullptr)
 	{
 		// XDG_DATA_HOME isn't defined
 		// Use HOME, and append ".local/share/" to match XDG's base directory spec
 		envPath = getenv("HOME");
 
-		if(envPath == nullptr)
+		if (envPath == nullptr)
 		{
 			// On PhysFS < 2.1, fall-back to using PHYSFS_getUserDir() if HOME isn't defined
 			debug(LOG_INFO, "HOME environment variable isn't defined - falling back to PHYSFS_getUserDir()");
@@ -400,11 +400,11 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 		appendPath = WzString(".local") + PHYSFS_getDirSeparator() + "share";
 	}
 
-	if(envPath != nullptr)
+	if (envPath != nullptr)
 	{
 		basePath = WzString::fromUtf8(envPath);
 
-		if(!appendPath.isEmpty())
+		if (!appendPath.isEmpty())
 		{
 			appendPath += PHYSFS_getDirSeparator();
 		}
@@ -415,14 +415,14 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 #else
 
 	// On PhysFS < 2.1, fall-back to using PHYSFS_getUserDir() for other OSes
-	if(PHYSFS_getUserDir())
+	if (PHYSFS_getUserDir())
 	{
 		basePath = WzString::fromUtf8(PHYSFS_getUserDir());
 		appendPath = WzString::fromUtf8(app);
 	}
 	else
 #endif
-		if(getCurrentDir(tmpstr, size))
+		if (getCurrentDir(tmpstr, size))
 		{
 			basePath = WzString::fromUtf8(tmpstr);
 			appendPath = WzString::fromUtf8(app);
@@ -435,7 +435,7 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 
 	// Create the folders within the basePath if they don't exist
 
-	if(!PHYSFS_setWriteDir(basePath.toUtf8().c_str()))  // Workaround for PhysFS not creating the writedir as expected.
+	if (!PHYSFS_setWriteDir(basePath.toUtf8().c_str())) // Workaround for PhysFS not creating the writedir as expected.
 	{
 		debug(LOG_FATAL, "Error setting write directory to \"%s\": %s",
 		      basePath.toUtf8().c_str(), WZ_PHYSFS_getLastError());
@@ -445,9 +445,9 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 	WzString currentBasePath = basePath;
 	const std::vector<WzString> appendPaths = appendPath.split(PHYSFS_getDirSeparator());
 
-	for(const auto &folder : appendPaths)
+	for (const auto &folder : appendPaths)
 	{
-		if(!PHYSFS_mkdir(folder.toUtf8().c_str()))
+		if (!PHYSFS_mkdir(folder.toUtf8().c_str()))
 		{
 			debug(LOG_FATAL, "Error creating directory \"%s\" in \"%s\": %s",
 			      folder.toUtf8().c_str(), PHYSFS_getWriteDir(), WZ_PHYSFS_getLastError());
@@ -457,7 +457,7 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 		currentBasePath += PHYSFS_getDirSeparator();
 		currentBasePath += folder;
 
-		if(!PHYSFS_setWriteDir(currentBasePath.toUtf8().c_str()))  // Workaround for PhysFS not creating the writedir as expected.
+		if (!PHYSFS_setWriteDir(currentBasePath.toUtf8().c_str())) // Workaround for PhysFS not creating the writedir as expected.
 		{
 			debug(LOG_FATAL, "Error setting write directory to \"%s\": %s",
 			      currentBasePath.toUtf8().c_str(), WZ_PHYSFS_getLastError());
@@ -473,14 +473,14 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 // (Ensures the directory exists. Creates folders if necessary.)
 static std::string getPlatformPrefDir(const char * org, const std::string &app)
 {
-	if(isPortableMode())
+	if (isPortableMode())
 	{
 		// When isPortableMode is true, the config dir should be stored in the same prefix as the app's bindir.
 		// i.e. If the app executable path is:  <prefix>/bin/warzone2100.exe
 		//      the config directory should be: <prefix>/<app>/
 		std::string prefixPath = getCurrentApplicationFolderPrefix();
 
-		if(prefixPath.empty())
+		if (prefixPath.empty())
 		{
 			// Failed to get the current application folder
 			debug(LOG_FATAL, "Error getting the current application folder prefix - unable to proceed with portable mode");
@@ -490,14 +490,14 @@ static std::string getPlatformPrefDir(const char * org, const std::string &app)
 		std::string appendPath = app;
 
 		// Create the folders within the prefixPath if they don't exist
-		if(!PHYSFS_setWriteDir(prefixPath.c_str()))  // Workaround for PhysFS not creating the writedir as expected.
+		if (!PHYSFS_setWriteDir(prefixPath.c_str())) // Workaround for PhysFS not creating the writedir as expected.
 		{
 			debug(LOG_FATAL, "Error setting write directory to \"%s\": %s",
 			      prefixPath.c_str(), WZ_PHYSFS_getLastError());
 			exit(1);
 		}
 
-		if(!PHYSFS_mkdir(appendPath.c_str()))
+		if (!PHYSFS_mkdir(appendPath.c_str()))
 		{
 			debug(LOG_FATAL, "Error creating directory \"%s\" in \"%s\": %s",
 			      appendPath.c_str(), PHYSFS_getWriteDir(), WZ_PHYSFS_getLastError());
@@ -510,7 +510,7 @@ static std::string getPlatformPrefDir(const char * org, const std::string &app)
 #if defined(WZ_PHYSFS_2_1_OR_GREATER)
 	const char * prefsDir = PHYSFS_getPrefDir(org, app.c_str());
 
-	if(prefsDir == nullptr)
+	if (prefsDir == nullptr)
 	{
 		debug(LOG_FATAL, "Failed to obtain prefs directory: %s", WZ_PHYSFS_getLastError());
 		exit(1);
@@ -521,7 +521,7 @@ static std::string getPlatformPrefDir(const char * org, const std::string &app)
 	// PHYSFS_getPrefDir is not available - use fallback method (which requires OS-specific code)
 	std::string prefDir = getPlatformPrefDir_Fallback(org, app.c_str());
 
-	if(prefDir.empty())
+	if (prefDir.empty())
 	{
 		debug(LOG_FATAL, "Failed to obtain prefs directory (fallback)");
 		exit(1);
@@ -533,7 +533,7 @@ static std::string getPlatformPrefDir(const char * org, const std::string &app)
 
 bool endsWith(std::string const &fullString, std::string const &endString)
 {
-	if(fullString.length() >= endString.length())
+	if (fullString.length() >= endString.length())
 	{
 		return (0 == fullString.compare(fullString.length() - endString.length(), endString.length(), endString));
 	}
@@ -547,7 +547,7 @@ static void initialize_ConfigDir()
 {
 	std::string configDir;
 
-	if(strlen(configdir) == 0)
+	if (strlen(configdir) == 0)
 	{
 		configDir = getPlatformPrefDir("Warzone 2100 Project", version_getVersionedAppDirFolderName());
 	}
@@ -556,7 +556,7 @@ static void initialize_ConfigDir()
 		configDir = std::string(configdir);
 
 		// Make sure that we have a directory separator at the end of the string
-		if(!endsWith(configDir, PHYSFS_getDirSeparator()))
+		if (!endsWith(configDir, PHYSFS_getDirSeparator()))
 		{
 			configDir += PHYSFS_getDirSeparator();
 		}
@@ -564,14 +564,14 @@ static void initialize_ConfigDir()
 		debug(LOG_WZ, "Using custom configuration directory: %s", configDir.c_str());
 	}
 
-	if(!PHYSFS_setWriteDir(configDir.c_str()))  // Workaround for PhysFS not creating the writedir as expected.
+	if (!PHYSFS_setWriteDir(configDir.c_str())) // Workaround for PhysFS not creating the writedir as expected.
 	{
 		debug(LOG_FATAL, "Error setting write directory to \"%s\": %s",
 		      configDir.c_str(), WZ_PHYSFS_getLastError());
 		exit(1);
 	}
 
-	if(!OverrideRPTDirectory(configDir.c_str()))
+	if (!OverrideRPTDirectory(configDir.c_str()))
 	{
 		// since it failed, we just use our default path, and not the user supplied one.
 		debug(LOG_ERROR, "Error setting exception handler to use directory %s", configDir.c_str());
@@ -595,7 +595,7 @@ static void initialize_PhysicsFS(const char *argv_0)
 {
 	int result = PHYSFS_init(argv_0);
 
-	if(!result)
+	if (!result)
 	{
 		debug(LOG_FATAL, "There was a problem trying to init Physfs.  Error was %s", WZ_PHYSFS_getLastError());
 		exit(-1);
@@ -617,29 +617,29 @@ static void check_Physfs()
 	debug(LOG_WZ, "Linked against PhysFS version: %d.%d.%d",
 	      linked.major, linked.minor, linked.patch);
 
-	if(linked.major < 2)
+	if (linked.major < 2)
 	{
 		debug(LOG_FATAL, "At least version 2 of PhysicsFS required!");
 		exit(-1);
 	}
 
-	if(linked.major == 2 && linked.minor == 0 && linked.patch == 2)
+	if (linked.major == 2 && linked.minor == 0 && linked.patch == 2)
 	{
 		debug(LOG_ERROR, "You have PhysicsFS 2.0.2, which is buggy. You may experience random errors/crashes due to spuriously missing files.");
 		debug(LOG_ERROR, "Please upgrade/downgrade PhysicsFS to a different version, such as 2.0.3 or 2.0.1.");
 	}
 
-	for(i = PHYSFS_supportedArchiveTypes(); *i != nullptr; i++)
+	for (i = PHYSFS_supportedArchiveTypes(); *i != nullptr; i++)
 	{
 		debug(LOG_WZ, "[**] Supported archive(s): [%s], which is [%s].", (*i)->extension, (*i)->description);
 
-		if(!strncasecmp("zip", (*i)->extension, 3) && !zipfound)
+		if (!strncasecmp("zip", (*i)->extension, 3) && !zipfound)
 		{
 			zipfound = true;
 		}
 	}
 
-	if(!zipfound)
+	if (!zipfound)
 	{
 		debug(LOG_FATAL, "Your Physfs wasn't compiled with zip support.  Please recompile Physfs with zip support.  Exiting program.");
 		exit(-1);
@@ -668,7 +668,7 @@ static void scanDataDirs()
 #endif
 
 	// Commandline supplied datadir
-	if(strlen(datadir) != 0)
+	if (strlen(datadir) != 0)
 	{
 		registerSearchPath(datadir, 1);
 	}
@@ -685,32 +685,32 @@ static void scanDataDirs()
 	std::string prefix = getWZInstallPrefix();
 	std::string dirSeparator(PHYSFS_getDirSeparator());
 
-	if(!PHYSFS_exists("gamedesc.lev"))
+	if (!PHYSFS_exists("gamedesc.lev"))
 	{
 		// Data in source tree (<prefix>/data/)
 		tmpstr = prefix + dirSeparator + "data" + dirSeparator;
 		registerSearchPath(tmpstr.c_str(), 3);
 		rebuildSearchPath(mod_multiplay, true);
 
-		if(!PHYSFS_exists("gamedesc.lev"))
+		if (!PHYSFS_exists("gamedesc.lev"))
 		{
 			// Relocation for AutoPackage (<prefix>/share/warzone2100/)
 			tmpstr = prefix + dirSeparator + "share" + dirSeparator + "warzone2100" + dirSeparator;
 			registerSearchPath(tmpstr.c_str(), 4);
 			rebuildSearchPath(mod_multiplay, true);
 
-			if(!PHYSFS_exists("gamedesc.lev"))
+			if (!PHYSFS_exists("gamedesc.lev"))
 			{
 				// Program dir
 				registerSearchPath(PHYSFS_getBaseDir(), 5);
 				rebuildSearchPath(mod_multiplay, true);
 
-				if(!PHYSFS_exists("gamedesc.lev"))
+				if (!PHYSFS_exists("gamedesc.lev"))
 				{
 					// Guessed fallback default datadir on Unix
 					std::string wzDataDir = WZ_DATADIR;
 
-					if(!wzDataDir.empty())
+					if (!wzDataDir.empty())
 					{
 #ifndef WZ_DATADIR_ISABSOLUTE
 						// Treat WZ_DATADIR as a relative path - append to the install PREFIX
@@ -724,7 +724,7 @@ static void scanDataDirs()
 #endif
 					}
 
-					if(!PHYSFS_exists("gamedesc.lev"))
+					if (!PHYSFS_exists("gamedesc.lev"))
 					{
 						// Guessed fallback default datadir on Unix
 						// TEMPORARY: Fallback to ensure old WZ_DATADIR behavior as a last-resort
@@ -741,14 +741,14 @@ static void scanDataDirs()
 
 #ifdef WZ_OS_MAC
 
-	if(!PHYSFS_exists("gamedesc.lev"))
+	if (!PHYSFS_exists("gamedesc.lev"))
 	{
 		CFURLRef resourceURL = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
 		char resourcePath[PATH_MAX];
 
-		if(CFURLGetFileSystemRepresentation(resourceURL, true,
-		                                    (UInt8 *) resourcePath,
-		                                    PATH_MAX))
+		if (CFURLGetFileSystemRepresentation(resourceURL, true,
+		                                     (UInt8 *) resourcePath,
+		                                     PATH_MAX))
 		{
 			WzString resourceDataPath(resourcePath);
 			resourceDataPath += "/data";
@@ -760,7 +760,7 @@ static void scanDataDirs()
 			debug(LOG_ERROR, "Could not change to resources directory.");
 		}
 
-		if(resourceURL != NULL)
+		if (resourceURL != NULL)
 		{
 			CFRelease(resourceURL);
 		}
@@ -772,7 +772,7 @@ static void scanDataDirs()
 
 	printSearchPath();
 
-	if(PHYSFS_exists("gamedesc.lev"))
+	if (PHYSFS_exists("gamedesc.lev"))
 	{
 		debug(LOG_WZ, "gamedesc.lev found at %s", PHYSFS_getRealDir("gamedesc.lev"));
 	}
@@ -791,7 +791,7 @@ static void make_dir(char *dest, const char *dirname, const char *subdir)
 {
 	strcpy(dest, dirname);
 
-	if(subdir != nullptr)
+	if (subdir != nullptr)
 	{
 		strcat(dest, "/");
 		strcat(dest, subdir);
@@ -800,14 +800,14 @@ static void make_dir(char *dest, const char *dirname, const char *subdir)
 	{
 		size_t l = strlen(dest);
 
-		if(dest[l - 1] != '/')
+		if (dest[l - 1] != '/')
 		{
 			dest[l] = '/';
 			dest[l + 1] = '\0';
 		}
 	}
 
-	if(!PHYSFS_mkdir(dest))
+	if (!PHYSFS_mkdir(dest))
 	{
 		debug(LOG_FATAL, "Unable to create directory \"%s\" in write dir \"%s\"!",
 		      dest, PHYSFS_getWriteDir());
@@ -826,7 +826,7 @@ static void startTitleLoop()
 
 	initLoadingScreen(true);
 
-	if(!frontendInitialise("wrf/frontend.wrf"))
+	if (!frontendInitialise("wrf/frontend.wrf"))
 	{
 		debug(LOG_FATAL, "Shutting down after failure");
 		exit(EXIT_FAILURE);
@@ -842,7 +842,7 @@ static void startTitleLoop()
  */
 static void stopTitleLoop()
 {
-	if(!frontendShutdown())
+	if (!frontendShutdown())
 	{
 		debug(LOG_FATAL, "Shutting down after failure");
 		exit(EXIT_FAILURE);
@@ -859,7 +859,7 @@ static void startGameLoop()
 	SetGameMode(GS_NORMAL);
 
 	// Not sure what aLevelName is, in relation to game.map. But need to use aLevelName here, to be able to start the right map for campaign, and need game.hash, to start the right non-campaign map, if there are multiple identically named maps.
-	if(!levLoadData(aLevelName, &game.hash, nullptr, GTYPE_SCENARIO_START))
+	if (!levLoadData(aLevelName, &game.hash, nullptr, GTYPE_SCENARIO_START))
 	{
 		debug(LOG_FATAL, "Shutting down after failure");
 		exit(EXIT_FAILURE);
@@ -868,13 +868,13 @@ static void startGameLoop()
 	screen_StopBackDrop();
 
 	// Trap the cursor if cursor snapping is enabled
-	if(war_GetTrapCursor())
+	if (war_GetTrapCursor())
 	{
 		wzGrabMouse();
 	}
 
 	// Disable resizable windows if it's a multiplayer game
-	if(runningMultiplayer())
+	if (runningMultiplayer())
 	{
 		// This is because the main loop gets frozen while the window resizing / edge dragging occurs
 		// which effectively pauses the game, and pausing is otherwise disabled in multiplayer games.
@@ -885,12 +885,12 @@ static void startGameLoop()
 	// set a flag for the trigger/event system to indicate initialisation is complete
 	gameInitialised = true;
 
-	if(challengeActive)
+	if (challengeActive)
 	{
 		addMissionTimerInterface();
 	}
 
-	if(game.type == SKIRMISH)
+	if (game.type == SKIRMISH)
 	{
 		eventFireCallbackTrigger((TRIGGER_TYPE)CALL_START_NEXT_LEVEL);
 	}
@@ -908,15 +908,15 @@ static void stopGameLoop()
 {
 	clearInfoMessages(); // clear CONPRINTF messages before each new game/mission
 
-	if(gameLoopStatus != GAMECODE_NEWLEVEL)
+	if (gameLoopStatus != GAMECODE_NEWLEVEL)
 	{
 		clearBlueprints();
 		initLoadingScreen(true); // returning to f.e. do a loader.render not active
 		pie_EnableFog(false); // don't let the normal loop code set status on
 
-		if(gameLoopStatus != GAMECODE_LOADGAME)
+		if (gameLoopStatus != GAMECODE_LOADGAME)
 		{
-			if(!levReleaseAll())
+			if (!levReleaseAll())
 			{
 				debug(LOG_ERROR, "levReleaseAll failed!");
 			}
@@ -927,13 +927,13 @@ static void stopGameLoop()
 	}
 
 	// Disable cursor trapping
-	if(war_GetTrapCursor())
+	if (war_GetTrapCursor())
 	{
 		wzReleaseMouse();
 	}
 
 	// Re-enable resizable windows
-	if(!wzIsFullscreen())
+	if (!wzIsFullscreen())
 	{
 		// FIXME: This is required because of the disabling in startGameLoop()
 		wzSetWindowIsResizable(true);
@@ -954,7 +954,7 @@ static bool initSaveGameLoad()
 	screen_RestartBackDrop();
 
 	// load up a save game
-	if(!loadGameInit(saveGameName))
+	if (!loadGameInit(saveGameName))
 	{
 		// FIXME: we really should throw up a error window, but we can't (easily) so I won't.
 		debug(LOG_ERROR, "Trying to load Game %s failed!", saveGameName);
@@ -972,12 +972,12 @@ static bool initSaveGameLoad()
 	closeLoadingScreen();
 
 	// Trap the cursor if cursor snapping is enabled
-	if(war_GetTrapCursor())
+	if (war_GetTrapCursor())
 	{
 		wzGrabMouse();
 	}
 
-	if(challengeActive)
+	if (challengeActive)
 	{
 		addMissionTimerInterface();
 	}
@@ -993,7 +993,7 @@ static void runGameLoop()
 {
 	gameLoopStatus = gameLoop();
 
-	switch(gameLoopStatus)
+	switch (gameLoopStatus)
 	{
 		case GAMECODE_CONTINUE:
 		case GAMECODE_PLAYVIDEO:
@@ -1034,7 +1034,7 @@ static void runGameLoop()
  */
 static void runTitleLoop()
 {
-	switch(titleLoop())
+	switch (titleLoop())
 	{
 		case TITLECODE_CONTINUE:
 			break;
@@ -1052,7 +1052,7 @@ static void runTitleLoop()
 			// Restart into gameloop and load a savegame, ONLY on a good savegame load!
 			stopTitleLoop();
 
-			if(!initSaveGameLoad())
+			if (!initSaveGameLoad())
 			{
 				// we had a error loading savegame (corrupt?), so go back to title screen?
 				stopGameLoop();
@@ -1095,19 +1095,19 @@ void mainLoop()
 	frameUpdate(); // General housekeeping
 
 	// Screenshot key is now available globally
-	if(keyPressed(KEY_F10))
+	if (keyPressed(KEY_F10))
 	{
 		kf_ScreenDump();
 		inputLoseFocus();		// remove it from input stream
 	}
 
-	if(NetPlay.bComms || focusState == FOCUS_IN || !war_GetPauseOnFocusLoss())
+	if (NetPlay.bComms || focusState == FOCUS_IN || !war_GetPauseOnFocusLoss())
 	{
-		if(loop_GetVideoStatus())
+		if (loop_GetVideoStatus())
 		{
 			videoLoop(); // Display the video if necessary
 		}
-		else switch(GetGameMode())
+		else switch (GetGameMode())
 			{
 				case GS_NORMAL: // Run the gameloop code
 					runGameLoop();
@@ -1131,7 +1131,7 @@ bool getUTF8CmdLine(int *const utfargc WZ_DECL_UNUSED, char *** const utfargv WZ
 	int wargc;
 	wchar_t **wargv = CommandLineToArgvW(GetCommandLineW(), &wargc);
 
-	if(wargv == NULL)
+	if (wargv == NULL)
 	{
 		const int err = GetLastError();
 		char *err_string;
@@ -1149,19 +1149,19 @@ bool getUTF8CmdLine(int *const utfargc WZ_DECL_UNUSED, char *** const utfargv WZ
 	// the following malloc and UTF16toUTF8 will be cleaned up in realmain().
 	*utfargv = (char **)malloc(sizeof(char *) * wargc);
 
-	if(!*utfargv)
+	if (!*utfargv)
 	{
 		debug(LOG_FATAL, "Out of memory!");
 		abort();
 		return false;
 	}
 
-	for(int i = 0; i < wargc; ++i)
+	for (int i = 0; i < wargc; ++i)
 	{
 		STATIC_ASSERT(sizeof(wchar_t) == sizeof(utf_16_char)); // Should be true on windows
 		(*utfargv)[i] = UTF16toUTF8((const utf_16_char *)wargv[i], NULL); // only returns null when memory runs out
 
-		if((*utfargv)[i] == NULL)
+		if ((*utfargv)[i] == NULL)
 		{
 			*utfargc = i;
 			LocalFree(wargv);
@@ -1194,7 +1194,7 @@ int realmain(int argc, char *argv[])
 	// *****
 	// NOTE: Try *NOT* to use debug() output routines without some other method of informing the user.  All this output is sent to /dev/nul at this point on some platforms!
 	// *****
-	if(!getUTF8CmdLine(&utfargc, &utfargv))
+	if (!getUTF8CmdLine(&utfargc, &utfargv))
 	{
 		return EXIT_FAILURE;
 	}
@@ -1208,7 +1208,7 @@ int realmain(int argc, char *argv[])
 	initI18n();
 
 	// find early boot info
-	if(!ParseCommandLineEarly(utfargc, utfargv))
+	if (!ParseCommandLineEarly(utfargc, utfargv))
 	{
 		return EXIT_FAILURE;
 	}
@@ -1252,7 +1252,7 @@ int realmain(int argc, char *argv[])
 	PHYSFS_mkdir("userdata/mp");		// contains multiplayer templates
 	memset(rulesettag, 0, sizeof(rulesettag)); // stores tag property of ruleset.json files
 
-	if(!customDebugfile)
+	if (!customDebugfile)
 	{
 		// there was no custom debug file specified  (--debug-file=blah)
 		// so we use our write directory to store our logs.
@@ -1292,7 +1292,7 @@ int realmain(int argc, char *argv[])
 	loadConfig();
 
 	// parse the command line
-	if(!ParseCommandLine(utfargc, utfargv))
+	if (!ParseCommandLine(utfargc, utfargv))
 	{
 		return EXIT_FAILURE;
 	}
@@ -1312,16 +1312,16 @@ int realmain(int argc, char *argv[])
 #endif
 
 		// check whether given global mods are regular files
-		for(auto iterator = global_mods.begin(); iterator != global_mods.end();)
+		for (auto iterator = global_mods.begin(); iterator != global_mods.end();)
 		{
 			ssprintf(modtocheck, "mods/global/%s", iterator->c_str());
 #if defined WZ_PHYSFS_2_0_OR_GREATER
 
-			if(!PHYSFS_exists(modtocheck) || WZ_PHYSFS_isDirectory(modtocheck))
+			if (!PHYSFS_exists(modtocheck) || WZ_PHYSFS_isDirectory(modtocheck))
 #elif defined WZ_PHYSFS_2_1_OR_GREATER
 			PHYSFS_stat(modtocheck, &metaData);
 
-			if(metaData.filetype != PHYSFS_FILETYPE_REGULAR)
+			if (metaData.filetype != PHYSFS_FILETYPE_REGULAR)
 #endif
 			{
 				debug(LOG_ERROR, "The global mod \"%s\" you have specified doesn't exist!", iterator->c_str());
@@ -1336,16 +1336,16 @@ int realmain(int argc, char *argv[])
 		}
 
 		// check whether given campaign mods are regular files
-		for(auto iterator = campaign_mods.begin(); iterator != campaign_mods.end();)
+		for (auto iterator = campaign_mods.begin(); iterator != campaign_mods.end();)
 		{
 			ssprintf(modtocheck, "mods/campaign/%s", iterator->c_str());
 #if defined WZ_PHYSFS_2_0_OR_GREATER
 
-			if(!PHYSFS_exists(modtocheck) || WZ_PHYSFS_isDirectory(modtocheck))
+			if (!PHYSFS_exists(modtocheck) || WZ_PHYSFS_isDirectory(modtocheck))
 #elif defined WZ_PHYSFS_2_1_OR_GREATER
 			PHYSFS_stat(modtocheck, &metaData);
 
-			if(metaData.filetype != PHYSFS_FILETYPE_REGULAR)
+			if (metaData.filetype != PHYSFS_FILETYPE_REGULAR)
 #endif
 			{
 				debug(LOG_ERROR, "The campaign mod \"%s\" you have specified doesn't exist!", iterator->c_str());
@@ -1360,16 +1360,16 @@ int realmain(int argc, char *argv[])
 		}
 
 		// check whether given multiplay mods are regular files
-		for(auto iterator = multiplay_mods.begin(); iterator != multiplay_mods.end();)
+		for (auto iterator = multiplay_mods.begin(); iterator != multiplay_mods.end();)
 		{
 			ssprintf(modtocheck, "mods/multiplay/%s", iterator->c_str());
 #if defined WZ_PHYSFS_2_0_OR_GREATER
 
-			if(!PHYSFS_exists(modtocheck) || WZ_PHYSFS_isDirectory(modtocheck))
+			if (!PHYSFS_exists(modtocheck) || WZ_PHYSFS_isDirectory(modtocheck))
 #elif defined WZ_PHYSFS_2_1_OR_GREATER
 			PHYSFS_stat(modtocheck, &metaData);
 
-			if(metaData.filetype != PHYSFS_FILETYPE_REGULAR)
+			if (metaData.filetype != PHYSFS_FILETYPE_REGULAR)
 #endif
 			{
 				debug(LOG_ERROR, "The multiplay mod \"%s\" you have specified doesn't exist!", iterator->c_str());
@@ -1384,7 +1384,7 @@ int realmain(int argc, char *argv[])
 		}
 	}
 
-	if(!wzMainScreenSetup(war_getAntialiasing(), war_getFullscreen(), war_GetVsync()))
+	if (!wzMainScreenSetup(war_getAntialiasing(), war_getFullscreen(), war_GetVsync()))
 	{
 		return EXIT_FAILURE;
 	}
@@ -1408,17 +1408,17 @@ int realmain(int argc, char *argv[])
 
 	debug(LOG_MAIN, "Final initialization");
 
-	if(!frameInitialise())
+	if (!frameInitialise())
 	{
 		return EXIT_FAILURE;
 	}
 
-	if(!screenInitialise())
+	if (!screenInitialise())
 	{
 		return EXIT_FAILURE;
 	}
 
-	if(!pie_LoadShaders())
+	if (!pie_LoadShaders())
 	{
 		return EXIT_FAILURE;
 	}
@@ -1437,7 +1437,7 @@ int realmain(int argc, char *argv[])
 	pie_SetFogStatus(false);
 	pie_ScreenFlip(CLEAR_BLACK);
 
-	if(!systemInitialise(horizScaleFactor, vertScaleFactor))
+	if (!systemInitialise(horizScaleFactor, vertScaleFactor))
 	{
 		return EXIT_FAILURE;
 	}
@@ -1452,7 +1452,7 @@ int realmain(int argc, char *argv[])
 	addDumpInfo(buf);
 
 	// Do the game mode specific initialisation.
-	switch(GetGameMode())
+	switch (GetGameMode())
 	{
 		case GS_TITLE_SCREEN:
 			startTitleLoop();
@@ -1480,7 +1480,7 @@ int realmain(int argc, char *argv[])
 	systemShutdown();
 #ifdef WZ_OS_WIN	// clean up the memory allocated for the command line conversion
 
-	for(int i = 0; i < argc; i++)
+	for (int i = 0; i < argc; i++)
 	{
 		char *** const utfargvF = &utfargv;
 		free((void *)(*utfargvF)[i]);

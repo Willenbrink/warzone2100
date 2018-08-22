@@ -153,7 +153,7 @@ enum
 // return translated text
 static const char *getDORDDescription(int id)
 {
-	switch(id)
+	switch (id)
 	{
 		case STR_DORD_REPAIR1        :
 			return _("Retreat at Medium Damage");
@@ -382,9 +382,9 @@ static bool BuildSelectedDroidList()
 {
 	DROID *psDroid;
 
-	for(psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
+	for (psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-		if(psDroid->selected)
+		if (psDroid->selected)
 		{
 			SelectedDroids.push_back(psDroid);
 		}
@@ -399,12 +399,12 @@ static std::vector<AVORDER> buildDroidOrderList()
 {
 	std::set<AVORDER> orders;
 
-	for(auto &SelectedDroid : SelectedDroids)
+	for (auto &SelectedDroid : SelectedDroids)
 	{
-		for(unsigned OrdIndex = 0; OrdIndex < NUM_ORDERS; ++OrdIndex)
+		for (unsigned OrdIndex = 0; OrdIndex < NUM_ORDERS; ++OrdIndex)
 		{
 			// Is the order available?
-			if(secondarySupported(SelectedDroid, OrderButtons[OrdIndex].Order))
+			if (secondarySupported(SelectedDroid, OrderButtons[OrdIndex].Order))
 			{
 				AVORDER avOrder;
 				avOrder.OrderIndex = OrdIndex;
@@ -442,25 +442,25 @@ static SECONDARY_STATE GetSecondaryStates(SECONDARY_ORDER sec)
 	state = (SECONDARY_STATE)0;
 	bFirst = true;
 
-	if(psSelectedFactory)
+	if (psSelectedFactory)
 	{
-		if(getFactoryState(psSelectedFactory, sec, &currState))
+		if (getFactoryState(psSelectedFactory, sec, &currState))
 		{
 			state = currState;
 		}
 	}
 	else //droids
 	{
-		for(auto &SelectedDroid : SelectedDroids)
+		for (auto &SelectedDroid : SelectedDroids)
 		{
 			currState = secondaryGetState(SelectedDroid, sec, ModeQueue);
 
-			if(bFirst)
+			if (bFirst)
 			{
 				state = currState;
 				bFirst = false;
 			}
-			else if(state != currState)
+			else if (state != currState)
 			{
 				state = (SECONDARY_STATE)0;
 			}
@@ -498,34 +498,34 @@ bool intAddOrder(BASE_OBJECT *psObj)
 	DROID *Droid;
 	STRUCTURE *psStructure;
 
-	if(bInTutorial)
+	if (bInTutorial)
 	{
 		// No RMB orders in tutorial!!
 		return (false);
 	}
 
 	// Is the form already up?
-	if(widgGetFromID(psWScreen, IDORDER_FORM) != nullptr)
+	if (widgGetFromID(psWScreen, IDORDER_FORM) != nullptr)
 	{
 		intRemoveOrderNoAnim();
 		Animate = false;
 	}
 
 	// Is the stats window up?
-	if(widgGetFromID(psWScreen, IDSTAT_FORM) != nullptr)
+	if (widgGetFromID(psWScreen, IDSTAT_FORM) != nullptr)
 	{
 		intRemoveStatsNoAnim();
 		Animate = false;
 	}
 
-	if(psObj)
+	if (psObj)
 	{
-		if(psObj->type == OBJ_DROID)
+		if (psObj->type == OBJ_DROID)
 		{
 			Droid = (DROID *)psObj;
 			psStructure =  nullptr;
 		}
-		else if(psObj->type == OBJ_STRUCTURE)
+		else if (psObj->type == OBJ_STRUCTURE)
 		{
 			Droid = nullptr;
 			psStructure = (STRUCTURE *)psObj;
@@ -552,25 +552,25 @@ bool intAddOrder(BASE_OBJECT *psObj)
 	SelectedDroids.clear();
 
 	// Selected droid is a command droid?
-	if((Droid != nullptr) && (Droid->droidType == DROID_COMMAND))
+	if ((Droid != nullptr) && (Droid->droidType == DROID_COMMAND))
 	{
 		// displaying for a command droid - ignore any other droids
 		SelectedDroids.push_back(Droid);
 	}
-	else if(psStructure != nullptr)
+	else if (psStructure != nullptr)
 	{
 		AvailableOrders = buildStructureOrderList(psStructure);
 
-		if(AvailableOrders.empty())
+		if (AvailableOrders.empty())
 		{
 			return false;
 		}
 	}
 	// Otherwise build a list of selected droids.
-	else if(!BuildSelectedDroidList())
+	else if (!BuildSelectedDroidList())
 	{
 		// If no droids selected then see if we were given a specific droid.
-		if(Droid != nullptr)
+		if (Droid != nullptr)
 		{
 			// and put it in the list.
 			SelectedDroids.push_back(Droid);
@@ -578,11 +578,11 @@ bool intAddOrder(BASE_OBJECT *psObj)
 	}
 
 	// Build a list of orders available for the list of selected droids. - if a factory has not been selected
-	if(psStructure == nullptr)
+	if (psStructure == nullptr)
 	{
 		AvailableOrders = buildDroidOrderList();
 
-		if(AvailableOrders.empty())
+		if (AvailableOrders.empty())
 		{
 			// If no orders then return;
 			return false;
@@ -611,7 +611,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 	sButInit.pDisplay = intDisplayImageHilight;
 	sButInit.UserData = PACKDWORD_TRI(0, IMAGE_CLOSEHILIGHT, IMAGE_CLOSE);
 
-	if(!widgAddButton(psWScreen, &sButInit))
+	if (!widgAddButton(psWScreen, &sButInit))
 	{
 		return false;
 	}
@@ -625,7 +625,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 	Height = 0;
 	NumDisplayedOrders = 0;
 
-	for(unsigned j = 0; j < AvailableOrders.size() && NumDisplayedOrders < MAX_DISPLAYABLE_ORDERS; ++j)
+	for (unsigned j = 0; j < AvailableOrders.size() && NumDisplayedOrders < MAX_DISPLAYABLE_ORDERS; ++j)
 	{
 		OrdIndex = AvailableOrders[j].OrderIndex;
 
@@ -638,7 +638,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 		OrderButtons[OrdIndex].AcNumButs = NumButs;
 
 		// Handle special case for factory -> command droid assignment buttons.
-		switch(OrderButtons[OrdIndex].Class)
+		switch (OrderButtons[OrdIndex].Class)
 		{
 			case ORDBUTCLASS_FACTORY:
 				NumButs = countAssignableFactories((UBYTE)selectedPlayer, FACTORY_FLAG);
@@ -661,7 +661,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 		NumJustifyButs = NumButs;
 		bLastCombine = false;
 
-		switch(OrderButtons[OrdIndex].ButJustify & ORD_JUSTIFY_MASK)
+		switch (OrderButtons[OrdIndex].ButJustify & ORD_JUSTIFY_MASK)
 		{
 			case ORD_JUSTIFY_LEFT:
 				sButInit.x = ORDER_BUTX;
@@ -683,9 +683,9 @@ bool intAddOrder(BASE_OBJECT *psObj)
 				// see how many are on this line before the button
 				NumCombineBefore = 0;
 
-				for(unsigned i = 0; i < j; ++i)
+				for (unsigned i = 0; i < j; ++i)
 				{
-					if((OrderButtons[AvailableOrders[i].OrderIndex].ButJustify & ORD_JUSTIFY_MASK)
+					if ((OrderButtons[AvailableOrders[i].OrderIndex].ButJustify & ORD_JUSTIFY_MASK)
 					        == ORD_JUSTIFY_COMBINE)
 					{
 						NumCombineBefore += 1;
@@ -695,9 +695,9 @@ bool intAddOrder(BASE_OBJECT *psObj)
 				NumCombineButs = (UWORD)(NumCombineBefore + 1);
 
 				// now see how many in total
-				for(unsigned i = j + 1; i < AvailableOrders.size(); ++i)
+				for (unsigned i = j + 1; i < AvailableOrders.size(); ++i)
 				{
-					if((OrderButtons[AvailableOrders[i].OrderIndex].ButJustify & ORD_JUSTIFY_MASK)
+					if ((OrderButtons[AvailableOrders[i].OrderIndex].ButJustify & ORD_JUSTIFY_MASK)
 					        == ORD_JUSTIFY_COMBINE)
 					{
 						NumCombineButs += 1;
@@ -707,7 +707,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 				// get position on line
 				NumCombineButs = (UWORD)(NumCombineButs - (NumCombineBefore - (NumCombineBefore % ORD_MAX_COMBINE_BUTS)));
 
-				if(NumCombineButs >= ORD_MAX_COMBINE_BUTS)
+				if (NumCombineButs >= ORD_MAX_COMBINE_BUTS)
 				{
 					// the buttons will fill the line
 					sButInit.x = (SWORD)(ORDER_BUTX +
@@ -724,7 +724,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 				}
 
 				// see if need to start a new line of buttons
-				if((NumCombineBefore + 1) == (NumCombineButs % ORD_MAX_COMBINE_BUTS))
+				if ((NumCombineBefore + 1) == (NumCombineButs % ORD_MAX_COMBINE_BUTS))
 				{
 					bLastCombine = true;
 				}
@@ -732,7 +732,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 				break;
 		}
 
-		for(unsigned i = 0; i < OrderButtons[OrdIndex].AcNumButs; ++i)
+		for (unsigned i = 0; i < OrderButtons[OrdIndex].AcNumButs; ++i)
 		{
 			sButInit.pTip = getDORDDescription(OrderButtons[OrdIndex].ButTips[i]);
 			sButInit.width = (UWORD)GetImageWidth(IntImages, OrderButtons[OrdIndex].ButImageID[i]);
@@ -741,13 +741,13 @@ bool intAddOrder(BASE_OBJECT *psObj)
 			                                  OrderButtons[OrdIndex].ButHilightID[i],
 			                                  OrderButtons[OrdIndex].ButImageID[i]);
 
-			if(!widgAddButton(psWScreen, &sButInit))
+			if (!widgAddButton(psWScreen, &sButInit))
 			{
 				return false;
 			}
 
 			// Set the default state for the button.
-			switch(OrderButtons[OrdIndex].ButType)
+			switch (OrderButtons[OrdIndex].ButType)
 			{
 				case ORD_BTYPE_RADIO:
 				case ORD_BTYPE_BOOLEAN:
@@ -776,10 +776,10 @@ bool intAddOrder(BASE_OBJECT *psObj)
 			// may not add a button if the factory doesn't exist
 			bHidden = false;
 
-			switch(OrderButtons[OrdIndex].Class)
+			switch (OrderButtons[OrdIndex].Class)
 			{
 				case ORDBUTCLASS_FACTORY:
-					if(!checkFactoryExists(selectedPlayer, FACTORY_FLAG, i))
+					if (!checkFactoryExists(selectedPlayer, FACTORY_FLAG, i))
 					{
 						widgHide(psWScreen, sButInit.id);
 						bHidden = true;
@@ -788,7 +788,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 					break;
 
 				case ORDBUTCLASS_CYBORGFACTORY:
-					if(!checkFactoryExists(selectedPlayer, CYBORG_FLAG, i))
+					if (!checkFactoryExists(selectedPlayer, CYBORG_FLAG, i))
 					{
 						widgHide(psWScreen, sButInit.id);
 						bHidden = true;
@@ -797,7 +797,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 					break;
 
 				case ORDBUTCLASS_VTOLFACTORY:
-					if(!checkFactoryExists(selectedPlayer, VTOL_FLAG, i))
+					if (!checkFactoryExists(selectedPlayer, VTOL_FLAG, i))
 					{
 						widgHide(psWScreen, sButInit.id);
 						bHidden = true;
@@ -809,7 +809,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 					break;
 			}
 
-			if(!bHidden)
+			if (!bHidden)
 			{
 
 				sButInit.x = (SWORD)(sButInit.x + sButInit.width + ORDER_BUTGAP);
@@ -818,7 +818,7 @@ bool intAddOrder(BASE_OBJECT *psObj)
 			sButInit.id++;
 		}
 
-		if(((OrderButtons[OrdIndex].ButJustify & ORD_JUSTIFY_MASK) != ORD_JUSTIFY_COMBINE) ||
+		if (((OrderButtons[OrdIndex].ButJustify & ORD_JUSTIFY_MASK) != ORD_JUSTIFY_COMBINE) ||
 		        bLastCombine)
 		{
 			sButInit.y = (SWORD)(sButInit.y + sButInit.height + ORDER_BUTGAP);
@@ -845,9 +845,9 @@ bool intAddOrder(BASE_OBJECT *psObj)
 void intRunOrder()
 {
 	// Check to see if there all dead or unselected.
-	for(auto &SelectedDroid : SelectedDroids)
+	for (auto &SelectedDroid : SelectedDroids)
 	{
-		if(SelectedDroid->died)
+		if (SelectedDroid->died)
 		{
 			SelectedDroid = nullptr;
 		}
@@ -856,17 +856,17 @@ void intRunOrder()
 	// Remove any NULL pointers from SelectedDroids.
 	SelectedDroids.erase(std::remove(SelectedDroids.begin(), SelectedDroids.end(), (DROID *)nullptr), SelectedDroids.end());
 
-	if(psSelectedFactory != nullptr && psSelectedFactory->died)
+	if (psSelectedFactory != nullptr && psSelectedFactory->died)
 	{
 		psSelectedFactory = nullptr;
 	}
 
 	// If all dead then remove the screen.
 	// If droids no longer selected then remove screen.
-	if(SelectedDroids.empty())
+	if (SelectedDroids.empty())
 	{
 		// might have a factory selected
-		if(psSelectedFactory == nullptr)
+		if (psSelectedFactory == nullptr)
 		{
 			intRemoveOrder();
 			return;
@@ -881,14 +881,14 @@ void intRunOrder()
 static bool SetSecondaryState(SECONDARY_ORDER sec, unsigned State)
 {
 	// This code is similar to kfsf_SetSelectedDroidsState() in keybind.cpp. Unfortunately, it seems hard to un-duplicate the code.
-	for(auto &SelectedDroid : SelectedDroids)
+	for (auto &SelectedDroid : SelectedDroids)
 	{
-		if(SelectedDroid)
+		if (SelectedDroid)
 		{
 			//Only set the state if it's not a transporter.
-			if(!isTransporter(SelectedDroid))
+			if (!isTransporter(SelectedDroid))
 			{
-				if(!secondarySetState(SelectedDroid, sec, (SECONDARY_STATE)State))
+				if (!secondarySetState(SelectedDroid, sec, (SECONDARY_STATE)State))
 				{
 					return false;
 				}
@@ -897,9 +897,9 @@ static bool SetSecondaryState(SECONDARY_ORDER sec, unsigned State)
 	}
 
 	// set the Factory settings
-	if(psSelectedFactory)
+	if (psSelectedFactory)
 	{
-		if(!setFactoryState(psSelectedFactory, sec, (SECONDARY_STATE)State))
+		if (!setFactoryState(psSelectedFactory, sec, (SECONDARY_STATE)State))
 		{
 			return false;
 		}
@@ -919,11 +919,11 @@ void intProcessOrder(UDWORD id)
 	UDWORD StateIndex;
 	UDWORD CombineState;
 
-	if(id == IDORDER_CLOSE)
+	if (id == IDORDER_CLOSE)
 	{
 		intRemoveOrder();
 
-		if(intMode == INT_ORDER)
+		if (intMode == INT_ORDER)
 		{
 			intMode = INT_NORMAL;
 		}
@@ -937,24 +937,24 @@ void intProcessOrder(UDWORD id)
 		return;
 	}
 
-	for(OrdIndex = 0; OrdIndex < NUM_ORDERS; OrdIndex++)
+	for (OrdIndex = 0; OrdIndex < NUM_ORDERS; OrdIndex++)
 	{
 		BaseID = OrderButtons[OrdIndex].ButBaseID;
 
-		switch(OrderButtons[OrdIndex].ButType)
+		switch (OrderButtons[OrdIndex].ButType)
 		{
 			case ORD_BTYPE_RADIO:
-				if((id >= BaseID) && (id < BaseID + OrderButtons[OrdIndex].AcNumButs))
+				if ((id >= BaseID) && (id < BaseID + OrderButtons[OrdIndex].AcNumButs))
 				{
 					StateIndex = id - BaseID;
 
-					for(i = 0; i < OrderButtons[OrdIndex].AcNumButs; i++)
+					for (i = 0; i < OrderButtons[OrdIndex].AcNumButs; i++)
 					{
 						widgSetButtonState(psWScreen, BaseID + i, 0);
 					}
 
-					if(SetSecondaryState(OrderButtons[OrdIndex].Order,
-					                     OrderButtons[OrdIndex].States[StateIndex] & OrderButtons[OrdIndex].StateMask))
+					if (SetSecondaryState(OrderButtons[OrdIndex].Order,
+					                      OrderButtons[OrdIndex].States[StateIndex] & OrderButtons[OrdIndex].StateMask))
 					{
 						widgSetButtonState(psWScreen, id, WBUT_CLICKLOCK);
 					}
@@ -963,11 +963,11 @@ void intProcessOrder(UDWORD id)
 				break;
 
 			case ORD_BTYPE_BOOLEAN:
-				if((id >= BaseID) && (id < BaseID + OrderButtons[OrdIndex].AcNumButs))
+				if ((id >= BaseID) && (id < BaseID + OrderButtons[OrdIndex].AcNumButs))
 				{
 					StateIndex = id - BaseID;
 
-					if(widgGetButtonState(psWScreen, id) & WBUT_CLICKLOCK)
+					if (widgGetButtonState(psWScreen, id) & WBUT_CLICKLOCK)
 					{
 						widgSetButtonState(psWScreen, id, 0);
 						SetSecondaryState(OrderButtons[OrdIndex].Order, 0);
@@ -986,9 +986,9 @@ void intProcessOrder(UDWORD id)
 			case ORD_BTYPE_BOOLEAN_DEPEND:
 
 				// Toggle the state of this button.
-				if(id == BaseID)
+				if (id == BaseID)
 				{
-					if(widgGetButtonState(psWScreen, id) & WBUT_CLICKLOCK)
+					if (widgGetButtonState(psWScreen, id) & WBUT_CLICKLOCK)
 					{
 						widgSetButtonState(psWScreen, id, 0);
 						// Disable the dependent button.
@@ -1002,13 +1002,13 @@ void intProcessOrder(UDWORD id)
 					}
 				}
 
-				if((id > BaseID) && (id < BaseID + OrderButtons[OrdIndex].AcNumButs))
+				if ((id > BaseID) && (id < BaseID + OrderButtons[OrdIndex].AcNumButs))
 				{
 					// If the previous button is down ( armed )..
-					if(widgGetButtonState(psWScreen, id - 1) & WBUT_CLICKLOCK)
+					if (widgGetButtonState(psWScreen, id - 1) & WBUT_CLICKLOCK)
 					{
 						// Toggle the state of this button.
-						if(widgGetButtonState(psWScreen, id) & WBUT_CLICKLOCK)
+						if (widgGetButtonState(psWScreen, id) & WBUT_CLICKLOCK)
 						{
 							widgSetButtonState(psWScreen, id, 0);
 							SetSecondaryState(OrderButtons[OrdIndex].Order, 0);
@@ -1027,10 +1027,10 @@ void intProcessOrder(UDWORD id)
 				break;
 
 			case ORD_BTYPE_BOOLEAN_COMBINE:
-				if((id >= BaseID) && (id < BaseID + OrderButtons[OrdIndex].AcNumButs))
+				if ((id >= BaseID) && (id < BaseID + OrderButtons[OrdIndex].AcNumButs))
 				{
 					// Toggle the state of this button.
-					if(widgGetButtonState(psWScreen, id) & WBUT_CLICKLOCK)
+					if (widgGetButtonState(psWScreen, id) & WBUT_CLICKLOCK)
 					{
 						widgSetButtonState(psWScreen, id, 0);
 					}
@@ -1042,9 +1042,9 @@ void intProcessOrder(UDWORD id)
 					// read the state of all the buttons to get the final state
 					CombineState = 0;
 
-					for(StateIndex = 0; StateIndex < OrderButtons[OrdIndex].AcNumButs; StateIndex++)
+					for (StateIndex = 0; StateIndex < OrderButtons[OrdIndex].AcNumButs; StateIndex++)
 					{
-						if(widgGetButtonState(psWScreen, BaseID + StateIndex) & WBUT_CLICKLOCK)
+						if (widgGetButtonState(psWScreen, BaseID + StateIndex) & WBUT_CLICKLOCK)
 						{
 							CombineState |= OrderButtons[OrdIndex].States[StateIndex];
 						}
@@ -1066,7 +1066,7 @@ static bool CheckObjectOrderList()
 {
 	std::vector<AVORDER> NewAvailableOrders;
 
-	if(psSelectedFactory != nullptr)
+	if (psSelectedFactory != nullptr)
 	{
 		NewAvailableOrders = buildStructureOrderList(psSelectedFactory);
 	}
@@ -1085,7 +1085,7 @@ static bool intRefreshOrderButtons()
 	UWORD OrdIndex;
 	UDWORD	id;
 
-	for(unsigned j = 0; j < AvailableOrders.size() && j < MAX_DISPLAYABLE_ORDERS; ++j)
+	for (unsigned j = 0; j < AvailableOrders.size() && j < MAX_DISPLAYABLE_ORDERS; ++j)
 	{
 		OrdIndex = AvailableOrders[j].OrderIndex;
 
@@ -1097,10 +1097,10 @@ static bool intRefreshOrderButtons()
 
 		id = OrderButtons[OrdIndex].ButBaseID;
 
-		for(unsigned i = 0; i < OrderButtons[OrdIndex].AcNumButs; ++i)
+		for (unsigned i = 0; i < OrderButtons[OrdIndex].AcNumButs; ++i)
 		{
 			// Set the state for the button.
-			switch(OrderButtons[OrdIndex].ButType)
+			switch (OrderButtons[OrdIndex].ButType)
 			{
 				case ORD_BTYPE_RADIO:
 				case ORD_BTYPE_BOOLEAN:
@@ -1139,7 +1139,7 @@ static bool intRefreshOrderButtons()
 bool intRefreshOrder()
 {
 	// Is the Order screen up?
-	if((intMode == INT_ORDER) &&
+	if ((intMode == INT_ORDER) &&
 	        (widgGetFromID(psWScreen, IDORDER_FORM) != nullptr))
 	{
 		bool Ret;
@@ -1147,9 +1147,9 @@ bool intRefreshOrder()
 		SelectedDroids.clear();
 
 		// check for factory selected first
-		if(!psSelectedFactory)
+		if (!psSelectedFactory)
 		{
-			if(!BuildSelectedDroidList())
+			if (!BuildSelectedDroidList())
 			{
 				// no units selected - quit
 				intRemoveOrder();
@@ -1158,7 +1158,7 @@ bool intRefreshOrder()
 		}
 
 		// if the orders haven't changed, just reset the state
-		if(CheckObjectOrderList())
+		if (CheckObjectOrderList())
 		{
 			Ret = intRefreshOrderButtons();
 		}
@@ -1167,7 +1167,7 @@ bool intRefreshOrder()
 			// Refresh it by re-adding it.
 			Ret = intAddOrder(nullptr);
 
-			if(Ret == false)
+			if (Ret == false)
 			{
 				intMode = INT_NORMAL;
 			}
@@ -1189,7 +1189,7 @@ void intRemoveOrder()
 	// Start the window close animation.
 	IntFormAnimated *form = (IntFormAnimated *)widgGetFromID(psWScreen, IDORDER_FORM);
 
-	if(form != nullptr)
+	if (form != nullptr)
 	{
 		form->closeAnimateDelete();
 		OrderUp = false;
@@ -1213,7 +1213,7 @@ void intRemoveOrderNoAnim()
 //new function added to bring up the RMB order form for Factories as well as droids
 void intAddFactoryOrder(STRUCTURE *psStructure)
 {
-	if(!OrderUp)
+	if (!OrderUp)
 	{
 		intResetScreen(false);
 		intAddOrder((BASE_OBJECT *)psStructure);

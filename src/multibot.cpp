@@ -61,7 +61,7 @@ struct QueuedDroidInfo
 	{
 		int orComp = orderCompare(z);
 
-		if(orComp != 0)
+		if (orComp != 0)
 		{
 			return orComp < 0;
 		}
@@ -71,85 +71,85 @@ struct QueuedDroidInfo
 	/// Returns 0 if order is the same, non-zero otherwise.
 	int orderCompare(QueuedDroidInfo const &z) const
 	{
-		if(player != z.player)
+		if (player != z.player)
 		{
 			return player < z.player ? -1 : 1;
 		}
 
-		if(subType != z.subType)
+		if (subType != z.subType)
 		{
 			return subType < z.subType ? -1 : 1;
 		}
 
-		switch(subType)
+		switch (subType)
 		{
 			case ObjOrder:
 			case LocOrder:
-				if(order != z.order)
+				if (order != z.order)
 				{
 					return order < z.order ? -1 : 1;
 				}
 
-				if(subType == ObjOrder)
+				if (subType == ObjOrder)
 				{
-					if(destId != z.destId)
+					if (destId != z.destId)
 					{
 						return destId < z.destId ? -1 : 1;
 					}
 
-					if(destType != z.destType)
+					if (destType != z.destType)
 					{
 						return destType < z.destType ? -1 : 1;
 					}
 				}
 				else
 				{
-					if(pos.x != z.pos.x)
+					if (pos.x != z.pos.x)
 					{
 						return pos.x < z.pos.x ? -1 : 1;
 					}
 
-					if(pos.y != z.pos.y)
+					if (pos.y != z.pos.y)
 					{
 						return pos.y < z.pos.y ? -1 : 1;
 					}
 				}
 
-				if(order == DORDER_BUILD || order == DORDER_LINEBUILD)
+				if (order == DORDER_BUILD || order == DORDER_LINEBUILD)
 				{
-					if(structRef != z.structRef)
+					if (structRef != z.structRef)
 					{
 						return structRef < z.structRef ? -1 : 1;
 					}
 
-					if(direction != z.direction)
+					if (direction != z.direction)
 					{
 						return direction < z.direction ? -1 : 1;
 					}
 				}
 
-				if(order == DORDER_LINEBUILD)
+				if (order == DORDER_LINEBUILD)
 				{
-					if(pos2.x != z.pos2.x)
+					if (pos2.x != z.pos2.x)
 					{
 						return pos2.x < z.pos2.x ? -1 : 1;
 					}
 
-					if(pos2.y != z.pos2.y)
+					if (pos2.y != z.pos2.y)
 					{
 						return pos2.y < z.pos2.y ? -1 : 1;
 					}
 				}
 
-				if(order == DORDER_BUILDMODULE)
+				if (order == DORDER_BUILDMODULE)
 				{
-					if(index != z.index)
+					if (index != z.index)
 					{
 						return index < z.index ? -1 : 1;
 					}
 				}
 
-				if(add != z.add)
+				if (add != z.add)
 				{
 					return add < z.add ? -1 : 1;
 				}
@@ -157,12 +157,12 @@ struct QueuedDroidInfo
 				break;
 
 			case SecondaryOrder:
-				if(secOrder != z.secOrder)
+				if (secOrder != z.secOrder)
 				{
 					return secOrder < z.secOrder ? -1 : 1;
 				}
 
-				if(secState != z.secState)
+				if (secState != z.secState)
 				{
 					return secState < z.secState ? -1 : 1;
 				}
@@ -214,7 +214,7 @@ static BASE_OBJECT *const TargetMissing = &TargetMissing_;  // Error return valu
 // Send
 bool sendDroidSecondary(const DROID *psDroid, SECONDARY_ORDER sec, SECONDARY_STATE state)
 {
-	if(!bMultiMessages)
+	if (!bMultiMessages)
 	{
 		return true;
 	}
@@ -239,7 +239,7 @@ bool sendDroidSecondary(const DROID *psDroid, SECONDARY_ORDER sec, SECONDARY_STA
  */
 bool sendDroidDisembark(DROID const *psTransporter, DROID const *psDroid)
 {
-	if(!bMultiMessages)
+	if (!bMultiMessages)
 	{
 		return true;
 	}
@@ -279,14 +279,14 @@ bool recvDroidDisEmbark(NETQUEUE queue)
 		// find the transporter first
 		psTransporterDroid = IdToDroid(transporterID, player);
 
-		if(!psTransporterDroid)
+		if (!psTransporterDroid)
 		{
 			// Possible it already died? (sync error?)
 			debug(LOG_WARNING, "player's %d transport droid %d wasn't found?", player, transporterID);
 			return false;
 		}
 
-		if(!canGiveOrdersFor(queue.index, psTransporterDroid->player))
+		if (!canGiveOrdersFor(queue.index, psTransporterDroid->player))
 		{
 			return false;
 		}
@@ -294,10 +294,10 @@ bool recvDroidDisEmbark(NETQUEUE queue)
 		// we need to find the droid *in* the transporter
 		psCheckDroid = psTransporterDroid ->psGroup->psList;
 
-		while(psCheckDroid)
+		while (psCheckDroid)
 		{
 			// is this the one we want?
-			if(psCheckDroid->id == droidID)
+			if (psCheckDroid->id == droidID)
 			{
 				psFoundDroid = psCheckDroid;
 				break;
@@ -308,7 +308,7 @@ bool recvDroidDisEmbark(NETQUEUE queue)
 		}
 
 		// don't continue if we couldn't find it.
-		if(!psFoundDroid)
+		if (!psFoundDroid)
 		{
 			// I don't think this could ever be possible...but
 			debug(LOG_ERROR, "Couldn't find droid %d to disembark from player %d's transporter?", droidID, player);
@@ -329,7 +329,7 @@ bool recvDroidDisEmbark(NETQUEUE queue)
 // Send a new Droid to the other players
 bool SendDroid(DROID_TEMPLATE *pTemplate, uint32_t x, uint32_t y, uint8_t player, uint32_t id, const INITIAL_DROID_ORDERS *initialOrdersP)
 {
-	if(!bMultiMessages)
+	if (!bMultiMessages)
 	{
 		return true;
 	}
@@ -338,13 +338,13 @@ bool SendDroid(DROID_TEMPLATE *pTemplate, uint32_t x, uint32_t y, uint8_t player
 	ASSERT_OR_RETURN(false, player < MAX_PLAYERS, "invalid player %u", player);
 
 	// Dont send other droids during campaign setup
-	if(ingame.localJoiningInProgress)
+	if (ingame.localJoiningInProgress)
 	{
 		return true;
 	}
 
 	// Only send the droid if we are responsible
-	if(!myResponsibility(player))
+	if (!myResponsibility(player))
 	{
 		// Don't build if we are not responsible
 		return false;
@@ -372,14 +372,14 @@ bool SendDroid(DROID_TEMPLATE *pTemplate, uint32_t x, uint32_t y, uint8_t player
 		NETuint8_t(&pTemplate->asParts[COMP_CONSTRUCT]);
 		NETint8_t(&pTemplate->numWeaps);
 
-		for(int i = 0; i < pTemplate->numWeaps; i++)
+		for (int i = 0; i < pTemplate->numWeaps; i++)
 		{
 			NETuint32_t(&pTemplate->asWeaps[i]);
 		}
 
 		NETbool(&haveInitialOrders);
 
-		if(haveInitialOrders)
+		if (haveInitialOrders)
 		{
 			INITIAL_DROID_ORDERS initialOrders = *initialOrdersP;
 			NETuint32_t(&initialOrders.secondaryOrder);
@@ -426,14 +426,14 @@ bool recvDroid(NETQUEUE queue)
 		NETint8_t(&pT->numWeaps);
 		ASSERT_OR_RETURN(false, pT->numWeaps >= 0 && pT->numWeaps <= ARRAY_SIZE(pT->asWeaps), "Bad numWeaps %d", pT->numWeaps);
 
-		for(int i = 0; i < pT->numWeaps; i++)
+		for (int i = 0; i < pT->numWeaps; i++)
 		{
 			NETuint32_t(&pT->asWeaps[i]);
 		}
 
 		NETbool(&haveInitialOrders);
 
-		if(haveInitialOrders)
+		if (haveInitialOrders)
 		{
 			NETuint32_t(&initialOrders.secondaryOrder);
 			NETint32_t(&initialOrders.moveToX);
@@ -445,7 +445,7 @@ bool recvDroid(NETQUEUE queue)
 	}
 	NETend();
 
-	if(!getDebugMappingStatus() && bMultiPlayer)
+	if (!getDebugMappingStatus() && bMultiPlayer)
 	{
 		debug(LOG_WARNING, "Failed to add droid for player %u.", NetPlay.players[queue.index].position);
 		return false;
@@ -455,7 +455,7 @@ bool recvDroid(NETQUEUE queue)
 
 	debug(LOG_LIFE, "<=== getting Droid from %u id of %u ", player, id);
 
-	if((pos.x == 0 && pos.y == 0) || pos.x > world_coord(mapWidth) || pos.y > world_coord(mapHeight))
+	if ((pos.x == 0 && pos.y == 0) || pos.x > world_coord(mapWidth) || pos.y > world_coord(mapHeight))
 	{
 		debug(LOG_ERROR, "Received bad droid position (%d, %d) from %d about p%d (%s)", (int)pos.x, (int)pos.y,
 		      queue.index, player, isHumanPlayer(player) ? "Human" : "AI");
@@ -466,12 +466,12 @@ bool recvDroid(NETQUEUE queue)
 	psDroid = reallyBuildDroid(pT, pos, player, false);
 
 	// If we were able to build the droid set it up
-	if(psDroid)
+	if (psDroid)
 	{
 		psDroid->id = id;
 		addDroid(psDroid, apsDroidLists);
 
-		if(haveInitialOrders)
+		if (haveInitialOrders)
 		{
 			psDroid->secondaryOrder = initialOrders.secondaryOrder;
 			psDroid->secondaryOrderPending = psDroid->secondaryOrder;
@@ -501,13 +501,13 @@ static void NETQueuedDroidInfo(QueuedDroidInfo *info)
 	NETuint8_t(&info->player);
 	NETenum(&info->subType);
 
-	switch(info->subType)
+	switch (info->subType)
 	{
 		case ObjOrder:
 		case LocOrder:
 			NETenum(&info->order);
 
-			if(info->subType == ObjOrder)
+			if (info->subType == ObjOrder)
 			{
 				NETuint32_t(&info->destId);
 				NETenum(&info->destType);
@@ -517,18 +517,18 @@ static void NETQueuedDroidInfo(QueuedDroidInfo *info)
 				NETauto(&info->pos);
 			}
 
-			if(info->order == DORDER_BUILD || info->order == DORDER_LINEBUILD)
+			if (info->order == DORDER_BUILD || info->order == DORDER_LINEBUILD)
 			{
 				NETuint32_t(&info->structRef);
 				NETuint16_t(&info->direction);
 			}
 
-			if(info->order == DORDER_LINEBUILD)
+			if (info->order == DORDER_LINEBUILD)
 			{
 				NETauto(&info->pos2);
 			}
 
-			if(info->order == DORDER_BUILDMODULE)
+			if (info->order == DORDER_BUILDMODULE)
 			{
 				NETauto(&info->index);
 			}
@@ -551,10 +551,10 @@ void sendQueuedDroidInfo()
 
 	std::vector<QueuedDroidInfo>::iterator eqBegin, eqEnd;
 
-	for(eqBegin = queuedOrders.begin(); eqBegin != queuedOrders.end(); eqBegin = eqEnd)
+	for (eqBegin = queuedOrders.begin(); eqBegin != queuedOrders.end(); eqBegin = eqEnd)
 	{
 		// Find end of range of orders which differ only by the droid ID.
-		for(eqEnd = eqBegin + 1; eqEnd != queuedOrders.end() && eqEnd->orderCompare(*eqBegin) == 0; ++eqEnd)
+		for (eqEnd = eqBegin + 1; eqEnd != queuedOrders.end() && eqEnd->orderCompare(*eqBegin) == 0; ++eqEnd)
 		{}
 
 		NETbeginEncode(NETgameQueue(selectedPlayer), GAME_DROIDINFO);
@@ -565,7 +565,7 @@ void sendQueuedDroidInfo()
 
 		uint32_t prevDroidId = 0;
 
-		for(unsigned n = 0; n < num; ++n)
+		for (unsigned n = 0; n < num; ++n)
 		{
 			uint32_t droidId = (eqBegin + n)->droidId;
 
@@ -601,7 +601,7 @@ DROID_ORDER_DATA infoToOrderData(QueuedDroidInfo const &info, STRUCTURE_STATS co
 // Droid update information
 void sendDroidInfo(DROID *psDroid, DroidOrder const &order, bool add)
 {
-	if(!myResponsibility(psDroid->player))
+	if (!myResponsibility(psDroid->player))
 	{
 		return;
 	}
@@ -613,7 +613,7 @@ void sendDroidInfo(DROID *psDroid, DroidOrder const &order, bool add)
 	info.subType = order.psObj != nullptr ? ObjOrder : LocOrder;
 	info.order = order.type;
 
-	if(info.subType == ObjOrder)
+	if (info.subType == ObjOrder)
 	{
 		info.destId = order.psObj->id;
 		info.destType = order.psObj->type;
@@ -623,23 +623,23 @@ void sendDroidInfo(DROID *psDroid, DroidOrder const &order, bool add)
 		info.pos = order.pos;
 	}
 
-	if(order.type == DORDER_BUILD || order.type == DORDER_LINEBUILD)
+	if (order.type == DORDER_BUILD || order.type == DORDER_LINEBUILD)
 	{
 		info.structRef = order.psStats->ref;
 		info.direction = order.direction;
 
-		if(!isConstructionDroid(psDroid))
+		if (!isConstructionDroid(psDroid))
 		{
 			return;  // No point ordering things to build if they can't build anything.
 		}
 	}
 
-	if(order.type == DORDER_LINEBUILD)
+	if (order.type == DORDER_LINEBUILD)
 	{
 		info.pos2 = order.pos2;
 	}
 
-	if(order.type == DORDER_BUILDMODULE)
+	if (order.type == DORDER_BUILDMODULE)
 	{
 		info.index = order.index;
 	}
@@ -652,7 +652,7 @@ void sendDroidInfo(DROID *psDroid, DroidOrder const &order, bool add)
 	// Update pending orders, so the UI knows it happened.
 	DROID_ORDER_DATA sOrder = infoToOrderData(info, order.psStats);
 
-	if(!add)
+	if (!add)
 	{
 		psDroid->listPendingBegin = psDroid->asOrderList.size();
 	}
@@ -671,12 +671,12 @@ bool recvDroidInfo(NETQUEUE queue)
 
 		STRUCTURE_STATS *psStats = nullptr;
 
-		if(info.subType == LocOrder && (info.order == DORDER_BUILD || info.order == DORDER_LINEBUILD))
+		if (info.subType == LocOrder && (info.order == DORDER_BUILD || info.order == DORDER_LINEBUILD))
 		{
 			// Find structure target
-			for(unsigned typeIndex = 0; typeIndex < numStructureStats; typeIndex++)
+			for (unsigned typeIndex = 0; typeIndex < numStructureStats; typeIndex++)
 			{
-				if(asStructureStats[typeIndex].ref == info.structRef)
+				if (asStructureStats[typeIndex].ref == info.structRef)
 				{
 					psStats = asStructureStats + typeIndex;
 					break;
@@ -684,7 +684,7 @@ bool recvDroidInfo(NETQUEUE queue)
 			}
 		}
 
-		switch(info.subType)
+		switch (info.subType)
 		{
 			case ObjOrder:
 				syncDebug("Order=%s,%d(%d)", getDroidOrderName(info.order), info.destId, info.destType);
@@ -704,7 +704,7 @@ bool recvDroidInfo(NETQUEUE queue)
 		uint32_t num = 0;
 		NETuint32_t(&num);
 
-		for(unsigned n = 0; n < num; ++n)
+		for (unsigned n = 0; n < num; ++n)
 		{
 			// Get the next droid ID which is being given this order.
 			uint32_t deltaDroidId = 0;
@@ -713,7 +713,7 @@ bool recvDroidInfo(NETQUEUE queue)
 
 			DROID *psDroid = IdToDroid(info.droidId, info.player);
 
-			if(!psDroid)
+			if (!psDroid)
 			{
 				debug(LOG_NEVER, "Packet from %d refers to non-existent droid %u, [%s : p%d]",
 				      queue.index, info.droidId, isHumanPlayer(info.player) ? "Human" : "AI", info.player);
@@ -721,7 +721,7 @@ bool recvDroidInfo(NETQUEUE queue)
 				continue;  // Can't find the droid, so skip this droid.
 			}
 
-			if(!canGiveOrdersFor(queue.index, psDroid->player))
+			if (!canGiveOrdersFor(queue.index, psDroid->player))
 			{
 				debug(LOG_WARNING, "Droid order (by %d) for wrong player (%d).", queue.index, psDroid->player);
 				syncDebug("Wrong player.");
@@ -732,7 +732,7 @@ bool recvDroidInfo(NETQUEUE queue)
 
 			syncDebugDroid(psDroid, '<');
 
-			switch(info.subType)
+			switch (info.subType)
 			{
 				case ObjOrder:
 				case LocOrder:
@@ -741,14 +741,14 @@ bool recvDroidInfo(NETQUEUE queue)
 					* If the current order not is a command order and we are not a
 					* commander yet are in the commander group remove us from it.
 					*/
-					if(hasCommander(psDroid))
+					if (hasCommander(psDroid))
 					{
 						psDroid->psGroup->remove(psDroid);
 					}
 
-					if(sOrder.psObj != TargetMissing)   // Only do order if the target didn't die.
+					if (sOrder.psObj != TargetMissing)  // Only do order if the target didn't die.
 					{
-						if(!info.add)
+						if (!info.add)
 						{
 							orderDroidListEraseRange(psDroid, 0, psDroid->listSize + 1);  // Clear all non-pending orders, plus the first pending order (which is probably the order we just received).
 							orderDroidBase(psDroid, &sOrder);  // Execute the order immediately (even if in the middle of another order.
@@ -784,7 +784,7 @@ bool recvDroidInfo(NETQUEUE queue)
 static BASE_OBJECT *processDroidTarget(OBJECT_TYPE desttype, uint32_t destid)
 {
 	// Target is a location
-	if(destid == 0 && desttype == 0)
+	if (destid == 0 && desttype == 0)
 	{
 		return nullptr;
 	}
@@ -793,7 +793,7 @@ static BASE_OBJECT *processDroidTarget(OBJECT_TYPE desttype, uint32_t destid)
 	{
 		BASE_OBJECT *psObj = nullptr;
 
-		switch(desttype)
+		switch (desttype)
 		{
 			case OBJ_DROID:
 				psObj = IdToDroid(destid, ANYPLAYER);
@@ -818,7 +818,7 @@ static BASE_OBJECT *processDroidTarget(OBJECT_TYPE desttype, uint32_t destid)
 		}
 
 		// If we did not find anything, return
-		if(!psObj)													// failed to find it;
+		if (!psObj)													// failed to find it;
 		{
 			syncDebug("Target missing");
 			return TargetMissing;  // Can't return NULL, since then the order would still be attempted.
@@ -833,7 +833,7 @@ static BASE_OBJECT *processDroidTarget(OBJECT_TYPE desttype, uint32_t destid)
 // Inform other players that a droid has been destroyed
 bool SendDestroyDroid(const DROID *psDroid)
 {
-	if(!bMultiMessages)
+	if (!bMultiMessages)
 	{
 		return true;
 	}
@@ -863,7 +863,7 @@ bool recvDestroyDroid(NETQUEUE queue)
 		NETuint32_t(&id);
 		psDroid = IdToDroid(id, ANYPLAYER);
 
-		if(!psDroid)
+		if (!psDroid)
 		{
 			debug(LOG_DEATH, "droid %d on request from player %d can't be found? Must be dead already?",
 			      id, queue.index);
@@ -872,14 +872,14 @@ bool recvDestroyDroid(NETQUEUE queue)
 	}
 	NETend();
 
-	if(!getDebugMappingStatus() && bMultiPlayer)
+	if (!getDebugMappingStatus() && bMultiPlayer)
 	{
 		debug(LOG_WARNING, "Failed to remove droid for player %u.", NetPlay.players[queue.index].position);
 		return false;
 	}
 
 	// If the droid has not died on our machine yet, destroy it
-	if(!psDroid->died)
+	if (!psDroid->died)
 	{
 		turnOffMultiMsg(true);
 		debug(LOG_DEATH, "Killing droid %d on request from player %d - huh?", psDroid->id, queue.index);

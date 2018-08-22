@@ -94,12 +94,12 @@ static void setupLoadingScreen()
 	starsNum = boxWidth / boxHeight;
 	starHeight = 2.0 * h / 640.0;
 
-	if(!stars)
+	if (!stars)
 	{
 		stars = (STAR *)malloc(sizeof(STAR) * starsNum);
 	}
 
-	for(i = 0; i < starsNum; ++i)
+	for (i = 0; i < starsNum; ++i)
 	{
 		stars[i] = newStar();
 	}
@@ -128,15 +128,15 @@ TITLECODE titleLoop()
 	wzShowMouse(true);
 
 	// When we first init the game, firstcall is true.
-	if(firstcall)
+	if (firstcall)
 	{
 		firstcall = false;
 
 		// First check to see if --host was given as a command line option, if not,
 		// then check --join and if neither, run the normal game menu.
-		if(hostlaunch)
+		if (hostlaunch)
 		{
-			if(hostlaunch == 2)
+			if (hostlaunch == 2)
 			{
 				SPinit();
 			}
@@ -155,7 +155,7 @@ TITLECODE titleLoop()
 			game.type = SKIRMISH;
 			changeTitleMode(MULTIOPTION);
 		}
-		else if(strlen(iptoconnect))
+		else if (strlen(iptoconnect))
 		{
 			NetPlay.bComms = true; // use network = true
 			NETinit(true);
@@ -170,12 +170,12 @@ TITLECODE titleLoop()
 		wzSetCursor(CURSOR_DEFAULT);
 	}
 
-	if(titleMode != MULTIOPTION && titleMode != MULTILIMIT && titleMode != STARTGAME)
+	if (titleMode != MULTIOPTION && titleMode != MULTILIMIT && titleMode != STARTGAME)
 	{
 		screen_disableMapPreview();
 	}
 
-	switch(titleMode)  // run relevant title screen code.
+	switch (titleMode) // run relevant title screen code.
 	{
 		// MULTIPLAYER screens
 		case PROTOCOL:
@@ -252,7 +252,7 @@ TITLECODE titleLoop()
 
 		case STARTGAME:
 		case LOADSAVEGAME:
-			if(titleMode == LOADSAVEGAME)
+			if (titleMode == LOADSAVEGAME)
 			{
 				RetCode = TITLECODE_SAVEGAMELOAD;
 			}
@@ -282,7 +282,7 @@ TITLECODE titleLoop()
 	pie_SetFogStatus(false);
 	pie_ScreenFlip(CLEAR_BLACK);//title loop
 
-	if((keyDown(KEY_LALT) || keyDown(KEY_RALT)) && keyPressed(KEY_RETURN))
+	if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) && keyPressed(KEY_RETURN))
 	{
 		war_setFullscreen(!war_getFullscreen());
 		wzToggleFullscreen();
@@ -302,7 +302,7 @@ void loadingScreenCallback()
 	const uint32_t currTick = wzGetTicks();
 	unsigned int i;
 
-	if(currTick - lastTick < 50)
+	if (currTick - lastTick < 50)
 	{
 		return;
 	}
@@ -312,11 +312,11 @@ void loadingScreenCallback()
 	/* Draw the black rectangle at the bottom, with a two pixel border */
 	pie_UniTransBoxFill(barLeftX - 2, barLeftY - 2, barRightX + 2, barRightY + 2, loadingbar_background);
 
-	for(i = 1; i < starsNum; ++i)
+	for (i = 1; i < starsNum; ++i)
 	{
 		stars[i].xPos = stars[i].xPos + stars[i].speed;
 
-		if(barLeftX + stars[i].xPos >= barRightX)
+		if (barLeftX + stars[i].xPos >= barRightX)
 		{
 			stars[i] = newStar();
 			stars[i].xPos = 1;
@@ -346,9 +346,9 @@ void initLoadingScreen(bool drawbdrop)
 	// setup the callback....
 	resSetLoadCallback(loadingScreenCallback);
 
-	if(drawbdrop)
+	if (drawbdrop)
 	{
-		if(!screen_GetBackDrop())
+		if (!screen_GetBackDrop())
 		{
 			pie_LoadBackDrop(SCREEN_RANDOMBDROP);
 		}
@@ -381,7 +381,7 @@ void startCreditsScreen()
 void runCreditsScreen()
 {
 	// Check for key presses now.
-	if(keyReleased(KEY_ESC)
+	if (keyReleased(KEY_ESC)
 	        || keyReleased(KEY_SPACE)
 	        || mouseReleased(MOUSE_LMB)
 	        || gameTime - lastChange > 4000)
@@ -396,7 +396,7 @@ void runCreditsScreen()
 // shut down the loading screen
 void closeLoadingScreen()
 {
-	if(stars)
+	if (stars)
 	{
 		free(stars);
 		stars = nullptr;
@@ -413,12 +413,12 @@ void closeLoadingScreen()
 
 bool displayGameOver(bool bDidit, bool showBackDrop)
 {
-	if(bDidit)
+	if (bDidit)
 	{
 		setPlayerHasWon(true);
 		multiplayerWinSequence(true);
 
-		if(bMultiPlayer)
+		if (bMultiPlayer)
 		{
 			updateMultiStatsWins();
 		}
@@ -427,13 +427,13 @@ bool displayGameOver(bool bDidit, bool showBackDrop)
 	{
 		setPlayerHasLost(true);
 
-		if(bMultiPlayer)
+		if (bMultiPlayer)
 		{
 			updateMultiStatsLoses();
 		}
 	}
 
-	if(bMultiPlayer)
+	if (bMultiPlayer)
 	{
 		PLAYERSTATS st = getMultiStats(selectedPlayer);
 		saveMultiStats(getPlayerName(selectedPlayer), getPlayerName(selectedPlayer), &st);

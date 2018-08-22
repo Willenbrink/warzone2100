@@ -135,7 +135,7 @@ bool drawRangeElementsStarted = false;
 /// Pass all remaining triangles to OpenGL
 static void finishDrawRangeElements()
 {
-	if(drawRangeElementsStarted && dreCount > 0)
+	if (drawRangeElementsStarted && dreCount > 0)
 	{
 		ASSERT(dreEnd - dreStart + 1 <= GLmaxElementsVertices, "too many vertices (%i)", (int)(dreEnd - dreStart + 1));
 		ASSERT(dreCount <= GLmaxElementsIndices, "too many indices (%i)", (int)dreCount);
@@ -164,17 +164,17 @@ static void addDrawRangeElements(GLenum mode,
 	ASSERT(mode == GL_TRIANGLES, "not supported");
 	ASSERT(type == GL_UNSIGNED_INT, "not supported");
 
-	if(end - start + 1 > GLmaxElementsVertices)
+	if (end - start + 1 > GLmaxElementsVertices)
 	{
 		debug(LOG_WARNING, "A single call provided too much vertices, will operate at reduced performance or crash. Decrease the sector size to fix this.");
 	}
 
-	if(count > GLmaxElementsIndices)
+	if (count > GLmaxElementsIndices)
 	{
 		debug(LOG_WARNING, "A single call provided too much indices, will operate at reduced performance or crash. Decrease the sector size to fix this.");
 	}
 
-	if(!drawRangeElementsStarted)
+	if (!drawRangeElementsStarted)
 	{
 		dreStart  = start;
 		dreEnd    = end;
@@ -186,7 +186,7 @@ static void addDrawRangeElements(GLenum mode,
 
 	// check if we can append theoretically and
 	// check if this will not go over the bounds advised by the opengl implementation
-	if(dreOffset + dreCount != offset ||
+	if (dreOffset + dreCount != offset ||
 	        dreCount + count > GLmaxElementsIndices ||
 	        end - dreStart + 1 > GLmaxElementsVertices)
 	{
@@ -236,7 +236,7 @@ static Vector2f getTileTexCoords(Vector2f *uv, unsigned int tileNumber)
 	float texsize = (float)getTextureSize();
 
 	// the decals are 128x128 (at this time), we should not go above this value.  See note above
-	if(texsize > MAX_TILE_TEXTURE_SIZE)
+	if (texsize > MAX_TILE_TEXTURE_SIZE)
 	{
 		texsize = MAX_TILE_TEXTURE_SIZE;
 	}
@@ -255,13 +255,13 @@ static Vector2f getTileTexCoords(Vector2f *uv, unsigned int tileNumber)
 	Vector2f sP3 { xMult - one, yMult - one };
 	Vector2f sP4 { one, yMult - one };
 
-	if(texture & TILE_XFLIP)
+	if (texture & TILE_XFLIP)
 	{
 		std::swap(sP1, sP2);
 		std::swap(sP3, sP4);
 	}
 
-	if(texture & TILE_YFLIP)
+	if (texture & TILE_YFLIP)
 	{
 		std::swap(sP1, sP4);
 		std::swap(sP2, sP3);
@@ -269,7 +269,7 @@ static Vector2f getTileTexCoords(Vector2f *uv, unsigned int tileNumber)
 
 	Vector2f sPTemp;
 
-	switch((texture & TILE_ROTMASK) >> TILE_ROTSHIFT)
+	switch ((texture & TILE_ROTMASK) >> TILE_ROTSHIFT)
 	{
 		case 1:
 			sPTemp = sP1;
@@ -330,7 +330,7 @@ static bool isWater(int x, int y)
 /// Get the position of a grid point
 static void getGridPos(Vector3i *result, int x, int y, bool center, bool water)
 {
-	if(center)
+	if (center)
 	{
 		Vector3i a, b, c, d;
 		getGridPos(&a, x, y, false, water);
@@ -344,7 +344,7 @@ static void getGridPos(Vector3i *result, int x, int y, bool center, bool water)
 	result->x = world_coord(x);
 	result->z = world_coord(-y);
 
-	if(x <= 0 || y <= 0 || x >= mapWidth || y >= mapHeight)
+	if (x <= 0 || y <= 0 || x >= mapWidth || y >= mapHeight)
 	{
 		result->y = 0;
 	}
@@ -352,7 +352,7 @@ static void getGridPos(Vector3i *result, int x, int y, bool center, bool water)
 	{
 		result->y = map_TileHeight(x, y);
 
-		if(water)
+		if (water)
 		{
 			result->y = map_WaterHeight(x, y);
 		}
@@ -379,9 +379,9 @@ static void setSectorGeometry(int x, int y,
 	Vector3i pos;
 	int i, j;
 
-	for(i = 0; i < sectorSize + 1; i++)
+	for (i = 0; i < sectorSize + 1; i++)
 	{
-		for(j = 0; j < sectorSize + 1; j++)
+		for (j = 0; j < sectorSize + 1; j++)
 		{
 			// set up geometry
 			getGridPos(&pos, i + x * sectorSize, j + y * sectorSize, false, false);
@@ -421,16 +421,16 @@ static void setSectorDecals(int x, int y, DecalVertex *decaldata, int *decalSize
 	int a, b;
 	int i, j;
 
-	for(i = x * sectorSize; i < x * sectorSize + sectorSize; i++)
+	for (i = x * sectorSize; i < x * sectorSize + sectorSize; i++)
 	{
-		for(j = y * sectorSize; j < y * sectorSize + sectorSize; j++)
+		for (j = y * sectorSize; j < y * sectorSize + sectorSize; j++)
 		{
-			if(i < 0 || j < 0 || i >= mapWidth || j >= mapHeight)
+			if (i < 0 || j < 0 || i >= mapWidth || j >= mapHeight)
 			{
 				continue;
 			}
 
-			if(TILE_HAS_DECAL(mapTile(i, j)))
+			if (TILE_HAS_DECAL(mapTile(i, j)))
 			{
 				center = getTileTexCoords(*uv, mapTile(i, j)->texture);
 
@@ -533,7 +533,7 @@ static void updateSectorGeometry(int x, int y)
 	free(geometry);
 	free(water);
 
-	if(sectors[x * ySectors + y].decalSize <= 0)
+	if (sectors[x * ySectors + y].decalSize <= 0)
 	{
 		// Nothing to do here, and glBufferSubData(GL_ARRAY_BUFFER, 0, 0, *) crashes in my graphics driver. Probably shouldn't crash...
 		return;
@@ -560,7 +560,7 @@ void markTileDirty(int i, int j)
 {
 	int x, y;
 
-	if(!terrainInitialised)
+	if (!terrainInitialised)
 	{
 		return; // will be updated anyway
 	}
@@ -568,31 +568,31 @@ void markTileDirty(int i, int j)
 	x = i / sectorSize;
 	y = j / sectorSize;
 
-	if(x < xSectors && y < ySectors)  // could be on the lower or left edge of the map
+	if (x < xSectors && y < ySectors) // could be on the lower or left edge of the map
 	{
 		sectors[x * ySectors + y].dirty = true;
 	}
 
 	// it could be on an edge, so update for all sectors it is in
-	if(x * sectorSize == i && x > 0)
+	if (x * sectorSize == i && x > 0)
 	{
-		if(x - 1 < xSectors && y < ySectors)
+		if (x - 1 < xSectors && y < ySectors)
 		{
 			sectors[(x - 1)*ySectors + y].dirty = true;
 		}
 	}
 
-	if(y * sectorSize == j && y > 0)
+	if (y * sectorSize == j && y > 0)
 	{
-		if(x < xSectors && y - 1 < ySectors)
+		if (x < xSectors && y - 1 < ySectors)
 		{
 			sectors[x * ySectors + (y - 1)].dirty = true;
 		}
 	}
 
-	if(x * sectorSize == i && x > 0 && y * sectorSize == j && y > 0)
+	if (x * sectorSize == i && x > 0 && y * sectorSize == j && y > 0)
 	{
-		if(x - 1 < xSectors && y - 1 < ySectors)
+		if (x - 1 < xSectors && y - 1 < ySectors)
 		{
 			sectors[(x - 1)*ySectors + (y - 1)].dirty = true;
 		}
@@ -639,21 +639,21 @@ bool initTerrain()
 	debug(LOG_TERRAIN, "maximum sector size due to vertices: %i", maxSectorSizeVertices);
 	debug(LOG_TERRAIN, "maximum sector size due to indices: %i", maxSectorSizeIndices);
 
-	if(sectorSize > maxSectorSizeVertices)
+	if (sectorSize > maxSectorSizeVertices)
 	{
 		sectorSize = maxSectorSizeVertices;
 		decreasedSize = true;
 	}
 
-	if(sectorSize > maxSectorSizeIndices)
+	if (sectorSize > maxSectorSizeIndices)
 	{
 		sectorSize = maxSectorSizeIndices;
 		decreasedSize = true;
 	}
 
-	if(decreasedSize)
+	if (decreasedSize)
 	{
-		if(sectorSize < 1)
+		if (sectorSize < 1)
 		{
 			debug(LOG_WARNING, "GL_MAX_ELEMENTS_VERTICES: %i", (int)GLmaxElementsVertices);
 			debug(LOG_WARNING, "GL_MAX_ELEMENTS_INDICES:  %i", (int)GLmaxElementsIndices);
@@ -692,9 +692,9 @@ bool initTerrain()
 	waterSize = 0;
 	waterIndexSize = 0;
 
-	for(x = 0; x < xSectors; x++)
+	for (x = 0; x < xSectors; x++)
 	{
-		for(y = 0; y < ySectors; y++)
+		for (y = 0; y < ySectors; y++)
 		{
 			sectors[x * ySectors + y].dirty = false;
 			sectors[x * ySectors + y].geometryOffset = geometrySize;
@@ -712,11 +712,11 @@ bool initTerrain()
 			sectors[x * ySectors + y].waterIndexOffset = waterIndexSize;
 			sectors[x * ySectors + y].waterIndexSize = 0;
 
-			for(i = 0; i < sectorSize; i++)
+			for (i = 0; i < sectorSize; i++)
 			{
-				for(j = 0; j < sectorSize; j++)
+				for (j = 0; j < sectorSize; j++)
 				{
-					if(x * sectorSize + i >= mapWidth || y * sectorSize + j >= mapHeight)
+					if (x * sectorSize + i >= mapWidth || y * sectorSize + j >= mapHeight)
 					{
 						continue; // off map, so skip
 					}
@@ -751,7 +751,7 @@ bool initTerrain()
 					geometryIndex[geometryIndexSize + 11] = q(i + 1, j + 1, 0);	// Top right
 					geometryIndexSize += 12;
 
-					if(isWater(i + x * sectorSize, j + y * sectorSize))
+					if (isWater(i + x * sectorSize, j + y * sectorSize))
 					{
 						waterIndex[waterIndexSize + 0]  = q(i, j, 1);
 						waterIndex[waterIndexSize + 1]  = q(i, j, 0);
@@ -778,28 +778,28 @@ bool initTerrain()
 		}
 	}
 
-	if(geometryVBO)
+	if (geometryVBO)
 		delete geometryVBO;
 
 	geometryVBO = gfx_api::context::get().create_buffer_object(gfx_api::buffer::usage::vertex_buffer, gfx_api::context::buffer_storage_hint::dynamic_draw);
 	geometryVBO->upload(sizeof(RenderVertex)*geometrySize, geometry);
 	free(geometry);
 
-	if(geometryIndexVBO)
+	if (geometryIndexVBO)
 		delete geometryIndexVBO;
 
 	geometryIndexVBO = gfx_api::context::get().create_buffer_object(gfx_api::buffer::usage::index_buffer);
 	geometryIndexVBO->upload(sizeof(GLuint)*geometryIndexSize, geometryIndex);
 	free(geometryIndex);
 
-	if(waterVBO)
+	if (waterVBO)
 		delete waterVBO;
 
 	waterVBO = gfx_api::context::get().create_buffer_object(gfx_api::buffer::usage::vertex_buffer, gfx_api::context::buffer_storage_hint::dynamic_draw);
 	waterVBO->upload(sizeof(RenderVertex)*waterSize, water);
 	free(water);
 
-	if(waterIndexVBO)
+	if (waterIndexVBO)
 		delete waterIndexVBO;
 
 	waterIndexVBO = gfx_api::context::get().create_buffer_object(gfx_api::buffer::usage::index_buffer);
@@ -815,13 +815,13 @@ bool initTerrain()
 	textureSize = 0;
 	textureIndexSize = 0;
 
-	for(layer = 0; layer < numGroundTypes; layer++)
+	for (layer = 0; layer < numGroundTypes; layer++)
 	{
-		for(x = 0; x < xSectors; x++)
+		for (x = 0; x < xSectors; x++)
 		{
-			for(y = 0; y < ySectors; y++)
+			for (y = 0; y < ySectors; y++)
 			{
-				if(layer == 0)
+				if (layer == 0)
 				{
 					sectors[x * ySectors + y].textureOffset = (int *)malloc(sizeof(int) * numGroundTypes);
 					sectors[x * ySectors + y].textureSize = (int *)malloc(sizeof(int) * numGroundTypes);
@@ -835,17 +835,17 @@ bool initTerrain()
 				sectors[x * ySectors + y].textureIndexSize[layer] = 0;
 
 				//debug(LOG_WARNING, "offset when filling %i: %i", layer, xSectors*ySectors*(sectorSize+1)*(sectorSize+1)*2*layer);
-				for(i = 0; i < sectorSize + 1; i++)
+				for (i = 0; i < sectorSize + 1; i++)
 				{
-					for(j = 0; j < sectorSize + 1; j++)
+					for (j = 0; j < sectorSize + 1; j++)
 					{
 						bool draw = false;
 						bool off_map;
 
 						// set transparency
-						for(a = 0; a < 2; a++)
+						for (a = 0; a < 2; a++)
 						{
-							for(b = 0; b < 2; b++)
+							for (b = 0; b < 2; b++)
 							{
 								absX = x * sectorSize + i + a;
 								absY = y * sectorSize + j + b;
@@ -854,29 +854,29 @@ bool initTerrain()
 								// extend the terrain type for the bottom and left edges of the map
 								off_map = false;
 
-								if(absX == mapWidth)
+								if (absX == mapWidth)
 								{
 									off_map = true;
 									absX--;
 								}
 
-								if(absY == mapHeight)
+								if (absY == mapHeight)
 								{
 									off_map = true;
 									absY--;
 								}
 
-								if(absX < 0 || absY < 0 || absX >= mapWidth || absY >= mapHeight)
+								if (absX < 0 || absY < 0 || absX >= mapWidth || absY >= mapHeight)
 								{
 									// not on the map, so don't draw
 									continue;
 								}
 
-								if(mapTile(absX, absY)->ground == layer)
+								if (mapTile(absX, absY)->ground == layer)
 								{
 									colour[a][b].rgba = 0xFFFFFFFF;
 
-									if(!off_map)
+									if (!off_map)
 									{
 										// if this point lies on the edge is may not force this tile to be drawn
 										// otherwise this will give a bright line when fog is enabled
@@ -891,7 +891,7 @@ bool initTerrain()
 						texture[xSectors * ySectors * (sectorSize + 1) * (sectorSize + 1) * 2 * layer + ((x * ySectors + y) * (sectorSize + 1) * (sectorSize + 1) * 2 + (i * (sectorSize + 1) + j) * 2 + 1)].rgba = centerColour.rgba;
 						textureSize += 2;
 
-						if((draw) && i < sectorSize && j < sectorSize)
+						if ((draw) && i < sectorSize && j < sectorSize)
 						{
 							textureIndex[textureIndexSize + 0]  = q(i, j, 1);
 							textureIndex[textureIndexSize + 1]  = q(i, j, 0);
@@ -920,14 +920,14 @@ bool initTerrain()
 		}
 	}
 
-	if(textureVBO)
+	if (textureVBO)
 		delete textureVBO;
 
 	textureVBO = gfx_api::context::get().create_buffer_object(gfx_api::buffer::usage::vertex_buffer);
 	textureVBO->upload(sizeof(PIELIGHT)*xSectors * ySectors * (sectorSize + 1) * (sectorSize + 1) * 2 * numGroundTypes, texture);
 	free(texture);
 
-	if(textureIndexVBO)
+	if (textureIndexVBO)
 		delete textureIndexVBO;
 
 	textureIndexVBO = gfx_api::context::get().create_buffer_object(gfx_api::buffer::usage::index_buffer);
@@ -939,9 +939,9 @@ bool initTerrain()
 	decaldata = (DecalVertex *)malloc(sizeof(DecalVertex) * mapWidth * mapHeight * 12);
 	decalSize = 0;
 
-	for(x = 0; x < xSectors; x++)
+	for (x = 0; x < xSectors; x++)
 	{
-		for(y = 0; y < ySectors; y++)
+		for (y = 0; y < ySectors; y++)
 		{
 			sectors[x * ySectors + y].decalOffset = decalSize;
 			sectors[x * ySectors + y].decalSize = 0;
@@ -952,7 +952,7 @@ bool initTerrain()
 
 	debug(LOG_TERRAIN, "%i decals found", decalSize / 12);
 
-	if(decalVBO)
+	if (decalVBO)
 		delete decalVBO;
 
 	decalVBO = gfx_api::context::get().create_buffer_object(gfx_api::buffer::usage::vertex_buffer, gfx_api::context::buffer_storage_hint::dynamic_draw);
@@ -966,9 +966,9 @@ bool initTerrain()
 	lightmapHeight = 1;
 
 	// determine the smallest power-of-two size we can use for the lightmap
-	while(mapWidth > (lightmapWidth <<= 1)) {}
+	while (mapWidth > (lightmapWidth <<= 1)) {}
 
-	while(mapHeight > (lightmapHeight <<= 1)) {}
+	while (mapHeight > (lightmapHeight <<= 1)) {}
 
 	debug(LOG_TERRAIN, "the size of the map is %ix%i", mapWidth, mapHeight);
 	debug(LOG_TERRAIN, "lightmap texture size is %ix%i", lightmapWidth, lightmapHeight);
@@ -976,14 +976,14 @@ bool initTerrain()
 	// Prepare the lightmap pixmap and texture
 	lightmapPixmap = (GLubyte *)calloc(lightmapWidth * lightmapHeight, 3 * sizeof(GLubyte));
 
-	if(lightmapPixmap == nullptr)
+	if (lightmapPixmap == nullptr)
 	{
 		debug(LOG_FATAL, "Out of memory!");
 		abort();
 		return false;
 	}
 
-	if(lightmap_tex_num)
+	if (lightmap_tex_num)
 		delete lightmap_tex_num;
 
 	lightmap_tex_num = gfx_api::context::get().create_texture(lightmapWidth, lightmapHeight, gfx_api::pixel_format::rgb);
@@ -1007,7 +1007,7 @@ bool initTerrain()
 /// free all memory and opengl buffers used by the terrain renderer
 void shutdownTerrain()
 {
-	if(!sectors)
+	if (!sectors)
 	{
 		// This happens in some cases when loading a savegame from level init
 		debug(LOG_ERROR, "Trying to shutdown terrain when we did not need to!");
@@ -1029,9 +1029,9 @@ void shutdownTerrain()
 	delete decalVBO;
 	decalVBO = nullptr;
 
-	for(int x = 0; x < xSectors; x++)
+	for (int x = 0; x < xSectors; x++)
 	{
-		for(int y = 0; y < ySectors; y++)
+		for (int y = 0; y < ySectors; y++)
 		{
 			free(sectors[x * ySectors + y].textureOffset);
 			free(sectors[x * ySectors + y].textureSize);
@@ -1052,19 +1052,19 @@ void shutdownTerrain()
 
 static void updateLightMap()
 {
-	for(int j = 0; j < mapHeight; ++j)
+	for (int j = 0; j < mapHeight; ++j)
 	{
-		for(int i = 0; i < mapWidth; ++i)
+		for (int i = 0; i < mapWidth; ++i)
 		{
 			MAPTILE *psTile = mapTile(i, j);
 			PIELIGHT colour = psTile->colour;
 
-			if(psTile->tileInfoBits & BITS_GATEWAY && showGateways)
+			if (psTile->tileInfoBits & BITS_GATEWAY && showGateways)
 			{
 				colour.byte.g = 255;
 			}
 
-			if(psTile->tileInfoBits & BITS_MARKED)
+			if (psTile->tileInfoBits & BITS_MARKED)
 			{
 				int m = getModularScaledGraphicsTime(2048, 255);
 				colour.byte.r = MAX(m, 255 - m);
@@ -1074,7 +1074,7 @@ static void updateLightMap()
 			lightmapPixmap[(i + j * lightmapWidth) * 3 + 1] = colour.byte.g;
 			lightmapPixmap[(i + j * lightmapWidth) * 3 + 2] = colour.byte.b;
 
-			if(!pie_GetFogStatus())
+			if (!pie_GetFogStatus())
 			{
 				// fade to black at the edges of the visible terrain area
 				const float playerX = map_coordf(player.p.x);
@@ -1090,30 +1090,30 @@ static void updateLightMap()
 				// determine the smallest distance
 				distToEdge = distA;
 
-				if(distB < distToEdge)
+				if (distB < distToEdge)
 				{
 					distToEdge = distB;
 				}
 
-				if(distC < distToEdge)
+				if (distC < distToEdge)
 				{
 					distToEdge = distC;
 				}
 
-				if(distD < distToEdge)
+				if (distD < distToEdge)
 				{
 					distToEdge = distD;
 				}
 
 				darken = (distToEdge) / 2.0f;
 
-				if(darken <= 0)
+				if (darken <= 0)
 				{
 					lightmapPixmap[(i + j * lightmapWidth) * 3 + 0] = 0;
 					lightmapPixmap[(i + j * lightmapWidth) * 3 + 1] = 0;
 					lightmapPixmap[(i + j * lightmapWidth) * 3 + 2] = 0;
 				}
-				else if(darken < 1)
+				else if (darken < 1)
 				{
 					lightmapPixmap[(i + j * lightmapWidth) * 3 + 0] *= darken;
 					lightmapPixmap[(i + j * lightmapWidth) * 3 + 1] *= darken;
@@ -1126,15 +1126,15 @@ static void updateLightMap()
 
 static void cullTerrain()
 {
-	for(int x = 0; x < xSectors; x++)
+	for (int x = 0; x < xSectors; x++)
 	{
-		for(int y = 0; y < ySectors; y++)
+		for (int y = 0; y < ySectors; y++)
 		{
 			float xPos = world_coord(x * sectorSize + sectorSize / 2);
 			float yPos = world_coord(y * sectorSize + sectorSize / 2);
 			float distance = pow(player.p.x - xPos, 2) + pow(player.p.z - yPos, 2);
 
-			if(distance > pow((double)world_coord(terrainDistance), 2))
+			if (distance > pow((double)world_coord(terrainDistance), 2))
 			{
 				sectors[x * ySectors + y].draw = false;
 			}
@@ -1142,7 +1142,7 @@ static void cullTerrain()
 			{
 				sectors[x * ySectors + y].draw = true;
 
-				if(sectors[x * ySectors + y].dirty)
+				if (sectors[x * ySectors + y].dirty)
 				{
 					updateSectorGeometry(x, y);
 					sectors[x * ySectors + y].dirty = false;
@@ -1159,7 +1159,7 @@ static void drawDepthOnly(const glm::mat4 &ModelViewProjection, const glm::vec4 
 	pie_SetRendMode(REND_OPAQUE);
 
 	// we only draw in the depth buffer of using fog of war, as the clear color is black then
-	if(!pie_GetFogStatus())
+	if (!pie_GetFogStatus())
 	{
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	}
@@ -1176,11 +1176,11 @@ static void drawDepthOnly(const glm::mat4 &ModelViewProjection, const glm::vec4 
 	glVertexAttribPointer(program.locVertex, 3, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), BUFFER_OFFSET(0));
 	glEnableVertexAttribArray(program.locVertex);
 
-	for(int x = 0; x < xSectors; x++)
+	for (int x = 0; x < xSectors; x++)
 	{
-		for(int y = 0; y < ySectors; y++)
+		for (int y = 0; y < ySectors; y++)
 		{
-			if(sectors[x * ySectors + y].draw)
+			if (sectors[x * ySectors + y].draw)
 			{
 				addDrawRangeElements(GL_TRIANGLES,
 				                     sectors[x * ySectors + y].geometryOffset,
@@ -1196,7 +1196,7 @@ static void drawDepthOnly(const glm::mat4 &ModelViewProjection, const glm::vec4 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	if(!pie_GetFogStatus())
+	if (!pie_GetFogStatus())
 	{
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
@@ -1237,7 +1237,7 @@ static void drawTerrainLayers(const glm::mat4 &ModelViewProjection, const glm::v
 	ASSERT_OR_RETURN(, psGroundTypes, "Ground type was not set, no textures will be seen.");
 
 	// draw each layer separately
-	for(int layer = 0; layer < numGroundTypes; layer++)
+	for (int layer = 0; layer < numGroundTypes; layer++)
 	{
 		const glm::vec4 paramsX(0, 0, -1.0f / world_coord(psGroundTypes[layer].textureSize), 0);
 		const glm::vec4 paramsY(1.0f / world_coord(psGroundTypes[layer].textureSize), 0, 0, 0);
@@ -1254,11 +1254,11 @@ static void drawTerrainLayers(const glm::mat4 &ModelViewProjection, const glm::v
 		glVertexAttribPointer(program.locColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(PIELIGHT), BUFFER_OFFSET(sizeof(PIELIGHT)*xSectors * ySectors * (sectorSize + 1) * (sectorSize + 1) * 2 * layer));
 		glEnableVertexAttribArray(program.locColor);
 
-		for(int x = 0; x < xSectors; x++)
+		for (int x = 0; x < xSectors; x++)
 		{
-			for(int y = 0; y < ySectors; y++)
+			for (int y = 0; y < ySectors; y++)
 			{
-				if(sectors[x * ySectors + y].draw)
+				if (sectors[x * ySectors + y].draw)
 				{
 					addDrawRangeElements(GL_TRIANGLES,
 					                     sectors[x * ySectors + y].geometryOffset,
@@ -1310,11 +1310,11 @@ static void drawDecals(const glm::mat4 &ModelViewProjection, const glm::vec4 &pa
 	int size = 0;
 	int offset = 0;
 
-	for(int x = 0; x < xSectors; x++)
+	for (int x = 0; x < xSectors; x++)
 	{
-		for(int y = 0; y < ySectors + 1; y++)
+		for (int y = 0; y < ySectors + 1; y++)
 		{
-			if(y < ySectors && offset + size == sectors[x * ySectors + y].decalOffset && sectors[x * ySectors + y].draw)
+			if (y < ySectors && offset + size == sectors[x * ySectors + y].decalOffset && sectors[x * ySectors + y].draw)
 			{
 				// append
 				size += sectors[x * ySectors + y].decalSize;
@@ -1322,14 +1322,14 @@ static void drawDecals(const glm::mat4 &ModelViewProjection, const glm::vec4 &pa
 			}
 
 			// can't append, so draw what we have and start anew
-			if(size > 0)
+			if (size > 0)
 			{
 				glDrawArrays(GL_TRIANGLES, offset, size);
 			}
 
 			size = 0;
 
-			if(y < ySectors && sectors[x * ySectors + y].draw)
+			if (y < ySectors && sectors[x * ySectors + y].draw)
 			{
 				offset = sectors[x * ySectors + y].decalOffset;
 				size = sectors[x * ySectors + y].decalSize;
@@ -1361,7 +1361,7 @@ void drawTerrain(const glm::mat4 &mvp)
 	lightmap_tex_num->bind();
 
 	// we limit the framerate of the lightmap, because updating a texture is an expensive operation
-	if(realTime - lightmapLastUpdate >= LIGHTMAP_REFRESH)
+	if (realTime - lightmapLastUpdate >= LIGHTMAP_REFRESH)
 	{
 		lightmapLastUpdate = realTime;
 		updateLightMap();
@@ -1438,11 +1438,11 @@ void drawWater(const glm::mat4 &viewMatrix)
 	glVertexAttribPointer(program.locVertex, 3, GL_FLOAT, GL_FALSE, sizeof(RenderVertex), BUFFER_OFFSET(0));
 	glEnableVertexAttribArray(program.locVertex);
 
-	for(x = 0; x < xSectors; x++)
+	for (x = 0; x < xSectors; x++)
 	{
-		for(y = 0; y < ySectors; y++)
+		for (y = 0; y < ySectors; y++)
 		{
-			if(sectors[x * ySectors + y].draw)
+			if (sectors[x * ySectors + y].draw)
 			{
 				addDrawRangeElements(GL_TRIANGLES,
 				                     sectors[x * ySectors + y].geometryOffset,
@@ -1461,7 +1461,7 @@ void drawWater(const glm::mat4 &viewMatrix)
 	glDisableVertexAttribArray(program.locVertex);
 
 	// move the water
-	if(!gamePaused())
+	if (!gamePaused())
 	{
 		waterOffset += graphicsTimeAdjustedIncrement(0.1f);
 	}

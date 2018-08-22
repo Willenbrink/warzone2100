@@ -53,10 +53,10 @@ void renderResearchToBuffer(RESEARCH *psResearch, UDWORD OriginX, UDWORD OriginY
 	Vector3i Rotation = Vector3i(-30, angle, 0);
 
 	//draw the IMD for the research
-	if(psResearch->psStat)
+	if (psResearch->psStat)
 	{
 		//we have a Stat associated with this research topic
-		if(StatIsStructure(psResearch->psStat))
+		if (StatIsStructure(psResearch->psStat))
 		{
 			//this defines how the button is drawn
 			IMDType = IMDTYPE_STRUCTURESTAT;
@@ -64,20 +64,20 @@ void renderResearchToBuffer(RESEARCH *psResearch, UDWORD OriginX, UDWORD OriginY
 			//set up the scale
 			unsigned basePlateSize = getStructureStatSizeMax((STRUCTURE_STATS *)psResearch->psStat);
 
-			if(basePlateSize == 1)
+			if (basePlateSize == 1)
 			{
 				scale = RESEARCH_COMPONENT_SCALE / 2;
 
 				/*HACK HACK HACK!
 				if its a 'tall thin (ie tower)' structure stat with something on
 				the top - offset the position to show the object on top*/
-				if(((STRUCTURE_STATS *)psResearch->psStat)->pIMD[0]->nconnectors &&
+				if (((STRUCTURE_STATS *)psResearch->psStat)->pIMD[0]->nconnectors &&
 				        getStructureStatHeight((STRUCTURE_STATS *)psResearch->psStat) > TOWER_HEIGHT)
 				{
 					Position.y -= 30;
 				}
 			}
-			else if(basePlateSize == 2)
+			else if (basePlateSize == 2)
 			{
 				scale = RESEARCH_COMPONENT_SCALE / 4;
 			}
@@ -90,18 +90,18 @@ void renderResearchToBuffer(RESEARCH *psResearch, UDWORD OriginX, UDWORD OriginY
 		{
 			unsigned compID = StatIsComponent(psResearch->psStat);
 
-			if(compID != COMP_NUMCOMPONENTS)
+			if (compID != COMP_NUMCOMPONENTS)
 			{
 				//this defines how the button is drawn
 				IMDType = IMDTYPE_COMPONENT;
 				psResGraphic = psResearch->psStat;
 
 				// FIXME: Another kludge to deal with the superTransport to make it "fit" the display.
-				if(psResearch->id.compare("R-SuperTransport") == 0)
+				if (psResearch->id.compare("R-SuperTransport") == 0)
 				{
 					scale = RESEARCH_COMPONENT_SCALE / 3;
 				}
-				else if(psResearch->id.compare("R-Cyborg-Transport") == 0)
+				else if (psResearch->id.compare("R-Cyborg-Transport") == 0)
 				{
 					scale = RESEARCH_COMPONENT_SCALE / 2;
 				}
@@ -126,19 +126,19 @@ void renderResearchToBuffer(RESEARCH *psResearch, UDWORD OriginX, UDWORD OriginY
 	}
 
 	//scale the research according to size of IMD
-	if(IMDType == IMDTYPE_RESEARCH)
+	if (IMDType == IMDTYPE_RESEARCH)
 	{
 		unsigned Radius = getResearchRadius((BASE_STATS *)psResGraphic);
 
-		if(Radius <= 100)
+		if (Radius <= 100)
 		{
 			scale = RESEARCH_COMPONENT_SCALE / 2;
 		}
-		else if(Radius <= 128)
+		else if (Radius <= 128)
 		{
 			scale = RESEARCH_COMPONENT_SCALE / 3;
 		}
-		else if(Radius <= 256)
+		else if (Radius <= 256)
 		{
 			scale = RESEARCH_COMPONENT_SCALE / 4;
 		}
@@ -149,15 +149,15 @@ void renderResearchToBuffer(RESEARCH *psResearch, UDWORD OriginX, UDWORD OriginY
 	}
 
 	/* display the IMDs */
-	if(IMDType == IMDTYPE_COMPONENT)
+	if (IMDType == IMDTYPE_COMPONENT)
 	{
 		displayComponentButton(psResGraphic, &Rotation, &Position, scale);
 	}
-	else if(IMDType == IMDTYPE_RESEARCH)
+	else if (IMDType == IMDTYPE_RESEARCH)
 	{
 		displayResearchButton(psResGraphic, &Rotation, &Position, scale);
 	}
-	else if(IMDType == IMDTYPE_STRUCTURESTAT)
+	else if (IMDType == IMDTYPE_STRUCTURESTAT)
 	{
 		displayStructureStatButton((STRUCTURE_STATS *)psResGraphic, &Rotation, &Position, scale);
 	}

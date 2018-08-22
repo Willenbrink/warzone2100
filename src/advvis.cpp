@@ -47,23 +47,23 @@ void	avUpdateTiles()
 	MAPTILE *psTile;
 
 	/* Go through the tiles */
-	for(psTile = psMapTiles; i < len; i++)
+	for (psTile = psMapTiles; i < len; i++)
 	{
 		maxLevel = psTile->illumination;
 
-		if(psTile->level > MIN_ILLUM || psTile->tileExploredBits & playermask)	// seen
+		if (psTile->level > MIN_ILLUM || psTile->tileExploredBits & playermask)	// seen
 		{
 			// If we are not omniscient, and we are not seeing the tile, and none of our allies see the tile...
-			if(!godMode && !(alliancebits[selectedPlayer] & (satuplinkbits | psTile->sensorBits)))
+			if (!godMode && !(alliancebits[selectedPlayer] & (satuplinkbits | psTile->sensorBits)))
 			{
 				maxLevel /= 2;
 			}
 
-			if(psTile->level > maxLevel)
+			if (psTile->level > maxLevel)
 			{
 				psTile->level = MAX(psTile->level - increment, maxLevel);
 			}
-			else if(psTile->level < maxLevel)
+			else if (psTile->level < maxLevel)
 			{
 				psTile->level = MIN(psTile->level + increment, maxLevel);
 			}
@@ -80,7 +80,7 @@ UDWORD	avGetObjLightLevel(BASE_OBJECT *psObj, UDWORD origLevel)
 	unsigned int lowest = origLevel / START_DIVIDE;
 	unsigned int newLevel = div * origLevel;
 
-	if(newLevel < lowest)
+	if (newLevel < lowest)
 	{
 		newLevel = lowest;
 	}
@@ -104,14 +104,14 @@ void	setRevealStatus(bool val)
 // ------------------------------------------------------------------------------------
 void	preProcessVisibility()
 {
-	for(int i = 0; i < mapWidth; i++)
+	for (int i = 0; i < mapWidth; i++)
 	{
-		for(int j = 0; j < mapHeight; j++)
+		for (int j = 0; j < mapHeight; j++)
 		{
 			MAPTILE *psTile = mapTile(i, j);
 			psTile->level = bRevealActive ? MIN(MIN_ILLUM, psTile->illumination / 4.0f) : 0;
 
-			if(TEST_TILE_VISIBLE(selectedPlayer, psTile))
+			if (TEST_TILE_VISIBLE(selectedPlayer, psTile))
 			{
 				psTile->level = psTile->illumination;
 			}

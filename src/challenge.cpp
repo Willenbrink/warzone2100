@@ -94,7 +94,7 @@ void updateChallenge(bool gameWon)
 	fStr = strrchr(sRequestResult, '/');
 	fStr++;	// skip slash
 
-	if(*fStr == '\0')
+	if (*fStr == '\0')
 	{
 		debug(LOG_ERROR, "Bad path to challenge file (%s)", sRequestResult);
 		return;
@@ -109,7 +109,7 @@ void updateChallenge(bool gameWon)
 	// Update score if we have a victory and best recorded was a loss,
 	// or both were losses but time is higher, or both were victories
 	// but time is lower.
-	if((!victory && gameWon)
+	if ((!victory && gameWon)
 	        || (!gameWon && !victory && newtime > seconds)
 	        || (gameWon && victory && newtime < seconds))
 	{
@@ -147,14 +147,14 @@ static void displayLoadSlot(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 
 	drawBlueBox(x, y, psWidget->width(), psWidget->height());	//draw box
 
-	if(!((W_BUTTON *)psWidget)->pText.isEmpty())
+	if (!((W_BUTTON *)psWidget)->pText.isEmpty())
 	{
 		sstrcpy(butString, ((W_BUTTON *)psWidget)->pText.toUtf8().c_str());
 
-		if(data.cache.fullText != butString)
+		if (data.cache.fullText != butString)
 		{
 			// Update cache
-			while(iV_GetTextWidth(butString, font_regular) > psWidget->width())
+			while (iV_GetTextWidth(butString, font_regular) > psWidget->width())
 			{
 				butString[strlen(butString) - 1] = '\0';
 			}
@@ -169,7 +169,7 @@ static void displayLoadSlot(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 
 void challengesScreenSizeDidChange(unsigned int oldWidth, unsigned int oldHeight, unsigned int newWidth, unsigned int newHeight)
 {
-	if(psRequestScreen == nullptr) return;
+	if (psRequestScreen == nullptr) return;
 
 	psRequestScreen->screenSizeDidChange(oldWidth, oldHeight, newWidth, newHeight);
 }
@@ -252,17 +252,17 @@ bool addChallenges()
 		psWidget->pUserData = nullptr;
 	};
 
-	for(slotCount = 0; slotCount < totalslots; slotCount++)
+	for (slotCount = 0; slotCount < totalslots; slotCount++)
 	{
 		sButInit.id		= slotCount + CHALLENGE_ENTRY_START;
 
-		if(slotCount < slotsInColumn)
+		if (slotCount < slotsInColumn)
 		{
 			sButInit.x	= 22 + CHALLENGE_HGAP;
 			sButInit.y	= (SWORD)((CHALLENGE_BANNER_DEPTH + (2 * CHALLENGE_VGAP)) + (
 			                          slotCount * (CHALLENGE_VGAP + CHALLENGE_ENTRY_H)));
 		}
-		else if(slotCount >= slotsInColumn && (slotCount < (slotsInColumn * 2)))
+		else if (slotCount >= slotsInColumn && (slotCount < (slotsInColumn * 2)))
 		{
 			sButInit.x	= 22 + (2 * CHALLENGE_HGAP + CHALLENGE_ENTRY_W);
 			sButInit.y	= (SWORD)((CHALLENGE_BANNER_DEPTH + (2 * CHALLENGE_VGAP)) + (
@@ -289,7 +289,7 @@ bool addChallenges()
 	// add challenges to buttons
 	files = PHYSFS_enumerateFiles(sSearchPath);
 
-	for(i = files; *i != nullptr; ++i)
+	for (i = files; *i != nullptr; ++i)
 	{
 		W_BUTTON *button;
 		QString name, map, difficulty, highscore, description;
@@ -297,7 +297,7 @@ bool addChallenges()
 		int seconds;
 
 		// See if this filename contains the extension we're looking for
-		if(!strstr(*i, ".json"))
+		if (!strstr(*i, ".json"))
 		{
 			// If it doesn't, move on to the next filename
 			continue;
@@ -313,7 +313,7 @@ bool addChallenges()
 		victory = scores.value("victory", false).toBool();
 		seconds = scores.value("seconds", -1).toInt();
 
-		if(seconds > 0)
+		if (seconds > 0)
 		{
 			QTime format = QTime(0, 0, 0).addSecs(seconds);
 			highscore = format.toString(Qt::TextDate) + " by " + name + " (" + QString(victory ? "Victory" : "Survived") + ")";
@@ -347,7 +347,7 @@ bool addChallenges()
 		static_cast<DisplayLoadSlotData *>(button->pUserData)->filename = sSlotFile[slotCount];
 		slotCount++;		// go to next button...
 
-		if(slotCount == totalslots)
+		if (slotCount == totalslots)
 		{
 			break;
 		}
@@ -381,25 +381,25 @@ bool runChallenges()
 {
 	WidgetTriggers const &triggers = widgRunScreen(psRequestScreen);
 
-	for(const auto trigger : triggers)
+	for (const auto trigger : triggers)
 	{
 		unsigned id = trigger.widget->id;
 
 		sstrcpy(sRequestResult, "");  // set returned filename to null;
 
 		// cancel this operation...
-		if(id == CHALLENGE_CANCEL || CancelPressed())
+		if (id == CHALLENGE_CANCEL || CancelPressed())
 		{
 			goto failure;
 		}
 
 		// clicked a load entry
-		if(id >= CHALLENGE_ENTRY_START  &&  id <= CHALLENGE_ENTRY_END)
+		if (id >= CHALLENGE_ENTRY_START  &&  id <= CHALLENGE_ENTRY_END)
 		{
 			W_BUTTON * psWidget = static_cast<W_BUTTON *>(widgGetFromID(psRequestScreen, id));
 			assert(psWidget != nullptr);
 
-			if(!(psWidget->pText.isEmpty()))
+			if (!(psWidget->pText.isEmpty()))
 			{
 				DisplayLoadSlotData * data = static_cast<DisplayLoadSlotData *>(psWidget->pUserData);
 				assert(data != nullptr);
