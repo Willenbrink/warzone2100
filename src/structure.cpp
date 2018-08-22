@@ -4492,8 +4492,7 @@ to and return this as the destination for the droid.
 bool getDroidDestination(BASE_STATS *psStats, UDWORD structX,
                          UDWORD structY, UDWORD *pDroidX, UDWORD *pDroidY)
 {
-	int32_t                         start;
-	UDWORD				structTileX, structTileY, width = 0, breadth = 0;
+	UDWORD				width = 0, breadth = 0;
 
 	if(StatIsStructure(psStats))
 	{
@@ -4507,154 +4506,41 @@ bool getDroidDestination(BASE_STATS *psStats, UDWORD structX,
 	}
 
 	ASSERT_OR_RETURN(false, width + breadth > 0, "Weird droid destination");
-
-	//get a random starting place 0=top left
-	start = gameRand((width + breadth) * 2);
-
 	//search in a clockwise direction around the structure from the starting point
-	// TODO Fix 4x code duplication.
-	if(start == 0 || start < width)
+	return checkClockwise(map_coord(structX), map_coord(structY), pDroidX, pDroidY, width, breadth);
+}
+
+bool checkClockwise(UDWORD x, UDWORD y, UDWORD *pDroidX, UDWORD *pDroidY, int sizeX, int sizeY)
+{
+	//direction: Top 0, Right 1, Bottom 2, Left 3
+	int direction = gameRand(4);
+	bool retVal;
+
+	for(int i = 0; i < 4; i++)
 	{
-		//top side first
-		structTileX = map_coord(structX);
-		structTileY = map_coord(structY) - 1;
-
-		if(checkWidth(width, structTileX, structTileY, pDroidX, pDroidY))
+		switch((direction + i) % 4)
 		{
-			return true;
+			case 0: //Top
+				retVal = checkWidth(sizeX, x, y - 1, pDroidX, pDroidY);
+				break;
+
+			case 1: //Right
+				retVal = checkLength(sizeY, x + sizeX, y, pDroidX, pDroidY);
+				break;
+
+			case 2: //Bottom
+				retVal = checkWidth(sizeX, x, y + sizeY, pDroidX, pDroidY);
+				break;
+
+			case 3: //Left
+				retVal = checkLength(sizeY, x - 1, y, pDroidX, pDroidY);
+				break;
 		}
 
-		structTileX += width;
-		structTileY += 1;
-
-		if(checkLength(breadth, structTileX, structTileY, pDroidX, pDroidY))
-		{
+		if(retVal)
 			return true;
-		}
-
-		structTileX = map_coord(structX);
-		structTileY += breadth;
-
-		if(checkWidth(width, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX -= 1;
-		structTileY = map_coord(structY);
-
-		if(checkLength(breadth, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-	}
-	else if(start == width || start < (width + breadth))
-	{
-		//right side first
-		structTileX = (map_coord(structX)) + width;
-		structTileY = map_coord(structY);
-
-		if(checkLength(breadth, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX = map_coord(structX);
-		structTileY += breadth;
-
-		if(checkWidth(width, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX -= 1;
-		structTileY = map_coord(structY);
-
-		if(checkLength(breadth, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX += 1;
-		structTileY -= 1;
-
-		if(checkWidth(width, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-	}
-	else if(start == (width + breadth) || start < (width * breadth))
-	{
-		//bottom first
-		structTileX = map_coord(structX);
-		structTileY = map_coord(structY) + breadth;
-
-		if(checkWidth(width, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX -= 1;
-		structTileY = map_coord(structY);
-
-		if(checkLength(breadth, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX += 1;
-		structTileY -= 1;
-
-		if(checkWidth(width, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX += width;
-		structTileY += 1;
-
-		if(checkLength(breadth, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-	}
-	else
-	{
-		//left side first
-		structTileX = (map_coord(structX)) - 1;
-		structTileY = map_coord(structY);
-
-		if(checkLength(breadth, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX += 1;
-		structTileY -= 1;
-
-		if(checkWidth(width, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX += width;
-		structTileY += 1;
-
-		if(checkLength(breadth, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
-
-		structTileX = map_coord(structX);
-		structTileY += breadth;
-
-		if(checkWidth(width, structTileX, structTileY, pDroidX, pDroidY))
-		{
-			return true;
-		}
 	}
 
-	//not found a valid location so return false
 	return false;
 }
 
