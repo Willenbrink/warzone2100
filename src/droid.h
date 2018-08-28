@@ -70,10 +70,10 @@ bool removeDroidBase(DROID *psDel);
 
 struct INITIAL_DROID_ORDERS
 {
-	uint32_t secondaryOrder;
+	int32_t secondaryOrder;
 	int32_t moveToX;
 	int32_t moveToY;
-	uint32_t factoryId;
+	int32_t factoryId;
 };
 /*Builds an instance of a Structure - the x/y passed in are in world coords.*/
 /// Sends a GAME_DROID message if bMultiMessages is true, or actually creates it if false. Only uses initialOrders if sending a GAME_DROID message.
@@ -195,12 +195,12 @@ void droidSetName(DROID *psDroid, const char *pName);
 // returns true when no droid on x,y square.
 bool noDroid(UDWORD x, UDWORD y);				// true if no droid at x,y
 // returns an x/y coord to place a droid
-PICKTILE pickHalfATile(UDWORD *x, UDWORD *y, UBYTE numIterations);
-bool zonedPAT(UDWORD x, UDWORD y);
-bool pickATileGen(UDWORD *x, UDWORD *y, UBYTE numIterations, bool (*function)(UDWORD x, UDWORD y));
-bool pickATileGen(Vector2i *pos, unsigned numIterations, bool (*function)(UDWORD x, UDWORD y));
-bool pickATileGenThreat(UDWORD *x, UDWORD *y, UBYTE numIterations, SDWORD threatRange,
-                        SDWORD player, bool (*function)(UDWORD x, UDWORD y));
+PICKTILE pickHalfATile(int *x, int *y, UBYTE numIterations);
+bool zonedPAT(int x, int y);
+bool pickATileGen(int *x, int *y, UBYTE numIterations, bool (*function)(int x, int y));
+bool pickATileGen(Vector2i *pos, unsigned numIterations, bool (*function)(int x, int y));
+bool pickATileGenThreat(int *x, int *y, UBYTE numIterations, SDWORD threatRange,
+                        SDWORD player, bool (*function)(int x, int y));
 
 
 //initialises the droid movement model

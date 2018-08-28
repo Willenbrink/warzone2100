@@ -8532,7 +8532,7 @@ bool scrGetStructureVis()
 bool scrChooseValidLoc()
 {
 	SDWORD sendY, sendX, *x, *y, player, threatRange;
-	UDWORD tx, ty;
+	int tx, ty;
 
 	if (!stackPopParams(6, VAL_REF | VAL_INT, &x, VAL_REF | VAL_INT, &y,
 	                    VAL_INT, &sendX, VAL_INT, &sendY, VAL_INT, &player, VAL_INT, &threatRange))

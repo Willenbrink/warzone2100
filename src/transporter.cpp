@@ -1135,7 +1135,7 @@ void transporterSetLaunchTime(UDWORD time)
 /*launches the defined transporter to the offworld map*/
 bool launchTransporter(DROID *psTransporter)
 {
-	UDWORD	iX, iY;
+	uint iX, iY;
 
 	//close the interface
 	intResetScreen(true);

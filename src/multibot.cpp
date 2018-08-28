@@ -382,10 +382,10 @@ bool SendDroid(DROID_TEMPLATE *pTemplate, uint32_t x, uint32_t y, uint8_t player
 		if (haveInitialOrders)
 		{
 			INITIAL_DROID_ORDERS initialOrders = *initialOrdersP;
-			NETuint32_t(&initialOrders.secondaryOrder);
+			NETint32_t(&initialOrders.secondaryOrder);
 			NETint32_t(&initialOrders.moveToX);
 			NETint32_t(&initialOrders.moveToY);
-			NETuint32_t(&initialOrders.factoryId);  // For making scripts happy.
+			NETint32_t(&initialOrders.factoryId);  // For making scripts happy.
 		}
 	}
 	debug(LOG_LIFE, "===> sending Droid from %u id of %u ", player, id);
@@ -435,10 +435,10 @@ bool recvDroid(NETQUEUE queue)
 
 		if (haveInitialOrders)
 		{
-			NETuint32_t(&initialOrders.secondaryOrder);
+			NETint32_t(&initialOrders.secondaryOrder);
 			NETint32_t(&initialOrders.moveToX);
 			NETint32_t(&initialOrders.moveToY);
-			NETuint32_t(&initialOrders.factoryId);  // For making scripts happy.
+			NETint32_t(&initialOrders.factoryId);  // For making scripts happy.
 		}
 
 		pT->droidType = (DROID_TYPE)droidType;
@@ -463,7 +463,7 @@ bool recvDroid(NETQUEUE queue)
 	}
 
 	// Create that droid on this machine.
-	psDroid = reallyBuildDroid(pT, pos, player, false);
+	psDroid = new DROID(player, pT, pos, Rotation(0, 0, 0));
 
 	// If we were able to build the droid set it up
 	if (psDroid)

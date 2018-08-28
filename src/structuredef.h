@@ -251,7 +251,7 @@ union FUNCTIONALITY
 //this structure is used whenever an instance of a building is required in game
 struct STRUCTURE : public BASE_OBJECT
 {
-	STRUCTURE(uint32_t id, unsigned player);
+	STRUCTURE(int id, int player);
 	~STRUCTURE();
 
 	STRUCTURE_STATS     *pStructureType;            /* pointer to the structure stats for this type of building */

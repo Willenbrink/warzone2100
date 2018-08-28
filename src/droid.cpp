@@ -314,8 +314,8 @@ int32_t droidDamage(DROID *psDroid, unsigned damage, WEAPON_CLASS weaponClass, W
 	return relativeDamage;
 }
 
-DROID::DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rotation rot)
-	: BASE_OBJECT(OBJ_DROID, id, player)
+DROID::DROID(int player, DROID_TEMPLATE *psTemplate, Position pos, Rotation rot)
+	: BASE_OBJECT(OBJ_DROID, generateSynchronisedObjectId(), player)
 	, droidType(DROID_ANY)
 	, psGroup(nullptr)
 	, psGrpNext(nullptr)
@@ -325,8 +325,12 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rota
 	, action(DACTION_NONE)
 	, actionPos(0, 0)
 {
+	// Don't use this assertion in single player, since droids can finish building while on an away mission
+	ASSERT(!bMultiPlayer || worldOnMap(pos.x, pos.y), "the build locations are not on the map");
+	DROID_GROUP		*psGrp;
+	this->name = getName(psTemplate);
 	memset(aName, 0, sizeof(aName));
-	sstrcpy(this->aName, getName(pTemplate));
+	sstrcpy(this->aName, getName(psTemplate));
 	memset(asBits, 0, sizeof(asBits));
 	this->pos = pos;
 	//FIXME this line is only executed when not on a mission. Why?
@@ -335,7 +339,7 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rota
 	this->prevSpacetime.pos = pos;
 	//FIXME why is pos.z not set here?
 	this->prevSpacetime.rot = rot;
-	this->droidType = droidTemplateType(pTemplate);
+	this->droidType = droidTemplateType(psTemplate);
 
 
 	// find the highest stored experience
@@ -353,8 +357,8 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rota
 		recycled_experience[this->player].pop();
 	}
 
-	droidSetBits(pTemplate, this);
-	this->weight = calcDroidWeight(pTemplate);
+	droidSetBits(psTemplate, this);
+	this->weight = calcDroidWeight(psTemplate);
 
 	order.type = DORDER_NONE;
 	order.pos = Vector2i(0, 0);
@@ -370,7 +374,7 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rota
 	psBaseStruct = nullptr;
 	sDisplay.frameNumber = 0;	// it was never drawn before
 
-	for (unsigned vPlayer = 0; vPlayer < MAX_PLAYERS; ++vPlayer)
+	for (int vPlayer = 0; vPlayer < MAX_PLAYERS; ++vPlayer)
 	{
 		visible[vPlayer] = hasSharedVision(vPlayer, player) ? UINT8_MAX : 0;
 	}
@@ -385,7 +389,7 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rota
 	illumination = UBYTE_MAX;
 	resistance = ACTION_START_TIME;	// init the resistance to indicate no EW performed on this droid
 	lastFrustratedTime = 0;		// make sure we do not start the game frustrated
-	this->baseSpeed = calcDroidBaseSpeed(pTemplate, this->weight, player);
+	this->baseSpeed = calcDroidBaseSpeed(psTemplate, this->weight, player);
 	initDroidMovement(this);
 
 	//Allocate 'easy-access' data
@@ -394,6 +398,46 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rota
 	ASSERT(this->health > 0, "Invalid number of hitpoints");
 
 	this->sDisplay.imd = BODY_IMD(this, player);
+
+	if (isTransporter(this) || this->droidType == DROID_COMMAND)
+	{
+		psGrp = grpCreate();
+		psGrp->add(this);
+	}
+
+	//FIXME this shouldn't be in the constructor, reallyBuildDroid is removed, now what?
+	//don't worry if not on homebase cos not being drawn yet
+	//if (!onMission)
+	{
+		// People always stand upright
+		if (this->droidType != DROID_PERSON)
+		{
+			updateDroidOrientation(this);
+		}
+
+		visTilesUpdate((BASE_OBJECT *)this);
+	}
+
+	/* transporter-specific stuff */
+	if (isTransporter(this))
+	{
+		//add transporter launch button if selected player and not a reinforcable situation
+		if (player == selectedPlayer && !missionCanReEnforce())
+		{
+			(void)intAddTransporterLaunch(this);
+		}
+
+		//set droid height to be above the terrain
+		this->pos.z += TRANSPORTER_HOVER_HEIGHT;
+	}
+
+	if (player == selectedPlayer)
+	{
+		scoreUpdateVar(WD_UNITS_BUILT);
+	}
+
+	debug(LOG_LIFE, "created droid for player %d, droid = %p, id=%d (%s): position: x(%d)y(%d)z(%d)", player, static_cast<void *>(this), (int)this->id, this->aName, this->pos.x, this->pos.y, this->pos.z);
+
 
 }
 
@@ -1687,59 +1731,7 @@ UDWORD calcDroidPoints(DROID *psDroid)
 	return points;
 }
 
-//Builds an instance of a Droid - the x/y passed in are in world coords.
-DROID *reallyBuildDroid(DROID_TEMPLATE *pTemplate, Position pos, UDWORD player, bool onMission, Rotation rot)
-{
-	DROID			*psDroid;
-	DROID_GROUP		*psGrp;
-
-	// Don't use this assertion in single player, since droids can finish building while on an away mission
-	ASSERT(!bMultiPlayer || worldOnMap(pos.x, pos.y), "the build locations are not on the map");
-
-	psDroid = new DROID(generateSynchronisedObjectId(), player, pTemplate, pos, rot);
-
-	if (isTransporter(psDroid) || psDroid->droidType == DROID_COMMAND)
-	{
-		psGrp = grpCreate();
-		psGrp->add(psDroid);
-	}
-
-	//don't worry if not on homebase cos not being drawn yet
-	if (!onMission)
-	{
-		/* People always stand upright */
-		if (psDroid->droidType != DROID_PERSON)
-		{
-			updateDroidOrientation(psDroid);
-		}
-
-		visTilesUpdate((BASE_OBJECT *)psDroid);
-	}
-
-	/* transporter-specific stuff */
-	if (isTransporter(psDroid))
-	{
-		//add transporter launch button if selected player and not a reinforcable situation
-		if (player == selectedPlayer && !missionCanReEnforce())
-		{
-			(void)intAddTransporterLaunch(psDroid);
-		}
-
-		//set droid height to be above the terrain
-		psDroid->pos.z += TRANSPORTER_HOVER_HEIGHT;
-	}
-
-	if (player == selectedPlayer)
-	{
-		scoreUpdateVar(WD_UNITS_BUILT);
-	}
-
-	debug(LOG_LIFE, "created droid for player %d, droid = %p, id=%d (%s): position: x(%d)y(%d)z(%d)", player, static_cast<void *>(psDroid), (int)psDroid->id, psDroid->aName, psDroid->pos.x, psDroid->pos.y, psDroid->pos.z);
-
-	return psDroid;
-}
-
-DROID *buildDroid(DROID_TEMPLATE *pTemplate, UDWORD x, UDWORD y, UDWORD player, bool onMission, const INITIAL_DROID_ORDERS *initialOrders)
+DROID *buildDroid(DROID_TEMPLATE *psTemplate, UDWORD x, UDWORD y, UDWORD player, bool onMission, const INITIAL_DROID_ORDERS *initialOrders)
 {
 	// ajl. droid will be created, so inform others
 	if (bMultiMessages)
@@ -1747,12 +1739,12 @@ DROID *buildDroid(DROID_TEMPLATE *pTemplate, UDWORD x, UDWORD y, UDWORD player, 
 		// Only sends if it's ours, otherwise the owner should send the message.
 		//TODO capitalized functions are a bad sign.
 		//TODO why is there no reallyBuildDroid here?
-		SendDroid(pTemplate, x, y, player, generateNewObjectId(), initialOrders);
+		SendDroid(psTemplate, x, y, player, generateNewObjectId(), initialOrders);
 		return nullptr;
 	}
 	else
 	{
-		return reallyBuildDroid(pTemplate, Position(x, y, 0), player, onMission);
+		return new DROID(player, psTemplate, Position(x, y, 0), Rotation(0, 0, 0));
 	}
 }
 
@@ -1763,11 +1755,11 @@ void initDroidMovement(DROID *psDroid)
 }
 
 // Set the asBits in a DROID structure given it's template.
-void droidSetBits(DROID_TEMPLATE *pTemplate, DROID *psDroid)
+void droidSetBits(DROID_TEMPLATE *psTemplate, DROID *psDroid)
 {
-	psDroid->droidType = droidTemplateType(pTemplate);
-	psDroid->numWeaps = pTemplate->numWeaps;
-	psDroid->health = calcTemplateBody(pTemplate, psDroid->player);
+	psDroid->droidType = droidTemplateType(psTemplate);
+	psDroid->numWeaps = psTemplate->numWeaps;
+	psDroid->health = calcTemplateBody(psTemplate, psDroid->player);
 	psDroid->maxHealth = psDroid->health;
 	psDroid->expectedDamageDirect = 0;  // Begin life optimistically.
 	psDroid->expectedDamageIndirect = 0;  // Begin life optimistically.
@@ -1790,16 +1782,16 @@ void droidSetBits(DROID_TEMPLATE *pTemplate, DROID *psDroid)
 		psDroid->asWeaps[inc].prevRot = psDroid->asWeaps[inc].rot;
 		psDroid->asWeaps[inc].origin = ORIGIN_UNKNOWN;
 
-		if (inc < pTemplate->numWeaps)
+		if (inc < psTemplate->numWeaps)
 		{
-			psDroid->asWeaps[inc].nStat = pTemplate->asWeaps[inc];
+			psDroid->asWeaps[inc].nStat = psTemplate->asWeaps[inc];
 			psDroid->asWeaps[inc].ammo = (asWeaponStats + psDroid->asWeaps[inc].nStat)->upgrade[psDroid->player].numRounds;
 		}
 
 		psDroid->asWeaps[inc].usedAmmo = 0;
 	}
 
-	memcpy(psDroid->asBits, pTemplate->asParts, sizeof(psDroid->asBits));
+	memcpy(psDroid->asBits, psTemplate->asParts, sizeof(psDroid->asBits));
 
 	switch (getPropulsionStats(psDroid)->propulsionType)  // getPropulsionStats(psDroid) only defined after psDroid->asBits[COMP_PROPULSION] is set.
 	{
@@ -2232,34 +2224,33 @@ static bool sensiblePlace(SDWORD x, SDWORD y, PROPULSION_TYPE propulsion)
 
 // ------------------------------------------------------------------------------------
 // Should stop things being placed in inaccessible areas? Assume wheeled propulsion.
-bool	zonedPAT(UDWORD x, UDWORD y)
+bool zonedPAT(int x, int y)
 {
 	return sensiblePlace(x, y, PROPULSION_TYPE_WHEELED) && droidsOnTile(x, y) == 0;
 }
 
-static bool canFitDroid(UDWORD x, UDWORD y)
+static bool canFitDroid(int x, int y)
 {
 	return sensiblePlace(x, y, PROPULSION_TYPE_WHEELED) && droidsOnTile(x, y) <= 1;
 }
 
 /// find a tile for which the function will return true
-bool	pickATileGen(UDWORD *x, UDWORD *y, UBYTE numIterations,
-                     bool (*function)(UDWORD x, UDWORD y))
+bool pickATileGen(int *x, int *y, UBYTE numIterations, bool (*function)(int x, int y))
 {
 	return pickATileGenThreat(x, y, numIterations, -1, -1, function);
 }
 
-bool pickATileGen(Vector2i *pos, unsigned numIterations, bool (*function)(UDWORD x, UDWORD y))
+bool pickATileGen(Vector2i *pos, unsigned numIterations, bool (*function)(int x, int y))
 {
-	UDWORD x = pos->x, y = pos->y;
+	int x = pos->x, y = pos->y;
 	bool ret = pickATileGenThreat(&x, &y, numIterations, -1, -1, function);
 	*pos = Vector2i(x, y);
 	return ret;
 }
 
 /// find a tile for which the passed function will return true without any threat in the specified range
-bool	pickATileGenThreat(UDWORD *x, UDWORD *y, UBYTE numIterations, SDWORD threatRange,
-                           SDWORD player, bool (*function)(UDWORD x, UDWORD y))
+bool	pickATileGenThreat(int *x, int *y, UBYTE numIterations, SDWORD threatRange,
+                           SDWORD player, bool (*function)(int x, int y))
 {
 	SDWORD		i, j;
 	SDWORD		startX, endX, startY, endY;
@@ -2320,7 +2311,7 @@ bool	pickATileGenThreat(UDWORD *x, UDWORD *y, UBYTE numIterations, SDWORD threat
 }
 
 /// find a tile for a wheeled droid with only one other droid present
-PICKTILE pickHalfATile(UDWORD *x, UDWORD *y, UBYTE numIterations)
+PICKTILE pickHalfATile(int *x, int *y, UBYTE numIterations)
 {
 	return pickATileGen(x, y, numIterations, canFitDroid) ? FREE_TILE : NO_FREE_TILE;
 }
@@ -2911,24 +2902,25 @@ bool standardSensorDroid(const DROID *psDroid)
 // ////////////////////////////////////////////////////////////////////////////
 // Give a droid from one player to another - used in Electronic Warfare and multiplayer.
 // Got to destroy the droid and build another since there are too many complications otherwise.
+// FIXME revisit this. With a better class this should be possible without much trouble
 // Returns the droid created.
-DROID *giftSingleDroid(DROID *psD, UDWORD to)
+DROID *giftSingleDroid(DROID *psD, uint target)
 {
 	DROID_TEMPLATE sTemplate;
 	DROID *psNewDroid;
 
 	CHECK_DROID(psD);
 	ASSERT_OR_RETURN(nullptr, !isDead(psD), "Cannot gift dead unit");
-	ASSERT_OR_RETURN(psD, psD->player != to, "Cannot gift to self");
+	ASSERT_OR_RETURN(psD, psD->player != target, "Cannot gift to self");
 
 	// Check unit limits (multiplayer only)
 	if (bMultiPlayer
-	        && (getNumDroids(to) + 1 > getMaxDroids(to)
+	        && (getNumDroids(target) + 1 > getMaxDroids(target)
 	            || ((psD->droidType == DROID_CYBORG_CONSTRUCT || psD->droidType == DROID_CONSTRUCT)
-	                && getNumConstructorDroids(to) + 1 > getMaxConstructors(to))
-	            || (psD->droidType == DROID_COMMAND && getNumCommandDroids(to) + 1 > getMaxCommanders(to))))
+	                && getNumConstructorDroids(target) + 1 > getMaxConstructors(target))
+	            || (psD->droidType == DROID_COMMAND && getNumCommandDroids(target) + 1 > getMaxCommanders(target))))
 	{
-		if (to == selectedPlayer || psD->player == selectedPlayer)
+		if (target == selectedPlayer || psD->player == selectedPlayer)
 		{
 			CONPRINTF(ConsoleString, (ConsoleString, "%s", _("Unit transfer failed -- unit limits exceeded")));
 		}
@@ -2940,7 +2932,7 @@ DROID *giftSingleDroid(DROID *psD, UDWORD to)
 	sTemplate.name = WzString::fromUtf8(psD->aName);	// copy the name across
 
 	// only play the nexus sound if unit being taken over is selectedPlayer's but not going to the selectedPlayer
-	if (psD->player == selectedPlayer && to != selectedPlayer && !bMultiPlayer)
+	if (psD->player == selectedPlayer && target != selectedPlayer && !bMultiPlayer)
 	{
 		scoreUpdateVar(WD_UNITS_LOST);
 	}
@@ -2948,7 +2940,7 @@ DROID *giftSingleDroid(DROID *psD, UDWORD to)
 	// make the old droid vanish (but is not deleted until next tick)
 	vanishDroid(psD);
 	// create a new droid
-	psNewDroid = reallyBuildDroid(&sTemplate, Position(psD->pos.x, psD->pos.y, 0), to, false, psD->rot);
+	psNewDroid = new DROID(target, &sTemplate, psD->pos, psD->rot);
 	ASSERT_OR_RETURN(nullptr, psNewDroid, "Unable to build unit");
 	addDroid(psNewDroid, apsDroidLists);
 	psNewDroid->health = clip((psD->health * psNewDroid->maxHealth + psD->maxHealth / 2) / std::max(psD->maxHealth, 1u), 1u, psNewDroid->maxHealth);

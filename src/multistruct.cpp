@@ -65,7 +65,7 @@ bool SendBuildFinished(STRUCTURE *psStruct)
 	ASSERT(player < MAX_PLAYERS, "invalid player %u", player);
 
 	NETbeginEncode(NETgameQueue(selectedPlayer), GAME_DEBUG_ADD_STRUCTURE);
-	NETuint32_t(&psStruct->id);		// ID of building
+	NETint32_t(&psStruct->id);		// ID of building
 
 	// Along with enough info to build it (if needed)
 	NETuint32_t(&psStruct->pStructureType->ref);
@@ -172,7 +172,7 @@ bool SendDestroyStructure(STRUCTURE *s)
 	NETbeginEncode(NETgameQueue(selectedPlayer), GAME_DEBUG_REMOVE_STRUCTURE);
 
 	// Struct to destroy
-	NETuint32_t(&s->id);
+	NETint32_t(&s->id);
 
 	return NETend();
 }
@@ -216,8 +216,8 @@ bool sendLasSat(UBYTE player, STRUCTURE *psStruct, BASE_OBJECT *psObj)
 	NETbeginEncode(NETgameQueue(selectedPlayer), GAME_LASSAT);
 
 	NETuint8_t(&player);
-	NETuint32_t(&psStruct->id);
-	NETuint32_t(&psObj->id);	// Target
+	NETint32_t(&psStruct->id);
+	NETint32_t(&psObj->id);	// Target
 	NETuint8_t(&psObj->player);	// Target player
 
 	return NETend();

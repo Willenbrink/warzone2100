@@ -1066,7 +1066,7 @@ bool sendResearchStatus(STRUCTURE *psBuilding, uint32_t index, uint8_t player, b
 	// If we know the building researching it then send its ID
 	if (psBuilding)
 	{
-		NETuint32_t(&psBuilding->id);
+		NETint32_t(&psBuilding->id);
 	}
 	else
 	{
@@ -1640,7 +1640,7 @@ bool recvTextMessageAI(NETQUEUE queue)
 bool SendDestroyFeature(FEATURE *pF)
 {
 	NETbeginEncode(NETgameQueue(selectedPlayer), GAME_DEBUG_REMOVE_FEATURE);
-	NETuint32_t(&pF->id);
+	NETint32_t(&pF->id);
 	return NETend();
 }
 
