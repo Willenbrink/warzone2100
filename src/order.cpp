@@ -2874,7 +2874,7 @@ DroidOrder chooseOrderObj(DROID *psDroid, BASE_OBJECT *psObj, bool altOrder)
 					}
 				}
 			}
-			else if (psStruct->body < structureBody(psStruct))
+			else if (psStruct->health < structureBody(psStruct))
 			{
 				order = DroidOrder(DORDER_REPAIR, psObj);
 			}
@@ -3326,8 +3326,8 @@ static bool secondaryCheckDamageLevelDeselect(DROID *psDroid, SECONDARY_STATE re
 			break;
 	}
 
-	// psDroid->body / psDroid->originalBody < repairLevel / 100, without integer truncation
-	if (psDroid->body * 100 <= repairLevel * psDroid->originalBody)
+	// psDroid->health / psDroid->maxHealth < repairLevel / 100, without integer truncation
+	if (psDroid->health * 100 <= repairLevel * psDroid->maxHealth)
 	{
 		// Only deselect the droid if there is another droid selected.
 		if (psDroid->selected)
@@ -4095,7 +4095,7 @@ void orderHealthCheck(DROID *psDroid)
 		retreatY = asRunData[psDroid->player].sPos.y;
 	}
 
-	if (PERCENT(psDroid->body, psDroid->originalBody) < healthLevel)
+	if (PERCENT(psDroid->health, psDroid->maxHealth) < healthLevel)
 	{
 		// order this droid to turn and run - // if already running - ignore
 		if (!(orderState(psDroid, DORDER_RUN) ||

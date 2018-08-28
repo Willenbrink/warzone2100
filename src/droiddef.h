@@ -81,12 +81,14 @@ struct STRUCTURE;
 
 struct DROID : public BASE_OBJECT
 {
+public:
 	DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rotation rot);
 	~DROID();
 
 	/// UTF-8 name of the droid. This is generated from the droid template
 	///  WARNING: This *can* be changed by the game player after creation & can be translated, do NOT rely on this being the same for everyone!
 	char            aName[MAX_STR_LENGTH];
+	std::string name;
 	DROID_TYPE      droidType;                      ///< The type of droid
 	/** Holds the specifics for the component parts - allows damage
 	 *  per part to be calculated. Indexed by COMPONENT_TYPE.
@@ -96,10 +98,7 @@ struct DROID : public BASE_OBJECT
 	/* The other droid data.  These are all derived from the components
 	 * but stored here for easy access
 	 */
-	uint        weight;
-	uint        baseSpeed;                      ///< the base speed dependent on propulsion type
-	uint        originalBody;                   ///< the original body points
-	uint        experience = 0;
+	uint weight, baseSpeed, experience = 0;
 	uint          lastFrustratedTime;             ///< Set when eg being stuck; used for eg firing indiscriminately at map features to clear the way
 	int           resistance;                     ///< used in Electronic Warfare
 	// The group the droid belongs to
@@ -144,6 +143,7 @@ struct DROID : public BASE_OBJECT
 	uint         blockedBits;                    ///< Bit set telling which tiles block this type of droid (TODO)
 	/* anim data */
 	int        iAudioID;
+private:
 };
 
 #endif // __INCLUDED_DROIDDEF_H__

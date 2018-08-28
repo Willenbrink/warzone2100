@@ -635,7 +635,7 @@ bool recvAlliance(NETQUEUE queue, bool allowAudio)
 void  technologyGiveAway(const STRUCTURE *pS)
 {
 	// If a fully built factory (or with modules under construction) which is our responsibility got destroyed
-	if (pS->pStructureType->type == REF_FACTORY && (pS->status == SS_BUILT || pS->currentBuildPts >= pS->body))
+	if (pS->pStructureType->type == REF_FACTORY && (pS->status == SS_BUILT || pS->currentBuildPts >= pS->health))
 	{
 		syncDebug("Adding artefact.");
 	}

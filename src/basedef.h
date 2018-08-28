@@ -113,23 +113,24 @@ struct BASE_OBJECT : public SIMPLE_OBJECT
 	~BASE_OBJECT();
 
 	SCREEN_DISP_DATA    sDisplay;                   ///< screen coordinate details
+	//FIXME why group = 0? it should be -1 or else it would end up in ctrl+0?
 	int               group = 0;                  ///< Which group selection is the droid currently in?
-	UBYTE               selected;                   ///< Whether the object is selected (might want this elsewhere)
-	UBYTE               visible[MAX_PLAYERS];       ///< Whether object is visible to specific player
+	uint               selected;                   ///< Whether the object is selected (might want this elsewhere)
+	uint               visible[MAX_PLAYERS];       ///< Whether object is visible to specific player
 	UBYTE               seenThisTick[MAX_PLAYERS];  ///< Whether object has been seen this tick by the specific player.
-	UWORD               numWatchedTiles;            ///< Number of watched tiles, zero for features
-	UDWORD              lastEmission;               ///< When did it last puff out smoke?
+	uint               numWatchedTiles;            ///< Number of watched tiles, zero for features
+	uint              lastEmission;               ///< When did it last puff out smoke?
 	WEAPON_SUBCLASS     lastHitWeapon;              ///< The weapon that last hit it
-	UDWORD              timeLastHit;                ///< The time the structure was last attacked
-	UDWORD              body;                       ///< Hit points with lame name
-	UDWORD              periodicalDamageStart;                  ///< When the object entered the fire
-	UDWORD              periodicalDamage;                 ///< How much damage has been done since the object entered the fire
+	uint              timeLastHit;                ///< The time the structure was last attacked
+	uint health, maxHealth;
+	uint              periodicalDamageStart;                  ///< When the object entered the fire
+	uint              periodicalDamage;                 ///< How much damage has been done since the object entered the fire
 	TILEPOS             *watchedTiles;              ///< Variable size array of watched tiles, NULL for features
 
-	UDWORD              timeAnimationStarted;       ///< Animation start time, zero for do not animate
-	UBYTE               animationEvent;             ///< If animation start time > 0, this points to which animation to run
+	uint              timeAnimationStarted;       ///< Animation start time, zero for do not animate
+	uint               animationEvent;             ///< If animation start time > 0, this points to which animation to run
 
-	unsigned            numWeaps;
+	uint            numWeaps;
 	WEAPON              asWeaps[MAX_WEAPONS];
 
 	std::bitset<OBJECT_FLAG_COUNT> flags;

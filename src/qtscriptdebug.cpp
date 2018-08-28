@@ -712,7 +712,7 @@ void ScriptDebugger::selected(const BASE_OBJECT *psObj)
 	setPair(row, selectedModel, "Group", QString::number(psObj->group));
 	setPair(row, selectedModel, "Watched tiles", QString::number(psObj->numWatchedTiles));
 	setPair(row, selectedModel, "Last hit", QString::number(psObj->timeLastHit));
-	setPair(row, selectedModel, "Hit points", QString::number(psObj->body));
+	setPair(row, selectedModel, "Hit points", QString::number(psObj->health));
 	setPair(row, selectedModel, "Periodical start", QString::number(psObj->periodicalDamageStart));
 	setPair(row, selectedModel, "Periodical damage", QString::number(psObj->periodicalDamage));
 	setPair(row, selectedModel, "Animation event", QString::number(psObj->animationEvent));
@@ -746,7 +746,7 @@ void ScriptDebugger::selected(const BASE_OBJECT *psObj)
 		setPair(row, selectedModel, "Droid type", QString::number(psDroid->droidType));
 		setPair(row, selectedModel, "Weight", QString::number(psDroid->weight));
 		setPair(row, selectedModel, "Base speed", QString::number(psDroid->baseSpeed));
-		setPair(row, selectedModel, "Original hit points", QString::number(psDroid->originalBody));
+		setPair(row, selectedModel, "Original hit points", QString::number(psDroid->maxHealth));
 		setPair(row, selectedModel, "Experience", QString::number(psDroid->experience));
 		setPair(row, selectedModel, "Frustrated time", QString::number(psDroid->lastFrustratedTime));
 		setPair(row, selectedModel, "Resistance", QString::number(psDroid->resistance));
@@ -809,7 +809,7 @@ void ScriptDebugger::selected(const BASE_OBJECT *psObj)
 		setPair(row, selectedModel, "^Needs drawn", QString::number(psFeat->psStats->tileDraw));
 		setPair(row, selectedModel, "^Visible at start", QString::number(psFeat->psStats->visibleAtStart));
 		setPair(row, selectedModel, "^Damageable", QString::number(psFeat->psStats->damageable));
-		setPair(row, selectedModel, "^Hit points", QString::number(psFeat->psStats->body));
+		setPair(row, selectedModel, "^Hit points", QString::number(psFeat->psStats->health));
 		setPair(row, selectedModel, "^Armour", QString::number(psFeat->psStats->armourValue));
 	}
 

@@ -1601,14 +1601,14 @@ static void printDroidClickInfo(DROID *psDroid)
 	if (getDebugMappingStatus()) // cheating on, so output debug info
 	{
 		console("%s - Hitpoints %d/%d - ID %d - experience %f, %s - order %s - action %s - sensor range %hu - ECM %u - pitch %.0f - frust %u",
-		        droidGetName(psDroid), psDroid->body, psDroid->originalBody, psDroid->id,
+		        droidGetName(psDroid), psDroid->health, psDroid->maxHealth, psDroid->id,
 		        psDroid->experience / 65536.f, getDroidLevelName(psDroid), getDroidOrderName(psDroid->order.type), getDroidActionName(psDroid->action),
 		        droidSensorRange(psDroid), objJammerPower(psDroid), UNDEG(psDroid->rot.pitch), psDroid->lastFrustratedTime);
 		FeedbackOrderGiven();
 	}
 	else if (!psDroid->selected)
 	{
-		console(_("%s - Hitpoints %d/%d - Experience %.1f, %s"), droidGetName(psDroid), psDroid->body, psDroid->originalBody,
+		console(_("%s - Hitpoints %d/%d - Experience %.1f, %s"), droidGetName(psDroid), psDroid->health, psDroid->maxHealth,
 		        psDroid->experience / 65536.f, _(getDroidLevelName(psDroid)));
 		FeedbackOrderGiven();
 	}
@@ -1629,7 +1629,7 @@ static void dealWithLMBDroid(DROID *psDroid, SELECTION_TYPE selection)
 		if (getDebugMappingStatus())
 		{
 			console("(Enemy!) %s - Hitpoints %d/%d - ID %d - experience %f, %s - order %s - action %s - sensor range %d - ECM %d - pitch %.0f",
-			        droidGetName(psDroid),  psDroid->body, psDroid->originalBody, psDroid->id,
+			        droidGetName(psDroid),  psDroid->health, psDroid->maxHealth, psDroid->id,
 			        psDroid->experience / 65536.f, getDroidLevelName(psDroid), getDroidOrderName(psDroid->order.type),
 			        getDroidActionName(psDroid->action), droidSensorRange(psDroid), objJammerPower(psDroid), UNDEG(psDroid->rot.pitch));
 			FeedbackOrderGiven();
@@ -1781,7 +1781,7 @@ static void dealWithLMBDroid(DROID *psDroid, SELECTION_TYPE selection)
 	}
 	else // Clicked on allied unit with no other possible actions
 	{
-		console(_("%s - Allied - Hitpoints %d/%d - Experience %d, %s"), droidGetName(psDroid), psDroid->body, psDroid->originalBody,
+		console(_("%s - Allied - Hitpoints %d/%d - Experience %d, %s"), droidGetName(psDroid), psDroid->health, psDroid->maxHealth,
 		        psDroid->experience / 65536, getDroidLevelName(psDroid));
 		FeedbackOrderGiven();
 	}
@@ -1797,7 +1797,7 @@ static void dealWithLMBStructure(STRUCTURE *psStructure, SELECTION_TYPE selectio
 		if (getDebugMappingStatus())
 		{
 			console("(Enemy!) %s, ref: %d, ID: %d Hitpoints: %d/%d", getID(psStructure->pStructureType), psStructure->pStructureType->ref,
-			        psStructure->id, psStructure->body, psStructure->pStructureType->upgrade[psStructure->player].hitpoints);
+			        psStructure->id, psStructure->health, psStructure->pStructureType->upgrade[psStructure->player].hitpoints);
 		}
 
 		orderSelectedObjAdd(selectedPlayer, (BASE_OBJECT *)psStructure, ctrlShiftDown());
@@ -1981,7 +1981,7 @@ static void dealWithLMBFeature(FEATURE *psFeature)
 
 	if (getDebugMappingStatus())
 	{
-		console("(Feature) %s ID: %d ref: %d Hitpoints: %d/%d", getID(psFeature->psStats), psFeature->id, psFeature->psStats->ref, psFeature->psStats->body, psFeature->body);
+		console("(Feature) %s ID: %d ref: %d Hitpoints: %d/%d", getID(psFeature->psStats), psFeature->id, psFeature->psStats->ref, psFeature->psStats->health, psFeature->health);
 	}
 }
 
@@ -2731,7 +2731,7 @@ static SELECTION_TYPE	establishSelection(UDWORD selectedPlayer)
 /* Just returns true if the building's present body points aren't 100 percent */
 static bool	buildingDamaged(STRUCTURE *psStructure)
 {
-	return psStructure->body < structureBody(psStructure);
+	return psStructure->health < structureBody(psStructure);
 }
 
 /*Looks through the list of selected players droids to see if one is a repair droid*/

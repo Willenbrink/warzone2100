@@ -5168,14 +5168,14 @@ bool	scrForceDamage()
 	{
 		case OBJ_DROID:
 			psDroid = (DROID *) psObj;
-			newVal = divisor * psDroid->originalBody;
-			psDroid->body = newVal;
+			newVal = divisor * psDroid->maxHealth;
+			psDroid->health = newVal;
 			break;
 
 		case OBJ_STRUCTURE:
 			psStructure = (STRUCTURE *) psObj;
 			newVal = divisor * structureBody(psStructure);
-			psStructure->body = (UWORD)newVal;
+			psStructure->health = (UWORD)newVal;
 			break;
 
 		case OBJ_FEATURE:
@@ -5184,8 +5184,8 @@ bool	scrForceDamage()
 			/* Some features cannot be damaged */
 			if (psFeature->psStats->damageable)
 			{
-				newVal = divisor * psFeature->psStats->body;
-				psFeature->body = newVal;
+				newVal = divisor * psFeature->psStats->health;
+				psFeature->health = newVal;
 			}
 
 			break;
@@ -9636,7 +9636,7 @@ bool scrClosestDamagedGroupDroid()
 
 	for (psDroid = psGroup->psList; psDroid; psDroid = psDroid->psGrpNext)
 	{
-		if ((psDroid->body * 100 / psDroid->originalBody) <= healthLeft)	//in%
+		if ((psDroid->health * 100 / psDroid->maxHealth) <= healthLeft)	//in%
 		{
 			wDist = map_coord(iHypot(psDroid->pos.x - x, psDroid->pos.y - y));  //in tiles
 

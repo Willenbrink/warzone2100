@@ -375,7 +375,7 @@ static SDWORD targetAttackWeight(BASE_OBJECT *psTarget, BASE_OBJECT *psAttacker,
 		}
 
 		/* Calculate damage this target suffered */
-		if (targetDroid->originalBody == 0) // FIXME Somewhere we get 0HP droids from
+		if (targetDroid->maxHealth == 0) // FIXME Somewhere we get 0HP droids from, check all constructors and fix this
 		{
 			damageRatio = 0;
 			debug(LOG_ERROR, "targetAttackWeight: 0HP droid detected!");
@@ -384,10 +384,10 @@ static SDWORD targetAttackWeight(BASE_OBJECT *psTarget, BASE_OBJECT *psAttacker,
 		}
 		else
 		{
-			damageRatio = 100 - 100 * targetDroid->body / targetDroid->originalBody;
+			damageRatio = 100 - 100 * targetDroid->health / targetDroid->maxHealth;
 		}
 
-		assert(targetDroid->originalBody != 0); // Assert later so we get the info from above
+		assert(targetDroid->maxHealth != 0); // Assert later so we get the info from above
 
 		/* See if this type of a droid should be prioritized */
 		switch (targetDroid->droidType)
@@ -440,7 +440,7 @@ static SDWORD targetAttackWeight(BASE_OBJECT *psTarget, BASE_OBJECT *psAttacker,
 		targetStructure = (STRUCTURE *)psTarget;
 
 		/* Calculate damage this target suffered */
-		damageRatio = 100 - 100 * targetStructure->body / structureBody(targetStructure);
+		damageRatio = 100 - 100 * targetStructure->health / structureBody(targetStructure);
 
 		/* See if this type of a structure should be prioritized */
 		switch (targetStructure->pStructureType->type)
@@ -738,21 +738,21 @@ static bool aiDroidIsProbablyDoomed(DROID *psDroid, bool isDirect)
 {
 	if (isDirect)
 	{
-		return psDroid->expectedDamageDirect > psDroid->body
-		       && psDroid->expectedDamageDirect - psDroid->body > psDroid->body / 5; // Doomed if projectiles will damage 120% of remaining body points.
+		return psDroid->expectedDamageDirect > psDroid->health
+		       && psDroid->expectedDamageDirect - psDroid->health > psDroid->health / 5; // Doomed if projectiles will damage 120% of remaining body points.
 	}
 	else
 	{
-		return psDroid->expectedDamageIndirect > psDroid->body
-		       && psDroid->expectedDamageIndirect - psDroid->body > psDroid->body / 5; // Doomed if projectiles will damage 120% of remaining body points.
+		return psDroid->expectedDamageIndirect > psDroid->health
+		       && psDroid->expectedDamageIndirect - psDroid->health > psDroid->health / 5; // Doomed if projectiles will damage 120% of remaining body points.
 	}
 }
 
 // Are there a lot of bullets heading towards the structure?
 static bool aiStructureIsProbablyDoomed(STRUCTURE *psStructure)
 {
-	return psStructure->expectedDamage > psStructure->body
-	       && psStructure->expectedDamage - psStructure->body > psStructure->body / 15; // Doomed if projectiles will damage 106.6666666667% of remaining body points.
+	return psStructure->expectedDamage > psStructure->health
+	       && psStructure->expectedDamage - psStructure->health > psStructure->health / 15; // Doomed if projectiles will damage 106.6666666667% of remaining body points.
 }
 
 // Are there a lot of bullets heading towards the object?

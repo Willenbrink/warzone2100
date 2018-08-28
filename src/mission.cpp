@@ -721,7 +721,7 @@ void missionFlyTransportersIn(SDWORD iPlayer, bool bTrackTransporter)
 				}
 
 				//little hack to ensure all Transporters are fully repaired by time enter world
-				psTransporter->body = psTransporter->originalBody;
+				psTransporter->health = psTransporter->maxHealth;
 
 				/* set fly-in order */
 				orderDroidLoc(psTransporter, DORDER_TRANSPORTIN, iLandX, iLandY, ModeImmediate);
@@ -807,7 +807,7 @@ static void saveMissionData()
 		{
 			if (droidIsDamaged(psDroid))
 			{
-				psDroid->body = psDroid->originalBody;
+				psDroid->health = psDroid->maxHealth;
 			}
 		}
 	}

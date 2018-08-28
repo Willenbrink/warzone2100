@@ -617,7 +617,7 @@ QScriptValue convStructure(STRUCTURE *psStruct, QScriptEngine *engine)
 	value.setProperty("isRadarDetector", objRadarDetector(psStruct), QScriptValue::ReadOnly);
 	value.setProperty("range", range, QScriptValue::ReadOnly);
 	value.setProperty("status", (int)psStruct->status, QScriptValue::ReadOnly);
-	value.setProperty("health", 100 * psStruct->body / MAX(1, structureBody(psStruct)), QScriptValue::ReadOnly);
+	value.setProperty("health", 100 * psStruct->health / MAX(1, structureBody(psStruct)), QScriptValue::ReadOnly);
 	value.setProperty("cost", psStruct->pStructureType->powerToBuild, QScriptValue::ReadOnly);
 
 	switch (psStruct->pStructureType->type) // don't bleed our source insanities into the scripting world
@@ -685,7 +685,7 @@ QScriptValue convFeature(FEATURE *psFeature, QScriptEngine *engine)
 {
 	QScriptValue value = convObj(psFeature, engine);
 	const FEATURE_STATS *psStats = psFeature->psStats;
-	value.setProperty("health", 100 * psStats->body / MAX(1, psFeature->body), QScriptValue::ReadOnly);
+	value.setProperty("health", 100 * psStats->health / MAX(1, psFeature->health), QScriptValue::ReadOnly);
 	value.setProperty("damageable", psStats->damageable, QScriptValue::ReadOnly);
 	value.setProperty("stattype", psStats->subType, QScriptValue::ReadOnly);
 	return value;
@@ -830,7 +830,7 @@ QScriptValue convDroid(DROID *psDroid, QScriptEngine *engine)
 	value.setProperty("isVTOL", isVtolDroid(psDroid), QScriptValue::ReadOnly);
 	value.setProperty("droidType", (int)type, QScriptValue::ReadOnly);
 	value.setProperty("experience", (double)psDroid->experience / 65536.0, QScriptValue::ReadOnly);
-	value.setProperty("health", 100.0 / (double)psDroid->originalBody * (double)psDroid->body, QScriptValue::ReadOnly);
+	value.setProperty("health", 100.0 / (double)psDroid->maxHealth * (double)psDroid->health, QScriptValue::ReadOnly);
 	value.setProperty("body", WzStringToQScriptValue(engine, asBodyStats[psDroid->asBits[COMP_BODY]].id), QScriptValue::ReadOnly);
 	value.setProperty("propulsion", WzStringToQScriptValue(engine, asPropulsionStats[psDroid->asBits[COMP_PROPULSION]].id), QScriptValue::ReadOnly);
 	value.setProperty("armed", 0.0, QScriptValue::ReadOnly); // deprecated!
@@ -5118,19 +5118,19 @@ static QScriptValue js_setHealth(QScriptContext *context, QScriptEngine *)
 	{
 		DROID *psDroid = IdToDroid(id, player);
 		SCRIPT_ASSERT(context, psDroid, "No such droid id %d belonging to player %d", id, player);
-		psDroid->body = health * (double)psDroid->originalBody / 100;
+		psDroid->health = health * (double)psDroid->maxHealth / 100;
 	}
 	else if (type == OBJ_STRUCTURE)
 	{
 		STRUCTURE *psStruct = IdToStruct(id, player);
 		SCRIPT_ASSERT(context, psStruct, "No such structure id %d belonging to player %d", id, player);
-		psStruct->body = health * MAX(1, structureBody(psStruct)) / 100;
+		psStruct->health = health * MAX(1, structureBody(psStruct)) / 100;
 	}
 	else
 	{
 		FEATURE *psFeat = IdToFeature(id, player);
 		SCRIPT_ASSERT(context, psFeat, "No such feature id %d belonging to player %d", id, player);
-		psFeat->body = health * psFeat->psStats->body / 100;
+		psFeat->health = health * psFeat->psStats->health / 100;
 	}
 
 	return QScriptValue();
@@ -5789,7 +5789,7 @@ QScriptValue js_stats(QScriptContext *context, QScriptEngine *engine)
 					{
 						if (psStats == psCurr->pStructureType && psStats->upgrade[player].hitpoints < value)
 						{
-							psCurr->body = (psCurr->body * value) / psStats->upgrade[player].hitpoints;
+							psCurr->health = (psCurr->health * value) / psStats->upgrade[player].hitpoints;
 						}
 					}
 
@@ -5797,7 +5797,7 @@ QScriptValue js_stats(QScriptContext *context, QScriptEngine *engine)
 					{
 						if (psStats == psCurr->pStructureType && psStats->upgrade[player].hitpoints < value)
 						{
-							psCurr->body = (psCurr->body * value) / psStats->upgrade[player].hitpoints;
+							psCurr->health = (psCurr->health * value) / psStats->upgrade[player].hitpoints;
 						}
 					}
 

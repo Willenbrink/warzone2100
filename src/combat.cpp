@@ -435,7 +435,7 @@ int32_t objDamage(BASE_OBJECT *psObj, unsigned damage, unsigned originalhp, WEAP
 	// And at least MIN_WEAPON_DAMAGE points
 	actualDamage = MAX(actualDamage, MIN_WEAPON_DAMAGE);
 
-	debug(LOG_ATTACK, "objDamage(%d): body: %d, armour: %d, basic damage: %d, actual damage: %d", psObj->id, psObj->body, armour, damage, actualDamage);
+	debug(LOG_ATTACK, "objDamage(%d): body: %d, armour: %d, basic damage: %d, actual damage: %d", psObj->id, psObj->health, armour, damage, actualDamage);
 
 	if (isDamagePerSecond)
 	{
@@ -461,13 +461,13 @@ int32_t objDamage(BASE_OBJECT *psObj, unsigned damage, unsigned originalhp, WEAP
 	}
 
 	// If the shell did sufficient damage to destroy the object, deal with it and return
-	if (actualDamage >= psObj->body)
+	if (actualDamage >= psObj->health)
 	{
-		return -(int64_t)65536 * psObj->body / originalhp;
+		return -(int64_t)65536 * psObj->health / originalhp;
 	}
 
 	// Subtract the dealt damage from the droid's remaining body points
-	psObj->body -= actualDamage;
+	psObj->health -= actualDamage;
 
 	syncDebugObject(psObj, 'D');
 
@@ -511,7 +511,7 @@ unsigned int objGuessFutureDamage(WEAPON_STATS *psStats, unsigned int player, BA
 		level = getDroidEffectiveLevel(psDroid);
 	}
 
-	//debug(LOG_ATTACK, "objGuessFutureDamage(%d): body %d armour %d damage: %d", psObj->id, psObj->body, armour, damage);
+	//debug(LOG_ATTACK, "objGuessFutureDamage(%d): body %d armour %d damage: %d", psObj->id, psObj->health, armour, damage);
 
 	// Reduce damage taken by EXP_REDUCE_DAMAGE % for each experience level
 	actualDamage = (damage * (100 - EXP_REDUCE_DAMAGE * level)) / 100;

@@ -132,10 +132,10 @@ void cancelBuild(DROID *psDroid)
 static void droidBodyUpgrade(DROID *psDroid)
 {
 	const int factor = 10000; // use big numbers to scare away rounding errors
-	int prev = psDroid->originalBody;
-	psDroid->originalBody = calcDroidBaseBody(psDroid);
-	int increase = psDroid->originalBody * factor / prev;
-	psDroid->body = MIN(psDroid->originalBody, (psDroid->body * increase) / factor + 1);
+	int prev = psDroid->maxHealth;
+	psDroid->maxHealth = calcDroidBaseBody(psDroid);
+	int increase = psDroid->maxHealth * factor / prev;
+	psDroid->health = MIN(psDroid->maxHealth, (psDroid->health * increase) / factor + 1);
 
 	if (isTransporter(psDroid))
 	{
@@ -230,7 +230,7 @@ int32_t droidDamage(DROID *psDroid, unsigned damage, WEAPON_CLASS weaponClass, W
 		damage *= 3;
 	}
 
-	relativeDamage = objDamage(psDroid, damage, psDroid->originalBody, weaponClass, weaponSubClass, isDamagePerSecond, minDamage);
+	relativeDamage = objDamage(psDroid, damage, psDroid->maxHealth, weaponClass, weaponSubClass, isDamagePerSecond, minDamage);
 
 	if (relativeDamage > 0)
 	{
@@ -258,7 +258,7 @@ int32_t droidDamage(DROID *psDroid, unsigned damage, WEAPON_CLASS weaponClass, W
 		if ((game.type == CAMPAIGN) && !bMultiPlayer && (psDroid->droidType == DROID_TRANSPORTER))
 		{
 			debug(LOG_ATTACK, "Transport(%d) saved from death--since it should never die (SP only)", psDroid->id);
-			psDroid->body = 1;
+			psDroid->health = 1;
 			return 0;
 		}
 
@@ -389,9 +389,9 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rota
 	initDroidMovement(this);
 
 	//Allocate 'easy-access' data
-	this->body = calcDroidBaseBody(this); //Includes upgrades
-	this->originalBody = this->body;
-	ASSERT(this->body > 0, "Invalid number of hitpoints");
+	this->health = calcDroidBaseBody(this); //Includes upgrades
+	this->maxHealth = this->health;
+	ASSERT(this->health > 0, "Invalid number of hitpoints");
 
 	this->sDisplay.imd = BODY_IMD(this, player);
 
@@ -454,7 +454,7 @@ void recycleDroid(DROID *psDroid)
 
 	// return part of the cost of the droid
 	int cost = calcDroidPower(psDroid);
-	cost = (cost / 2) * psDroid->body / psDroid->originalBody;
+	cost = (cost / 2) * psDroid->health / psDroid->maxHealth;
 	addPower(psDroid->player, (UDWORD)cost);
 
 	// hide the droid
@@ -701,7 +701,7 @@ void _syncDebugDroid(const char *function, DROID const *psDroid, char ch)
 		(int)psDroid->order.type, psDroid->order.pos.x, psDroid->order.pos.y, psDroid->listSize,
 		(int)psDroid->action,
 		(int)psDroid->secondaryOrder,
-		(int)psDroid->body,
+		(int)psDroid->health,
 		(int)psDroid->sMove.Status,
 		psDroid->sMove.speed, psDroid->sMove.moveDir,
 		psDroid->sMove.pathIndex, (int)psDroid->sMove.asPath.size(),
@@ -801,7 +801,7 @@ void droidUpdate(DROID *psDroid)
 	if ((psDroid->visible[selectedPlayer]) && psDroid->droidType != DROID_PERSON)
 	{
 		// need to clip this value to prevent overflow condition
-		percentDamage = 100 - clip(PERCENT(psDroid->body, psDroid->originalBody), 0, 100);
+		percentDamage = 100 - clip(PERCENT(psDroid->health, psDroid->maxHealth), 0, 100);
 
 		// Is there any damage?
 		if (percentDamage >= 25)
@@ -843,7 +843,7 @@ void droidUpdate(DROID *psDroid)
 	// -----------------
 
 	// See if we can and need to self repair.
-	if (!isVtolDroid(psDroid) && psDroid->body < psDroid->originalBody && psDroid->asBits[COMP_REPAIRUNIT] != 0 && selfRepairEnabled(psDroid->player))
+	if (!isVtolDroid(psDroid) && psDroid->health < psDroid->maxHealth && psDroid->asBits[COMP_REPAIRUNIT] != 0 && selfRepairEnabled(psDroid->player))
 	{
 		droidUpdateDroidSelfRepair(psDroid);
 	}
@@ -1035,7 +1035,7 @@ DroidStartBuild droidStartBuild(DROID *psDroid)
 			return DroidStartBuildFailed;
 		}
 
-		psStruct->body = (psStruct->body + 9) / 10;  // Structures start at 10% health. Round up.
+		psStruct->health = (psStruct->health + 9) / 10;  // Structures start at 10% health. Round up.
 	}
 	else
 	{
@@ -1283,7 +1283,7 @@ bool droidUpdateRepair(DROID *psDroid)
 	structureRepair(psStruct, psDroid, iRepairRate);
 
 	/* if not finished repair return true else complete repair and return false */
-	if (psStruct->body < structureBody(psStruct))
+	if (psStruct->health < structureBody(psStruct))
 	{
 		return true;
 	}
@@ -1311,7 +1311,7 @@ static bool droidUpdateDroidRepairBase(DROID *psRepairDroid, DROID *psDroidToRep
 
 	int iPointsToAdd = gameTimeAdjustedAverage(iRepairRateNumerator, iRepairRateDenominator);
 
-	psDroidToRepair->body = clip(psDroidToRepair->body + iPointsToAdd, 0, psDroidToRepair->originalBody);
+	psDroidToRepair->health = clip(psDroidToRepair->health + iPointsToAdd, 0, psDroidToRepair->maxHealth);
 
 	/* add plasma repair effect whilst being repaired */
 	if ((ONEINFIVE) && (psDroidToRepair->visible[selectedPlayer]))
@@ -1325,7 +1325,7 @@ static bool droidUpdateDroidRepairBase(DROID *psRepairDroid, DROID *psDroidToRep
 	CHECK_DROID(psRepairDroid);
 
 	/* if not finished repair return true else complete repair and return false */
-	return psDroidToRepair->body < psDroidToRepair->originalBody;
+	return psDroidToRepair->health < psDroidToRepair->maxHealth;
 }
 
 bool droidUpdateDroidRepair(DROID *psRepairDroid)
@@ -1697,9 +1697,6 @@ DROID *reallyBuildDroid(DROID_TEMPLATE *pTemplate, Position pos, UDWORD player, 
 	ASSERT(!bMultiPlayer || worldOnMap(pos.x, pos.y), "the build locations are not on the map");
 
 	psDroid = new DROID(generateSynchronisedObjectId(), player, pTemplate, pos, rot);
-	// Set the droids type
-	//psDroid->droidType = droidTemplateType(pTemplate);
-	// Is set again later to the same thing, in droidSetBits.
 
 	if (isTransporter(psDroid) || psDroid->droidType == DROID_COMMAND)
 	{
@@ -1770,8 +1767,8 @@ void droidSetBits(DROID_TEMPLATE *pTemplate, DROID *psDroid)
 {
 	psDroid->droidType = droidTemplateType(pTemplate);
 	psDroid->numWeaps = pTemplate->numWeaps;
-	psDroid->body = calcTemplateBody(pTemplate, psDroid->player);
-	psDroid->originalBody = psDroid->body;
+	psDroid->health = calcTemplateBody(pTemplate, psDroid->player);
+	psDroid->maxHealth = psDroid->health;
 	psDroid->expectedDamageDirect = 0;  // Begin life optimistically.
 	psDroid->expectedDamageIndirect = 0;  // Begin life optimistically.
 	psDroid->time = gameTime - deltaGameTime + 1;         // Start at beginning of tick.
@@ -2460,7 +2457,7 @@ void setUpBuildModule(DROID *psDroid)
 
 bool droidIsDamaged(const DROID *psDroid)
 {
-	return psDroid->body < psDroid->originalBody;
+	return psDroid->health < psDroid->maxHealth;
 }
 
 
@@ -2728,7 +2725,7 @@ bool vtolHappy(const DROID *psDroid)
 
 	ASSERT_OR_RETURN(false, isVtolDroid(psDroid), "not a VTOL droid");
 
-	if (psDroid->body < psDroid->originalBody)
+	if (psDroid->health < psDroid->maxHealth)
 	{
 		// VTOLs with less health than their original aren't happy
 		return false;
@@ -2954,7 +2951,7 @@ DROID *giftSingleDroid(DROID *psD, UDWORD to)
 	psNewDroid = reallyBuildDroid(&sTemplate, Position(psD->pos.x, psD->pos.y, 0), to, false, psD->rot);
 	ASSERT_OR_RETURN(nullptr, psNewDroid, "Unable to build unit");
 	addDroid(psNewDroid, apsDroidLists);
-	psNewDroid->body = clip((psD->body * psNewDroid->originalBody + psD->originalBody / 2) / std::max(psD->originalBody, 1u), 1u, psNewDroid->originalBody);
+	psNewDroid->health = clip((psD->health * psNewDroid->maxHealth + psD->maxHealth / 2) / std::max(psD->maxHealth, 1u), 1u, psNewDroid->maxHealth);
 	psNewDroid->experience = psD->experience;
 
 	if (!(psNewDroid->droidType == DROID_PERSON || cyborgDroid(psNewDroid) || isTransporter(psNewDroid)))
@@ -3137,7 +3134,7 @@ void checkDroid(const DROID *droid, const char *const location, const char *func
 	ASSERT_HELPER((unsigned)droid->listSize <= droid->asOrderList.size() && (unsigned)droid->listPendingBegin <= droid->asOrderList.size(), location, function, "CHECK_DROID: Bad number of droid orders %d %d %d", (int)droid->listSize, (int)droid->listPendingBegin, (int)droid->asOrderList.size());
 	ASSERT_HELPER(droid->player < MAX_PLAYERS, location, function, "CHECK_DROID: Bad droid owner %d", (int)droid->player);
 	ASSERT_HELPER(droidOnMap(droid), location, function, "CHECK_DROID: Droid off map");
-	ASSERT_HELPER(droid->body <= droid->originalBody, location, function, "CHECK_DROID: More body points (%u) than original body points (%u).", (unsigned)droid->body, (unsigned)droid->originalBody);
+	ASSERT_HELPER(droid->health <= droid->maxHealth, location, function, "CHECK_DROID: More body points (%u) than original body points (%u).", (unsigned)droid->health, (unsigned)droid->maxHealth);
 
 	for (int i = 0; i < MAX_WEAPONS; ++i)
 	{

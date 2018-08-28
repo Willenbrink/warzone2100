@@ -225,7 +225,7 @@ void printDroidInfo(const DROID *psDroid)
 	printBaseObjInfo((const BASE_OBJECT *)psDroid);
 
 	CONPRINTF(ConsoleString, (ConsoleString, "   wt %d bSpeed %d sRng %d ECM %d bdy %d\n",
-	                          psDroid->weight, psDroid->baseSpeed, droidSensorRange(psDroid), objJammerPower(psDroid), psDroid->body));
+	                          psDroid->weight, psDroid->baseSpeed, droidSensorRange(psDroid), objJammerPower(psDroid), psDroid->health));
 
 	if (psDroid->asWeaps[0].nStat > 0)
 	{

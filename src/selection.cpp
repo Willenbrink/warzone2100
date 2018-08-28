@@ -118,7 +118,7 @@ static bool selCombatCyborg(DROID *droid)
 }
 static bool selDamaged(DROID *droid)
 {
-	return PERCENT(droid->body, droid->originalBody) < REPAIRLEV_LOW && !selTransporter(droid);
+	return PERCENT(droid->health, droid->maxHealth) < REPAIRLEV_LOW && !selTransporter(droid);
 }
 
 // ---------------------------------------------------------------------

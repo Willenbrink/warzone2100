@@ -2802,7 +2802,7 @@ static void drawStructureHealth(STRUCTURE *psStruct)
 	scrY = psStruct->sDisplay.screenY + (scale * 10);
 	scrR = width;
 
-	//health = PERCENT(psStruct->body, psStruct->baseBodyPoints);
+	//health = PERCENT(psStruct->health, psStruct->baseBodyPoints);
 	if (ctrlShiftDown())
 	{
 		//show resistance values if CTRL/SHIFT depressed
@@ -3057,7 +3057,7 @@ static void	drawDroidSelections()
 		   )
 		{
 			rectsToDraw.clear();
-			damage = PERCENT(psDroid->body, psDroid->originalBody);
+			damage = PERCENT(psDroid->health, psDroid->maxHealth);
 
 			if (damage > REPAIRLEV_HIGH)
 			{
@@ -3075,7 +3075,7 @@ static void	drawDroidSelections()
 				powerColShadow = WZCOL_HEALTH_LOW_SHADOW;
 			}
 
-			mulH = (float)psDroid->body / (float)psDroid->originalBody;
+			mulH = (float)psDroid->health / (float)psDroid->maxHealth;
 			damage = mulH * (float)psDroid->sDisplay.screenR;// (((psDroid->sDisplay.screenR*10000)/100)*damage)/10000;
 
 			if (damage > psDroid->sDisplay.screenR)
@@ -3148,7 +3148,7 @@ static void	drawDroidSelections()
 				}
 				else
 				{
-					damage = PERCENT(psDroid->body, psDroid->originalBody);
+					damage = PERCENT(psDroid->health, psDroid->maxHealth);
 				}
 
 				if (damage > REPAIRLEV_HIGH)
@@ -3181,7 +3181,7 @@ static void	drawDroidSelections()
 				}
 				else
 				{
-					mulH = (float)psDroid->body / (float)psDroid->originalBody;
+					mulH = (float)psDroid->health / (float)psDroid->maxHealth;
 				}
 
 				damage = mulH * (float)psDroid->sDisplay.screenR;// (((psDroid->sDisplay.screenR*10000)/100)*damage)/10000;

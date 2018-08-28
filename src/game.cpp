@@ -1465,7 +1465,7 @@ struct SAVE_DROIDINIT
 	OBJECT_SAVE_V19; \
 	UBYTE				status; \
 	SDWORD				currentBuildPts; \
-	UDWORD				body; \
+	UDWORD				health; \
 	UDWORD				armour; \
 	UDWORD				resistance; \
 	UDWORD				dummy1; \
@@ -4627,7 +4627,7 @@ static void writeSaveObject(WzConfig &ini, BASE_OBJECT *psObj)
 {
 	ini.setValue("id", psObj->id);
 	setPlayer(ini, psObj->player);
-	ini.setValue("health", psObj->body);
+	ini.setValue("health", psObj->health);
 	ini.setVector3i("position", psObj->pos);
 	ini.setVector3i("rotation", toVector(psObj->rot));
 
@@ -4794,8 +4794,8 @@ static bool loadSaveDroid(const char *pFileName, DROID **ppsCurrentDroidLists)
 		}
 
 		ASSERT(id != 0, "Droid ID should never be zero here");
-		psDroid->body = healthValue(ini, psDroid->originalBody);
-		ASSERT(psDroid->body != 0, "%s : %d has zero hp!", pFileName, i);
+		psDroid->health = healthValue(ini, psDroid->maxHealth);
+		ASSERT(psDroid->health != 0, "%s : %d has zero hp!", pFileName, i);
 		psDroid->experience = ini.value("experience", 0).toInt();
 		psDroid->secondaryOrder = ini.value("secondaryOrder", psDroid->secondaryOrder).toInt();
 		psDroid->secondaryOrderPending = psDroid->secondaryOrder;
@@ -5143,7 +5143,7 @@ bool loadSaveStructure(char *pFileData, UDWORD filesize)
 
 		/* STRUCTURE_SAVE_V2 includes OBJECT_SAVE_V19 */
 		endian_sdword(&psSaveStructure->currentBuildPts);
-		endian_udword(&psSaveStructure->body);
+		endian_udword(&psSaveStructure->health);
 		endian_udword(&psSaveStructure->armour);
 		endian_udword(&psSaveStructure->resistance);
 		endian_udword(&psSaveStructure->dummy1);
@@ -5526,7 +5526,7 @@ static bool loadSaveStructure2(const char *pFileName, STRUCTURE **ppList)
 				break;
 		}
 
-		psStructure->body = healthValue(ini, structureBody(psStructure));
+		psStructure->health = healthValue(ini, structureBody(psStructure));
 		psStructure->currentBuildPts = ini.value("currentBuildPts", psStructure->pStructureType->buildPoints).toInt();
 
 		if (psStructure->status == SS_BUILT)
@@ -6079,7 +6079,7 @@ bool loadSaveFeature2(const char *pFileName)
 		// common BASE_OBJECT info
 		loadSaveObject(ini, pFeature);
 
-		pFeature->body = healthValue(ini, pFeature->psStats->body);
+		pFeature->health = healthValue(ini, pFeature->psStats->health);
 
 		ini.endGroup();
 	}

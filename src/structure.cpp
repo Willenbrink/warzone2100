@@ -738,7 +738,7 @@ int32_t structureDamage(STRUCTURE *psStructure, unsigned damage, WEAPON_CLASS we
 	CHECK_STRUCTURE(psStructure);
 
 	debug(LOG_ATTACK, "structure id %d, body %d, armour %d, damage: %d",
-	      psStructure->id, psStructure->body, objArmour(psStructure, weaponClass), damage);
+	      psStructure->id, psStructure->health, objArmour(psStructure, weaponClass), damage);
 
 	relativeDamage = objDamage(psStructure, damage, structureBody(psStructure), weaponClass, weaponSubClass, isDamagePerSecond, minDamage);
 
@@ -763,7 +763,7 @@ int32_t getStructureDamage(const STRUCTURE *psStructure)
 
 	unsigned maxBody = structureBodyBuilt(psStructure);
 
-	int64_t health = (int64_t)65536 * psStructure->body / MAX(1, maxBody);
+	int64_t health = (int64_t)65536 * psStructure->health / MAX(1, maxBody);
 	CLIP(health, 0, 65536);
 
 	return 65536 - health;
@@ -830,7 +830,7 @@ void structureBuild(STRUCTURE *psStruct, DROID *psDroid, int buildPoints, int bu
 
 	int deltaBody = quantiseFraction(9 * structureBody(psStruct), 10 * psStruct->pStructureType->buildPoints, newBuildPoints, psStruct->currentBuildPts);
 	psStruct->currentBuildPts = newBuildPoints;
-	psStruct->body = std::max<int>(psStruct->body + deltaBody, 1);
+	psStruct->health = std::max<int>(psStruct->health + deltaBody, 1);
 
 	//check if structure is built
 	if (buildPoints > 0 && psStruct->currentBuildPts >= (SDWORD)psStruct->pStructureType->buildPoints)
@@ -951,7 +951,7 @@ void structureRepair(STRUCTURE *psStruct, DROID *psDroid, int buildRate)
 		This happens with expensive, but weak buildings like mortar pits. In this case, do nothing
 		and notify the caller (read: droid) of your idleness by returning false.
 	*/
-	psStruct->body = clip(psStruct->body + repairAmount, 0, structureBody(psStruct));
+	psStruct->health = clip(psStruct->health + repairAmount, 0, structureBody(psStruct));
 }
 
 /* Set the type of droid for a factory to build */
@@ -1620,7 +1620,7 @@ STRUCTURE *buildStructureDir(STRUCTURE_STATS *pStructureType, UDWORD x, UDWORD y
 			}
 		}
 
-		psBuilding->body = (UWORD)structureBody(psBuilding);
+		psBuilding->health = (UWORD)structureBody(psBuilding);
 		psBuilding->expectedDamage = 0;  // Begin life optimistically.
 
 		//add the structure to the list - this enables it to be drawn whilst being built
@@ -1755,7 +1755,7 @@ STRUCTURE *buildStructureDir(STRUCTURE_STATS *pStructureType, UDWORD x, UDWORD y
 			psBuilding->sDisplay.imd = IMDs[imdIndex];
 
 			//calculate the new body points of the owning structure
-			psBuilding->body = (uint64_t)structureBody(psBuilding) * bodyDiff / 65536;
+			psBuilding->health = (uint64_t)structureBody(psBuilding) * bodyDiff / 65536;
 
 			//initialise the build points
 			psBuilding->currentBuildPts = 0;
@@ -2941,12 +2941,12 @@ static void aiUpdateStructure(STRUCTURE *psStructure, bool isMission)
 					        && psDroid->action != DACTION_WAITDURINGREPAIR)
 					        || (psTarget && psTarget == psStructure))
 					{
-						if (psDroid->body >= psDroid->originalBody)
+						if (psDroid->health >= psDroid->maxHealth)
 						{
 							objTrace(psStructure->id, "Repair not needed of droid %d", (int)psDroid->id);
 
 							/* set droid points to max */
-							psDroid->body = psDroid->originalBody;
+							psDroid->health = psDroid->maxHealth;
 
 							// if completely repaired reset order
 							secondarySetState(psDroid, DSO_RETURN_TO_LOC, DSS_NONE);
@@ -3013,7 +3013,7 @@ static void aiUpdateStructure(STRUCTURE *psStructure, bool isMission)
 					}
 					// Lowest priority:
 					// Just repair whatever is nearby and needs repairing.
-					else if (mindist > (TILE_UNITS * 8) * (TILE_UNITS * 8) * 2 && psDroid->body < psDroid->originalBody)
+					else if (mindist > (TILE_UNITS * 8) * (TILE_UNITS * 8) * 2 && psDroid->health < psDroid->maxHealth)
 					{
 						xdiff = (SDWORD)psDroid->pos.x - (SDWORD)psStructure->pos.x;
 						ydiff = (SDWORD)psDroid->pos.y - (SDWORD)psStructure->pos.y;
@@ -3037,7 +3037,7 @@ static void aiUpdateStructure(STRUCTURE *psStructure, bool isMission)
 						{
 							for (psDroid = apsDroidLists[i]; psDroid; psDroid = psDroid->psNext)
 							{
-								if (psDroid->body < psDroid->originalBody)
+								if (psDroid->health < psDroid->maxHealth)
 								{
 									xdiff = (SDWORD)psDroid->pos.x - (SDWORD)psStructure->pos.x;
 									ydiff = (SDWORD)psDroid->pos.y - (SDWORD)psStructure->pos.y;
@@ -3418,7 +3418,7 @@ static void aiUpdateStructure(STRUCTURE *psStructure, bool isMission)
 			if (xdiff * xdiff + ydiff * ydiff <= (TILE_UNITS * 5 / 2) * (TILE_UNITS * 5 / 2))
 			{
 				//check droid is not healthy
-				if (psDroid->body < psDroid->originalBody)
+				if (psDroid->health < psDroid->maxHealth)
 				{
 					//if in multiPlayer, and a Transporter - make sure its on the ground before repairing
 					if (bMultiPlayer && isTransporter(psDroid))
@@ -3441,17 +3441,17 @@ static void aiUpdateStructure(STRUCTURE *psStructure, bool isMission)
 						}
 					}
 
-					psDroid->body += gameTimeAdjustedAverage(getBuildingRepairPoints(psStructure));
+					psDroid->health += gameTimeAdjustedAverage(getBuildingRepairPoints(psStructure));
 				}
 
-				if (psDroid->body >= psDroid->originalBody)
+				if (psDroid->health >= psDroid->maxHealth)
 				{
 					objTrace(psStructure->id, "Repair complete of droid %d", (int)psDroid->id);
 
 					psRepairFac->psObj = nullptr;
 
 					/* set droid points to max */
-					psDroid->body = psDroid->originalBody;
+					psDroid->health = psDroid->maxHealth;
 
 					if ((psDroid->order.type == DORDER_RTR || psDroid->order.type == DORDER_RTR_SPECIFIED)
 					        && psDroid->order.psObj == psStructure)
@@ -3558,13 +3558,13 @@ static void aiUpdateStructure(STRUCTURE *psStructure, bool isMission)
 					}
 				}
 
-				if (psDroid->body < psDroid->originalBody) // do repairs
+				if (psDroid->health < psDroid->maxHealth) // do repairs
 				{
-					psDroid->body += gameTimeAdjustedAverage(getBuildingRepairPoints(psStructure));
+					psDroid->health += gameTimeAdjustedAverage(getBuildingRepairPoints(psStructure));
 
-					if (psDroid->body >= psDroid->originalBody)
+					if (psDroid->health >= psDroid->maxHealth)
 					{
-						psDroid->body = psDroid->originalBody;
+						psDroid->health = psDroid->maxHealth;
 					}
 				}
 
@@ -3648,7 +3648,7 @@ void _syncDebugStructure(const char *function, STRUCTURE const *psStruct, char c
 		(int)psStruct->status,
 		(int)psStruct->pStructureType->type, refChr, ref,
 		(int)psStruct->currentBuildPts,
-		(int)psStruct->body,
+		(int)psStruct->health,
 	};
 	_syncDebugIntList(function, "%c structure%d = p%d;pos(%d,%d,%d),status%d,type%d,%c%.0d,bld%d,body%d", list, ARRAY_SIZE(list));
 }
@@ -3896,7 +3896,7 @@ void structureUpdate(STRUCTURE *psBuilding, bool mission)
 		//structure once resistance is fully up
 		iPointsRequired = structureBody(psBuilding);
 
-		if (selfRepairEnabled(psBuilding->player) && psBuilding->body < iPointsRequired && psBuilding->status != SS_BEING_BUILT)
+		if (selfRepairEnabled(psBuilding->player) && psBuilding->health < iPointsRequired && psBuilding->status != SS_BEING_BUILT)
 		{
 			//start the self repair off
 			if (psBuilding->lastResistance == ACTION_START_TIME)
@@ -3931,12 +3931,12 @@ void structureUpdate(STRUCTURE *psBuilding, bool mission)
 
 			if (iPointsToAdd)
 			{
-				psBuilding->body = (UWORD)(psBuilding->body + iPointsToAdd);
+				psBuilding->health = (UWORD)(psBuilding->health + iPointsToAdd);
 				psBuilding->lastResistance = gameTime;
 
-				if (psBuilding->body > iPointsRequired)
+				if (psBuilding->health > iPointsRequired)
 				{
-					psBuilding->body = (UWORD)iPointsRequired;
+					psBuilding->health = (UWORD)iPointsRequired;
 					psBuilding->lastResistance = ACTION_START_TIME;
 				}
 			}
@@ -5626,7 +5626,7 @@ void printStructureInfo(STRUCTURE *psStructure)
 		{
 			unsigned int assigned_droids = countAssignedDroids(psStructure);
 			console(ngettext("%s - %u Unit assigned - Hitpoints %d/%d", "%s - %u Units assigned - Hitpoints %d/%d", assigned_droids),
-			        getName(psStructure->pStructureType), assigned_droids, psStructure->body, structureBody(psStructure));
+			        getName(psStructure->pStructureType), assigned_droids, psStructure->health, structureBody(psStructure));
 
 			if (getDebugMappingStatus())
 			{
@@ -5648,11 +5648,11 @@ void printStructureInfo(STRUCTURE *psStructure)
 			{
 				unsigned int assigned_droids = countAssignedDroids(psStructure);
 				console(ngettext("%s - %u Unit assigned - Damage %3.0f%%", "%s - %u Units assigned - Hitpoints %d/%d", assigned_droids),
-				        getName(psStructure->pStructureType), assigned_droids, psStructure->body, structureBody(psStructure));
+				        getName(psStructure->pStructureType), assigned_droids, psStructure->health, structureBody(psStructure));
 			}
 			else
 			{
-				console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->body, structureBody(psStructure));
+				console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->health, structureBody(psStructure));
 			}
 
 			if (getDebugMappingStatus())
@@ -5665,7 +5665,7 @@ void printStructureInfo(STRUCTURE *psStructure)
 			break;
 
 		case REF_REPAIR_FACILITY:
-			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->body, structureBody(psStructure));
+			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->health, structureBody(psStructure));
 
 			if (getDebugMappingStatus())
 			{
@@ -5675,7 +5675,7 @@ void printStructureInfo(STRUCTURE *psStructure)
 			break;
 
 		case REF_RESOURCE_EXTRACTOR:
-			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->body, structureBody(psStructure));
+			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->health, structureBody(psStructure));
 
 			if (getDebugMappingStatus())
 			{
@@ -5697,7 +5697,7 @@ void printStructureInfo(STRUCTURE *psStructure)
 			}
 
 			console(_("%s - Connected %u of %u - Hitpoints %d/%d"), getName(psStructure->pStructureType), numConnected,
-			        NUM_POWER_MODULES, psStructure->body, structureBody(psStructure));
+			        NUM_POWER_MODULES, psStructure->health, structureBody(psStructure));
 
 			if (getDebugMappingStatus())
 			{
@@ -5709,7 +5709,7 @@ void printStructureInfo(STRUCTURE *psStructure)
 		case REF_CYBORG_FACTORY:
 		case REF_VTOL_FACTORY:
 		case REF_FACTORY:
-			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->body, structureBody(psStructure));
+			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->health, structureBody(psStructure));
 
 			if (getDebugMappingStatus())
 			{
@@ -5721,7 +5721,7 @@ void printStructureInfo(STRUCTURE *psStructure)
 			break;
 
 		case REF_RESEARCH:
-			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->body, structureBody(psStructure));
+			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->health, structureBody(psStructure));
 
 			if (getDebugMappingStatus())
 			{
@@ -5731,7 +5731,7 @@ void printStructureInfo(STRUCTURE *psStructure)
 			break;
 
 		case REF_REARM_PAD:
-			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->body, structureBody(psStructure));
+			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->health, structureBody(psStructure));
 
 			if (getDebugMappingStatus())
 			{
@@ -5742,7 +5742,7 @@ void printStructureInfo(STRUCTURE *psStructure)
 			break;
 
 		default:
-			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->body, structureBody(psStructure));
+			console(_("%s - Hitpoints %d/%d"), getName(psStructure->pStructureType), psStructure->health, structureBody(psStructure));
 
 			if (getDebugMappingStatus())
 			{
@@ -7063,7 +7063,7 @@ bool vtolOnRearmPad(STRUCTURE *psStruct, DROID *psDroid)
 /* Just returns true if the structure's present body points aren't as high as the original*/
 bool	structIsDamaged(STRUCTURE *psStruct)
 {
-	return psStruct->body < structureBody(psStruct);
+	return psStruct->health < structureBody(psStruct);
 }
 
 // give a structure from one player to another - used in Electronic Warfare

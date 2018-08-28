@@ -219,16 +219,16 @@ void kf_DamageMe()
 	{
 		if (psDroid->selected)
 		{
-			int val = psDroid->body - ((psDroid->originalBody / 100) * 20);
+			int val = psDroid->health - ((psDroid->maxHealth / 100) * 20);
 
 			if (val > 0)
 			{
-				psDroid->body = val;
+				psDroid->health = val;
 				addConsoleMessage(_("Ouch! Droid's health is down 20%!"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
 			}
 			else
 			{
-				psDroid->body = 0;
+				psDroid->health = 0;
 			}
 		}
 	}
@@ -237,16 +237,16 @@ void kf_DamageMe()
 	{
 		if (psStruct->selected)
 		{
-			int val = psStruct->body - ((structureBody(psStruct) / 100) * 20);
+			int val = psStruct->health - ((structureBody(psStruct) / 100) * 20);
 
 			if (val > 0)
 			{
-				psStruct->body = val;
+				psStruct->health = val;
 				addConsoleMessage(_("Ouch! Structure's health is down 20%!"), LEFT_JUSTIFY, SYSTEM_MESSAGE);
 			}
 			else
 			{
-				psStruct->body = 0;
+				psStruct->health = 0;
 			}
 		}
 	}

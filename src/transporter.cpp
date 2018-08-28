@@ -610,7 +610,7 @@ bool intAddDroidsAvailForm()
 			droidList->addWidgetToLayout(button);
 
 			//add bar to indicate stare of repair
-			sBarInit.size = (UWORD) PERCENT(psDroid->body, psDroid->originalBody);
+			sBarInit.size = (UWORD) PERCENT(psDroid->health, psDroid->maxHealth);
 
 			if (sBarInit.size > 100)
 			{

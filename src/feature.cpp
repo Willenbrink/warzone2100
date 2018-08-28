@@ -129,7 +129,7 @@ bool loadFeatureStats(WzConfig &ini)
 		p->allowLOS = ini.value("lineOfSight", 1).toInt();
 		p->visibleAtStart = ini.value("startVisible", 1).toInt();
 		p->damageable = ini.value("damageable", 1).toInt();
-		p->body = ini.value("hitpoints", 1).toInt();
+		p->health = ini.value("hitpoints", 1).toInt();
 		p->armourValue = ini.value("armour", 1).toInt();
 
 		//and the oil resource - assumes only one!
@@ -165,9 +165,9 @@ int32_t featureDamage(FEATURE *psFeature, unsigned damage, WEAPON_CLASS weaponCl
 	ASSERT_OR_RETURN(0, psFeature != nullptr, "Invalid feature pointer");
 
 	debug(LOG_ATTACK, "feature (id %d): body %d armour %d damage: %d",
-	      psFeature->id, psFeature->body, psFeature->psStats->armourValue, damage);
+	      psFeature->id, psFeature->health, psFeature->psStats->armourValue, damage);
 
-	relativeDamage = objDamage(psFeature, damage, psFeature->psStats->body, weaponClass, weaponSubClass, isDamagePerSecond, minDamage);
+	relativeDamage = objDamage(psFeature, damage, psFeature->psStats->health, weaponClass, weaponSubClass, isDamagePerSecond, minDamage);
 
 	// If the shell did sufficient damage to destroy the feature
 	if (relativeDamage < 0)
@@ -244,7 +244,7 @@ FEATURE *buildFeature(FEATURE_STATS *psStats, UDWORD x, UDWORD y, bool FromSave)
 		psFeature->rot.direction = 0;
 	}
 
-	psFeature->body = psStats->body;
+	psFeature->health = psStats->health;
 	psFeature->periodicalDamageStart = 0;
 	psFeature->periodicalDamage = 0;
 
@@ -333,7 +333,7 @@ void _syncDebugFeature(const char *function, FEATURE const *psFeature, char ch)
 		psFeature->pos.x, psFeature->pos.y, psFeature->pos.z,
 		(int)psFeature->psStats->subType,
 		psFeature->psStats->damageable,
-		(int)psFeature->body,
+		(int)psFeature->health,
 	};
 	_syncDebugIntList(function, "%c feature%d = p%d;pos(%d,%d,%d),subtype%d,damageable%d,body%d", list, ARRAY_SIZE(list));
 }

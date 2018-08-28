@@ -210,7 +210,7 @@ bool scrBaseObjGet(UDWORD index)
 				case OBJ_DROID:
 					psDroid = (DROID *)psObj;
 					type = VAL_INT;
-					scrFunctionResult.v.ival = psDroid->body * 100 / psDroid->originalBody;
+					scrFunctionResult.v.ival = psDroid->health * 100 / psDroid->maxHealth;
 					break;
 
 				case OBJ_FEATURE:
@@ -219,7 +219,7 @@ bool scrBaseObjGet(UDWORD index)
 
 					if (psFeature->psStats->damageable)
 					{
-						scrFunctionResult.v.ival = psFeature->body * 100 / psFeature->psStats->body;
+						scrFunctionResult.v.ival = psFeature->health * 100 / psFeature->psStats->health;
 					}
 					else
 					{
@@ -231,8 +231,8 @@ bool scrBaseObjGet(UDWORD index)
 				case OBJ_STRUCTURE:
 					psStruct = (STRUCTURE *)psObj;
 					type = VAL_INT;
-					//val = psStruct->body * 100 / psStruct->baseBodyPoints;
-					scrFunctionResult.v.ival = psStruct->body * 100 / structureBody(psStruct);
+					//val = psStruct->health * 100 / psStruct->baseBodyPoints;
+					scrFunctionResult.v.ival = psStruct->health * 100 / structureBody(psStruct);
 					break;
 
 				default:
@@ -359,15 +359,15 @@ bool scrBaseObjGet(UDWORD index)
 			switch (psObj->type)
 			{
 				case OBJ_DROID:
-					scrFunctionResult.v.ival = (SDWORD)((DROID *)psObj)->body;
+					scrFunctionResult.v.ival = (SDWORD)((DROID *)psObj)->health;
 					break;
 
 				case OBJ_STRUCTURE:
-					scrFunctionResult.v.ival = (SDWORD)((STRUCTURE *)psObj)->body;
+					scrFunctionResult.v.ival = (SDWORD)((STRUCTURE *)psObj)->health;
 					break;
 
 				case OBJ_FEATURE:
-					scrFunctionResult.v.ival = (SDWORD)((FEATURE *)psObj)->body;
+					scrFunctionResult.v.ival = (SDWORD)((FEATURE *)psObj)->health;
 					break;
 
 				default:
@@ -384,7 +384,7 @@ bool scrBaseObjGet(UDWORD index)
 			switch (psObj->type)
 			{
 				case OBJ_DROID:
-					scrFunctionResult.v.ival = (SDWORD)((DROID *)psObj)->originalBody;
+					scrFunctionResult.v.ival = (SDWORD)((DROID *)psObj)->maxHealth;
 					break;
 
 				case OBJ_STRUCTURE:
@@ -392,7 +392,7 @@ bool scrBaseObjGet(UDWORD index)
 					break;
 
 				case OBJ_FEATURE:
-					scrFunctionResult.v.ival = ((FEATURE *)psObj)->psStats->body;
+					scrFunctionResult.v.ival = ((FEATURE *)psObj)->psStats->health;
 					break;
 
 				default:
@@ -634,7 +634,7 @@ bool scrGroupObjGet(UDWORD index)
 			for (psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
 			{
 				lgMembers += 1;
-				lgHealth += (SDWORD)((100 * psCurr->body) / psCurr->originalBody);
+				lgHealth += (SDWORD)((100 * psCurr->health) / psCurr->maxHealth);
 			}
 
 			if (lgMembers > 0)
