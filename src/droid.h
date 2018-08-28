@@ -166,11 +166,13 @@ DROID_TYPE droidTemplateType(DROID_TEMPLATE *psTemplate);
 
 void assignDroidsToGroup(UDWORD	playerNumber, UDWORD groupNumber);
 
-bool activateGroup(UDWORD playerNumber, UDWORD groupNumber);
+bool selectGroup(uint player, uint group);
+
+bool selectAndCenterGroup(uint player, uint group);
+
 
 UDWORD getNumDroidsForLevel(UDWORD level);
 
-bool activateGroupAndMove(UDWORD playerNumber, UDWORD groupNumber);
 /* calculate muzzle tip location in 3d world added int weapon_slot to fix the always slot 0 hack*/
 bool calcDroidMuzzleLocation(const DROID *psDroid, Vector3i *muzzle, int weapon_slot);
 /* calculate muzzle base location in 3d world added int weapon_slot to fix the always slot 0 hack*/
@@ -204,11 +206,8 @@ bool pickATileGenThreat(UDWORD *x, UDWORD *y, UBYTE numIterations, SDWORD threat
 //initialises the droid movement model
 void initDroidMovement(DROID *psDroid);
 
-/// Looks through the players list of droids to see if any of them are building the specified structure - returns true if finds one
-bool checkDroidsBuilding(STRUCTURE *psStructure);
-
-/// Looks through the players list of droids to see if any of them are demolishing the specified structure - returns true if finds one
-bool checkDroidsDemolishing(STRUCTURE *psStructure);
+//Look through the players list of droids to check if any of them are working on the building
+bool checkDroidsWorking(STRUCTURE *psStruct);
 
 /// Returns the next module which can be built after lastOrderedModule, or returns 0 if not possible.
 int nextModuleToBuild(STRUCTURE const *psStruct, int lastOrderedModule);

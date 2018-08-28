@@ -314,7 +314,7 @@ int32_t droidDamage(DROID *psDroid, unsigned damage, WEAPON_CLASS weaponClass, W
 	return relativeDamage;
 }
 
-DROID::DROID(uint32_t id, unsigned player)
+DROID::DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rotation rot)
 	: BASE_OBJECT(OBJ_DROID, id, player)
 	, droidType(DROID_ANY)
 	, psGroup(nullptr)
@@ -326,9 +326,36 @@ DROID::DROID(uint32_t id, unsigned player)
 	, actionPos(0, 0)
 {
 	memset(aName, 0, sizeof(aName));
+	sstrcpy(this->aName, getName(pTemplate));
 	memset(asBits, 0, sizeof(asBits));
-	pos = Vector3i(0, 0, 0);
-	rot = Vector3i(0, 0, 0);
+	this->pos = pos;
+	//FIXME this line is only executed when not on a mission. Why?
+	this->pos.z = map_Height(pos.x, pos.y);
+	this->rot = rot;
+	this->prevSpacetime.pos = pos;
+	//FIXME why is pos.z not set here?
+	this->prevSpacetime.rot = rot;
+	this->droidType = droidTemplateType(pTemplate);
+
+
+	// find the highest stored experience
+	// Unless game time is stopped, then we're hopefully loading a game and
+	// don't want to use up recycled experience for the droids we just loaded.
+	if (!gameTimeIsStopped() &&
+	        (this->droidType != DROID_CONSTRUCT) &&
+	        (this->droidType != DROID_CYBORG_CONSTRUCT) &&
+	        (this->droidType != DROID_REPAIR) &&
+	        (this->droidType != DROID_CYBORG_REPAIR) &&
+	        !isTransporter(this) &&
+	        !recycled_experience[this->player].empty())
+	{
+		this->experience = recycled_experience[this->player].top();
+		recycled_experience[this->player].pop();
+	}
+
+	droidSetBits(pTemplate, this);
+	this->weight = calcDroidWeight(pTemplate);
+
 	order.type = DORDER_NONE;
 	order.pos = Vector2i(0, 0);
 	order.pos2 = Vector2i(0, 0);
@@ -358,6 +385,16 @@ DROID::DROID(uint32_t id, unsigned player)
 	illumination = UBYTE_MAX;
 	resistance = ACTION_START_TIME;	// init the resistance to indicate no EW performed on this droid
 	lastFrustratedTime = 0;		// make sure we do not start the game frustrated
+	this->baseSpeed = calcDroidBaseSpeed(pTemplate, this->weight, player);
+	initDroidMovement(this);
+
+	//Allocate 'easy-access' data
+	this->body = calcDroidBaseBody(this); //Includes upgrades
+	this->originalBody = this->body;
+	ASSERT(this->body > 0, "Invalid number of hitpoints");
+
+	this->sDisplay.imd = BODY_IMD(this, player);
+
 }
 
 /* DROID::~DROID: release all resources associated with a droid -
@@ -1659,65 +1696,16 @@ DROID *reallyBuildDroid(DROID_TEMPLATE *pTemplate, Position pos, UDWORD player, 
 	// Don't use this assertion in single player, since droids can finish building while on an away mission
 	ASSERT(!bMultiPlayer || worldOnMap(pos.x, pos.y), "the build locations are not on the map");
 
-	psDroid = new DROID(generateSynchronisedObjectId(), player);
-	droidSetName(psDroid, getName(pTemplate));
-
+	psDroid = new DROID(generateSynchronisedObjectId(), player, pTemplate, pos, rot);
 	// Set the droids type
-	psDroid->droidType = droidTemplateType(pTemplate);  // Is set again later to the same thing, in droidSetBits.
-	psDroid->pos = pos;
-	psDroid->rot = rot;
-	psDroid->prevSpacetime.pos = pos;
-	psDroid->prevSpacetime.rot = rot;
-
-	//don't worry if not on homebase cos not being drawn yet
-	if (!onMission)
-	{
-		//set droid height
-		psDroid->pos.z = map_Height(psDroid->pos.x, psDroid->pos.y);
-	}
+	//psDroid->droidType = droidTemplateType(pTemplate);
+	// Is set again later to the same thing, in droidSetBits.
 
 	if (isTransporter(psDroid) || psDroid->droidType == DROID_COMMAND)
 	{
 		psGrp = grpCreate();
 		psGrp->add(psDroid);
 	}
-
-	// find the highest stored experience
-	// Unless game time is stopped, then we're hopefully loading a game and
-	// don't want to use up recycled experience for the droids we just loaded.
-	if (!gameTimeIsStopped() &&
-	        (psDroid->droidType != DROID_CONSTRUCT) &&
-	        (psDroid->droidType != DROID_CYBORG_CONSTRUCT) &&
-	        (psDroid->droidType != DROID_REPAIR) &&
-	        (psDroid->droidType != DROID_CYBORG_REPAIR) &&
-	        !isTransporter(psDroid) &&
-	        !recycled_experience[psDroid->player].empty())
-	{
-		psDroid->experience = recycled_experience[psDroid->player].top();
-		recycled_experience[psDroid->player].pop();
-	}
-	else
-	{
-		psDroid->experience = 0;
-	}
-
-	droidSetBits(pTemplate, psDroid);
-
-	//calculate the droids total weight
-	psDroid->weight = calcDroidWeight(pTemplate);
-
-	// Initialise the movement stuff
-	psDroid->baseSpeed = calcDroidBaseSpeed(pTemplate, psDroid->weight, (UBYTE)player);
-
-	initDroidMovement(psDroid);
-
-	//allocate 'easy-access' data!
-	psDroid->body = calcDroidBaseBody(psDroid); // includes upgrades
-	ASSERT(psDroid->body > 0, "Invalid number of hitpoints");
-	psDroid->originalBody = psDroid->body;
-
-	/* Set droid's initial illumination */
-	psDroid->sDisplay.imd = BODY_IMD(psDroid, psDroid->player);
 
 	//don't worry if not on homebase cos not being drawn yet
 	if (!onMission)
@@ -1760,6 +1748,8 @@ DROID *buildDroid(DROID_TEMPLATE *pTemplate, UDWORD x, UDWORD y, UDWORD player, 
 	if (bMultiMessages)
 	{
 		// Only sends if it's ours, otherwise the owner should send the message.
+		//TODO capitalized functions are a bad sign.
+		//TODO why is there no reallyBuildDroid here?
 		SendDroid(pTemplate, x, y, player, generateNewObjectId(), initialOrders);
 		return nullptr;
 	}
@@ -1857,144 +1847,97 @@ void templateSetParts(const DROID *psDroid, DROID_TEMPLATE *psTemplate)
 }
 
 /* Make all the droids for a certain player a member of a specific group */
-void assignDroidsToGroup(UDWORD	playerNumber, UDWORD groupNumber)
+void assignDroidsToGroup(uint	player, uint group)
 {
-	DROID	*psDroid;
-	bool	bAtLeastOne = false;
-	FLAG_POSITION	*psFlagPos;
+	bool nonEmpty = false;
 
-	if (groupNumber < UBYTE_MAX)
+	for (DROID *psDroid = apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
 	{
-		/* Run through all the droids */
-		for (psDroid = apsDroidLists[playerNumber]; psDroid != nullptr; psDroid = psDroid->psNext)
+		/* Clear out the old ones */
+		if (psDroid->group == group)
 		{
-			/* Clear out the old ones */
-			if (psDroid->group == groupNumber)
-			{
-				psDroid->group = UBYTE_MAX;
-			}
+			psDroid->group = -1;
+		}
 
-			/* Only assign the currently selected ones */
-			if (psDroid->selected)
-			{
-				/* Set them to the right group - they can only be a member of one group */
-				psDroid->group = (UBYTE)groupNumber;
-				bAtLeastOne = true;
-			}
+		/* Only assign the currently selected ones */
+		if (psDroid->selected)
+		{
+			nonEmpty = true;
+			/* Set them to the right group - they can only be a member of one group */
+			psDroid->group = group;
+			groupConsoleInformOfCreation(group);
+			//FIXME some sort of black magic, why does this average the groupstate? What is the purpose of this? When the state differs this is a problem that just cant be averaged out
+			secondarySetAverageGroupState(selectedPlayer, group);
 		}
 	}
 
-	if (bAtLeastOne)
+	if (nonEmpty)
+		for (FLAG_POSITION *psFlagPos = apsFlagPosLists[selectedPlayer]; psFlagPos; psFlagPos = psFlagPos->psNext)
+			psFlagPos->selected = false;
+}
+
+DROID *selectGroupHelper(uint player, uint group)
+{
+	DROID *psDroid = nullptr, *psPrev = nullptr;
+
+	for (psDroid = apsDroidLists[player]; psDroid != nullptr; psDroid = psDroid->psNext)
 	{
+		if (psDroid->group == group)
+		{
+			SelectDroid(psDroid);
+			psPrev = psDroid;
+		}
+		else
+			DeSelectDroid(psDroid);
+	}
+
+	if (psPrev != nullptr)
+	{
+		//FIXME FlagPos->selected is set false for every element in apsFlagPosLists. This is a strange construct and should probably be removed. It seemingly works without this construct. Another occurence is above in assignDroidsToGroup
 		//clear the Deliv Point if one
-		for (psFlagPos = apsFlagPosLists[selectedPlayer]; psFlagPos;
-		        psFlagPos = psFlagPos->psNext)
+		for (FLAG_POSITION *psFlagPos = apsFlagPosLists[selectedPlayer]; psFlagPos; psFlagPos = psFlagPos->psNext)
 		{
 			psFlagPos->selected = false;
 		}
+	}
 
-		groupConsoleInformOfCreation(groupNumber);
-		secondarySetAverageGroupState(selectedPlayer, groupNumber);
+	return psPrev;
+}
+
+void centerOnDroid(DROID *psDroid)
+{
+	if (getWarCamStatus())
+	{
+		camToggleStatus();			 // messy - fix this
+		processWarCam(); //odd, but necessary
+		camToggleStatus();				// messy - FIXME
+	}
+	else
+	{
+		/* Centre display on him if warcam isn't active */
+		setViewPos(map_coord(psDroid->pos.x), map_coord(psDroid->pos.y), true);
 	}
 }
 
-
-bool activateGroupAndMove(UDWORD playerNumber, UDWORD groupNumber)
+bool selectGroup(uint player, uint group)
 {
-	DROID	*psDroid, *psCentreDroid = nullptr;
-	bool selected = false;
-	FLAG_POSITION	*psFlagPos;
-
-	if (groupNumber < UBYTE_MAX)
-	{
-		for (psDroid = apsDroidLists[playerNumber]; psDroid != nullptr; psDroid = psDroid->psNext)
-		{
-			/* Wipe out the ones in the wrong group */
-			if (psDroid->selected && psDroid->group != groupNumber)
-			{
-				DeSelectDroid(psDroid);
-			}
-
-			/* Get the right ones */
-			if (psDroid->group == groupNumber)
-			{
-				SelectDroid(psDroid);
-				psCentreDroid = psDroid;
-			}
-		}
-
-		/* There was at least one in the group */
-		if (psCentreDroid)
-		{
-			//clear the Deliv Point if one
-			for (psFlagPos = apsFlagPosLists[selectedPlayer]; psFlagPos;
-			        psFlagPos = psFlagPos->psNext)
-			{
-				psFlagPos->selected = false;
-			}
-
-			selected = true;
-
-			if (getWarCamStatus())
-			{
-				camToggleStatus();			 // messy - fix this
-				processWarCam(); //odd, but necessary
-				camToggleStatus();				// messy - FIXME
-			}
-			else
-			{
-				/* Centre display on him if warcam isn't active */
-				setViewPos(map_coord(psCentreDroid->pos.x), map_coord(psCentreDroid->pos.y), true);
-			}
-		}
-	}
-
-	if (selected)
-	{
-		groupConsoleInformOfCentering(groupNumber);
-	}
-
-	return selected;
+	DROID *psDroid = selectGroupHelper(player, group);
+	groupConsoleInformOfSelection(group);
+	return psDroid != nullptr;
 }
 
-bool activateGroup(UDWORD playerNumber, UDWORD groupNumber)
+bool selectAndCenterGroup(uint player, uint group)
 {
-	DROID	*psDroid;
-	bool selected = false;
-	FLAG_POSITION	*psFlagPos;
+	DROID *psDroid = selectGroupHelper(player, group);
 
-	if (groupNumber < UBYTE_MAX)
+	if (psDroid != nullptr)
 	{
-		for (psDroid = apsDroidLists[playerNumber]; psDroid; psDroid = psDroid->psNext)
-		{
-			/* Wipe out the ones in the wrong group */
-			if (psDroid->selected && psDroid->group != groupNumber)
-			{
-				DeSelectDroid(psDroid);
-			}
-
-			/* Get the right ones */
-			if (psDroid->group == groupNumber)
-			{
-				SelectDroid(psDroid);
-				selected = true;
-			}
-		}
+		centerOnDroid(psDroid);
+		groupConsoleInformOfCentering(group);
+		return true;
 	}
 
-	if (selected)
-	{
-		//clear the Deliv Point if one
-		for (psFlagPos = apsFlagPosLists[selectedPlayer]; psFlagPos;
-		        psFlagPos = psFlagPos->psNext)
-		{
-			psFlagPos->selected = false;
-		}
-
-		groupConsoleInformOfSelection(groupNumber);
-	}
-
-	return selected;
+	return false;
 }
 
 void	groupConsoleInformOfSelection(UDWORD groupNumber)
@@ -2249,69 +2192,23 @@ const char *droidGetName(const DROID *psDroid)
 	return psDroid->aName;
 }
 
-//
-// Set the name of a droid in it's DROID structure.
-//
-// - only possible on the PC where you can adjust the names,
-//
-void droidSetName(DROID *psDroid, const char *pName)
+//return amount of droids on this tile
+uint droidsOnTile(uint x, uint y)
 {
-	sstrcpy(psDroid->aName, pName);
-}
+	uint amount = 0;
 
-// ////////////////////////////////////////////////////////////////////////////
-// returns true when no droid on x,y square.
-bool noDroid(UDWORD x, UDWORD y)
-{
-	unsigned int i;
-
-	// check each droid list
-	for (i = 0; i < MAX_PLAYERS; ++i)
+	for (uint i = 0; i < MAX_PLAYERS; i++)
 	{
-		const DROID *psDroid;
-
-		for (psDroid = apsDroidLists[i]; psDroid; psDroid = psDroid->psNext)
+		for (DROID *psDroid = apsDroidLists[i]; psDroid != nullptr; psDroid = psDroid->psNext)
 		{
 			if (map_coord(psDroid->pos.x) == x
 			        && map_coord(psDroid->pos.y) == y)
-			{
-				return false;
-			}
+				amount++;
 		}
 	}
 
-	return true;
+	return amount;
 }
-
-// ////////////////////////////////////////////////////////////////////////////
-// returns true when at most one droid on x,y square.
-static bool oneDroidMax(UDWORD x, UDWORD y)
-{
-	UDWORD i;
-	bool bFound = false;
-	DROID *pD;
-
-	// check each droid list
-	for (i = 0; i < MAX_PLAYERS; i++)
-	{
-		for (pD = apsDroidLists[i]; pD ; pD = pD->psNext)
-		{
-			if (map_coord(pD->pos.x) == x
-			        && map_coord(pD->pos.y) == y)
-			{
-				if (bFound)
-				{
-					return false;
-				}
-
-				bFound = true;//first droid on this square so continue
-			}
-		}
-	}
-
-	return true;
-}
-
 // ////////////////////////////////////////////////////////////////////////////
 // returns true if it's a sensible place to put that droid.
 static bool sensiblePlace(SDWORD x, SDWORD y, PROPULSION_TYPE propulsion)
@@ -2340,12 +2237,12 @@ static bool sensiblePlace(SDWORD x, SDWORD y, PROPULSION_TYPE propulsion)
 // Should stop things being placed in inaccessible areas? Assume wheeled propulsion.
 bool	zonedPAT(UDWORD x, UDWORD y)
 {
-	return sensiblePlace(x, y, PROPULSION_TYPE_WHEELED) && noDroid(x, y);
+	return sensiblePlace(x, y, PROPULSION_TYPE_WHEELED) && droidsOnTile(x, y) == 0;
 }
 
 static bool canFitDroid(UDWORD x, UDWORD y)
 {
-	return sensiblePlace(x, y, PROPULSION_TYPE_WHEELED) && oneDroidMax(x, y);
+	return sensiblePlace(x, y, PROPULSION_TYPE_WHEELED) && droidsOnTile(x, y) <= 1;
 }
 
 /// find a tile for which the function will return true
@@ -2431,49 +2328,25 @@ PICKTILE pickHalfATile(UDWORD *x, UDWORD *y, UBYTE numIterations)
 	return pickATileGen(x, y, numIterations, canFitDroid) ? FREE_TILE : NO_FREE_TILE;
 }
 
-/* Looks through the players list of droids to see if any of them are
-building the specified structure - returns true if finds one*/
-bool checkDroidsBuilding(STRUCTURE *psStructure)
+//Look through the players list of droids to check if any of them are working on the building
+bool checkDroidsWorking(STRUCTURE *psStruct)
 {
-	DROID				*psDroid;
+	DROID *psDroid;
 
-	for (psDroid = apsDroidLists[psStructure->player]; psDroid != nullptr; psDroid =
-	            psDroid->psNext)
+	for (psDroid = apsDroidLists[psStruct->player]; psDroid != nullptr; psDroid = psDroid->psNext)
 	{
-		//check DORDER_BUILD, HELP_BUILD is handled the same
-		BASE_OBJECT *const psStruct = orderStateObj(psDroid, DORDER_BUILD);
+		BASE_OBJECT *psBuild = orderStateObj(psDroid, DORDER_BUILD);
+		BASE_OBJECT *psDemolish = orderStateObj(psDroid, DORDER_DEMOLISH);
 
-		if ((STRUCTURE *)psStruct == psStructure)
-		{
+		if ((STRUCTURE *) psBuild == psStruct
+		        || (STRUCTURE *) psDemolish == psStruct)
 			return true;
-		}
 	}
 
 	return false;
 }
 
-/* Looks through the players list of droids to see if any of them are
-demolishing the specified structure - returns true if finds one*/
-bool checkDroidsDemolishing(STRUCTURE *psStructure)
-{
-	DROID				*psDroid;
-
-	for (psDroid = apsDroidLists[psStructure->player]; psDroid != nullptr; psDroid =
-	            psDroid->psNext)
-	{
-		//check DORDER_DEMOLISH
-		BASE_OBJECT *const psStruct = orderStateObj(psDroid, DORDER_DEMOLISH);
-
-		if ((STRUCTURE *)psStruct == psStructure)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-
+//FIXME what does this do?
 int nextModuleToBuild(STRUCTURE const *psStruct, int lastOrderedModule)
 {
 	int order = 0;
@@ -2550,51 +2423,44 @@ void setUpBuildModule(DROID *psDroid)
 	//check not another Truck started
 	STRUCTURE *psStruct = getTileStructure(tile.x, tile.y);
 
-	if (psStruct)
+	//Cancel order when no structure present
+	if (!psStruct)
 	{
-		// if a droid is currently building, or building is in progress of being built/upgraded the droid's order should be DORDER_HELPBUILD
-		if (checkDroidsBuilding(psStruct) || !psStruct->status)
-		{
-			//set up the help build scenario
-			psDroid->order.type = DORDER_HELPBUILD;
-			setDroidTarget(psDroid, (BASE_OBJECT *)psStruct);
+		cancelBuild(psDroid);
+		return;
+	}
 
-			if (droidStartBuild(psDroid))
-			{
-				psDroid->action = DACTION_BUILD;
-				intBuildStarted(psDroid);
-				return;
-			}
-		}
-		else
+	// if a droid is currently building, or building is in progress of being built/upgraded the droid's order should be DORDER_HELPBUILD
+	//FIXME check for explicit value for psStruct->status
+	if (checkDroidsWorking(psStruct) || !psStruct->status)
+	{
+		//Set order to help
+		psDroid->order.type = DORDER_HELPBUILD;
+		setDroidTarget(psDroid, (BASE_OBJECT *)psStruct);
+
+		//Check if in range FIXME probably?
+		if (droidStartBuild(psDroid))
 		{
-			if (nextModuleToBuild(psStruct, -1) > 0)
-			{
-				//no other droids building so just start it off
-				if (droidStartBuild(psDroid))
-				{
-					psDroid->action = DACTION_BUILD;
-					intBuildStarted(psDroid);
-					return;
-				}
-			}
+			psDroid->action = DACTION_BUILD;
+			intBuildStarted(psDroid);
+			return;
 		}
+	}
+	//no other droids building so just start it off
+	else if (nextModuleToBuild(psStruct, -1) > 0
+	         && droidStartBuild(psDroid))
+	{
+		psDroid->action = DACTION_BUILD;
+		intBuildStarted(psDroid);
+		return;
 	}
 
 	cancelBuild(psDroid);
 }
 
-/* Just returns true if the droid's present body points aren't as high as the original*/
-bool	droidIsDamaged(const DROID *psDroid)
+bool droidIsDamaged(const DROID *psDroid)
 {
-	if (psDroid->body < psDroid->originalBody)
-	{
-		return (true);
-	}
-	else
-	{
-		return (false);
-	}
+	return psDroid->body < psDroid->originalBody;
 }
 
 
@@ -2701,20 +2567,18 @@ bool isFlying(const DROID *psDroid)
 	       && (psDroid->sMove.Status != MOVEINACTIVE || isTransporter(psDroid));
 }
 
+static bool isArmedVtol(const DROID *psDroid)
+{
+	return isVtolDroid(psDroid) && psDroid->droidType != DROID_WEAPON;
+}
+
 /* returns true if it's a VTOL weapon droid which has completed all runs */
 bool vtolEmpty(const DROID *psDroid)
 {
 	CHECK_DROID(psDroid);
 
-	if (!isVtolDroid(psDroid))
-	{
+	if (!isArmedVtol(psDroid))
 		return false;
-	}
-
-	if (psDroid->droidType != DROID_WEAPON)
-	{
-		return false;
-	}
 
 	for (int i = 0; i < psDroid->numWeaps; i++)
 	{
@@ -2733,15 +2597,8 @@ bool vtolFull(const DROID *psDroid)
 {
 	CHECK_DROID(psDroid);
 
-	if (!isVtolDroid(psDroid))
-	{
+	if (!isArmedVtol(psDroid))
 		return false;
-	}
-
-	if (psDroid->droidType != DROID_WEAPON)
-	{
-		return false;
-	}
 
 	for (int i = 0; i < psDroid->numWeaps; i++)
 	{
@@ -2800,25 +2657,11 @@ bool vtolRearming(const DROID *psDroid)
 {
 	CHECK_DROID(psDroid);
 
-	if (!isVtolDroid(psDroid))
-	{
-		return false;
-	}
-
-	if (psDroid->droidType != DROID_WEAPON)
-	{
-		return false;
-	}
-
-	if (psDroid->action == DACTION_MOVETOREARM ||
-	        psDroid->action == DACTION_WAITFORREARM ||
-	        psDroid->action == DACTION_MOVETOREARMPOINT ||
-	        psDroid->action == DACTION_WAITDURINGREARM)
-	{
-		return true;
-	}
-
-	return false;
+	return isArmedVtol(psDroid)
+	       && (psDroid->action == DACTION_MOVETOREARM ||
+	           psDroid->action == DACTION_WAITFORREARM ||
+	           psDroid->action == DACTION_MOVETOREARMPOINT ||
+	           psDroid->action == DACTION_WAITDURINGREARM);
 }
 
 // true if a droid is currently attacking
@@ -2826,23 +2669,11 @@ bool droidAttacking(const DROID *psDroid)
 {
 	CHECK_DROID(psDroid);
 
-	//what about cyborgs?
-	if (!(psDroid->droidType == DROID_WEAPON || psDroid->droidType == DROID_CYBORG ||
-	        psDroid->droidType == DROID_CYBORG_SUPER))
-	{
-		return false;
-	}
-
-	if (psDroid->action == DACTION_ATTACK ||
-	        psDroid->action == DACTION_MOVETOATTACK ||
-	        psDroid->action == DACTION_ROTATETOATTACK ||
-	        psDroid->action == DACTION_VTOLATTACK ||
-	        psDroid->action == DACTION_MOVEFIRE)
-	{
-		return true;
-	}
-
-	return false;
+	return psDroid->action == DACTION_ATTACK ||
+	       psDroid->action == DACTION_MOVETOATTACK ||
+	       psDroid->action == DACTION_ROTATETOATTACK ||
+	       psDroid->action == DACTION_VTOLATTACK ||
+	       psDroid->action == DACTION_MOVEFIRE;
 }
 
 // see if there are any other vtols attacking the same target
@@ -3052,46 +2883,32 @@ bool droidSensorDroidWeapon(const BASE_OBJECT *psObj, const DROID *psDroid)
 		{
 			return true;
 		}
-
-		return false;
 	}
 
 	return false;
+}
+
+//return whether any kind of sensor is mounted
+bool checkSensor(const DROID *psDroid)
+{
+	return psDroid->droidType == DROID_SENSOR;
 }
 
 // return whether a droid has a CB sensor on it
 bool cbSensorDroid(const DROID *psDroid)
 {
-	if (psDroid->droidType != DROID_SENSOR)
-	{
-		return false;
-	}
-
-	if (asSensorStats[psDroid->asBits[COMP_SENSOR]].type == VTOL_CB_SENSOR
-	        || asSensorStats[psDroid->asBits[COMP_SENSOR]].type == INDIRECT_CB_SENSOR)
-	{
-		return true;
-	}
-
-	return false;
+	return (checkSensor(psDroid)
+	        && (asSensorStats[psDroid->asBits[COMP_SENSOR]].type == VTOL_CB_SENSOR
+	            || asSensorStats[psDroid->asBits[COMP_SENSOR]].type == INDIRECT_CB_SENSOR));
 }
 
 // return whether a droid has a standard sensor on it (standard, VTOL strike, or wide spectrum)
 bool standardSensorDroid(const DROID *psDroid)
 {
-	if (psDroid->droidType != DROID_SENSOR)
-	{
-		return false;
-	}
-
-	if (asSensorStats[psDroid->asBits[COMP_SENSOR]].type == VTOL_INTERCEPT_SENSOR
-	        || asSensorStats[psDroid->asBits[COMP_SENSOR]].type == STANDARD_SENSOR
-	        || asSensorStats[psDroid->asBits[COMP_SENSOR]].type == SUPER_SENSOR)
-	{
-		return true;
-	}
-
-	return false;
+	return (checkSensor(psDroid)
+	        && (asSensorStats[psDroid->asBits[COMP_SENSOR]].type == VTOL_INTERCEPT_SENSOR
+	            || asSensorStats[psDroid->asBits[COMP_SENSOR]].type == STANDARD_SENSOR
+	            || asSensorStats[psDroid->asBits[COMP_SENSOR]].type == SUPER_SENSOR));
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -3170,7 +2987,7 @@ SWORD   droidResistance(const DROID *psDroid)
 /*this is called to check the weapon is 'allowed'. Check if VTOL, the weapon is
 direct fire. Also check numVTOLattackRuns for the weapon is not zero - return
 true if valid weapon*/
-/* this will be buggy if the droid being checked has both AA weapon and non-AA weapon
+/* FIXME this will be buggy if the droid being checked has both AA weapon and non-AA weapon
 Cannot think of a solution without adding additional return value atm.
 */
 bool checkValidWeaponForProp(DROID_TEMPLATE *psTemplate)
@@ -3188,29 +3005,19 @@ bool checkValidWeaponForProp(DROID_TEMPLATE *psTemplate)
 		return false;
 	}
 
-	if (asPropulsionTypes[psPropStats->propulsionType].travel == AIR)
-	{
-		//check weapon stat for indirect
-		if (!proj_Direct(asWeaponStats + psTemplate->asWeaps[0])
-		        || !asWeaponStats[psTemplate->asWeaps[0]].vtolAttackRuns)
-		{
-			return false;
-		}
-	}
-	else
-	{
-		// VTOL weapons do not go on non-AIR units.
-		if (asWeaponStats[psTemplate->asWeaps[0]].vtolAttackRuns)
-		{
-			return false;
-		}
-	}
+	//check weapon stat for indirect
+	if (asPropulsionTypes[psPropStats->propulsionType].travel == AIR
+	        && (!proj_Direct(asWeaponStats + psTemplate->asWeaps[0])
+	            || asWeaponStats[psTemplate->asWeaps[0]].vtolAttackRuns) != 0)
+		return false;
+	// VTOL weapons do not go on non-AIR units.
+	else if (asWeaponStats[psTemplate->asWeaps[0]].vtolAttackRuns)
+		return false;
 
 	//also checks that there is no other system component
 	if (psTemplate->asParts[COMP_BRAIN] != 0
 	        && asWeaponStats[psTemplate->asWeaps[0]].weaponSubClass != WSC_COMMAND)
 	{
-		assert(false);
 		return false;
 	}
 
@@ -3218,13 +3025,16 @@ bool checkValidWeaponForProp(DROID_TEMPLATE *psTemplate)
 }
 
 // Select a droid and do any necessary housekeeping.
-//
 void SelectDroid(DROID *psDroid)
 {
 	if (psDroid->flags.test(OBJECT_FLAG_UNSELECTABLE))
 	{
 		return;
 	}
+
+	//FIXME should work too?
+	if (isTransporter(psDroid) && !bMultiPlayer)
+		return;
 
 	// we shouldn't ever control the transporter in SP games
 	if (!isTransporter(psDroid) || bMultiPlayer)

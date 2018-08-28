@@ -90,7 +90,6 @@ void kf_AssignGrouping_6();
 void kf_AssignGrouping_7();
 void kf_AssignGrouping_8();
 void kf_AssignGrouping_9();
-void kf_SelectMoveGrouping();
 void kf_ToggleDroidInfo();
 void kf_addInGameOptions();
 void kf_AddMissionOffWorld();

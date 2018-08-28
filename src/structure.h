@@ -62,6 +62,7 @@ extern STRUCTURE	*psLastStructHit;
 //stores which player the production list has been set up for
 extern SBYTE         productionPlayer;
 
+
 //holder for all StructureStats
 extern STRUCTURE_STATS		*asStructureStats;
 extern UDWORD				numStructureStats;
@@ -135,6 +136,9 @@ to and return this as the destination for the droid */
 /* for a structure or feature, find a location along an edge which the droid can get
 to and return this as the destination for the droid*/
 bool getDroidDestination(BASE_STATS *psPositionStats, UDWORD structX, UDWORD structY, UDWORD *pDroidX, UDWORD *pDroidY);
+
+//search in a clockwise direction around the structure from the starting point
+bool checkClockwise(UDWORD x, UDWORD y, UDWORD *pDroidX, UDWORD *pDroidY, int sizeX, int sizeY);
 
 /* check along the width of a structure for an empty space */
 bool checkWidth(UDWORD maxRange, UDWORD x, UDWORD y, UDWORD *pDroidX, UDWORD *pDroidY);

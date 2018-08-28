@@ -18,6 +18,7 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include <string.h>
+#include <time.h>
 
 #include "lib/framework/frame.h"
 #include "lib/framework/stdio_ext.h"
@@ -1162,50 +1163,34 @@ void	kf_SelectPlayer()
 // --------------------------------------------------------------------------
 
 /* Selects the player's groups 1..9 */
-void	kf_SelectGrouping(UDWORD	groupNumber)
+void	kf_SelectGrouping(uint group)
 {
-	bool	bAlreadySelected;
-	DROID	*psDroid;
-	bool	Selected;
+	static time_t lastCall = 0;
+	static uint lastGroup = -1;
 
-	bAlreadySelected = false;
-
-	for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
+	//fprintf(stderr, "Timing: %lu\n", clock() - lastCall);
+	//FIXME rudimentary doubleclick for centering on group
+	//FIXME is clock() dependent on the os/processor?
+	if (clock() - lastCall < 200000 && lastGroup == group)
 	{
-		/* Wipe out the ones in the wrong group */
-		if (psDroid->selected && psDroid->group != groupNumber)
-		{
-			psDroid->selected = false;
-		}
-
-		/* Get the right ones */
-		if (psDroid->group == groupNumber)
-		{
-			if (psDroid->selected)
-			{
-				bAlreadySelected = true;
-			}
-		}
-	}
-
-	if (bAlreadySelected)
-	{
-		Selected = activateGroupAndMove(selectedPlayer, groupNumber);
+		selectAndCenterGroup(selectedPlayer, group);
 	}
 	else
 	{
-		Selected = activateGroup(selectedPlayer, groupNumber);
-	}
+		/* play group audio but only if they weren't already selected - AM */
+		bool nonEmpty = selectGroup(selectedPlayer, group);
 
-	/* play group audio but only if they weren't already selected - AM */
-	if (Selected && !bAlreadySelected)
-	{
-		audio_QueueTrack(ID_SOUND_GROUP_0 + groupNumber);
-		audio_QueueTrack(ID_SOUND_REPORTING);
-		audio_QueueTrack(ID_SOUND_RADIOCLICK_1 + (rand() % 6));
+		if (nonEmpty)
+		{
+			audio_QueueTrack(ID_SOUND_GROUP_0 + group);
+			audio_QueueTrack(ID_SOUND_REPORTING);
+			audio_QueueTrack(ID_SOUND_RADIOCLICK_1 + (rand() % 6));
+		}
 	}
 
 	triggerEventSelected();
+	lastCall = clock();
+	lastGroup = group;
 }
 
 // --------------------------------------------------------------------------
@@ -1232,16 +1217,6 @@ DEFINE_NUMED_KF(7)
 DEFINE_NUMED_KF(8)
 DEFINE_NUMED_KF(9)
 
-// --------------------------------------------------------------------------
-void	kf_SelectMoveGrouping()
-{
-	UDWORD	groupNumber;
-
-
-	groupNumber = (getLastSubKey() - KEY_1) + 1;
-
-	activateGroupAndMove(selectedPlayer, groupNumber);
-}
 // --------------------------------------------------------------------------
 void	kf_ToggleDroidInfo()
 {

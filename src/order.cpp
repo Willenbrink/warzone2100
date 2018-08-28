@@ -241,7 +241,7 @@ static std::pair<STRUCTURE *, DROID_ACTION> checkForDamagedStruct(DROID *psDroid
 		        distanceSq > bestDistanceSq ||  // Must be as close as possible.
 		        !visibleObject(psDroid, structure, false) ||  // Must be able to sense it.
 		        !aiCheckAlliances(psDroid->player, structure->player) ||  // Must be a friendly structure.
-		        checkDroidsDemolishing(structure))  // Must not be trying to get rid of it.
+		        checkDroidsWorking(structure))  // Must not be trying to get rid of it.
 		{
 			continue;
 		}
@@ -2850,7 +2850,7 @@ DroidOrder chooseOrderObj(DROID *psDroid, BASE_OBJECT *psObj, bool altOrder)
 			{
 				//check to see if anything is currently trying to build the structure
 				//can't build and demolish at the same time!
-				if (psStruct->status == SS_BUILT || !checkDroidsBuilding(psStruct))
+				if (psStruct->status == SS_BUILT || !checkDroidsWorking(psStruct))
 				{
 					order = DroidOrder(DORDER_DEMOLISH, psObj);
 				}
@@ -2859,7 +2859,7 @@ DroidOrder chooseOrderObj(DROID *psDroid, BASE_OBJECT *psObj, bool altOrder)
 			else if (psStruct->status != SS_BUILT)
 			{
 				//if something else is demolishing, then help demolish
-				if (checkDroidsDemolishing(psStruct))
+				if (checkDroidsWorking(psStruct))
 				{
 					order = DroidOrder(DORDER_DEMOLISH, psObj);
 				}
@@ -3896,8 +3896,8 @@ static SECONDARY_STATE secondaryGetAverageGroupState(UDWORD player, UDWORD group
 
 
 /** This function sets all the group's members to have the same secondary state as the average secondary state of the group.
- * @todo this function runs through all the player's droids. Consider something more efficient to select a group.
- * @todo this function uses a "local" define. Consider removing it, refactoring this function.
+ * TODO this function runs through all the player's droids. Consider something more efficient to select a group.
+ * TODO this function uses a "local" define. Consider removing it, refactoring this function.
  */
 void secondarySetAverageGroupState(UDWORD player, UDWORD group)
 {

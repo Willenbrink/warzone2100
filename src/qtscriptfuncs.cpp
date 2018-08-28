@@ -4700,21 +4700,14 @@ static QScriptValue js_getDroidProduction(QScriptContext *context, QScriptEngine
 	STRUCTURE *psStruct = IdToStruct(id, player);
 	SCRIPT_ASSERT(context, psStruct, "No such structure id %d belonging to player %d", id, player);
 	FACTORY *psFactory = &psStruct->pFunctionality->factory;
-	DROID_TEMPLATE *psTemp = psFactory->psSubject;
+	DROID_TEMPLATE *pTemplate = psFactory->psSubject;
 
-	if (!psTemp)
+	if (!pTemplate)
 	{
 		return QScriptValue::NullValue;
 	}
 
-	DROID sDroid(0, player), *psDroid = &sDroid;
-	psDroid->pos = psStruct->pos;
-	psDroid->rot = psStruct->rot;
-	psDroid->experience = 0;
-	droidSetName(psDroid, getName(psTemp));
-	droidSetBits(psTemp, psDroid);
-	psDroid->weight = calcDroidWeight(psTemp);
-	psDroid->baseSpeed = calcDroidBaseSpeed(psTemp, psDroid->weight, player);
+	DROID *psDroid = new DROID(0, player, pTemplate, psStruct->pos, psStruct->rot);
 	return convDroid(psDroid, engine);
 }
 
