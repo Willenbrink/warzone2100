@@ -4370,7 +4370,7 @@ bool loadSaveDroidInit(char *pFileData, UDWORD filesize)
 		}
 		else
 		{
-			psDroid = new DROID(pDroidInit->player, psTemplate, Position((pDroidInit->x & ~TILE_MASK) + TILE_UNITS / 2, (pDroidInit->y & ~TILE_MASK) + TILE_UNITS / 2, 0), Rotation(0, 0, 0));
+			psDroid = reallyBuildDroid(psTemplate, Position((pDroidInit->x & ~TILE_MASK) + TILE_UNITS / 2, (pDroidInit->y  & ~TILE_MASK) + TILE_UNITS / 2, 0), pDroidInit->player, false);
 
 			if (psDroid)
 			{
@@ -4783,8 +4783,7 @@ static bool loadSaveDroid(const char *pFileName, DROID **ppsCurrentDroidLists)
 
 		/* Create the Droid */
 		turnOffMultiMsg(true);
-		//FIXME onMission ignored here... Previously it was passed to reallyBuildDroid, check DROID-Constructor for more info
-		psDroid = new DROID(player, psTemplate, pos, rot);
+		psDroid = reallyBuildDroid(psTemplate, pos, player, onMission, rot);
 		ASSERT_OR_RETURN(false, psDroid != nullptr, "Failed to build unit %s", sortedList[i].second.toUtf8().c_str());
 		turnOffMultiMsg(false);
 

@@ -74,7 +74,7 @@ Spacetime interpolateObjectSpacetime(const SIMPLE_OBJECT *obj, uint32_t t)
 	}
 }
 
-SIMPLE_OBJECT::SIMPLE_OBJECT(OBJECT_TYPE type, int id, int player)
+SIMPLE_OBJECT::SIMPLE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player)
 	: type(type)
 	, id(id)
 	, pos(0, 0, 0)
@@ -94,7 +94,7 @@ SIMPLE_OBJECT::~SIMPLE_OBJECT()
 	const_cast<UBYTE volatile &>(player) += 100;                                  // Hopefully this will trigger an assert and/or crash if someone uses the freed object.
 }
 
-BASE_OBJECT::BASE_OBJECT(OBJECT_TYPE type, int id, int player)
+BASE_OBJECT::BASE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player)
 	: SIMPLE_OBJECT(type, id, player)
 	, selected(false)
 	, numWatchedTiles(0)

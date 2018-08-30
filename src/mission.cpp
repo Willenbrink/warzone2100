@@ -147,7 +147,7 @@ static UBYTE   missionCountDown;
 static UBYTE   bPlayCountDown;
 
 //FUNCTIONS**************
-static void addLandingLights(int x, int y);
+static void addLandingLights(UDWORD x, UDWORD y);
 static bool startMissionOffClear(char *pGame);
 static bool startMissionOffKeep(char *pGame);
 static bool startMissionCampaignStart(char *pGame);
@@ -174,8 +174,8 @@ static bool intAddMissionTimer();
 static void intUpdateTransporterTimer(WIDGET *psWidget, W_CONTEXT *psContext);
 static void adjustMissionPower();
 static void saveMissionPower();
-static int getHomeLandingX();
-static int getHomeLandingY();
+static UDWORD getHomeLandingX();
+static UDWORD getHomeLandingY();
 static void processPreviousCampDroids();
 static bool intAddTransporterTimer();
 static void clearCampaignUnits();
@@ -186,7 +186,7 @@ bool MissionResUp	= false;
 static SDWORD		g_iReinforceTime = 0;
 
 /* Which campaign are we dealing with? */
-static	int	camNumber = 1;
+static	UDWORD	camNumber = 1;
 
 
 //returns true if on an off world mission
@@ -632,8 +632,8 @@ void addTransporterTimerInterface()
 /* pick nearest map edge to point */
 void missionGetNearestCorner(UWORD iX, UWORD iY, UWORD *piOffX, UWORD *piOffY)
 {
-	int	iMidX = (scrollMinX + scrollMaxX) / 2,
-	    iMidY = (scrollMinY + scrollMaxY) / 2;
+	UDWORD	iMidX = (scrollMinX + scrollMaxX) / 2,
+	        iMidY = (scrollMinY + scrollMaxY) / 2;
 
 	if (map_coord(iX) < iMidX)
 	{
@@ -1003,7 +1003,7 @@ void saveMissionLimboData()
 void placeLimboDroids()
 {
 	DROID           *psDroid, *psNext;
-	int	droidX, droidY;
+	UDWORD			droidX, droidY;
 	PICKTILE		pickRes;
 
 	debug(LOG_SAVE, "called");
@@ -1347,7 +1347,7 @@ static void processMission()
 {
 	DROID			*psNext;
 	DROID			*psDroid;
-	int	droidX, droidY;
+	UDWORD			droidX, droidY;
 	PICKTILE		pickRes;
 
 	//and the rest on the mission map  - for now?
@@ -1702,7 +1702,7 @@ static void missionResetDroids()
 			if (psFactory)
 			{
 				PICKTILE	pickRes;
-				int		x, y;
+				UDWORD		x, y;
 
 				// Use factory DP if one
 				if (psFactory->psAssemblyPoint)
@@ -1738,8 +1738,8 @@ static void missionResetDroids()
 				{
 					if (psStruct->pStructureType->type == REF_HQ)
 					{
-						int	x = map_coord(psStruct->pos.x);
-						int	y = map_coord(psStruct->pos.y);
+						UDWORD		x = map_coord(psStruct->pos.x);
+						UDWORD		y = map_coord(psStruct->pos.y);
 						PICKTILE	pickRes = pickHalfATile(&x, &y, LOOK_FOR_EMPTY_TILE);
 
 						if (pickRes == NO_FREE_TILE)
@@ -1796,11 +1796,11 @@ static void missionResetDroids()
 
 /*unloads the Transporter passed into the mission at the specified x/y
 goingHome = true when returning from an off World mission*/
-void unloadTransporter(DROID *psTransporter, uint x, uint y, bool goingHome)
+void unloadTransporter(DROID *psTransporter, UDWORD x, UDWORD y, bool goingHome)
 {
 	DROID		*psDroid, *psNext;
 	DROID		**ppCurrentList;
-	int	droidX, droidY;
+	UDWORD		droidX, droidY;
 	DROID_GROUP	*psGroup;
 
 	ASSERT_OR_RETURN(, psTransporter != nullptr, "Invalid transporter");
@@ -1892,7 +1892,7 @@ void unloadTransporter(DROID *psTransporter, uint x, uint y, bool goingHome)
 			psTransporter->selected = false;
 
 			/* Send transporter offworld */
-			uint iX = 0, iY = 0;
+			UDWORD iX = 0, iY = 0;
 			missionGetTransporterExit(psTransporter->player, &iX, &iY);
 			orderDroidLoc(psTransporter, DORDER_TRANSPORTRETURN, iX, iY, ModeImmediate);
 
@@ -2321,7 +2321,7 @@ void intRemoveTransporterTimer()
 
 
 
-static void intDisplayMissionBackDrop(WIDGET *psWidget, uint xOffset, uint yOffset)
+static void intDisplayMissionBackDrop(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 {
 	// Any widget using intDisplayMissionBackDrop must have its pUserData initialized to a (ScoreDataToScreenCache*)
 	assert(psWidget->pUserData != nullptr);
@@ -2586,7 +2586,7 @@ static void missionContineButtonPressed()
 	}
 }
 
-void intProcessMissionResult(uint id)
+void intProcessMissionResult(UDWORD id)
 {
 	switch (id)
 	{
@@ -2647,7 +2647,8 @@ void intProcessMissionResult(uint id)
 
 /*builds a droid back at the home base whilst on a mission - stored in a list made
 available to the transporter interface*/
-DROID *buildMissionDroid(DROID_TEMPLATE *psTempl, uint x, uint y, uint player)
+DROID *buildMissionDroid(DROID_TEMPLATE *psTempl, UDWORD x, UDWORD y,
+                         UDWORD player)
 {
 	DROID		*psNewDroid;
 
@@ -2689,7 +2690,7 @@ void launchMission()
 
 
 //sets up the game to start a new mission
-bool setUpMission(uint type)
+bool setUpMission(UDWORD type)
 {
 	// Close the interface
 	intResetScreen(true);
@@ -2865,7 +2866,7 @@ static inline void addLandingLight(int x, int y, LAND_LIGHT_SPEC spec, bool lit)
 	addEffect(&pos, EFFECT_EXPLOSION, EXPLOSION_TYPE_LAND_LIGHT, false, nullptr, lit);
 }
 
-static void addLandingLights(int x, int y)
+static void addLandingLights(UDWORD x, UDWORD y)
 {
 	addLandingLight(x, y, LL_MIDDLE, true);                 // middle
 
@@ -2882,7 +2883,7 @@ static void addLandingLights(int x, int y)
 
 /*	checks the x,y passed in are not within the boundary of any Landing Zone
 	x and y in tile coords*/
-bool withinLandingZone(uint x, uint y)
+bool withinLandingZone(UDWORD x, UDWORD y)
 {
 	UDWORD		inc;
 
@@ -2892,8 +2893,8 @@ bool withinLandingZone(uint x, uint y)
 
 	for (inc = 0; inc < MAX_NOGO_AREAS; inc++)
 	{
-		if ((x >= sLandingZone[inc].x1 && x <= sLandingZone[inc].x2) &&
-		        (y >= sLandingZone[inc].y1 && y <= sLandingZone[inc].y2))
+		if ((x >= (UDWORD)sLandingZone[inc].x1 && x <= (UDWORD)sLandingZone[inc].x2) &&
+		        (y >= (UDWORD)sLandingZone[inc].y1 && y <= (UDWORD)sLandingZone[inc].y2))
 		{
 			return true;
 		}
@@ -2919,13 +2920,13 @@ UWORD getLandingY(SDWORD iPlayer)
 }
 
 //returns the x coord for where the Transporter can land back at home base
-int getHomeLandingX()
+UDWORD getHomeLandingX()
 {
 	return map_coord(mission.homeLZ_X);
 }
 
 //returns the y coord for where the Transporter can land back at home base
-int getHomeLandingY()
+UDWORD getHomeLandingY()
 {
 	return map_coord(mission.homeLZ_Y);
 }

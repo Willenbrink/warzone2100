@@ -82,7 +82,7 @@ struct STRUCTURE;
 struct DROID : public BASE_OBJECT
 {
 public:
-	DROID(int player, DROID_TEMPLATE *pTemplate, Position pos, Rotation rot);
+	DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rotation rot);
 	~DROID();
 
 	/// UTF-8 name of the droid. This is generated from the droid template
@@ -98,8 +98,8 @@ public:
 	/* The other droid data.  These are all derived from the components
 	 * but stored here for easy access
 	 */
-	int weight, baseSpeed, experience = 0;
-	int          lastFrustratedTime;             ///< Set when eg being stuck; used for eg firing indiscriminately at map features to clear the way
+	uint weight, baseSpeed, experience = 0;
+	uint          lastFrustratedTime;             ///< Set when eg being stuck; used for eg firing indiscriminately at map features to clear the way
 	int           resistance;                     ///< used in Electronic Warfare
 	// The group the droid belongs to
 	DROID_GROUP    *psGroup;

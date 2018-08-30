@@ -241,16 +241,16 @@ void objmemUpdate()
 	}
 }
 
-int generateNewObjectId()
+uint32_t generateNewObjectId()
 {
 	// Generate even ID for unsynchronized objects. This is needed for debug objects, templates and other border lines cases that should preferably be removed one day.
 	return unsynchObjID++*MAX_PLAYERS * 2 + selectedPlayer * 2; // Was taken from createObject, where 'player' was used instead of 'selectedPlayer'. Hope there are no stupid hacks that try to recover 'player' from the last 3 bits.
 }
 
-int generateSynchronisedObjectId()
+uint32_t generateSynchronisedObjectId()
 {
 	// Generate odd ID for synchronized objects
-	int ret = synchObjID++ * 2 + 1;
+	uint32_t ret = synchObjID++ * 2 + 1;
 	syncDebug("New objectId = %u", ret);
 	return ret;
 }

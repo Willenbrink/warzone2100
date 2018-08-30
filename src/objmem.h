@@ -48,9 +48,9 @@ void objmemShutdown();
 void objmemUpdate();
 
 /// Generates a new, (hopefully) unique object id.
-int generateNewObjectId();
+uint32_t generateNewObjectId();
 /// Generates a new, (hopefully) unique object id, which all clients agree on.
-int generateSynchronisedObjectId();
+uint32_t generateSynchronisedObjectId();
 
 /* add the droid to the Droid Lists */
 void addDroid(DROID *psDroidToAdd, DROID *pList[MAX_PLAYERS]);

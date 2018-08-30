@@ -1338,7 +1338,7 @@ bool intRunMultiMenu()
 // process clicks made by user.
 void intProcessMultiMenu(UDWORD id)
 {
-	int	i;
+	UBYTE	i;
 
 	//close
 	if (id == MULTIMENU_CLOSE)

@@ -757,7 +757,7 @@ void actionUpdateDroid(DROID *psDroid)
 			{
 				if ((SDWORD)(mission.ETA - (gameTime - missionGetReinforcementTime())) <= 0)
 				{
-					uint droidX, droidY;
+					UDWORD droidX, droidY;
 
 					if (!droidRemove(psDroid, mission.apsDroidLists))
 					{

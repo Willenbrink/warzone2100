@@ -83,11 +83,11 @@ struct NEXTOBJ
 
 struct SIMPLE_OBJECT
 {
-	SIMPLE_OBJECT(OBJECT_TYPE type, int id, int player);
+	SIMPLE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player);
 	virtual ~SIMPLE_OBJECT();
 
 	const OBJECT_TYPE type;                         ///< The type of object
-	int          id;                             ///< ID number of the object
+	UDWORD          id;                             ///< ID number of the object
 	Position        pos = Position(0, 0, 0);        ///< Position of the object
 	Rotation        rot;                            ///< Object's yaw +ve rotation around up-axis
 	UBYTE           player;                         ///< Which player the object belongs to
@@ -109,7 +109,7 @@ enum OBJECT_FLAG
 
 struct BASE_OBJECT : public SIMPLE_OBJECT
 {
-	BASE_OBJECT(OBJECT_TYPE type, int id, int player);
+	BASE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player);
 	~BASE_OBJECT();
 
 	SCREEN_DISP_DATA    sDisplay;                   ///< screen coordinate details

@@ -4707,7 +4707,7 @@ static QScriptValue js_getDroidProduction(QScriptContext *context, QScriptEngine
 		return QScriptValue::NullValue;
 	}
 
-	DROID *psDroid = new DROID(player, pTemplate, psStruct->pos, psStruct->rot);
+	DROID *psDroid = new DROID(0, player, pTemplate, psStruct->pos, psStruct->rot);
 	return convDroid(psDroid, engine);
 }
 

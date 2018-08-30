@@ -2341,8 +2341,7 @@ static bool structPlaceDroid(STRUCTURE *psStructure, DROID_TEMPLATE *psTempl, DR
 
 	if (placed)
 	{
-		//FIXME where is FUNCTIONALITY defined? Can't seem to find it... Either way, this cast seems dangerous
-		INITIAL_DROID_ORDERS initialOrders = {(int) psStructure->pFunctionality->factory.secondaryOrder, psStructure->pFunctionality->factory.psAssemblyPoint->coords.x, psStructure->pFunctionality->factory.psAssemblyPoint->coords.y, psStructure->id};
+		INITIAL_DROID_ORDERS initialOrders = {psStructure->pFunctionality->factory.secondaryOrder, psStructure->pFunctionality->factory.psAssemblyPoint->coords.x, psStructure->pFunctionality->factory.psAssemblyPoint->coords.y, psStructure->id};
 		//create a droid near to the structure
 		syncDebug("Placing new droid at (%d,%d)", x, y);
 		turnOffMultiMsg(true);
@@ -3949,7 +3948,7 @@ void structureUpdate(STRUCTURE *psBuilding, bool mission)
 	CHECK_STRUCTURE(psBuilding);
 }
 
-STRUCTURE::STRUCTURE(int id, int player)
+STRUCTURE::STRUCTURE(uint32_t id, unsigned player)
 	: BASE_OBJECT(OBJ_STRUCTURE, id, player)
 	, pFunctionality(nullptr)
 	, buildRate(1)  // Initialise to 1 instead of 0, to make sure we don't get destroyed first tick due to inactivity.
