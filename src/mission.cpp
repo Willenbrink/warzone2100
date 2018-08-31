@@ -1043,7 +1043,7 @@ void placeLimboDroids()
 			//this is mainly for VTOLs
 			setDroidBase(psDroid, nullptr);
 			//initialise the movement data
-			initDroidMovement(psDroid);
+      psDroid->clearPath();
 			//make sure the died flag is not set
 			psDroid->died = false;
 		}

@@ -10611,7 +10611,7 @@ bool scrGetDroidLevel()
 
 	ASSERT_OR_RETURN(false, psDroid != nullptr, "null-pointer passed");
 
-	scrFunctionResult.v.ival = (SDWORD)getDroidLevel(psDroid);
+	scrFunctionResult.v.ival = (int) psDroid->getLevel();
 
 	if (!stackPushResult(VAL_INT, &scrFunctionResult))
 	{

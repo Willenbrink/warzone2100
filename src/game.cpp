@@ -4370,7 +4370,7 @@ bool loadSaveDroidInit(char *pFileData, UDWORD filesize)
 		}
 		else
 		{
-			psDroid = reallyBuildDroid(psTemplate, Position((pDroidInit->x & ~TILE_MASK) + TILE_UNITS / 2, (pDroidInit->y  & ~TILE_MASK) + TILE_UNITS / 2, 0), pDroidInit->player, false);
+			psDroid = new DROID(generateSynchronisedObjectId(), pDroidInit->player, psTemplate, false, Position((pDroidInit->x & ~TILE_MASK) + TILE_UNITS / 2, (pDroidInit->y  & ~TILE_MASK) + TILE_UNITS / 2, 0));
 
 			if (psDroid)
 			{

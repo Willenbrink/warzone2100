@@ -3919,7 +3919,7 @@ UDWORD  getDroidRankGraphic(DROID *psDroid)
 	UDWORD gfxId = UDWORD_MAX;
 
 	/* Establish the numerical value of the droid's rank */
-	switch (getDroidLevel(psDroid))
+	switch (psDroid->getLevel())
 	{
 		case 0:
 			break;

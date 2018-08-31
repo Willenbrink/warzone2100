@@ -648,7 +648,7 @@ static void gameStateUpdate()
 		{
 			// Copy the next pointer - not 100% sure if the droid could get destroyed but this covers us anyway
 			psNext = psCurr->psNext;
-			droidUpdate(psCurr);
+			psCurr->update();
 		}
 
 		for (DROID *psCurr = mission.apsDroidLists[i]; psCurr != nullptr; psCurr = psNext)
