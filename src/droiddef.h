@@ -55,7 +55,14 @@ typedef std::vector<DROID_ORDER_DATA> OrderList;
 
 struct DROID_TEMPLATE : public BASE_STATS
 {
+ public:
 	DROID_TEMPLATE();
+
+  //Getter
+  uint getWeight();
+
+  //FIXME this could possibly be placed in a constructor
+  void copyDroid(DROID *psDroid); //Copies various stats from this droid
 
 	/*!
 	 * The droid components.
@@ -74,6 +81,7 @@ struct DROID_TEMPLATE : public BASE_STATS
 	bool            prefab;                     ///< Not player designed, not saved, never delete or change
 	bool            stored;                     ///< Stored template
 	bool            enabled;                    ///< Has been enabled
+ private:
 };
 
 class DROID_GROUP;
@@ -82,7 +90,7 @@ struct STRUCTURE;
 struct DROID : public BASE_OBJECT
 {
 public:
-	DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, bool onMission, Position pos = Position(), Rotation rot = Rotation());
+	DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, Position pos = Position(), Rotation rot = Rotation());
 	~DROID();
 
   //Initialisation
@@ -93,6 +101,7 @@ public:
   uint getLevel();
   uint getEffectiveLevel();
   std::string getDroidName(); //TODO rename to getName() and remove getName() typedef somewhere in structdef i think
+  uint getWeight();
 
   void update();
   void centerView();
@@ -101,6 +110,7 @@ public:
 	///  WARNING: This *can* be changed by the game player after creation & can be translated, do NOT rely on this being the same for everyone!
 	char            aName[MAX_STR_LENGTH];
 	std::string name;
+
 	DROID_TYPE      droidType;                      ///< The type of droid
 	/** Holds the specifics for the component parts - allows damage
 	 *  per part to be calculated. Indexed by COMPONENT_TYPE.
@@ -156,6 +166,7 @@ public:
 	/* anim data */
 	int        iAudioID;
 private:
+  DROID_TEMPLATE *psTemplate;
   void bodyUpgrade();
 };
 

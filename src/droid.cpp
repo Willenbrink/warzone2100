@@ -324,6 +324,7 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, P
 	, secondaryOrderPendingCount(0)
 	, action(DACTION_NONE)
 	, actionPos(0, 0)
+  , psTemplate(psTemplate)
 {
 	DROID_GROUP		*psGrp;
 	// Don't use this assertion in single player, since droids can finish building while on an away mission
@@ -356,7 +357,7 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, P
 	}
 
 	setBits(psTemplate);
-	this->weight = calcDroidWeight(psTemplate);
+	this->weight = psTemplate->getWeight();
 
 	order.type = DORDER_NONE;
 	order.pos = Vector2i(0, 0);
@@ -1455,32 +1456,36 @@ DROID_TYPE droidTemplateType(DROID_TEMPLATE *psTemplate)
 	return type;
 }
 
-/* Calculate the weight of a droid from it's template */
-UDWORD calcDroidWeight(DROID_TEMPLATE *psTemplate)
+uint DROID_TEMPLATE::getWeight()
 {
-	UDWORD weight, i;
+  uint weight = 0;
 
 	/* Get the basic component weight */
-	weight =
-	    (asBodyStats + psTemplate->asParts[COMP_BODY])->weight +
-	    (asBrainStats + psTemplate->asParts[COMP_BRAIN])->weight +
-	    //(asPropulsionStats + psTemplate->asParts[COMP_PROPULSION])->weight +
-	    (asSensorStats + psTemplate->asParts[COMP_SENSOR])->weight +
-	    (asECMStats + psTemplate->asParts[COMP_ECM])->weight +
-	    (asRepairStats + psTemplate->asParts[COMP_REPAIRUNIT])->weight +
-	    (asConstructStats + psTemplate->asParts[COMP_CONSTRUCT])->weight;
+	weight +=
+	    (asBodyStats + this->asParts[COMP_BODY])->weight +
+	    (asBrainStats + this->asParts[COMP_BRAIN])->weight +
+	    //(asPropulsionStats + this->asParts[COMP_PROPULSION])->weight +
+	    (asSensorStats + this->asParts[COMP_SENSOR])->weight +
+	    (asECMStats + this->asParts[COMP_ECM])->weight +
+	    (asRepairStats + this->asParts[COMP_REPAIRUNIT])->weight +
+	    (asConstructStats + this->asParts[COMP_CONSTRUCT])->weight;
 
 	/* propulsion weight is a percentage of the body weight */
-	weight += (((asPropulsionStats + psTemplate->asParts[COMP_PROPULSION])->weight *
-	            (asBodyStats + psTemplate->asParts[COMP_BODY])->weight) / 100);
+	weight += (((asPropulsionStats + this->asParts[COMP_PROPULSION])->weight *
+	            (asBodyStats + this->asParts[COMP_BODY])->weight) / 100);
 
 	/* Add the weapon weight */
-	for (i = 0; i < psTemplate->numWeaps; i++)
+	for (int i = 0; i < this->numWeaps; i++)
 	{
-		weight += (asWeaponStats + psTemplate->asWeaps[i])->weight;
+		weight += (asWeaponStats + this->asWeaps[i])->weight;
 	}
 
 	return weight;
+}
+
+uint DROID::getWeight()
+{
+  return psTemplate->getWeight();
 }
 
 static uint32_t calcDroidOrTemplateBody(uint8_t (&asParts)[DROID_MAXCOMP], unsigned numWeaps, uint32_t (&asWeaps)[MAX_WEAPONS], unsigned player)
@@ -1816,6 +1821,23 @@ void DROID::setBits(DROID_TEMPLATE *psTemplate)
 
 
 // Sets the parts array in a template given a droid.
+void DROID_TEMPLATE::copyDroid(DROID *psDroid)
+{
+  numWeaps = 0;
+  droidType = psDroid->droidType;
+
+  for (int i = 0; i < MAX_WEAPONS; i++)
+    {
+      asWeaps[i] = 0;
+      int droidStat = psDroid->asWeaps[i].nStat;
+      if(droidStat > 0)
+        {
+          numWeaps++;
+          asWeaps[i] = droidStat;
+        }
+    }
+  memcpy(asParts, psDroid->asBits, sizeof(psDroid->asBits));
+}
 void templateSetParts(const DROID *psDroid, DROID_TEMPLATE *psTemplate)
 {
 	psTemplate->numWeaps = 0;
