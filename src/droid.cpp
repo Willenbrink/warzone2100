@@ -314,6 +314,24 @@ int32_t droidDamage(DROID *psDroid, unsigned damage, WEAPON_CLASS weaponClass, W
 	return relativeDamage;
 }
 
+DROID_TEMPLATE::DROID_TEMPLATE(DROID *psDroid)
+{
+	name = WzString::fromUtf8(psDroid->aName);	// copy the name across
+  droidType = psDroid->droidType;
+
+  for (int i = 0; i < MAX_WEAPONS; i++)
+    {
+      asWeaps[i] = 0;
+      int droidStat = psDroid->asWeaps[i].nStat;
+      if(droidStat > 0)
+        {
+          numWeaps++;
+          asWeaps[i] = droidStat;
+        }
+    }
+  memcpy(asParts, psDroid->asBits, sizeof(psDroid->asBits));
+}
+
 DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, Position pos, Rotation rot)
 	: BASE_OBJECT(OBJ_DROID, id, player)
 	, droidType(DROID_ANY)
@@ -1819,45 +1837,6 @@ void DROID::setBits(DROID_TEMPLATE *psTemplate)
 	}
 }
 
-
-// Sets the parts array in a template given a droid.
-void DROID_TEMPLATE::copyDroid(DROID *psDroid)
-{
-  numWeaps = 0;
-  droidType = psDroid->droidType;
-
-  for (int i = 0; i < MAX_WEAPONS; i++)
-    {
-      asWeaps[i] = 0;
-      int droidStat = psDroid->asWeaps[i].nStat;
-      if(droidStat > 0)
-        {
-          numWeaps++;
-          asWeaps[i] = droidStat;
-        }
-    }
-  memcpy(asParts, psDroid->asBits, sizeof(psDroid->asBits));
-}
-void templateSetParts(const DROID *psDroid, DROID_TEMPLATE *psTemplate)
-{
-	psTemplate->numWeaps = 0;
-	psTemplate->droidType = psDroid->droidType;
-
-	for (int inc = 0; inc < MAX_WEAPONS; inc++)
-	{
-		//this should fix the NULL weapon stats for empty weaponslots
-		psTemplate->asWeaps[inc] = 0;
-
-		if (psDroid->asWeaps[inc].nStat > 0)
-		{
-			psTemplate->numWeaps += 1;
-			psTemplate->asWeaps[inc] = psDroid->asWeaps[inc].nStat;
-		}
-	}
-
-	memcpy(psTemplate->asParts, psDroid->asBits, sizeof(psDroid->asBits));
-}
-
 /* Make all the droids for a certain player a member of a specific group */
 void assignDroidsToGroup(uint	player, uint group)
 {
@@ -2928,8 +2907,6 @@ bool standardSensorDroid(const DROID *psDroid)
 // Returns the droid created.
 DROID *giftSingleDroid(DROID *psD, UDWORD to)
 {
-	DROID_TEMPLATE sTemplate;
-	DROID *psNewDroid;
 
 	CHECK_DROID(psD);
 	ASSERT_OR_RETURN(nullptr, !isDead(psD), "Cannot gift dead unit");
@@ -2950,8 +2927,7 @@ DROID *giftSingleDroid(DROID *psD, UDWORD to)
 		return nullptr;
 	}
 
-	templateSetParts(psD, &sTemplate);	// create a template based on the droid
-	sTemplate.name = WzString::fromUtf8(psD->aName);	// copy the name across
+	DROID_TEMPLATE *psTemplate = new DROID_TEMPLATE(psD);
 
 	// only play the nexus sound if unit being taken over is selectedPlayer's but not going to the selectedPlayer
 	if (psD->player == selectedPlayer && to != selectedPlayer && !bMultiPlayer)
@@ -2962,7 +2938,7 @@ DROID *giftSingleDroid(DROID *psD, UDWORD to)
 	// make the old droid vanish (but is not deleted until next tick)
 	vanishDroid(psD);
 	// create a new droid
-	psNewDroid = reallyBuildDroid(&sTemplate, Position(psD->pos.x, psD->pos.y, 0), to, false, psD->rot);
+	DROID *psNewDroid = new DROID(generateSynchronisedObjectId(), to, psTemplate, false, psD->pos, psD->rot);
 	ASSERT_OR_RETURN(nullptr, psNewDroid, "Unable to build unit");
 	addDroid(psNewDroid, apsDroidLists);
 	psNewDroid->health = clip((psD->health * psNewDroid->maxHealth + psD->maxHealth / 2) / std::max(psD->maxHealth, 1u), 1u, psNewDroid->maxHealth);
