@@ -1393,14 +1393,14 @@ void actionUpdateDroid(DROID *psDroid)
 						{
 							syncDebug("Reached build target: already-structure");
 							objTrace(psDroid->id, "DACTION_MOVETOBUILD: tile has structure already");
-              psDroid->cancelBuild();
+							psDroid->cancelBuild();
 						}
 					}
 					else if (!validLocation(order->psStats, pos, dir, psDroid->player, false))
 					{
 						syncDebug("Reached build target: invalid");
 						objTrace(psDroid->id, "DACTION_MOVETOBUILD: !validLocation");
-            psDroid->cancelBuild();
+						psDroid->cancelBuild();
 					}
 					else if (droidStartBuild(psDroid) == DroidStartBuildSuccess)  // If DroidStartBuildPending, then there's a burning oil well, and we don't want to change to DACTION_BUILD until it stops burning.
 					{
@@ -1446,13 +1446,13 @@ void actionUpdateDroid(DROID *psDroid)
 							else
 							{
 								objTrace(psDroid->id, "DACTION_MOVETOBUILD: line build hit building");
-                psDroid->cancelBuild();
+								psDroid->cancelBuild();
 							}
 						}
 						else
 						{
 							objTrace(psDroid->id, "DACTION_MOVETOBUILD: blocked line build");
-              psDroid->cancelBuild();
+							psDroid->cancelBuild();
 						}
 					}
 					else if (droidStartBuild(psDroid))
