@@ -994,7 +994,7 @@ bool structSetManufacture(STRUCTURE *psStruct, DROID_TEMPLATE *psTempl, QUEUE_MO
 		psFact->timeStarted = ACTION_START_TIME;//gameTime;
 		psFact->timeStartHold = 0;
 
-		psFact->buildPointsRemaining = calcTemplateBuild(psTempl);
+		psFact->buildPointsRemaining = psTempl->getBuildTime();
 		//check for zero build time - usually caused by 'silly' data! If so, set to 1 build point - ie very fast!
 		psFact->buildPointsRemaining = std::max(psFact->buildPointsRemaining, 1);
 	}
@@ -3352,10 +3352,10 @@ static void aiUpdateStructure(STRUCTURE *psStructure, bool isMission)
 			{
 				int progress = gameTimeAdjustedAverage(getBuildingProductionPoints(psStructure));
 
-				if (psFactory->buildPointsRemaining == calcTemplateBuild(psFactory->psSubject) && progress > 0)
+				if (psFactory->buildPointsRemaining == psFactory->psSubject->getBuildTime() && progress > 0)
 				{
 					// We're just starting to build, check for power.
-					bool haveEnoughPower = requestPowerFor(psStructure, calcTemplatePower(psFactory->psSubject));
+					bool haveEnoughPower = requestPowerFor(psStructure, psFactory->psSubject->getBuildPower());
 
 					if (!haveEnoughPower)
 					{
@@ -6363,10 +6363,10 @@ void cancelProduction(STRUCTURE *psBuilding, QUEUE_MODE mode, bool mayClearProdu
 	//check its the correct factory
 	if (psFactory->psSubject)
 	{
-		if (psFactory->buildPointsRemaining < calcTemplateBuild(psFactory->psSubject))
+		if (psFactory->buildPointsRemaining < psFactory->psSubject->getBuildTime())
 		{
 			// We started building, so give the power back that was used.
-			addPower(psBuilding->player, calcTemplatePower(psFactory->psSubject));
+			addPower(psBuilding->player, psFactory->psSubject->getBuildPower());
 		}
 
 		//clear the factory's subject

@@ -61,7 +61,8 @@ public:
 
 	//Getter
 	uint getWeight();
-
+  uint getBuildTime();
+  uint getBuildPower();
 
 	/*!
 	 * The droid components.
@@ -101,6 +102,12 @@ public:
 	uint getEffectiveLevel();
 	std::string getDroidName(); //TODO rename to getName() and remove getName() typedef somewhere in structdef i think
 	uint getWeight();
+  bool isAttacking();
+  bool underRepair();
+  bool isEW();
+  bool isDamaged();
+  uint getBuildPower();
+  uint getBuildTime();
 
 	void update();
 	void centerView();

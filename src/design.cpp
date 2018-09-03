@@ -884,14 +884,14 @@ static bool intAddTemplateButtons(ListTabWidget *templList, DROID_TEMPLATE *psSe
 		templList->addWidgetToLayout(button);
 
 		sBarInit.iRange = POWERPOINTS_DROIDDIV;
-		sBarInit.size = calcTemplatePower(psTempl) / POWERPOINTS_DROIDDIV;
+		sBarInit.size = psTempl->getBuildPower() / POWERPOINTS_DROIDDIV;
 
 		if (sBarInit.size > WBAR_SCALE)
 		{
 			sBarInit.size = WBAR_SCALE;
 		}
 
-		ssprintf(TempString, "%s - %d", _("Power Usage"), calcTemplatePower(psTempl));
+		ssprintf(TempString, "%s - %d", _("Power Usage"), psTempl->getBuildPower());
 		sBarInit.pTip = TempString;
 		sBarInit.formID = nextButtonId;
 
@@ -2600,7 +2600,7 @@ static void intSetBodyShadowStats(BODY_STATS *psStats)
 static void intSetDesignPower(DROID_TEMPLATE *psTemplate)
 {
 	/* use the same scale as PowerBar in main window so values are relative */
-	widgSetBarSize(psWScreen, IDDES_POWERBAR, calcTemplatePower(psTemplate));
+	widgSetBarSize(psWScreen, IDDES_POWERBAR, psTemplate->getBuildPower());
 }
 
 
@@ -4545,7 +4545,7 @@ void runTemplateShadowStats(UDWORD id)
 
 		//haven't got a stat so just do the code required here...
 		widgSetMinorBarSize(psWScreen, IDDES_BODYPOINTS, calcTemplateBody(psTempl, selectedPlayer));
-		widgSetMinorBarSize(psWScreen, IDDES_POWERBAR, calcTemplatePower(psTempl));
+		widgSetMinorBarSize(psWScreen, IDDES_POWERBAR, psTempl->getBuildPower());
 	}
 }
 

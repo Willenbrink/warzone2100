@@ -227,10 +227,10 @@ void intUpdateProgressBar(WIDGET *psWidget, W_CONTEXT *psContext)
 			{
 				Manufacture = StructureGetFactory(Structure);
 
-				if (Manufacture->psSubject != nullptr && Manufacture->buildPointsRemaining < calcTemplateBuild(Manufacture->psSubject))
+				if (Manufacture->psSubject != nullptr && Manufacture->buildPointsRemaining < Manufacture->psSubject->getBuildTime())
 				{
 					// Started production. Set the colour of the bar to yellow.
-					int buildPointsTotal = calcTemplateBuild(FactoryGetTemplate(Manufacture));
+					int buildPointsTotal = FactoryGetTemplate(Manufacture)->getBuildTime();
 					int buildRate = Manufacture->timeStartHold == 0 ? getBuildingProductionPoints(Structure) : 0;
 					formatTime(BarGraph, buildPointsTotal - Manufacture->buildPointsRemaining, buildPointsTotal, buildRate, _("Construction Progress"));
 				}
@@ -238,7 +238,7 @@ void intUpdateProgressBar(WIDGET *psWidget, W_CONTEXT *psContext)
 				{
 					// Not yet started production.
 					int neededPower = checkPowerRequest(Structure);
-					int powerToBuild = Manufacture->psSubject ? calcTemplatePower(Manufacture->psSubject) : 0;
+					int powerToBuild = Manufacture->psSubject ? Manufacture->psSubject->getBuildPower() : 0;
 					formatPower(BarGraph, neededPower, powerToBuild);
 				}
 			}

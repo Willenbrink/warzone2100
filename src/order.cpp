@@ -201,7 +201,7 @@ DROID *checkForRepairRange(DROID *psDroid)
 		        droid != psFailedTarget &&   // Must not have just failed to reach it.
 		        distanceSq <= bestDistanceSq &&  // Must be as close as possible.
 		        aiCheckAlliances(psDroid->player, droid->player) &&  // Must be a friendly droid.
-		        droidIsDamaged(droid) &&  // Must need repairing.
+        droid->isDamaged() &&  // Must need repairing.
 		        visibleObject(psDroid, droid, false))  // Must be able to sense it.
 		{
 			bestDistanceSq = distanceSq;
@@ -1107,7 +1107,7 @@ void orderUpdateDroid(DROID *psDroid)
 
 					//if not currently attacking or target has changed
 					if (bAttack &&
-					        (!droidAttacking(psDroid) ||
+              (!psDroid->isAttacking() ||
 					         psFireTarget != psDroid->psActionTarget[0]))
 					{
 						//get the droid to attack
@@ -1529,7 +1529,8 @@ void orderDroidBase(DROID *psDroid, DROID_ORDER_DATA *psOrder)
 			{
 				//cannot attack a Transporter with EW in multiPlayer
 				// FIXME: Why not ?
-				if (game.type == SKIRMISH && electronicDroid(psDroid)
+        //  probably because dealing with all the units it contains is too difficult?
+				if (game.type == SKIRMISH && psDroid->isEW()
 				        && psOrder->psObj->type == OBJ_DROID && isTransporter((DROID *)psOrder->psObj))
 				{
 					break;
@@ -1919,7 +1920,7 @@ void orderDroidBase(DROID *psDroid, DROID_ORDER_DATA *psOrder)
 			break;
 
 		case DORDER_RESTORE:
-			if (!electronicDroid(psDroid))
+			if (!psDroid->isEW())
 			{
 				break;
 			}
@@ -2813,7 +2814,7 @@ DroidOrder chooseOrderObj(DROID *psDroid, BASE_OBJECT *psObj, bool altOrder)
 	         psObj->type == OBJ_DROID &&
 	         (psDroid->droidType == DROID_REPAIR ||
 	          psDroid->droidType == DROID_CYBORG_REPAIR) &&
-	         droidIsDamaged((DROID *)psObj))
+	         ((DROID *)psObj)->isDamaged())
 	{
 		order = DroidOrder(DORDER_DROIDREPAIR, psObj);
 	}
@@ -2893,7 +2894,7 @@ DroidOrder chooseOrderObj(DROID *psDroid, BASE_OBJECT *psObj, bool altOrder)
 			{
 				order = DroidOrder(DORDER_RTR_SPECIFIED, psObj);
 			}
-			else if (electronicDroid(psDroid) &&
+			else if (psDroid->isEW() &&
 			         //psStruct->resistance < (SDWORD)(psStruct->pStructureType->resistance))
 			         psStruct->resistance < (SDWORD)structureResistance(psStruct->
 			                 pStructureType, psStruct->player))
@@ -3552,7 +3553,7 @@ bool secondarySetState(DROID *psDroid, SECONDARY_ORDER sec, SECONDARY_STATE Stat
 					}
 				}
 				else if (orderState(psDroid, DORDER_GUARD) &&
-				         droidAttacking(psDroid))
+				         psDroid->isAttacking())
 				{
 					// send the unit back to the guard position
 					actionDroid(psDroid, DACTION_NONE);

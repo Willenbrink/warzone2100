@@ -1735,7 +1735,8 @@ static void intRunPower()
 		         psStat->ref < REF_TEMPLATE_START + REF_RANGE)
 		{
 			//get the template build points
-			quantity = calcTemplatePower(apsTemplateList[statID - IDSTAT_START]);
+      //FIXME is this power or points? comment contradicts previous and current code
+			quantity = apsTemplateList[statID - IDSTAT_START]->getBuildPower();
 		}
 		else if (psStat->ref >= REF_RESEARCH_START &&
 		         psStat->ref < REF_RESEARCH_START + REF_RANGE)
@@ -3937,7 +3938,7 @@ static bool intAddStats(BASE_STATS **ppsStatsList, UDWORD numStats,
 		else if (Stat->ref >= REF_TEMPLATE_START &&
 		         Stat->ref < REF_TEMPLATE_START + REF_RANGE)  	// It's a droid.
 		{
-			powerCost = calcTemplatePower((DROID_TEMPLATE *)Stat);
+			powerCost = ((DROID_TEMPLATE *)Stat)->getBuildPower();
 			sBarInit.size = powerCost / POWERPOINTS_DROIDDIV;
 
 			if (sBarInit.size > 100)
