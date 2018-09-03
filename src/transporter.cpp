@@ -925,7 +925,7 @@ void transporterRemoveDroid(DROID *psTransport, DROID *psDroid, QUEUE_MODE mode)
 			ASSERT(false, "Unable to find a valid location");
 		}
 
-		droidSetPosition(psDroid, world_coord(droidPos.x), world_coord(droidPos.y));
+    psDroid->setPosition(world_coord(droidPos.x), world_coord(droidPos.y));
 		updateDroidOrientation(psDroid);
 	}
 

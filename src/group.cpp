@@ -78,9 +78,8 @@ DROID_GROUP *grpCreate(int id)
 
 	if (id == -1)
 	{
-		int i;
-
-		for (i = 0; grpGlobalManager.find(i) != grpGlobalManager.end(); i++) {}	// surly hack
+    int i = 0;
+		for (; grpGlobalManager.find(i) != grpGlobalManager.end(); i++) {}	// FIXME surly hack
 
 		psGroup->id = i;
 	}

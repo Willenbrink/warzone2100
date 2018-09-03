@@ -591,7 +591,7 @@ static bool actionRemoveDroidsFromBuildPos(unsigned player, Vector2i pos, uint16
 		{
 			// Push the droid out of the way.
 			Vector2i newPos = droid->pos.xy + iSinCosR(iAtan2(bestDest - droid->pos.xy), gameTimeAdjustedIncrement(TILE_UNITS));
-			droidSetPosition(droid, newPos.x, newPos.y);
+      droid->setPosition(newPos.x, newPos.y);
 		}
 	}
 

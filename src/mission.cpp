@@ -1374,7 +1374,7 @@ static void processMission()
 			ASSERT(pickRes != NO_FREE_TILE, "processMission: Unable to find a free location");
 			x = (UWORD)world_coord(droidX);
 			y = (UWORD)world_coord(droidY);
-			droidSetPosition(psDroid, x, y);
+      psDroid->setPosition(x, y);
 			ASSERT(worldOnMap(psDroid->pos.x, psDroid->pos.y), "the droid is not on the map");
 			updateDroidOrientation(psDroid);
 			// Swap the droid and map pointers back again
@@ -1728,7 +1728,7 @@ static void missionResetDroids()
 					int wx = world_coord(x);
 					int wy = world_coord(y);
 
-					droidSetPosition(psDroid, wx, wy);
+          psDroid->setPosition(wx, wy);
 					placed = true;
 				}
 			}
@@ -1752,7 +1752,7 @@ static void missionResetDroids()
 							int wx = world_coord(x);
 							int wy = world_coord(y);
 
-							droidSetPosition(psDroid, wx, wy);
+              psDroid->setPosition(wx, wy);
 							placed = true;
 						}
 
@@ -1839,7 +1839,7 @@ void unloadTransporter(DROID *psTransporter, UDWORD x, UDWORD y, bool goingHome)
 				return;
 			}
 
-			droidSetPosition(psDroid, world_coord(droidX), world_coord(droidY));
+      psDroid->setPosition(world_coord(droidX), world_coord(droidY));
 			updateDroidOrientation(psDroid);
 
 			// a commander needs to get it's group back
