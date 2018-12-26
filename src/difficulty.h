@@ -18,8 +18,7 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef __INCLUDED_SRC_DIFFICULTY_H__
-#define __INCLUDED_SRC_DIFFICULTY_H__
+#pragma once
 
 enum DIFFICULTY_LEVEL
 {
@@ -31,8 +30,6 @@ enum DIFFICULTY_LEVEL
 	DL_KILLER
 };
 
-void setDifficultyLevel(DIFFICULTY_LEVEL lev);
+void setDifficultyLevel(DIFFICULTY_LEVEL level);
 DIFFICULTY_LEVEL getDifficultyLevel();
 int modifyForDifficultyLevel(int basicVal, bool IsPlayer);
-
-#endif // __INCLUDED_SRC_DIFFICULTY_H__

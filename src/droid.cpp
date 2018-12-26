@@ -36,11 +36,11 @@
 #include "lib/sound/audio_id.h"
 #include "lib/netplay/netplay.h"
 
+#include "droid.h"
 #include "objects.h"
 #include "loop.h"
 #include "visibility.h"
 #include "map.h"
-#include "droid.h"
 #include "hci.h"
 #include "power.h"
 #include "effects.h"
@@ -132,7 +132,7 @@ void DROID::cancelBuild()
 
 void DROID::bodyUpgrade()
 {
-	const int factor = 10000; // use big numbers to scare away rounding errors
+	const int factor = 10000; // HACK use big numbers to scare away rounding errors
 	int prev = maxHealth;
 	maxHealth = calcDroidBaseBody(this);
 	int increase = maxHealth * factor / prev;
@@ -2259,9 +2259,9 @@ bool	pickATileGenThreat(UDWORD *x, UDWORD *y, UBYTE numIterations, SDWORD threat
 }
 
 /// find a tile for a wheeled droid with only one other droid present
-PICKTILE pickHalfATile(UDWORD *x, UDWORD *y, UBYTE numIterations)
+bool pickHalfATile(UDWORD *x, UDWORD *y, UBYTE numIterations)
 {
-	return pickATileGen(x, y, numIterations, canFitDroid) ? FREE_TILE : NO_FREE_TILE;
+	return pickATileGen(x, y, numIterations, canFitDroid);
 }
 
 //Look through the players list of droids to check if any of them are working on the building

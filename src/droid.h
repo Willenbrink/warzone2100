@@ -34,28 +34,15 @@
 #include <queue>
 
 #define OFF_SCREEN 9999		// world->screen check - alex
-
 #define REPAIRLEV_LOW	50	// percentage of body points remaining at which to repair droid automatically.
 #define REPAIRLEV_HIGH	75	// ditto, but this will repair much sooner..
-
-#define DROID_RESISTANCE_FACTOR     30
-
-// Changing this breaks campaign saves!
-#define MAX_RECYCLED_DROIDS 450
-
-//used to stop structures being built too near the edge and droids being placed down
-#define TOO_NEAR_EDGE	3
-
+#define DROID_RESISTANCE_FACTOR 30
+#define MAX_RECYCLED_DROIDS 450 // Changing this breaks campaign saves!
+#define TOO_NEAR_EDGE	3 //used to stop structures being built too near the edge and droids being placed down
 /* Experience modifies */
 #define EXP_REDUCE_DAMAGE		6		// damage of a droid is reduced by this value per experience level, in %
 #define EXP_ACCURACY_BONUS		5		// accuracy of a droid is increased by this value per experience level, in %
 #define EXP_SPEED_BONUS			5		// speed of a droid is increased by this value per experience level, in %
-
-enum PICKTILE
-{
-	NO_FREE_TILE,
-	FREE_TILE,
-};
 
 // the structure that was last hit
 extern DROID	*psLastDroidHit;
@@ -170,7 +157,7 @@ const char *droidGetName(const DROID *psDroid);
 void droidSetName(DROID *psDroid, const char *pName);
 
 // returns an x/y coord to place a droid
-PICKTILE pickHalfATile(UDWORD *x, UDWORD *y, UBYTE numIterations);
+bool pickHalfATile(UDWORD *x, UDWORD *y, UBYTE numIterations);
 bool zonedPAT(UDWORD x, UDWORD y);
 bool pickATileGen(UDWORD *x, UDWORD *y, UBYTE numIterations, bool (*function)(UDWORD x, UDWORD y));
 bool pickATileGen(Vector2i *pos, unsigned numIterations, bool (*function)(UDWORD x, UDWORD y));

@@ -23,29 +23,21 @@
  * Handes the difficulty level effects on gameplay.
  */
 
-
 /*
 	Changed to allow separate modifiers for enemy and player damage.
 */
 
-#include "lib/framework/frame.h"
 #include "difficulty.h"
-#include "src/multiplay.h"
+#include "multiplay.h"
 
-
-// ------------------------------------------------------------------------------------
-
-static DIFFICULTY_LEVEL	presDifLevel = DL_NORMAL;
+static DIFFICULTY_LEVEL	currDiffLevel = DL_NORMAL;
 static int              fDifPlayerModifier;
 static int              fDifEnemyModifier;
 
-
-// ------------------------------------------------------------------------------------
 /* Sets the game difficulty level */
-void	setDifficultyLevel(DIFFICULTY_LEVEL lev)
+void setDifficultyLevel(DIFFICULTY_LEVEL level)
 {
-
-	switch (lev)
+	switch (level)
 	{
 		case	DL_EASY:
 			fDifPlayerModifier = 120;
@@ -57,7 +49,7 @@ void	setDifficultyLevel(DIFFICULTY_LEVEL lev)
 			fDifEnemyModifier = 100;
 			break;
 
-		case	DL_HARD:
+    case	DL_HARD: //FIXME why is there no difference between hard and insane?
 		case	DL_INSANE:
 			fDifPlayerModifier = 80;
 			fDifEnemyModifier = 100;
@@ -73,32 +65,28 @@ void	setDifficultyLevel(DIFFICULTY_LEVEL lev)
 			fDifEnemyModifier = 1;     // almost nothing
 			break;
 	}
-
-	presDifLevel = lev;
+	currDiffLevel = level;
 }
 
-// ------------------------------------------------------------------------------------
-/* Returns the difficulty level */
-DIFFICULTY_LEVEL	getDifficultyLevel()
+DIFFICULTY_LEVEL getDifficultyLevel()
 {
-	return (presDifLevel);
+	return (currDiffLevel);
 }
 
-// ------------------------------------------------------------------------------------
-int modifyForDifficultyLevel(int basicVal, bool IsPlayer)
+//Modifies damage according to difficulty
+int modifyForDifficultyLevel(int baseDamage, bool IsPlayer)
 {
-	if (bMultiPlayer && presDifLevel != DL_KILLER && presDifLevel != DL_TOUGH)  // ignore multiplayer or skirmish (unless using biffer baker) games
+	if (bMultiPlayer && currDiffLevel != DL_KILLER && currDiffLevel != DL_TOUGH)  // ignore multiplayer or skirmish (unless using biffer baker) games
 	{
-		return basicVal;
+		return baseDamage;
 	}
 
 	if (IsPlayer)
 	{
-		return basicVal * fDifPlayerModifier / 100;
+		return baseDamage * fDifPlayerModifier / 100;
 	}
 	else
 	{
-		return basicVal * fDifEnemyModifier / 100;
+		return baseDamage * fDifEnemyModifier / 100;
 	}
 }
-// ------------------------------------------------------------------------------------

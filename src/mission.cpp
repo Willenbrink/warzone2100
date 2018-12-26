@@ -1004,7 +1004,7 @@ void placeLimboDroids()
 {
 	DROID           *psDroid, *psNext;
 	UDWORD			droidX, droidY;
-	PICKTILE		pickRes;
+	bool		pickRes;
 
 	debug(LOG_SAVE, "called");
 
@@ -1029,7 +1029,7 @@ void placeLimboDroids()
 			droidY = map_coord(getLandingY(LIMBO_LANDING));
 			pickRes = pickHalfATile(&droidX, &droidY, LOOK_FOR_EMPTY_TILE);
 
-			if (pickRes == NO_FREE_TILE)
+			if (!pickRes)
 			{
 				ASSERT(false, "placeLimboUnits: Unable to find a free location");
 			}
@@ -1348,7 +1348,7 @@ static void processMission()
 	DROID			*psNext;
 	DROID			*psDroid;
 	UDWORD			droidX, droidY;
-	PICKTILE		pickRes;
+	bool		pickRes;
 
 	//and the rest on the mission map  - for now?
 	for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psNext)
@@ -1371,7 +1371,7 @@ static void processMission()
 			swapMissionPointers();
 
 			pickRes = pickHalfATile(&droidX, &droidY, LOOK_FOR_EMPTY_TILE);
-			ASSERT(pickRes != NO_FREE_TILE, "processMission: Unable to find a free location");
+			ASSERT(pickRes, "processMission: Unable to find a free location");
 			x = (UWORD)world_coord(droidX);
 			y = (UWORD)world_coord(droidY);
       psDroid->setPosition(x, y);
@@ -1701,7 +1701,7 @@ static void missionResetDroids()
 			//find a location next to the factory
 			if (psFactory)
 			{
-				PICKTILE	pickRes;
+				bool	pickRes;
 				UDWORD		x, y;
 
 				// Use factory DP if one
@@ -1718,7 +1718,7 @@ static void missionResetDroids()
 
 				pickRes = pickHalfATile(&x, &y, LOOK_FOR_EMPTY_TILE);
 
-				if (pickRes == NO_FREE_TILE)
+				if (!pickRes)
 				{
 					ASSERT(false, "missionResetUnits: Unable to find a free location");
 					psStruct = nullptr;
@@ -1740,9 +1740,9 @@ static void missionResetDroids()
 					{
 						UDWORD		x = map_coord(psStruct->pos.x);
 						UDWORD		y = map_coord(psStruct->pos.y);
-						PICKTILE	pickRes = pickHalfATile(&x, &y, LOOK_FOR_EMPTY_TILE);
+						bool	pickRes = pickHalfATile(&x, &y, LOOK_FOR_EMPTY_TILE);
 
-						if (pickRes == NO_FREE_TILE)
+						if (!pickRes)
 						{
 							ASSERT(false, "missionResetUnits: Unable to find a free location");
 							psStruct = nullptr;
