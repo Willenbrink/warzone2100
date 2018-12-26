@@ -210,7 +210,7 @@ struct debug_callback
  *
  * Doesn't register any callbacks!
  */
-void debug_init();
+void debug_init() asm ("debug_init");
 
 /**
  * Shutdown the debug system and remove all output callbacks

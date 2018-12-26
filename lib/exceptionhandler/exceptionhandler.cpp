@@ -94,10 +94,10 @@ static struct utsname sysInfo;
 static bool gdbIsAvailable = false, programIsAvailable = false, sysInfoValid = false;
 static char
 executionDate[MAX_DATE_STRING] = {'\0'},
-                                 programPID[MAX_PID_STRING] = {'\0'},
-                                         programPath[PATH_MAX] = {'\0'},
-                                                 gdbPath[PATH_MAX] = {'\0'},
-                                                         WritePath[PATH_MAX] = {'\0'};
+  programPID[MAX_PID_STRING] = {'\0'},
+  programPath[PATH_MAX] = {'\0'},
+  gdbPath[PATH_MAX] = {'\0'},
+  WritePath[PATH_MAX] = {'\0'};
 
 
 /**
@@ -581,7 +581,7 @@ static void posixExceptionHandler(int signum, siginfo_t *siginfo, void *sigconte
 static void posixExceptionHandler(int signum)
 #endif
 {
-	static sig_atomic_t allreadyRunning = 0;
+	static sig_atomic_t alreadyRunning = 0;
 	// XXXXXX will be converted into random characters by mkstemp(3)
 	static const char gdmpFile[] = "warzone2100.gdmp-XXXXXX";
 	char gdmpPath[PATH_MAX] = {'\0'};
@@ -593,11 +593,11 @@ static void posixExceptionHandler(int signum)
 	uint32_t btSize = backtrace(btBuffer, MAX_BACKTRACE);
 # endif
 
-	if (allreadyRunning)
+	if (alreadyRunning)
 	{
 		raise(signum);
 	}
-	allreadyRunning = 1;
+	alreadyRunning = 1;
 	// we use our write directory (which is the only directory that wz should have access to)
 	// and stuff it into our logs directory (same as on windows)
 	ssprintf(gdmpPath, "%slogs/%s", WritePath, gdmpFile);
@@ -607,7 +607,8 @@ static void posixExceptionHandler(int signum)
 
 	if (dumpFile == -1)
 	{
-		printf("Failed to create dump file '%s'", dumpFilename);
+		fprintf(stderr, "Failed to create dump file '%s'\n", WritePath);
+		perror("Failed to create dump file '%s'");
 		return;
 	}
 

@@ -38,9 +38,10 @@ let () =
   let str = "/opt/warzone2100/src/warzone2100" in
   let str2 = "--datadir=/opt/warzone2100/data" in
   try
+    init();
     CArray.of_list string [str;str2]
     |> CArray.start
     |> to_voidp
-    |> main 1
+    |> main 2
     |> print_int
   with e -> print_endline "Exception raised!"; raise e
