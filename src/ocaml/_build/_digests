@@ -1,0 +1,5 @@
+"Rule: ocaml dependencies ml (%=test )": "\240PKW\201Q\224b\162p\204\165\bYX5"
+"Rule: ocaml: ml & cmi -> cmx & o (%=test )": "$c\188\n\174\159\162\178\166F\165\t\225\220\015\228"
+"Resource: /opt/warzone2100/src/ocaml/test.ml": "v\006<\158'\130\005=\210g\140\224;\011\147\138"
+"Rule: ocaml: ml -> cmo & cmi (%=test )": "Y\237c\002\183\238$\029\176&+\144\027\143D\230"
+"Rule: ocaml: cmx* & o* -> native (%=test )": "rJ\165\246\211%\134\207\020{\221\199\014\181@W"

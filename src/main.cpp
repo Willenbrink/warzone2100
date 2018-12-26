@@ -132,6 +132,7 @@ static FOCUS_STATE focusState = FOCUS_IN;
 
 #define WIN_MAX_EXTENDED_PATH 32767
 
+
 // Gets the full path to the application executable (UTF-16)
 static std::wstring getCurrentApplicationPath_WIN()
 {
@@ -1179,8 +1180,18 @@ bool getUTF8CmdLine(int *const utfargc WZ_DECL_UNUSED, char *** const utfargv WZ
 // for backend detection
 extern const char *BACKEND;
 
-int realmain(int argc, char *argv[])
+void test(int argc, char *argv[])
 {
+  fprintf(stderr, "Succesfully working!");
+  for(int i = 0; i < argc; i++)
+  {
+    fprintf(stderr, "%s\n", argv[i]);
+  }
+}
+
+int main(int argc, char *argv[])
+{
+  test(argc, argv);
 	int utfargc = argc;
 	char **utfargv = (char **)argv;
 	wzMain(argc, argv);		// init Qt integration first
