@@ -66,14 +66,6 @@ const char *BACKEND = "SDL";
 std::map<KEY_CODE, SDL_Keycode> KEY_CODE_to_SDLKey;
 std::map<SDL_Keycode, KEY_CODE > SDLKey_to_KEY_CODE;
 
-int realmain(int argc, char *argv[]);
-
-// the main stub which calls realmain() aka, WZ's main startup routines
-int main(int argc, char *argv[])
-{
-	return realmain(argc, argv);
-}
-
 // At this time, we only have 1 window and 1 GL context.
 static SDL_Window *WZwindow = nullptr;
 static SDL_GLContext WZglcontext = nullptr;

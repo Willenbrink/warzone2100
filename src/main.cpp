@@ -588,21 +588,6 @@ static void initialize_ConfigDir()
 	debug(LOG_WZ, "Base dir: %s", PHYSFS_getBaseDir());
 }
 
-
-/*!
- * Initialize the PhysicsFS library.
- */
-static void initialize_PhysicsFS(const char *argv_0)
-{
-	int result = PHYSFS_init(argv_0);
-
-	if (!result)
-	{
-		debug(LOG_FATAL, "There was a problem trying to init Physfs.  Error was %s", WZ_PHYSFS_getLastError());
-		exit(-1);
-	}
-}
-
 static void check_Physfs()
 {
 	const PHYSFS_ArchiveInfo **i;
@@ -1126,63 +1111,12 @@ void mainLoop()
 	}
 }
 
-bool getUTF8CmdLine(int *const utfargc WZ_DECL_UNUSED, char *** const utfargv WZ_DECL_UNUSED) // explicitely pass by reference
-{
-#ifdef WZ_OS_WIN
-	int wargc;
-	wchar_t **wargv = CommandLineToArgvW(GetCommandLineW(), &wargc);
-
-	if (wargv == NULL)
-	{
-		const int err = GetLastError();
-		char *err_string;
-
-		// Retrieve a (locally encoded) string describing the error (uses LocalAlloc() to allocate memory)
-		FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, (char *)&err_string, 0, NULL);
-
-		debug(LOG_FATAL, "CommandLineToArgvW failed: %s (code:%d)", err_string, err);
-
-		LocalFree(err_string); // Free the chunk of memory FormatMessageA gave us
-		LocalFree(wargv);
-		return false;
-	}
-
-	// the following malloc and UTF16toUTF8 will be cleaned up in realmain().
-	*utfargv = (char **)malloc(sizeof(char *) * wargc);
-
-	if (!*utfargv)
-	{
-		debug(LOG_FATAL, "Out of memory!");
-		abort();
-		return false;
-	}
-
-	for (int i = 0; i < wargc; ++i)
-	{
-		STATIC_ASSERT(sizeof(wchar_t) == sizeof(utf_16_char)); // Should be true on windows
-		(*utfargv)[i] = UTF16toUTF8((const utf_16_char *)wargv[i], NULL); // only returns null when memory runs out
-
-		if ((*utfargv)[i] == NULL)
-		{
-			*utfargc = i;
-			LocalFree(wargv);
-			abort();
-			return false;
-		}
-	}
-
-	*utfargc = wargc;
-	LocalFree(wargv);
-#endif
-	return true;
-}
-
 // for backend detection
 extern const char *BACKEND;
 
 void test(int argc, char *argv[])
 {
-  fprintf(stderr, "Succesfully working!");
+  fprintf(stderr, "Succesfully working!\n");
   for(int i = 0; i < argc; i++)
   {
     fprintf(stderr, "%s\n", argv[i]);
@@ -1196,33 +1130,21 @@ int main(int argc, char *argv[])
 	char **utfargv = (char **)argv;
 	wzMain(argc, argv);		// init Qt integration first
 
-	debug_init();
 	debug_register_callback(debug_callback_stderr, nullptr, nullptr, nullptr);
-#if defined(WZ_OS_WIN) && defined(DEBUG_INSANE)
-	debug_register_callback(debug_callback_win32debug, NULL, NULL, NULL);
-#endif // WZ_OS_WIN && DEBUG_INSANE
 
 	// *****
 	// NOTE: Try *NOT* to use debug() output routines without some other method of informing the user.  All this output is sent to /dev/nul at this point on some platforms!
 	// *****
-	if (!getUTF8CmdLine(&utfargc, &utfargv))
-	{
-		return EXIT_FAILURE;
-	}
 
 	setupExceptionHandler(utfargc, utfargv, version_getFormattedVersionString(), version_getVersionedAppDirFolderName(), isPortableMode());
 
 	/*** Initialize PhysicsFS ***/
-	initialize_PhysicsFS(utfargv[0]);
 
 	/*** Initialize translations ***/
-	initI18n();
 
 	// find early boot info
 	if (!ParseCommandLineEarly(utfargc, utfargv))
-	{
 		return EXIT_FAILURE;
-	}
 
 	/* Initialize the write/config directory for PhysicsFS.
 	 * This needs to be done __after__ the early commandline parsing,
@@ -1304,9 +1226,7 @@ int main(int argc, char *argv[])
 
 	// parse the command line
 	if (!ParseCommandLine(utfargc, utfargv))
-	{
 		return EXIT_FAILURE;
-	}
 
 	// Save new (commandline) settings
 	saveConfig();
@@ -1315,7 +1235,7 @@ int main(int argc, char *argv[])
 	scanDataDirs();
 
 	// Now we check the mods to see if they exist or not (specified on the command line)
-	// FIX ME: I know this is a bit hackish, but better than nothing for now?
+	// FIXME: I know this is a bit hackish, but better than nothing for now?
 	{
 		char modtocheck[256];
 #if defined WZ_PHYSFS_2_1_OR_GREATER
