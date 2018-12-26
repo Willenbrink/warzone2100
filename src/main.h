@@ -38,7 +38,7 @@ GS_GAMEMODE GetGameMode() WZ_DECL_PURE;
 void SetGameMode(GS_GAMEMODE status);
 void mainLoop();
 void test(int argc, char* argv[]) asm ("test");
-void PHYSFS_init(char*) asm ("PHYSFS_init");
+void initPhysFS() asm ("initPhysFS");
 
 extern char SaveGamePath[PATH_MAX];
 extern char datadir[PATH_MAX];

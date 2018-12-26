@@ -24,21 +24,7 @@
 // Get platform defines before checking for them!
 #include "lib/framework/wzapp.h"
 
-#if defined(WZ_OS_WIN)
-#  if defined( _MSC_VER )
-// Silence warning when using MSVC + the Windows 7 SDK (required for XP compatibility)
-//	warning C4091: 'typedef ': ignored on left of 'tagGPFIDL_FLAGS' when no variable is declared
-#pragma warning( push )
-#pragma warning( disable : 4091 )
-#  endif
-#  include <shlobj.h> /* For SHGetFolderPath */
-#  if defined( _MSC_VER )
-#pragma warning( pop )
-#  endif
-#  include <shellapi.h> /* CommandLineToArgvW */
-#elif defined(WZ_OS_UNIX)
 #  include <errno.h>
-#endif // WZ_OS_WIN
 
 #include "lib/framework/input.h"
 #include "lib/framework/physfs_ext.h"
@@ -93,10 +79,6 @@
 #endif // WZ_OS_MAC
 
 /* Always use fallbacks on Windows */
-#if defined(WZ_OS_WIN)
-#  undef WZ_DATADIR
-#endif
-
 #if !defined(WZ_DATADIR)
 #  define WZ_DATADIR "data"
 #endif
@@ -127,93 +109,11 @@ static GS_GAMEMODE gameStatus = GS_TITLE_SCREEN;
 static GAMECODE gameLoopStatus = GAMECODE_CONTINUE;
 static FOCUS_STATE focusState = FOCUS_IN;
 
-
-#if defined(WZ_OS_WIN)
-
-#define WIN_MAX_EXTENDED_PATH 32767
-
-
-// Gets the full path to the application executable (UTF-16)
-static std::wstring getCurrentApplicationPath_WIN()
-{
-	// On Windows, use GetModuleFileNameW to obtain the full path to the current EXE
-
-	std::vector<wchar_t> buffer(WIN_MAX_EXTENDED_PATH + 1, 0);
-	DWORD moduleFileNameLen = GetModuleFileNameW(NULL, &buffer[0], buffer.size() - 1);
-	DWORD lastError = GetLastError();
-
-	if ((moduleFileNameLen == 0) && (lastError != ERROR_SUCCESS))
-	{
-		// GetModuleFileName failed
-		debug(LOG_ERROR, "GetModuleFileName failed: %lu", moduleFileNameLen);
-		return std::wstring();
-	}
-	else if (moduleFileNameLen > (buffer.size() - 1))
-	{
-		debug(LOG_ERROR, "GetModuleFileName returned a length: %lu >= buffer length: %zu", moduleFileNameLen, buffer.size());
-		return std::wstring();
-	}
-
-	// Because Windows XP's GetModuleFileName does not guarantee null-termination,
-	// always append a null-terminator
-	buffer[moduleFileNameLen] = 0;
-
-	return std::wstring(buffer.data());
-}
-
-// Gets the full path to the folder that contains the application executable (UTF-16)
-static std::wstring getCurrentApplicationFolder_WIN()
-{
-	std::wstring applicationExecutablePath = getCurrentApplicationPath_WIN();
-
-	if (applicationExecutablePath.empty())
-	{
-		return std::wstring();
-	}
-
-	// Find the position of the last slash in the application executable path
-	size_t lastSlash = applicationExecutablePath.find_last_of(L"\\/", std::wstring::npos);
-
-	if (lastSlash == std::wstring::npos)
-	{
-		// Did not find a path separator - does not appear to be a valid application executable path?
-		debug(LOG_ERROR, "Unable to find path separator in application executable path");
-		return std::wstring();
-	}
-
-	// Trim off the executable name
-	return applicationExecutablePath.substr(0, lastSlash);
-}
-#endif
-
 // Gets the full path to the folder that contains the application executable (UTF-8)
 static std::string getCurrentApplicationFolder()
 {
-#if defined(WZ_OS_WIN)
-	std::wstring applicationFolderPath_utf16 = getCurrentApplicationFolder_WIN();
-
-	// Convert the UTF-16 to UTF-8
-	int outputLength = WideCharToMultiByte(CP_UTF8, 0, applicationFolderPath_utf16.c_str(), -1, NULL, 0, NULL, NULL);
-
-	if (outputLength <= 0)
-	{
-		debug(LOG_ERROR, "Encoding conversion error.");
-		return std::string();
-	}
-
-	std::vector<char> u8_buffer(outputLength, 0);
-
-	if (WideCharToMultiByte(CP_UTF8, 0, applicationFolderPath_utf16.c_str(), -1, &u8_buffer[0], outputLength, NULL, NULL) == 0)
-	{
-		debug(LOG_ERROR, "Encoding conversion error.");
-		return std::string();
-	}
-
-	return std::string(u8_buffer.data());
-#else
 	// Not yet implemented for this platform
 	return std::string();
-#endif
 }
 
 // Gets the full path to the prefix of the folder that contains the application executable (UTF-8)
@@ -254,21 +154,6 @@ static bool isPortableMode()
 
 	if (!_checkedMode)
 	{
-#if defined(WZ_OS_WIN)
-		// On Windows, check for the presence of a ".portable" file in the same directory as the application EXE
-		std::wstring portableFilePath = getCurrentApplicationFolder_WIN();
-		portableFilePath += L"\\.portable";
-
-		if (GetFileAttributesW(portableFilePath.c_str()) != INVALID_FILE_ATTRIBUTES)
-		{
-			// A .portable file exists in the application directory
-			debug(LOG_WARNING, ".portable file detected - enabling portable mode");
-			_isPortableMode = true;
-		}
-
-#else
-		// Not yet implemented for this platform.
-#endif
 		_checkedMode = true;
 	}
 
@@ -284,8 +169,6 @@ static bool isPortableMode()
 #if !defined(WZ_PHYSFS_2_1_OR_GREATER)
 static bool getCurrentDir(char *const dest, size_t const size)
 {
-#if defined(WZ_OS_UNIX)
-
 	if (getcwd(dest, size) == nullptr)
 	{
 		if (errno == ERANGE)
@@ -299,45 +182,6 @@ static bool getCurrentDir(char *const dest, size_t const size)
 
 		return false;
 	}
-
-#elif defined(WZ_OS_WIN)
-	wchar_t tmpWStr[PATH_MAX];
-	const int len = GetCurrentDirectoryW(PATH_MAX, tmpWStr);
-
-	if (len == 0)
-	{
-		// Retrieve Windows' error number
-		const int err = GetLastError();
-		char *err_string = NULL;
-
-		// Retrieve a string describing the error number (uses LocalAlloc() to allocate memory for err_string)
-		FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, (char *)&err_string, 0, NULL);
-
-		// Print an error message with the above description
-		debug(LOG_ERROR, "GetCurrentDirectory failed (error code: %d): %s", err, err_string);
-
-		// Free our chunk of memory FormatMessageA gave us
-		LocalFree(err_string);
-
-		return false;
-	}
-	else if (len > size)
-	{
-		debug(LOG_ERROR, "The buffer to contain our current directory is too small (%u bytes and %d needed)", (unsigned int)size, len);
-
-		return false;
-	}
-
-	if (WideCharToMultiByte(CP_UTF8, 0, tmpWStr, -1, dest, size, NULL, NULL) == 0)
-	{
-		dest[0] = '\0';
-		debug(LOG_ERROR, "Encoding conversion error.");
-		return false;
-	}
-
-#else
-# error "Provide an implementation here to copy the current working directory in 'dest', which is 'size' bytes large."
-#endif
 
 	// If we got here everything went well
 	return true;
@@ -353,34 +197,7 @@ static std::string getPlatformPrefDir_Fallback(const char *org, const char *app)
 	WzString appendPath;
 	char tmpstr[PATH_MAX] = { '\0' };
 	const size_t size = sizeof(tmpstr);
-#if defined(WZ_OS_WIN)
-	wchar_t tmpWStr[MAX_PATH];
-
-	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, tmpWStr)))
-	{
-		if (WideCharToMultiByte(CP_UTF8, 0, tmpWStr, -1, tmpstr, size, NULL, NULL) == 0)
-		{
-			debug(LOG_FATAL, "Config directory encoding conversion error.");
-			exit(1);
-		}
-
-		basePath = WzString::fromUtf8(tmpstr);
-
-		appendPath = WzString();
-		// Must append org\app to APPDATA path
-		appendPath += org;
-		appendPath += PHYSFS_getDirSeparator();
-		appendPath += app;
-	}
-	else
-#elif defined(WZ_OS_MAC)
-	if (cocoaGetApplicationSupportDir(tmpstr, size))
-	{
-		basePath = WzString::fromUtf8(tmpstr);
-		appendPath = WzString::fromUtf8(app);
-	}
-	else
-#elif defined(WZ_OS_UNIX)
+#if defined(WZ_OS_UNIX)
 	// Following PhysFS, use XDG's base directory spec, even if not on Linux.
 	// Reference: https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 	const char *envPath = getenv("XDG_DATA_HOME");
@@ -1123,6 +940,13 @@ void test(int argc, char *argv[])
   }
 }
 
+void initPhysFS()
+{
+  PHYSFS_init("TODO this should not be necessary?");
+	PHYSFS_mkdir("challenges");	// custom challenges
+	PHYSFS_mkdir("logs");		// netplay, mingw crash reports & WZ logs
+}
+
 int main(int argc, char *argv[])
 {
   test(argc, argv);
@@ -1132,17 +956,7 @@ int main(int argc, char *argv[])
 
 	debug_register_callback(debug_callback_stderr, nullptr, nullptr, nullptr);
 
-	// *****
-	// NOTE: Try *NOT* to use debug() output routines without some other method of informing the user.  All this output is sent to /dev/nul at this point on some platforms!
-	// *****
-
 	setupExceptionHandler(utfargc, utfargv, version_getFormattedVersionString(), version_getVersionedAppDirFolderName(), isPortableMode());
-
-	/*** Initialize PhysicsFS ***/
-
-	/*** Initialize translations ***/
-
-	// find early boot info
 
 	/* Initialize the write/config directory for PhysicsFS.
 	 * This needs to be done __after__ the early commandline parsing,
@@ -1152,10 +966,6 @@ int main(int argc, char *argv[])
 	initialize_ConfigDir();
 
 	/*** Initialize directory structure ***/
-
-	PHYSFS_mkdir("challenges");	// custom challenges
-
-	PHYSFS_mkdir("logs");		// netplay, mingw crash reports & WZ logs
 
 	make_dir(MultiCustomMapsPath, "maps", nullptr); // needed to prevent crashes when getting map
 

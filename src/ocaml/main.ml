@@ -21,9 +21,6 @@ let sv = string @-> returning void
 
 let test = funer "test" (void @-> returning void)
 
-let str = "/opt/warzone2100/src/warzone2100"
-type filepath = Path of string
-
 exception PhysFSFailure
 
 
@@ -65,13 +62,11 @@ let parseOptions = todo
 let init () =
   let debug_init = funer "debug_init" vv in
   let i18n_init = funer "initI18n" vv in
-  let physFS_init = funer "PHYSFS_init" (string @-> returning int) in
+  let str = "/opt/warzone2100/src/warzone2100" in
+  let initPhysFS = funer "initPhysFS" vv in
   debug_init ();
   i18n_init ();
-  match physFS_init (str) with
-  (*"Error was %s", WZ_PHYSFS_getLastError());*)
-  | 0 -> raise PhysFSFailure
-  | x -> print_int x
+  initPhysFS()
 
 let () =
   let main = funer "main" (int @-> ptr void @-> returning int) in

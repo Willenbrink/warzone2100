@@ -26,10 +26,6 @@
 
 #include "lib/framework/wzapp.h"
 
-#if defined(WZ_OS_WIN)
-#  include <shellapi.h> /* For ShellExecute  */
-#endif
-
 #include "lib/framework/input.h"
 #include "lib/framework/wzconfig.h"
 #include "lib/framework/physfs_ext.h"
@@ -175,22 +171,11 @@ static bool startTitleMenu()
 static void runLink(char const *link)
 {
 	//FIXME: There is no decent way we can re-init the display to switch to window or fullscreen within game. refs: screenToggleMode().
-#if defined(WZ_OS_WIN)
-	wchar_t  wszDest[250] = {'\0'};
-	MultiByteToWideChar(CP_UTF8, 0, link, -1, wszDest, 250);
-
-	ShellExecuteW(NULL, L"open", wszDest, NULL, NULL, SW_SHOWNORMAL);
-#elif defined (WZ_OS_MAC)
-	char lbuf[250] = {'\0'};
-	ssprintf(lbuf, "open %s &", link);
-	system(lbuf);
-#else
 	// for linux
 	char lbuf[250] = {'\0'};
 	ssprintf(lbuf, "xdg-open %s &", link);
 	int stupidWarning = system(lbuf);
 	(void)stupidWarning;  // Why is system() a warn_unused_result function..?
-#endif
 }
 
 static void runUpgrdHyperlink()

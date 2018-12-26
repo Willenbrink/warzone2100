@@ -22,23 +22,7 @@
 #include "exceptionhandler.h"
 #include "dumpinfo.h"
 
-#if defined(WZ_OS_WIN)
-#include <tchar.h>
-#if defined( _MSC_VER )
-	// Silence warning when using MSVC + the Windows 7 SDK (required for XP compatibility)
-	//	warning C4091: 'typedef ': ignored on left of 'tagGPFIDL_FLAGS' when no variable is declared
-	#pragma warning( push )
-	#pragma warning( disable : 4091 )
-#endif
-#include <shlobj.h>
-#if defined( _MSC_VER )
-	#pragma warning( pop )
-#endif
-#include <shlwapi.h>
-
-#include "exchndl.h"
-
-#elif defined(WZ_OS_UNIX) && !defined(WZ_OS_MAC)
+#if defined(WZ_OS_UNIX) && !defined(WZ_OS_MAC)
 
 // C99 headers:
 # include <stdint.h>
@@ -722,9 +706,7 @@ void setupExceptionHandler(int argc, const char * const *argv, const char *packa
 	dbgDumpInit(argc, argv, packageVersion);
 #endif
 
-#if defined(WZ_OS_WIN)
-	ExchndlSetup(packageVersion, writeDir, portable_mode);
-#elif defined(WZ_OS_UNIX) && !defined(WZ_OS_MAC)
+#if defined(WZ_OS_UNIX) && !defined(WZ_OS_MAC)
 	programCommand = argv[0];
 
 	// Get full path to this program. Needed for gdb to find the binary.
@@ -745,37 +727,7 @@ void setupExceptionHandler(int argc, const char * const *argv, const char *packa
 }
 bool OverrideRPTDirectory(const char *newPath)
 {
-# if defined(WZ_OS_WIN)
-	wchar_t buf[MAX_PATH];
-
-	if (!MultiByteToWideChar(CP_UTF8, 0, newPath, -1, buf, MAX_PATH))
-	{
-		//conversion failed-- we won't use the user's directory.
-
-		LPVOID lpMsgBuf;
-		DWORD dw = GetLastError();
-		TCHAR szBuffer[4196];
-
-		FormatMessage(
-		    FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		    FORMAT_MESSAGE_FROM_SYSTEM |
-		    FORMAT_MESSAGE_IGNORE_INSERTS,
-		    NULL,
-		    dw,
-		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		    (LPTSTR) &lpMsgBuf,
-		    0, NULL);
-
-		wsprintf(szBuffer, _T("Exception handler failed setting new directory with error %d: %s\n"), dw, lpMsgBuf);
-		MessageBox((HWND)MB_ICONEXCLAMATION, szBuffer, _T("Error"), MB_OK);
-
-		LocalFree(lpMsgBuf);
-
-		return false;
-	}
-	PathRemoveFileSpecW(buf);
-	ResetRPTDirectory(buf);
-#elif defined(WZ_OS_UNIX) && !defined(WZ_OS_MAC)
+#if defined(WZ_OS_UNIX) && !defined(WZ_OS_MAC)
 	sstrcpy(WritePath, newPath);
 #endif
 	return true;
