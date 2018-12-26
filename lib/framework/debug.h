@@ -222,7 +222,7 @@ void debug_exit();
  *
  * NOTE: This may cause significant slowdowns on some systems.
  */
-void debugFlushStderr();
+void debugFlushStderr() asm ("debugFlushStderr");
 
 /// Return the last set error message, or NULL is none set since last time we were called.
 const char *debugLastError();

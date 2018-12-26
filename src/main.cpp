@@ -1143,8 +1143,6 @@ int main(int argc, char *argv[])
 	/*** Initialize translations ***/
 
 	// find early boot info
-	if (!ParseCommandLineEarly(utfargc, utfargv))
-		return EXIT_FAILURE;
 
 	/* Initialize the write/config directory for PhysicsFS.
 	 * This needs to be done __after__ the early commandline parsing,
@@ -1225,8 +1223,6 @@ int main(int argc, char *argv[])
 	loadConfig();
 
 	// parse the command line
-	if (!ParseCommandLine(utfargc, utfargv))
-		return EXIT_FAILURE;
 
 	// Save new (commandline) settings
 	saveConfig();
@@ -1409,16 +1405,7 @@ int main(int argc, char *argv[])
 	wzMainEventLoop();
 	saveConfig();
 	systemShutdown();
-#ifdef WZ_OS_WIN	// clean up the memory allocated for the command line conversion
 
-	for (int i = 0; i < argc; i++)
-	{
-		char *** const utfargvF = &utfargv;
-		free((void *)(*utfargvF)[i]);
-	}
-
-	free(utfargv);
-#endif
 	wzShutdown();
 	debug(LOG_MAIN, "Completed shutting down Warzone 2100");
 	return EXIT_SUCCESS;

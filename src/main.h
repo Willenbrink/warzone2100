@@ -21,6 +21,8 @@
 #ifndef __INCLUDED_SRC_MAIN_H__
 #define __INCLUDED_SRC_MAIN_H__
 
+#include "lib/framework/frame.h"
+
 enum GS_GAMEMODE
 {
 	GS_TITLE_SCREEN,

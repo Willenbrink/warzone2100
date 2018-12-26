@@ -25,8 +25,11 @@
 #define __INCLUDED_SRC_CLPARSE_H__
 
 // parse the commandline
-bool ParseCommandLine(int argc, const char * const *argv);
-bool ParseCommandLineEarly(int argc, const char * const *argv);
+
+void setConfigdir(char *arg) asm ("setConfigdir");
+void setDatadir(char *arg) asm ("setDatadir");
+void setDebug(char *arg) asm ("setDebug");
+void setDebugfile(char *arg) asm ("setDebugfile");
 
 bool autogame_enabled();
 const std::string &saveandquit_enabled();

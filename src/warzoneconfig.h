@@ -55,7 +55,7 @@ void war_SetFMVmode(FMV_MODE mode);
 FMV_MODE war_GetFMVmode();
 void war_SetAllowSubtitles(bool);
 bool war_GetAllowSubtitles();
-void war_setFullscreen(bool);
+void war_setFullscreen(bool) asm ("setFullscreen");
 bool war_getFullscreen();
 void war_setAntialiasing(int);
 int war_getAntialiasing();
