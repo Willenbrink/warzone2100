@@ -262,7 +262,7 @@ void inputClearBuffer();
 /* This is called once a frame so that the system can tell
  * whether a key was pressed this turn or held down from the last frame.
  */
-void inputNewFrame();
+void inputNewFrame() asm ("inputNewFrame");
 
 static inline bool specialOrderKeyDown()
 {

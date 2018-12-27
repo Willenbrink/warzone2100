@@ -66,10 +66,10 @@ struct screeninfo
 	int screen;
 };
 
-void wzMain();
+void wzMain() asm ("wzMain");
 bool wzMainScreenSetup(int antialiasing = 0, bool fullscreen = false, bool vsync = true, bool highDPI = true);
 void wzGetGameToRendererScaleFactor(float *horizScaleFactor, float *vertScaleFactor);
-void wzMainEventLoop();
+void wzMainEventLoop() asm ("SDLLoop");
 void wzQuit();              ///< Quit game
 void wzShutdown();
 void wzToggleFullscreen();

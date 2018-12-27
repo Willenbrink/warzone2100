@@ -682,20 +682,9 @@ void initPhysFS()
 int main(int argc, char *argv[])
 {
   test(argc, argv);
-	wzMain();		// init Qt integration first
-
 	debug_register_callback(debug_callback_stderr, nullptr, nullptr, nullptr);
 
 	setupExceptionHandler(argc, argv, version_getFormattedVersionString(), version_getVersionedAppDirFolderName(), false);
-
-	/* Initialize the write/config directory for PhysicsFS.
-	 * This needs to be done __after__ the early commandline parsing,
-	 * because the user might tell us to use an alternative configuration
-	 * directory.
-	 */
-
-	/*** Initialize directory structure ***/
-
 
 	memset(rulesettag, 0, sizeof(rulesettag)); // stores tag property of ruleset.json files
 
@@ -733,11 +722,7 @@ int main(int argc, char *argv[])
 	// initialise all the command line states
 	war_SetDefaultStates();
 
-	debug(LOG_MAIN, "initializing");
-
 	loadConfig();
-
-	// parse the command line
 
 	// Save new (commandline) settings
 	saveConfig();
@@ -810,9 +795,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (!wzMainScreenSetup(war_getAntialiasing(), war_getFullscreen(), war_GetVsync()))
-	{
 		return EXIT_FAILURE;
-	}
 
 	debug(LOG_WZ, "Warzone 2100 - %s", version_getFormattedVersionString());
 	debug(LOG_WZ, "Using language: %s", getLanguage());
@@ -834,19 +817,11 @@ int main(int argc, char *argv[])
 	debug(LOG_MAIN, "Final initialization");
 
 	if (!frameInitialise())
-	{
 		return EXIT_FAILURE;
-	}
-
 	if (!screenInitialise())
-	{
 		return EXIT_FAILURE;
-	}
-
 	if (!pie_LoadShaders())
-	{
 		return EXIT_FAILURE;
-	}
 
 	unsigned int windowWidth = 0, windowHeight = 0;
 	wzGetWindowResolution(nullptr, &windowWidth, &windowHeight);
@@ -898,11 +873,13 @@ int main(int argc, char *argv[])
 
 	debug(LOG_MAIN, "Entering main loop");
 	wzMainEventLoop();
-	saveConfig();
+}
+
+void halt()
+{
+  saveConfig();
 	systemShutdown();
 
 	wzShutdown();
 	debug(LOG_MAIN, "Completed shutting down Warzone 2100");
-	return EXIT_SUCCESS;
 }
-

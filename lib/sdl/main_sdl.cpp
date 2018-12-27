@@ -2176,11 +2176,11 @@ static void handleActiveEvent(SDL_Event *event)
 }
 
 // Actual mainloop
-void wzMainEventLoop(void)
+void wzMainEventLoop()
 {
 	SDL_Event event;
 
-	while (true)
+	//while (true)
 	{
 		/* Deal with any windows messages */
 		while (SDL_PollEvent(&event))
@@ -2244,8 +2244,8 @@ void wzMainEventLoop(void)
 		appPtr->processEvents();		// Qt needs to do its stuff
 #endif
 		processScreenSizeChangeNotificationIfNeeded();
-		mainLoop();				// WZ does its thing
-		inputNewFrame();			// reset input states
+		//mainLoop();				// WZ does its thing
+		//inputNewFrame();			// reset input states
 	}
 }
 
