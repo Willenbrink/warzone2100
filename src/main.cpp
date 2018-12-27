@@ -442,14 +442,10 @@ void stopGameLoop()
  * Load a savegame and start into the game loop
  * Game data should be initialised afterwards, so that startGameLoop is not necessary anymore.
  */
-bool initSaveGameLoad()
+void initSaveGameLoad()
 {
-	screen_RestartBackDrop();
-
 	// load up a save game
 	loadGameInit(saveGameName);
-
-	screen_StopBackDrop();
 
 	// Trap the cursor if cursor snapping is enabled
 	if (war_GetTrapCursor())
@@ -461,8 +457,6 @@ bool initSaveGameLoad()
 	{
 		addMissionTimerInterface();
 	}
-
-	return true;
 }
 
 // for backend detection

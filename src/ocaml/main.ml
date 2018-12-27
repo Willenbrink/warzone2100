@@ -139,6 +139,8 @@ let () =
       | x -> raise InvalidState ) in
     realTimeUpdate ();
     tmp ();
+    let iMode mode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
+    if mode <> newMode then Printf.printf "Mode changed: %i -> %i\n" (iMode mode) (iMode newMode);
     setGameMode newMode;
     loop newMode
   in

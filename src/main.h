@@ -42,7 +42,7 @@ void startTitleLoop() asm ("startTitleLoop");
 void stopTitleLoop() asm ("stopTitleLoop");
 void startGameLoop() asm ("startGameLoop");
 void stopGameLoop() asm ("stopGameLoop");
-bool initSaveGameLoad() asm ("initSaveGameLoad");
+void initSaveGameLoad() asm ("initSaveGameLoad");
 void halt() asm ("halt");
 void init() asm ("init");
 void test(int argc, char* argv[]) asm ("test");
