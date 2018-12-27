@@ -34,7 +34,7 @@ enum GS_GAMEMODE
 extern bool gameInitialised;
 extern bool customDebugfile;
 
-GS_GAMEMODE GetGameMode() WZ_DECL_PURE;
+GS_GAMEMODE GetGameMode();
 void SetGameMode(GS_GAMEMODE status);
 void mainLoop();
 void test(int argc, char* argv[]) asm ("test");
@@ -46,5 +46,14 @@ extern char configdir[PATH_MAX];
 extern char KeyMapPath[PATH_MAX];
 extern char MultiPlayersPath[PATH_MAX];
 extern char rulesettag[40];
+
+void setConfigdir(char *arg) asm ("setConfigdir");
+void setDatadir(char *arg) asm ("setDatadir");
+void setDebug(char *arg) asm ("setDebug");
+void setDebugfile(char *arg) asm ("setDebugfile");
+
+bool autogame_enabled();
+const std::string &saveandquit_enabled();
+const std::string &wz_skirmish_test();
 
 #endif // __INCLUDED_SRC_MAIN_H__

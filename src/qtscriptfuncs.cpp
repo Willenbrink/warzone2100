@@ -37,11 +37,11 @@
 #include <QtGui/QStandardItemModel>
 
 #include "action.h"
-#include "clparse.h"
 #include "combat.h"
 #include "console.h"
 #include "design.h"
 #include "display3d.h"
+#include "main.h"
 #include "map.h"
 #include "mission.h"
 #include "move.h"

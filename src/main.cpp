@@ -44,7 +44,6 @@
 #include "lib/sound/audio.h"
 #include "lib/sound/cdaudio.h"
 
-#include "clparse.h"
 #include "challenge.h"
 #include "configuration.h"
 #include "display.h"
@@ -70,13 +69,6 @@
 #include "map.h"
 #include "keybind.h"
 #include <time.h>
-
-#if defined(WZ_OS_MAC)
-// NOTE: Moving these defines is likely to (and has in the past) break the mac builds
-# include <CoreServices/CoreServices.h>
-# include <unistd.h>
-# include "lib/framework/cocoa_wrapper.h"
-#endif // WZ_OS_MAC
 
 /* Always use fallbacks on Windows */
 #if !defined(WZ_DATADIR)
@@ -104,10 +96,61 @@ char	MultiCustomMapsPath[PATH_MAX];
 char	MultiPlayersPath[PATH_MAX];
 char	KeyMapPath[PATH_MAX];
 // Start game in title mode:
-static GS_GAMEMODE gameStatus = GS_TITLE_SCREEN;
 // Status of the gameloop
 static GAMECODE gameLoopStatus = GAMECODE_CONTINUE;
 static FOCUS_STATE focusState = FOCUS_IN;
+static GS_GAMEMODE gameStatus = GS_TITLE_SCREEN;
+
+GS_GAMEMODE GetGameMode()
+{
+	return gameStatus;
+}
+
+void SetGameMode(GS_GAMEMODE status)
+{
+	gameStatus = status;
+}
+
+static bool wz_autogame = false;
+static std::string wz_saveandquit;
+static std::string wz_test;
+
+void setConfigdir(char *arg)
+{
+  sstrcpy(configdir, arg);
+}
+
+void setDatadir(char *arg)
+{
+  sstrcpy(datadir, arg);
+}
+
+void setDebug(char *arg)
+{
+  debug_enable_switch(arg);
+}
+
+void setDebugfile(char *arg)
+{
+  WzString debug_filename = arg;
+  debug_register_callback(debug_callback_file, debug_callback_file_init, debug_callback_file_exit, &debug_filename); // note: by the time this function returns, all use of debug_filename has completed
+  customDebugfile = true;
+}
+
+bool autogame_enabled()
+{
+	return wz_autogame;
+}
+
+const std::string &saveandquit_enabled()
+{
+	return wz_saveandquit;
+}
+
+const std::string &wz_skirmish_test()
+{
+	return wz_test;
+}
 
 // Retrieves the appropriate storage directory for application-created files / prefs
 // (Ensures the directory exists. Creates folders if necessary.)
@@ -126,36 +169,13 @@ static std::string getPlatformPrefDir(const char * org, const std::string &app)
 
 bool endsWith(std::string const &fullString, std::string const &endString)
 {
-	if (fullString.length() >= endString.length())
-	{
-		return (0 == fullString.compare(fullString.length() - endString.length(), endString.length(), endString));
-	}
-	else
-	{
-		return false;
-	}
+  return !fullString.compare(fullString.length() - endString.length(), endString.length(), endString);
 }
 
 static void initialize_ConfigDir()
 {
-	std::string configDir;
-
-	if (strlen(configdir) == 0)
-	{
-		configDir = getPlatformPrefDir("Warzone 2100 Project", version_getVersionedAppDirFolderName());
-	}
-	else
-	{
-		configDir = std::string(configdir);
-
-		// Make sure that we have a directory separator at the end of the string
-		if (!endsWith(configDir, PHYSFS_getDirSeparator()))
-		{
-			configDir += PHYSFS_getDirSeparator();
-		}
-
-		debug(LOG_WZ, "Using custom configuration directory: %s", configDir.c_str());
-	}
+	std::string configDir =
+    getPlatformPrefDir("Warzone 2100 Project", version_getVersionedAppDirFolderName());
 
 	if (!PHYSFS_setWriteDir(configDir.c_str())) // Workaround for PhysFS not creating the writedir as expected.
 	{
@@ -170,7 +190,6 @@ static void initialize_ConfigDir()
 		debug(LOG_ERROR, "Error setting exception handler to use directory %s", configDir.c_str());
 	}
 
-
 	// Config dir first so we always see what we write
 	PHYSFS_mount(PHYSFS_getWriteDir(), NULL, PHYSFS_PREPEND);
 
@@ -179,51 +198,6 @@ static void initialize_ConfigDir()
 	debug(LOG_WZ, "Write dir: %s", PHYSFS_getWriteDir());
 	debug(LOG_WZ, "Base dir: %s", PHYSFS_getBaseDir());
 }
-
-static void check_Physfs()
-{
-	const PHYSFS_ArchiveInfo **i;
-	bool zipfound = false;
-	PHYSFS_Version compiled;
-	PHYSFS_Version linked;
-
-	PHYSFS_VERSION(&compiled);
-	PHYSFS_getLinkedVersion(&linked);
-
-	debug(LOG_WZ, "Compiled against PhysFS version: %d.%d.%d",
-	      compiled.major, compiled.minor, compiled.patch);
-	debug(LOG_WZ, "Linked against PhysFS version: %d.%d.%d",
-	      linked.major, linked.minor, linked.patch);
-
-	if (linked.major < 2)
-	{
-		debug(LOG_FATAL, "At least version 2 of PhysicsFS required!");
-		exit(-1);
-	}
-
-	if (linked.major == 2 && linked.minor == 0 && linked.patch == 2)
-	{
-		debug(LOG_ERROR, "You have PhysicsFS 2.0.2, which is buggy. You may experience random errors/crashes due to spuriously missing files.");
-		debug(LOG_ERROR, "Please upgrade/downgrade PhysicsFS to a different version, such as 2.0.3 or 2.0.1.");
-	}
-
-	for (i = PHYSFS_supportedArchiveTypes(); *i != nullptr; i++)
-	{
-		debug(LOG_WZ, "[**] Supported archive(s): [%s], which is [%s].", (*i)->extension, (*i)->description);
-
-		if (!strncasecmp("zip", (*i)->extension, 3) && !zipfound)
-		{
-			zipfound = true;
-		}
-	}
-
-	if (!zipfound)
-	{
-		debug(LOG_FATAL, "Your Physfs wasn't compiled with zip support.  Please recompile Physfs with zip support.  Exiting program.");
-		exit(-1);
-	}
-}
-
 
 /*!
  * \brief Adds default data dirs
@@ -240,11 +214,6 @@ static void check_Physfs()
  */
 static void scanDataDirs()
 {
-#if defined(WZ_OS_MAC)
-	// version-independent location for video files
-	registerSearchPath("/Library/Application Support/Warzone 2100/", 1);
-#endif
-
 	// Commandline supplied datadir
 	if (strlen(datadir) != 0)
 	{
@@ -255,7 +224,6 @@ static void scanDataDirs()
 	registerSearchPath(PHYSFS_getWriteDir(), 2);
 	rebuildSearchPath(mod_multiplay, true);
 
-#if !defined(WZ_OS_MAC)
 	// Check PREFIX-based paths
 	std::string tmpstr;
 
@@ -314,37 +282,6 @@ static void scanDataDirs()
 			}
 		}
 	}
-
-#endif
-
-#ifdef WZ_OS_MAC
-
-	if (!PHYSFS_exists("gamedesc.lev"))
-	{
-		CFURLRef resourceURL = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
-		char resourcePath[PATH_MAX];
-
-		if (CFURLGetFileSystemRepresentation(resourceURL, true,
-		                                     (UInt8 *) resourcePath,
-		                                     PATH_MAX))
-		{
-			WzString resourceDataPath(resourcePath);
-			resourceDataPath += "/data";
-			registerSearchPath(resourceDataPath.toUtf8().c_str(), 8);
-			rebuildSearchPath(mod_multiplay, true);
-		}
-		else
-		{
-			debug(LOG_ERROR, "Could not change to resources directory.");
-		}
-
-		if (resourceURL != NULL)
-		{
-			CFRelease(resourceURL);
-		}
-	}
-
-#endif
 
 	/** Debugging and sanity checks **/
 
@@ -783,7 +720,6 @@ int main(int argc, char *argv[])
 	}
 
 	// NOTE: it is now safe to use debug() calls to make sure output gets captured.
-	check_Physfs();
 	debug(LOG_WZ, "Warzone 2100 - %s", version_getFormattedVersionString());
 	debug(LOG_WZ, "Using language: %s", getLanguage());
 	debug(LOG_WZ, "Backend: %s", BACKEND);
@@ -970,12 +906,3 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-GS_GAMEMODE GetGameMode()
-{
-	return gameStatus;
-}
-
-void SetGameMode(GS_GAMEMODE status)
-{
-	gameStatus = status;
-}

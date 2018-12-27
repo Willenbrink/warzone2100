@@ -78,7 +78,6 @@
 #include "difficulty.h"
 #include "scriptcb.h"		/* for console callback */
 #include "scriptfuncs.h"
-#include "clparse.h"
 #include "research.h"
 #include "template.h"
 #include "qtscript.h"

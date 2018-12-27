@@ -42,7 +42,6 @@
 #include "lib/netplay/netplay.h"
 #include "hci.h"
 #include "configuration.h"			// lobby cfg.
-#include "clparse.h"
 
 #include "component.h"
 #include "console.h"

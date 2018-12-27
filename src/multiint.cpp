@@ -61,7 +61,6 @@
 #include "display3d.h"
 #include "objmem.h"
 #include "gateway.h"
-#include "clparse.h"
 #include "configuration.h"
 #include "intdisplay.h"
 #include "design.h"

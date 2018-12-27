@@ -78,7 +78,7 @@
 #include "map.h"
 #include "difficulty.h"
 #include "console.h"
-#include "clparse.h"
+#include "main.h"
 #include "mission.h"
 #include "modding.h"
 #include "version.h"
