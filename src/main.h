@@ -48,6 +48,7 @@ extern char KeyMapPath[PATH_MAX];
 extern char MultiPlayersPath[PATH_MAX];
 extern char rulesettag[40];
 
+void autogame() asm ("autogame");
 void setConfigdir(char *arg) asm ("setConfigdir");
 void setDatadir(char *arg) asm ("setDatadir");
 void setDebug(char *arg) asm ("setDebug");

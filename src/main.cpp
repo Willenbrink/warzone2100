@@ -137,6 +137,11 @@ void setDebugfile(char *arg)
   customDebugfile = true;
 }
 
+void autogame()
+{
+  wz_autogame = true;
+}
+
 bool autogame_enabled()
 {
 	return wz_autogame;

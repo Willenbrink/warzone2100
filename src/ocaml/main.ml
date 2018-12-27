@@ -26,6 +26,7 @@ let specList =
     let dbgf = funer "setDebugfile" sv in
     let dbgflush = funer "debugFlushStderr" vv in
     let fs () = (funer "setFullscreen" (bool @-> returning void)) true in
+    let autogame = funer "autogame" vv in
 
   [
     ("-configdir", String cd, "Set configuration directory");
@@ -47,7 +48,7 @@ let specList =
     ("-nosound", Unit todo, "Disable sound");
     ("-join", Unit todo, "Connect directly to IP/hostname");
     ("-host", Unit todo, "Go directly to host screen");
-    ("-autogame", Unit todo, "Run games automatically for testing");
+    ("-autogame", Unit autogame, "Run games automatically for testing");
     ("-saveandquit", Unit todo, "Immediately save game and quit");
     ("-skirmish", Unit todo, "Start skirmish game with given settings file");
   ]
