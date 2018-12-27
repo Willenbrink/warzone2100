@@ -73,7 +73,6 @@ exception Invalid_gamemode
 let () =
   let rec loop () =
     let sdl = funer "SDLLoop" (void @-> returning bool) in
-    let wz = funer "WZLoop" vv in
     let tmp = funer "inputNewFrame" vv in
     let frameUpdate = funer "frameUpdate" vv in
     let getGameMode = funer "getGameMode" (void @-> returning int) in

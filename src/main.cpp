@@ -98,7 +98,6 @@ char	KeyMapPath[PATH_MAX];
 // Start game in title mode:
 // Status of the gameloop
 static GAMECODE gameLoopStatus = GAMECODE_CONTINUE;
-static FOCUS_STATE focusState = FOCUS_IN;
 static GS_GAMEMODE gameStatus = GS_TITLE_SCREEN;
 
 GS_GAMEMODE GetGameMode()
@@ -504,45 +503,6 @@ bool initSaveGameLoad()
 	return true;
 }
 
-
-/*!
- * Run the code inside the gameloop
- */
-void runGameLoop()
-{
-	gameLoopStatus = gameLoop();
-
-	switch (gameLoopStatus)
-	{
-		case GAMECODE_CONTINUE:
-		case GAMECODE_PLAYVIDEO:
-			break;
-
-		case GAMECODE_QUITGAME:
-			debug(LOG_MAIN, "GAMECODE_QUITGAME");
-			stopGameLoop();
-			startTitleLoop(); // Restart into titleloop
-			break;
-
-		case GAMECODE_LOADGAME:
-			debug(LOG_MAIN, "GAMECODE_LOADGAME");
-			stopGameLoop();
-			initSaveGameLoad(); // Restart and load a savegame
-			break;
-
-		case GAMECODE_NEWLEVEL:
-			debug(LOG_MAIN, "GAMECODE_NEWLEVEL");
-			stopGameLoop();
-			startGameLoop(); // Restart gameloop
-			break;
-
-		default:
-			debug(LOG_ERROR, "Unknown code returned by gameLoop");
-			break;
-	}
-}
-
-
 /*!
  * Run the code inside the titleloop
  */
@@ -597,36 +557,6 @@ void runTitleLoop()
 		default:
 			debug(LOG_ERROR, "Unknown code returned by titleLoop");
 			break;
-	}
-}
-
-/*!
- * The mainloop.
- * Fetches events, executes appropriate code
- */
-void mainLoop()
-{
-	if (NetPlay.bComms || focusState == FOCUS_IN || !war_GetPauseOnFocusLoss())
-	{
-		if (loop_GetVideoStatus())
-		{
-			videoLoop(); // Display the video if necessary
-		}
-		else switch (GetGameMode())
-    {
-      case GS_NORMAL: // Run the gameloop code
-        runGameLoop();
-        break;
-
-      case GS_TITLE_SCREEN: // Run the titleloop code
-        runTitleLoop();
-        break;
-
-      default:
-        break;
-    }
-
-		realTimeUpdate(); // Update realTime.
 	}
 }
 
@@ -802,7 +732,7 @@ void init()
 	setAllPauseStates(false);
 
 	// Do the game mode specific initialisation.
-	switch (GetGameMode())
+  switch (GetGameMode())
   {
 		case GS_TITLE_SCREEN:
 			startTitleLoop();
