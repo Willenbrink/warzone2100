@@ -34,9 +34,8 @@ enum GS_GAMEMODE
 extern bool gameInitialised;
 extern bool customDebugfile;
 
-GS_GAMEMODE GetGameMode() asm ("getGameMode");
+GS_GAMEMODE GetGameMode();
 void setGameMode(GS_GAMEMODE status) asm ("setGameMode");
-void main2() asm ("main2");
 void mainLoop() asm ("WZLoop");
 void runTitleLoop() asm ("runTitleLoop");
 void startTitleLoop() asm ("startTitleLoop");

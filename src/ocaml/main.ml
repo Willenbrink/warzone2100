@@ -68,7 +68,7 @@ let init () =
   ()
 
 exception Halt
-exception Invalid_gamemode
+exception InvalidState
 
 type gamemode =
   | Title
@@ -87,8 +87,6 @@ let () =
     let sdl = funer "SDLLoop" (void @-> returning bool) in
     let tmp = funer "inputNewFrame" vv in
     let frameUpdate = funer "frameUpdate" vv in
-    let getGameMode () = match funer "getGameMode" (void @-> returning int) () with
-        1 -> Title | 2 -> Game | x -> raise Invalid_gamemode in
     let setGameMode mode =
       let iMode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
         funer "setGameMode" (int @-> returning void) iMode  in
@@ -100,7 +98,7 @@ let () =
       | 3 -> Loading
       | 4 -> NewLevel
       | 5 -> Viewing
-      | x -> raise Invalid_gamemode
+      | x -> raise InvalidState
     in
     let setState state = function
       | Running -> 1
@@ -118,13 +116,13 @@ let () =
       let endOp = funer "closeLoadingScreen" vv in
       startOp true;
       List.iter (fun a -> a ()) f;
-      endOp (); in
+      endOp ();
+    in
 
     let initSaveGameLoad = funer "initSaveGameLoad" vv in
     let realTimeUpdate = funer "realTimeUpdate" vv in
 
     match sdl () with true -> raise Halt | false -> ();
-    tmp ();
     frameUpdate ();
     let newMode = (match mode with
       | Title -> (match titleLoop () |> getState with
@@ -138,8 +136,9 @@ let () =
           | Quitting -> longOp [stopGameLoop; startTitleLoop]; Title
           | Loading -> longOp [stopGameLoop; initSaveGameLoad]; Game
           | NewLevel -> longOp [stopGameLoop; startGameLoop]; Game)
-      | x -> raise Invalid_gamemode ) in
-      realTimeUpdate ();
+      | x -> raise InvalidState ) in
+    realTimeUpdate ();
+    tmp ();
     setGameMode newMode;
     loop newMode
   in
