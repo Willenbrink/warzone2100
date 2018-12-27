@@ -24,7 +24,7 @@
 // Get platform defines before checking for them!
 #include "lib/framework/wzapp.h"
 
-#  include <errno.h>
+#include <errno.h>
 
 #include "lib/framework/input.h"
 #include "lib/framework/physfs_ext.h"
@@ -942,55 +942,49 @@ void test(int argc, char *argv[])
 
 void initPhysFS()
 {
-  PHYSFS_init("TODO this should not be necessary?");
+  //NOTE: Apparently passing NULL on Linux is bad but it seems to work...
+  PHYSFS_init(NULL);
 	PHYSFS_mkdir("challenges");	// custom challenges
 	PHYSFS_mkdir("logs");		// netplay, mingw crash reports & WZ logs
-}
-
-int main(int argc, char *argv[])
-{
-  test(argc, argv);
-	int utfargc = argc;
-	char **utfargv = (char **)argv;
-	wzMain(argc, argv);		// init Qt integration first
-
-	debug_register_callback(debug_callback_stderr, nullptr, nullptr, nullptr);
-
-	setupExceptionHandler(utfargc, utfargv, version_getFormattedVersionString(), version_getVersionedAppDirFolderName(), isPortableMode());
-
-	/* Initialize the write/config directory for PhysicsFS.
-	 * This needs to be done __after__ the early commandline parsing,
-	 * because the user might tell us to use an alternative configuration
-	 * directory.
-	 */
-	initialize_ConfigDir();
-
-	/*** Initialize directory structure ***/
-
-	make_dir(MultiCustomMapsPath, "maps", nullptr); // needed to prevent crashes when getting map
-
 	PHYSFS_mkdir("mods/autoload");	// mods that are automatically loaded
 	PHYSFS_mkdir("mods/campaign");	// campaign only mods activated with --mod_ca=example.wz
 	PHYSFS_mkdir("mods/downloads");	// mod download directory
 	PHYSFS_mkdir("mods/global");	// global mods activated with --mod=example.wz
 	PHYSFS_mkdir("mods/multiplay");	// multiplay only mods activated with --mod_mp=example.wz
 	PHYSFS_mkdir("mods/music");	// music mods that are automatically loaded
-
-	make_dir(MultiPlayersPath, "multiplay", "players"); // player profiles
-
 	PHYSFS_mkdir("music");	// custom music overriding default music and music mods
-
-	make_dir(SaveGamePath, "savegames", nullptr); 	// save games
 	PHYSFS_mkdir("savegames/campaign");		// campaign save games
 	PHYSFS_mkdir("savegames/skirmish");		// skirmish save games
-
-	make_dir(ScreenDumpPath, "screenshots", nullptr);	// for screenshots
-
 	PHYSFS_mkdir("tests");			// test games launched with --skirmish=game
-
 	PHYSFS_mkdir("userdata");		// per-mod data user generated data
 	PHYSFS_mkdir("userdata/campaign");	// contains campaign templates
 	PHYSFS_mkdir("userdata/mp");		// contains multiplayer templates
+
+	initialize_ConfigDir();
+	make_dir(MultiCustomMapsPath, "maps", nullptr); // needed to prevent crashes when getting map
+	make_dir(MultiPlayersPath, "multiplay", "players"); // player profiles
+	make_dir(SaveGamePath, "savegames", nullptr); 	// save games
+	make_dir(ScreenDumpPath, "screenshots", nullptr);	// for screenshots
+}
+
+int main(int argc, char *argv[])
+{
+  test(argc, argv);
+	wzMain();		// init Qt integration first
+
+	debug_register_callback(debug_callback_stderr, nullptr, nullptr, nullptr);
+
+	setupExceptionHandler(argc, argv, version_getFormattedVersionString(), version_getVersionedAppDirFolderName(), isPortableMode());
+
+	/* Initialize the write/config directory for PhysicsFS.
+	 * This needs to be done __after__ the early commandline parsing,
+	 * because the user might tell us to use an alternative configuration
+	 * directory.
+	 */
+
+	/*** Initialize directory structure ***/
+
+
 	memset(rulesettag, 0, sizeof(rulesettag)); // stores tag property of ruleset.json files
 
 	if (!customDebugfile)
@@ -1221,17 +1215,11 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-/*!
- * Get the mode the game is currently in
- */
 GS_GAMEMODE GetGameMode()
 {
 	return gameStatus;
 }
 
-/*!
- * Set the current mode
- */
 void SetGameMode(GS_GAMEMODE status)
 {
 	gameStatus = status;

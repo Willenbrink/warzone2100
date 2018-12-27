@@ -1329,26 +1329,10 @@ static int copied_argc = 0;
 static char** copied_argv = nullptr;
 
 // This stage, we only setup keycodes, and copy argc & argv for later use initializing Qt stuff for the script engine.
-void wzMain(int &argc, char **argv)
+void wzMain()
 {
 	initKeycodes();
-
-#if defined(WZ_OS_MAC)
-	// Create copies of argc and arv (for later use initializing QApplication for the script engine)
-	copied_argv = new char*[argc+1];
-	for(int i=0; i < argc; i++) {
-		int len = strlen(argv[i]) + 1;
-		copied_argv[i] = new char[len];
-		memcpy(copied_argv[i], argv[i], len);
-	}
-	copied_argv[argc] = NULL;
-	copied_argc = argc;
-#else
-	// For now, just initialize QApplication here
-	// We currently rely on side-effects of QApplication's initialization on Windows (such as how DPI-awareness is enabled)
-	// TODO: Implement proper Win32 API calls to replicate Qt's preparation for DPI awareness (or set in the manifest?)
 	appPtr = new QApplication(copied_argc, copied_argv);
-#endif
 }
 
 #define MIN_WZ_GAMESCREEN_WIDTH 640

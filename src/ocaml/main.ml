@@ -19,11 +19,6 @@ let funer name params =
 let vv = void @-> returning void
 let sv = string @-> returning void
 
-let test = funer "test" (void @-> returning void)
-
-exception PhysFSFailure
-
-
 let specList =
     let cd = funer "setConfigdir" sv in
     let dd = funer "setDatadir" sv in
@@ -57,12 +52,9 @@ let specList =
     ("-skirmish", Unit todo, "Start skirmish game with given settings file");
   ]
 
-let parseOptions = todo
-
 let init () =
   let debug_init = funer "debug_init" vv in
   let i18n_init = funer "initI18n" vv in
-  let str = "/opt/warzone2100/src/warzone2100" in
   let initPhysFS = funer "initPhysFS" vv in
   debug_init ();
   i18n_init ();
