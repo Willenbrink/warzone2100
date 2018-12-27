@@ -70,12 +70,14 @@ let init params =
 
   ()
 
+exception Halt
+
 let () =
   let rec loop () =
-    let sdl = funer "SDLLoop" vv in
+    let sdl = funer "SDLLoop" (void @-> returning bool) in
     let wz = funer "WZLoop" vv in
     let tmp = funer "inputNewFrame" vv in
-    sdl();
+    match sdl() with true -> raise Halt | false -> ();
     wz();
     tmp();
     loop()
@@ -84,5 +86,6 @@ let () =
   parse specList (fun x -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments";
   let params = ["/opt/warzone2100/src/warzone2100";] in
   init params;
-  loop();
-  halt()
+  try
+    loop()
+  with Halt -> halt()

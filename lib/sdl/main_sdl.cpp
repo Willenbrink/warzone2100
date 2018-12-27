@@ -2176,61 +2176,49 @@ static void handleActiveEvent(SDL_Event *event)
 }
 
 // Actual mainloop
-void wzMainEventLoop()
+bool wzMainEventLoop()
 {
 	SDL_Event event;
-
-	//while (true)
-	{
-		/* Deal with any windows messages */
-		while (SDL_PollEvent(&event))
-		{
-			switch (event.type)
-			{
-			case SDL_KEYUP:
-			case SDL_KEYDOWN:
-				inputHandleKeyEvent(&event.key);
-				break;
-			case SDL_MOUSEBUTTONUP:
-			case SDL_MOUSEBUTTONDOWN:
-				inputHandleMouseButtonEvent(&event.button);
-				break;
-			case SDL_MOUSEMOTION:
-				inputHandleMouseMotionEvent(&event.motion);
-				break;
-			case SDL_MOUSEWHEEL:
-				inputHandleMouseWheelEvent(&event.wheel);
-				break;
-			case SDL_WINDOWEVENT:
-				handleActiveEvent(&event);
-				break;
-			case SDL_TEXTINPUT:	// SDL now handles text input differently
-				inputhandleText(&event.text);
-				break;
-			case SDL_QUIT:
-				return;
-			default:
-				break;
-			}
-
-			if (wzSDLAppEvent == event.type)
-			{
-				// Custom WZ App Event
-				switch (event.user.code)
-				{
-					case wzSDLAppEventCodes::MAINTHREADEXEC:
-						if (event.user.data1 != nullptr)
-						{
-							WZ_MAINTHREADEXEC * pExec = static_cast<WZ_MAINTHREADEXEC *>(event.user.data1);
-							pExec->doExecOnMainThread();
-							delete pExec;
-						}
-						break;
-					default:
-						break;
-				}
-			}
-		}
+  /* Deal with any windows messages */
+  while (SDL_PollEvent(&event))
+  {
+    switch (event.type)
+    {
+    case SDL_KEYUP:
+    case SDL_KEYDOWN:
+      inputHandleKeyEvent(&event.key);
+      break;
+    case SDL_MOUSEBUTTONUP:
+    case SDL_MOUSEBUTTONDOWN:
+      inputHandleMouseButtonEvent(&event.button);
+      break;
+    case SDL_MOUSEMOTION:
+      inputHandleMouseMotionEvent(&event.motion);
+      break;
+    case SDL_MOUSEWHEEL:
+      inputHandleMouseWheelEvent(&event.wheel);
+      break;
+    case SDL_WINDOWEVENT:
+      handleActiveEvent(&event);
+      break;
+    case SDL_TEXTINPUT:	// SDL now handles text input differently
+      inputhandleText(&event.text);
+      break;
+    case SDL_QUIT:
+      return true;
+    default:
+      if(event.type == wzSDLAppEvent)
+        // Custom WZ App Event
+        if(event.user.code == wzSDLAppEventCodes::MAINTHREADEXEC)
+          if (event.user.data1 != nullptr)
+          {
+            WZ_MAINTHREADEXEC * pExec = static_cast<WZ_MAINTHREADEXEC *>(event.user.data1);
+            pExec->doExecOnMainThread();
+            delete pExec;
+          }
+      break;
+    }
+  }
 #if !defined(WZ_OS_WIN) && !defined(WZ_OS_MAC)
 		// Ideally, we don't want Qt processing events in addition to SDL - this causes
 		// all kinds of issues (crashes taking screenshots on Windows, freezing on
@@ -2246,7 +2234,7 @@ void wzMainEventLoop()
 		processScreenSizeChangeNotificationIfNeeded();
 		//mainLoop();				// WZ does its thing
 		//inputNewFrame();			// reset input states
-	}
+  return false;
 }
 
 void wzShutdown()
