@@ -36,8 +36,10 @@ extern bool customDebugfile;
 
 GS_GAMEMODE GetGameMode();
 void SetGameMode(GS_GAMEMODE status);
+void main2() asm ("main2");
 void mainLoop() asm ("WZLoop");
 void halt() asm ("halt");
+void init() asm ("init");
 void test(int argc, char* argv[]) asm ("test");
 void initPhysFS() asm ("initPhysFS");
 

@@ -481,7 +481,6 @@ static bool initSaveGameLoad()
 		debug(LOG_POPUP, "Failed to load a save game! It is either corrupted or a unsupported format.\n\nRestarting main menu.");
 		// FIXME: If we bomb out on a in game load, then we would crash if we don't do the next two calls
 		// Doesn't seem to be a way to tell where we are in game loop to determine if/when we should do the two calls.
-		gameLoopStatus = GAMECODE_FASTEXIT;	// clear out all old data
 		stopGameLoop();
 		startTitleLoop(); // Restart into titleloop
 		SetGameMode(GS_TITLE_SCREEN);
@@ -535,11 +534,6 @@ static void runGameLoop()
 			debug(LOG_MAIN, "GAMECODE_NEWLEVEL");
 			stopGameLoop();
 			startGameLoop(); // Restart gameloop
-			break;
-
-		// Never thrown:
-		case GAMECODE_FASTEXIT:
-		case GAMECODE_RESTARTGAME:
 			break;
 
 		default:
@@ -684,42 +678,28 @@ void initPhysFS()
 	make_dir(ScreenDumpPath, "screenshots", nullptr);	// for screenshots
 }
 
-int main(int argc, char *argv[])
+void init()
 {
-  test(argc, argv);
-	debug_register_callback(debug_callback_stderr, nullptr, nullptr, nullptr);
-
-	setupExceptionHandler(argc, argv, version_getFormattedVersionString(), version_getVersionedAppDirFolderName(), false);
-
 	memset(rulesettag, 0, sizeof(rulesettag)); // stores tag property of ruleset.json files
+  if (!customDebugfile)
+    {
+      // there was no custom debug file specified  (--debug-file=blah)
+      // so we use our write directory to store our logs.
+      time_t aclock;
+      struct tm *newtime;
+      char buf[PATH_MAX];
 
-	if (!customDebugfile)
-	{
-		// there was no custom debug file specified  (--debug-file=blah)
-		// so we use our write directory to store our logs.
-		time_t aclock;
-		struct tm *newtime;
-		char buf[PATH_MAX];
+      time(&aclock);					// Get time in seconds
+      newtime = localtime(&aclock);		// Convert time to struct
+      // Note: We are using fopen(), and not physfs routines to open the file
+      // log name is logs/(or \)WZlog-MMDD_HHMMSS.txt
+      snprintf(buf, sizeof(buf), "%slogs%sWZlog-%02d%02d_%02d%02d%02d.txt", PHYSFS_getWriteDir(), PHYSFS_getDirSeparator(),
+               newtime->tm_mon + 1, newtime->tm_mday, newtime->tm_hour, newtime->tm_min, newtime->tm_sec);
+      WzString debug_filename = buf;
+      debug_register_callback(debug_callback_file, debug_callback_file_init, debug_callback_file_exit, &debug_filename); // note: by the time this function returns, all use of debug_filename has completed
 
-		time(&aclock);					// Get time in seconds
-		newtime = localtime(&aclock);		// Convert time to struct
-		// Note: We are using fopen(), and not physfs routines to open the file
-		// log name is logs/(or \)WZlog-MMDD_HHMMSS.txt
-		snprintf(buf, sizeof(buf), "%slogs%sWZlog-%02d%02d_%02d%02d%02d.txt", PHYSFS_getWriteDir(), PHYSFS_getDirSeparator(),
-		         newtime->tm_mon + 1, newtime->tm_mday, newtime->tm_hour, newtime->tm_min, newtime->tm_sec);
-		WzString debug_filename = buf;
-		debug_register_callback(debug_callback_file, debug_callback_file_init, debug_callback_file_exit, &debug_filename); // note: by the time this function returns, all use of debug_filename has completed
-
-		debug(LOG_WZ, "Using %s debug file", buf);
-	}
-
-	// NOTE: it is now safe to use debug() calls to make sure output gets captured.
-	debug(LOG_WZ, "Warzone 2100 - %s", version_getFormattedVersionString());
-	debug(LOG_WZ, "Using language: %s", getLanguage());
-	debug(LOG_WZ, "Backend: %s", BACKEND);
-	debug(LOG_MEMORY, "sizeof: SIMPLE_OBJECT=%ld, BASE_OBJECT=%ld, DROID=%ld, STRUCTURE=%ld, FEATURE=%ld, PROJECTILE=%ld",
-	      (long)sizeof(SIMPLE_OBJECT), (long)sizeof(BASE_OBJECT), (long)sizeof(DROID), (long)sizeof(STRUCTURE), (long)sizeof(FEATURE), (long)sizeof(PROJECTILE));
-
+      debug(LOG_WZ, "Using %s debug file", buf);
+    }
 
 	/* Put in the writedir root */
 	sstrcpy(KeyMapPath, "keymap.json");
@@ -735,6 +715,15 @@ int main(int argc, char *argv[])
 	// Find out where to find the data
 	scanDataDirs();
 
+}
+
+int main()
+{
+  return 1;
+}
+
+void main2()
+{
 	// Now we check the mods to see if they exist or not (specified on the command line)
 	// FIXME: I know this is a bit hackish, but better than nothing for now?
 	{
@@ -800,7 +789,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (!wzMainScreenSetup(war_getAntialiasing(), war_getFullscreen(), war_GetVsync()))
-		return EXIT_FAILURE;
+		return;
 
 	debug(LOG_WZ, "Warzone 2100 - %s", version_getFormattedVersionString());
 	debug(LOG_WZ, "Using language: %s", getLanguage());
@@ -822,11 +811,11 @@ int main(int argc, char *argv[])
 	debug(LOG_MAIN, "Final initialization");
 
 	if (!frameInitialise())
-		return EXIT_FAILURE;
+    return;
 	if (!screenInitialise())
-		return EXIT_FAILURE;
+    return;
 	if (!pie_LoadShaders())
-		return EXIT_FAILURE;
+    return;
 
 	unsigned int windowWidth = 0, windowHeight = 0;
 	wzGetWindowResolution(nullptr, &windowWidth, &windowHeight);
@@ -843,18 +832,10 @@ int main(int argc, char *argv[])
 	pie_ScreenFlip(CLEAR_BLACK);
 
 	if (!systemInitialise(horizScaleFactor, vertScaleFactor))
-	{
-		return EXIT_FAILURE;
-	}
+    return;
 
 	//set all the pause states to false
 	setAllPauseStates(false);
-
-	// Copy this info to be used by the crash handler for the dump file
-	ssprintf(buf, "Using Backend: %s", BACKEND);
-	addDumpInfo(buf);
-	ssprintf(buf, "Using language: %s", getLanguageName());
-	addDumpInfo(buf);
 
 	// Do the game mode specific initialisation.
 	switch (GetGameMode())
@@ -870,21 +851,12 @@ int main(int argc, char *argv[])
 		case GS_NORMAL:
 			startGameLoop();
 			break;
-
-		default:
-			debug(LOG_ERROR, "Weirdy game status, I'm afraid!!");
-			break;
 	}
-
-	debug(LOG_MAIN, "Entering main loop");
-	wzMainEventLoop();
 }
 
 void halt()
 {
   saveConfig();
 	systemShutdown();
-
 	wzShutdown();
-	debug(LOG_MAIN, "Completed shutting down Warzone 2100");
 }

@@ -25,6 +25,8 @@
  */
 
 #include "frame.h"
+#include "lib/exceptionhandler/exceptionhandler.h"
+#include "src/version.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -281,19 +283,6 @@ void debug_MEMSTATS()
 
 void debug_init()
 {
-	/*** Initialize the debug subsystem ***/
-#if defined(WZ_CC_MSVC) && defined(DEBUG)
-	int tmpDbgFlag;
-	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);   // Output CRT info to debugger
-
-	tmpDbgFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);   // Grab current flags
-# if defined(DEBUG_MEMORY)
-	tmpDbgFlag |= _CRTDBG_CHECK_ALWAYS_DF; // Check every (de)allocation
-# endif // DEBUG_MEMORY
-	tmpDbgFlag |= _CRTDBG_ALLOC_MEM_DF; // Check allocations
-	tmpDbgFlag |= _CRTDBG_LEAK_CHECK_DF; // Check for memleaks
-	_CrtSetDbgFlag(tmpDbgFlag);
-#endif // WZ_CC_MSVC && DEBUG
 
 	STATIC_ASSERT(ARRAY_SIZE(code_part_names) - 1 == LOG_LAST); // enums start at 0
 
@@ -307,6 +296,12 @@ void debug_init()
 #ifdef DEBUG
 	enabled_debug[LOG_WARNING] = true;
 #endif
+	debug_register_callback(debug_callback_stderr, nullptr, nullptr, nullptr);
+  //TODO remove this hardcoded value
+  char *path = (char *) calloc(100, sizeof(char));
+  sprintf(path, "/opt/warzone2100/src/warzone2100");
+
+	setupExceptionHandler(1, &path, version_getFormattedVersionString(), version_getVersionedAppDirFolderName(), false);
 }
 
 

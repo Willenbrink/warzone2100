@@ -53,21 +53,19 @@ let specList =
     ("-skirmish", Unit todo, "Start skirmish game with given settings file");
   ]
 
-let init params =
+let init () =
   let debug_init = funer "debug_init" vv in
   let i18n_init = funer "initI18n" vv in
   let initPhysFS = funer "initPhysFS" vv in
   let wzMain = funer "wzMain" vv in
-  let main = funer "main" (int @-> ptr void @-> returning int) in
+  let initMain = funer "init" vv in
+  let main = funer "main2" vv in
   debug_init ();
   i18n_init ();
   initPhysFS();
+  initMain();
   wzMain();
-  CArray.of_list string params
-  |> CArray.start
-  |> to_voidp
-  |> main (List.length params)
-  |> ignore;
+  main();
 
   ()
 
@@ -85,8 +83,7 @@ let () =
   in
   let halt = funer "halt" vv in
   parse specList (fun x -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments";
-  let params = ["/opt/warzone2100/src/warzone2100";] in
-  init params;
+  init ();
   try
     loop()
   with Halt -> halt()
