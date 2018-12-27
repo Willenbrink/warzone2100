@@ -97,17 +97,16 @@ char	MultiPlayersPath[PATH_MAX];
 char	KeyMapPath[PATH_MAX];
 // Start game in title mode:
 // Status of the gameloop
-static GAMECODE gameLoopStatus = GAMECODE_CONTINUE;
-static GS_GAMEMODE gameStatus = GS_TITLE_SCREEN;
+static GS_GAMEMODE mode = GS_TITLE_SCREEN;
 
 GS_GAMEMODE GetGameMode()
 {
-	return gameStatus;
+	return mode;
 }
 
-void SetGameMode(GS_GAMEMODE status)
+void setGameMode(GS_GAMEMODE newMode)
 {
-	gameStatus = status;
+	mode = newMode;
 }
 
 static bool wz_autogame = false;
@@ -339,19 +338,13 @@ static void make_dir(char *dest, const char *dirname, const char *subdir)
  * Preparations before entering the title (mainmenu) loop
  * Would start the timer in an event based mainloop
  */
-static void startTitleLoop()
+void startTitleLoop()
 {
-	SetGameMode(GS_TITLE_SCREEN);
-
-	initLoadingScreen(true);
-
 	if (!frontendInitialise("wrf/frontend.wrf"))
 	{
 		debug(LOG_FATAL, "Shutting down after failure");
 		exit(EXIT_FAILURE);
 	}
-
-	closeLoadingScreen();
 }
 
 
@@ -359,7 +352,7 @@ static void startTitleLoop()
  * Shutdown/cleanup after the title (mainmenu) loop
  * Would stop the timer
  */
-static void stopTitleLoop()
+void stopTitleLoop()
 {
 	if (!frontendShutdown())
 	{
@@ -368,15 +361,12 @@ static void stopTitleLoop()
 	}
 }
 
-
 /*!
  * Preparations before entering the game loop
  * Would start the timer in an event based mainloop
  */
 void startGameLoop()
 {
-	SetGameMode(GS_NORMAL);
-
 	// Not sure what aLevelName is, in relation to game.map. But need to use aLevelName here, to be able to start the right map for campaign, and need game.hash, to start the right non-campaign map, if there are multiple identically named maps.
 	if (!levLoadData(aLevelName, &game.hash, nullptr, GTYPE_SCENARIO_START))
 	{
@@ -427,23 +417,9 @@ void stopGameLoop()
 {
 	clearInfoMessages(); // clear CONPRINTF messages before each new game/mission
 
-	if (gameLoopStatus != GAMECODE_NEWLEVEL)
-	{
-		clearBlueprints();
-		initLoadingScreen(true); // returning to f.e. do a loader.render not active
-		pie_EnableFog(false); // don't let the normal loop code set status on
-
-		if (gameLoopStatus != GAMECODE_LOADGAME)
-		{
-			if (!levReleaseAll())
-			{
-				debug(LOG_ERROR, "levReleaseAll failed!");
-			}
-		}
-
-		closeLoadingScreen();
-		reloadMPConfig();
-	}
+  clearBlueprints();
+  pie_EnableFog(false); // don't let the normal loop code set status on
+  reloadMPConfig();
 
 	// Disable cursor trapping
 	if (war_GetTrapCursor())
@@ -468,26 +444,12 @@ void stopGameLoop()
  */
 bool initSaveGameLoad()
 {
-	// NOTE: always setGameMode correctly before *any* loading routines!
-	SetGameMode(GS_NORMAL);
 	screen_RestartBackDrop();
 
 	// load up a save game
-	if (!loadGameInit(saveGameName))
-	{
-		// FIXME: we really should throw up a error window, but we can't (easily) so I won't.
-		debug(LOG_ERROR, "Trying to load Game %s failed!", saveGameName);
-		debug(LOG_POPUP, "Failed to load a save game! It is either corrupted or a unsupported format.\n\nRestarting main menu.");
-		// FIXME: If we bomb out on a in game load, then we would crash if we don't do the next two calls
-		// Doesn't seem to be a way to tell where we are in game loop to determine if/when we should do the two calls.
-		stopGameLoop();
-		startTitleLoop(); // Restart into titleloop
-		SetGameMode(GS_TITLE_SCREEN);
-		return false;
-	}
+	loadGameInit(saveGameName);
 
 	screen_StopBackDrop();
-	closeLoadingScreen();
 
 	// Trap the cursor if cursor snapping is enabled
 	if (war_GetTrapCursor())
@@ -501,63 +463,6 @@ bool initSaveGameLoad()
 	}
 
 	return true;
-}
-
-/*!
- * Run the code inside the titleloop
- */
-void runTitleLoop()
-{
-	switch (titleLoop())
-	{
-		case TITLECODE_CONTINUE:
-			break;
-
-		case TITLECODE_QUITGAME:
-			debug(LOG_MAIN, "TITLECODE_QUITGAME");
-			stopTitleLoop();
-			wzQuit();
-			break;
-
-		case TITLECODE_SAVEGAMELOAD:
-		{
-			debug(LOG_MAIN, "TITLECODE_SAVEGAMELOAD");
-			initLoadingScreen(true);
-			// Restart into gameloop and load a savegame, ONLY on a good savegame load!
-			stopTitleLoop();
-
-			if (!initSaveGameLoad())
-			{
-				// we had a error loading savegame (corrupt?), so go back to title screen?
-				stopGameLoop();
-				startTitleLoop();
-				changeTitleMode(TITLE);
-			}
-
-			closeLoadingScreen();
-			break;
-		}
-
-		case TITLECODE_STARTGAME:
-			debug(LOG_MAIN, "TITLECODE_STARTGAME");
-			initLoadingScreen(true);
-			stopTitleLoop();
-			startGameLoop(); // Restart into gameloop
-			closeLoadingScreen();
-			break;
-
-		case TITLECODE_SHOWINTRO:
-			debug(LOG_MAIN, "TITLECODE_SHOWINTRO");
-			seq_ClearSeqList();
-			seq_AddSeqToList("titles.ogg", nullptr, nullptr, false);
-			seq_AddSeqToList("devastation.ogg", nullptr, "devastation.txa", false);
-			seq_StartNextFullScreenVideo();
-			break;
-
-		default:
-			debug(LOG_ERROR, "Unknown code returned by titleLoop");
-			break;
-	}
 }
 
 // for backend detection

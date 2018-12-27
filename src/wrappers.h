@@ -23,11 +23,11 @@
 
 enum TITLECODE
 {
-	TITLECODE_CONTINUE,
-	TITLECODE_STARTGAME,
-	TITLECODE_QUITGAME,
-	TITLECODE_SHOWINTRO,
-	TITLECODE_SAVEGAMELOAD,
+	TITLECODE_CONTINUE = 1,
+	TITLECODE_QUITGAME = 2,
+	TITLECODE_SAVEGAMELOAD = 3,
+	TITLECODE_STARTGAME = 4,
+	TITLECODE_SHOWINTRO = 5,
 };
 
 //used to set the scriptWinLoseVideo variable
@@ -38,10 +38,10 @@ enum TITLECODE
 extern int hostlaunch;
 
 bool frontendInitVars();
-TITLECODE titleLoop();
+TITLECODE titleLoop() asm ("titleLoop");
 
-void initLoadingScreen(bool drawbdrop);
-void closeLoadingScreen();
+void initLoadingScreen(bool drawbdrop) asm ("initLoadingScreen");
+void closeLoadingScreen() asm ("closeLoadingScreen");
 void loadingScreenCallback();
 
 void startCreditsScreen();

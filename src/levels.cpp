@@ -654,6 +654,8 @@ const char *getLevelName()
 // load up the data for a level
 bool levLoadData(char const *name, Sha256 const *hash, char *pSaveName, GAME_TYPE saveType)
 {
+  //TODO move somewhere appropriate
+  setlocale(LC_NUMERIC, "C");
 	LEVEL_DATASET	*psNewLevel, *psBaseData, *psChangeLevel;
 	bool            bCamChangeSaveGame;
 

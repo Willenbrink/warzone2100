@@ -70,41 +70,82 @@ let init () =
 exception Halt
 exception Invalid_gamemode
 
+type gamemode =
+  | Title
+  | Game
+  | SaveLoad
+
+type loopState =
+  | Running
+  | Quitting
+  | Loading
+  | NewLevel (*TODO remove this probably*)
+  | Viewing
+
 let () =
-  let rec loop () =
+  let rec loop mode =
     let sdl = funer "SDLLoop" (void @-> returning bool) in
     let tmp = funer "inputNewFrame" vv in
     let frameUpdate = funer "frameUpdate" vv in
-    let getGameMode = funer "getGameMode" (void @-> returning int) in
+    let getGameMode () = match funer "getGameMode" (void @-> returning int) () with
+        1 -> Title | 2 -> Game | x -> raise Invalid_gamemode in
+    let setGameMode mode =
+      let iMode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
+        funer "setGameMode" (int @-> returning void) iMode  in
     let gameLoop = funer "gameLoop" (void @-> returning int) in
-    let runGameLoop = funer "runGameLoop" vv in
-    let stopGameLoop = funer "stopGameLoop" vv in
+    let titleLoop = funer "titleLoop" (void @-> returning int) in
+    let getState = function
+      | 1 -> Running
+      | 2 -> Quitting
+      | 3 -> Loading
+      | 4 -> NewLevel
+      | 5 -> Viewing
+      | x -> raise Invalid_gamemode
+    in
+    let setState state = function
+      | Running -> 1
+      | Quitting -> 2
+      | Loading -> 3
+      | NewLevel -> 4
+      | Viewing -> 5
+    in
     let startGameLoop = funer "startGameLoop" vv in
-    let runTitleLoop = funer "runTitleLoop" vv in
+    let stopGameLoop = funer "stopGameLoop" vv in
+    let startTitleLoop = funer "startTitleLoop" vv in
+    let stopTitleLoop = funer "stopTitleLoop" vv in
+    let longOp f =
+      let startOp = funer "initLoadingScreen" (bool @-> returning void) in
+      let endOp = funer "closeLoadingScreen" vv in
+      startOp true;
+      List.iter (fun a -> a ()) f;
+      endOp (); in
+
     let initSaveGameLoad = funer "initSaveGameLoad" vv in
     let realTimeUpdate = funer "realTimeUpdate" vv in
 
     match sdl () with true -> raise Halt | false -> ();
-    frameUpdate ();
-      (*wz ();*)
-      (match getGameMode () with
-       | 1 -> runTitleLoop ()
-       | 2 -> (match gameLoop () with
-           | 1 | 2 -> ()
-           | 3 -> stopGameLoop (); runTitleLoop ()
-           | 4 -> stopGameLoop (); initSaveGameLoad ()
-           | 5 -> stopGameLoop (); startGameLoop ()
-           | x -> raise Invalid_gamemode
-           )
-       | x -> raise Invalid_gamemode
-      );
-      realTimeUpdate ();
     tmp ();
-    loop ()
+    frameUpdate ();
+    let newMode = (match mode with
+      | Title -> (match titleLoop () |> getState with
+          | Running -> mode
+          | Quitting -> stopTitleLoop(); raise Halt
+          | Loading -> longOp [stopTitleLoop; initSaveGameLoad]; Game
+          | NewLevel -> longOp [stopTitleLoop; startGameLoop]; Game
+          | Viewing -> todo () )
+      | Game -> (match gameLoop () |> getState with
+          | Running | Viewing -> mode
+          | Quitting -> longOp [stopGameLoop; startTitleLoop]; Title
+          | Loading -> longOp [stopGameLoop; initSaveGameLoad]; Game
+          | NewLevel -> longOp [stopGameLoop; startGameLoop]; Game)
+      | x -> raise Invalid_gamemode ) in
+      realTimeUpdate ();
+    setGameMode newMode;
+    loop newMode
   in
   let halt = funer "halt" vv in
   parse specList (fun x -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments";
   init ();
   try
-    loop()
+    loop Title
   with Halt -> halt ()

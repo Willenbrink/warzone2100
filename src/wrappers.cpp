@@ -252,15 +252,7 @@ TITLECODE titleLoop()
 
 		case STARTGAME:
 		case LOADSAVEGAME:
-			if (titleMode == LOADSAVEGAME)
-			{
-				RetCode = TITLECODE_SAVEGAMELOAD;
-			}
-			else
-			{
-				RetCode = TITLECODE_STARTGAME;
-			}
-
+      RetCode = TITLECODE_SAVEGAMELOAD;
 			return RetCode;			// don't flip!
 
 		case SHOWINTRO:
