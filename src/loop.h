@@ -29,11 +29,11 @@
 
 enum GAMECODE
 {
-	GAMECODE_CONTINUE,
-	GAMECODE_QUITGAME,
-	GAMECODE_PLAYVIDEO,
-	GAMECODE_NEWLEVEL,
-	GAMECODE_LOADGAME,
+	GAMECODE_CONTINUE = 1,
+	GAMECODE_PLAYVIDEO = 2,
+	GAMECODE_QUITGAME = 3,
+	GAMECODE_LOADGAME = 4,
+	GAMECODE_NEWLEVEL = 5,
 };
 
 // the states the loop goes through before starting a new level
@@ -54,7 +54,7 @@ extern LEVEL_TYPE nextMissionType;
 extern unsigned int loopPieCount;
 extern unsigned int loopPolyCount;
 
-GAMECODE gameLoop();
+GAMECODE gameLoop() asm ("gameLoop");
 void videoLoop();
 void loop_SetVideoPlaybackMode();
 void loop_ClearVideoPlaybackMode();

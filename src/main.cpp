@@ -374,7 +374,7 @@ static void stopTitleLoop()
  * Preparations before entering the game loop
  * Would start the timer in an event based mainloop
  */
-static void startGameLoop()
+void startGameLoop()
 {
 	SetGameMode(GS_NORMAL);
 
@@ -424,7 +424,7 @@ static void startGameLoop()
  * Shutdown/cleanup after the game loop
  * Would stop the timer
  */
-static void stopGameLoop()
+void stopGameLoop()
 {
 	clearInfoMessages(); // clear CONPRINTF messages before each new game/mission
 
@@ -467,7 +467,7 @@ static void stopGameLoop()
  * Load a savegame and start into the game loop
  * Game data should be initialised afterwards, so that startGameLoop is not necessary anymore.
  */
-static bool initSaveGameLoad()
+bool initSaveGameLoad()
 {
 	// NOTE: always setGameMode correctly before *any* loading routines!
 	SetGameMode(GS_NORMAL);
@@ -508,7 +508,7 @@ static bool initSaveGameLoad()
 /*!
  * Run the code inside the gameloop
  */
-static void runGameLoop()
+void runGameLoop()
 {
 	gameLoopStatus = gameLoop();
 
@@ -546,7 +546,7 @@ static void runGameLoop()
 /*!
  * Run the code inside the titleloop
  */
-static void runTitleLoop()
+void runTitleLoop()
 {
 	switch (titleLoop())
 	{
@@ -606,15 +606,6 @@ static void runTitleLoop()
  */
 void mainLoop()
 {
-	frameUpdate(); // General housekeeping
-
-	// Screenshot key is now available globally
-	if (keyPressed(KEY_F10))
-	{
-		kf_ScreenDump();
-		inputLoseFocus();		// remove it from input stream
-	}
-
 	if (NetPlay.bComms || focusState == FOCUS_IN || !war_GetPauseOnFocusLoss())
 	{
 		if (loop_GetVideoStatus())
@@ -622,18 +613,18 @@ void mainLoop()
 			videoLoop(); // Display the video if necessary
 		}
 		else switch (GetGameMode())
-			{
-				case GS_NORMAL: // Run the gameloop code
-					runGameLoop();
-					break;
+    {
+      case GS_NORMAL: // Run the gameloop code
+        runGameLoop();
+        break;
 
-				case GS_TITLE_SCREEN: // Run the titleloop code
-					runTitleLoop();
-					break;
+      case GS_TITLE_SCREEN: // Run the titleloop code
+        runTitleLoop();
+        break;
 
-				default:
-					break;
-			}
+      default:
+        break;
+    }
 
 		realTimeUpdate(); // Update realTime.
 	}
@@ -678,6 +669,68 @@ void initPhysFS()
 	make_dir(ScreenDumpPath, "screenshots", nullptr);	// for screenshots
 }
 
+void initMods()
+{
+  char modtocheck[256];
+  PHYSFS_Stat metaData;
+
+  // check whether given global mods are regular files
+  for (auto iterator = global_mods.begin(); iterator != global_mods.end();)
+  {
+    ssprintf(modtocheck, "mods/global/%s", iterator->c_str());
+    PHYSFS_stat(modtocheck, &metaData);
+
+    if (metaData.filetype != PHYSFS_FILETYPE_REGULAR)
+    {
+      debug(LOG_ERROR, "The global mod \"%s\" you have specified doesn't exist!", iterator->c_str());
+      global_mods.erase(iterator);
+      rebuildSearchPath(mod_multiplay, true);
+    }
+    else
+    {
+      info("global mod \"%s\" is enabled", iterator->c_str());
+      ++iterator;
+    }
+  }
+
+  // check whether given campaign mods are regular files
+  for (auto iterator = campaign_mods.begin(); iterator != campaign_mods.end();)
+  {
+    ssprintf(modtocheck, "mods/campaign/%s", iterator->c_str());
+    PHYSFS_stat(modtocheck, &metaData);
+
+    if (metaData.filetype != PHYSFS_FILETYPE_REGULAR)
+    {
+      debug(LOG_ERROR, "The campaign mod \"%s\" you have specified doesn't exist!", iterator->c_str());
+      campaign_mods.erase(iterator);
+      rebuildSearchPath(mod_campaign, true);
+    }
+    else
+    {
+      info("campaign mod \"%s\" is enabled", iterator->c_str());
+      ++iterator;
+    }
+  }
+  // check whether given multiplay mods are regular files
+  for (auto iterator = multiplay_mods.begin(); iterator != multiplay_mods.end();)
+  {
+    ssprintf(modtocheck, "mods/multiplay/%s", iterator->c_str());
+    PHYSFS_stat(modtocheck, &metaData);
+
+    if (metaData.filetype != PHYSFS_FILETYPE_REGULAR)
+      {
+        debug(LOG_ERROR, "The multiplay mod \"%s\" you have specified doesn't exist!", iterator->c_str());
+        multiplay_mods.erase(iterator);
+        rebuildSearchPath(mod_multiplay, true);
+      }
+    else
+      {
+        info("multiplay mod \"%s\" is enabled", iterator->c_str());
+        ++iterator;
+      }
+  }
+}
+
 void init()
 {
 	memset(rulesettag, 0, sizeof(rulesettag)); // stores tag property of ruleset.json files
@@ -715,94 +768,9 @@ void init()
 	// Find out where to find the data
 	scanDataDirs();
 
-}
+  initMods();
 
-int main()
-{
-  return 1;
-}
-
-void main2()
-{
-	// Now we check the mods to see if they exist or not (specified on the command line)
-	// FIXME: I know this is a bit hackish, but better than nothing for now?
-	{
-		char modtocheck[256];
-		PHYSFS_Stat metaData;
-
-		// check whether given global mods are regular files
-		for (auto iterator = global_mods.begin(); iterator != global_mods.end();)
-		{
-			ssprintf(modtocheck, "mods/global/%s", iterator->c_str());
-			PHYSFS_stat(modtocheck, &metaData);
-
-			if (metaData.filetype != PHYSFS_FILETYPE_REGULAR)
-			{
-				debug(LOG_ERROR, "The global mod \"%s\" you have specified doesn't exist!", iterator->c_str());
-				global_mods.erase(iterator);
-				rebuildSearchPath(mod_multiplay, true);
-			}
-			else
-			{
-				info("global mod \"%s\" is enabled", iterator->c_str());
-				++iterator;
-			}
-		}
-
-		// check whether given campaign mods are regular files
-		for (auto iterator = campaign_mods.begin(); iterator != campaign_mods.end();)
-		{
-			ssprintf(modtocheck, "mods/campaign/%s", iterator->c_str());
-			PHYSFS_stat(modtocheck, &metaData);
-
-			if (metaData.filetype != PHYSFS_FILETYPE_REGULAR)
-			{
-				debug(LOG_ERROR, "The campaign mod \"%s\" you have specified doesn't exist!", iterator->c_str());
-				campaign_mods.erase(iterator);
-				rebuildSearchPath(mod_campaign, true);
-			}
-			else
-			{
-				info("campaign mod \"%s\" is enabled", iterator->c_str());
-				++iterator;
-			}
-		}
-
-		// check whether given multiplay mods are regular files
-		for (auto iterator = multiplay_mods.begin(); iterator != multiplay_mods.end();)
-		{
-			ssprintf(modtocheck, "mods/multiplay/%s", iterator->c_str());
-			PHYSFS_stat(modtocheck, &metaData);
-
-			if (metaData.filetype != PHYSFS_FILETYPE_REGULAR)
-			{
-				debug(LOG_ERROR, "The multiplay mod \"%s\" you have specified doesn't exist!", iterator->c_str());
-				multiplay_mods.erase(iterator);
-				rebuildSearchPath(mod_multiplay, true);
-			}
-			else
-			{
-				info("multiplay mod \"%s\" is enabled", iterator->c_str());
-				++iterator;
-			}
-		}
-	}
-
-	if (!wzMainScreenSetup(war_getAntialiasing(), war_getFullscreen(), war_GetVsync()))
-		return;
-
-	debug(LOG_WZ, "Warzone 2100 - %s", version_getFormattedVersionString());
-	debug(LOG_WZ, "Using language: %s", getLanguage());
-	debug(LOG_WZ, "Backend: %s", BACKEND);
-	debug(LOG_MEMORY, "sizeof: SIMPLE_OBJECT=%ld, BASE_OBJECT=%ld, DROID=%ld, STRUCTURE=%ld, FEATURE=%ld, PROJECTILE=%ld",
-	      (long)sizeof(SIMPLE_OBJECT), (long)sizeof(BASE_OBJECT), (long)sizeof(DROID), (long)sizeof(STRUCTURE), (long)sizeof(FEATURE), (long)sizeof(PROJECTILE));
-
-	int w = pie_GetVideoBufferWidth();
-	int h = pie_GetVideoBufferHeight();
-
-	char buf[256];
-	ssprintf(buf, "Video Mode %d x %d (%s)", w, h, war_getFullscreen() ? "fullscreen" : "window");
-	addDumpInfo(buf);
+	wzMainScreenSetup(war_getAntialiasing(), war_getFullscreen(), war_GetVsync());
 
 	float horizScaleFactor, vertScaleFactor;
 	wzGetGameToRendererScaleFactor(&horizScaleFactor, &vertScaleFactor);
@@ -810,12 +778,9 @@ void main2()
 
 	debug(LOG_MAIN, "Final initialization");
 
-	if (!frameInitialise())
-    return;
-	if (!screenInitialise())
-    return;
-	if (!pie_LoadShaders())
-    return;
+	frameInitialise();
+	screenInitialise();
+	pie_LoadShaders();
 
 	unsigned int windowWidth = 0, windowHeight = 0;
 	wzGetWindowResolution(nullptr, &windowWidth, &windowHeight);
@@ -831,15 +796,14 @@ void main2()
 	pie_SetFogStatus(false);
 	pie_ScreenFlip(CLEAR_BLACK);
 
-	if (!systemInitialise(horizScaleFactor, vertScaleFactor))
-    return;
+	systemInitialise(horizScaleFactor, vertScaleFactor);
 
 	//set all the pause states to false
 	setAllPauseStates(false);
 
 	// Do the game mode specific initialisation.
 	switch (GetGameMode())
-	{
+  {
 		case GS_TITLE_SCREEN:
 			startTitleLoop();
 			break;
@@ -859,4 +823,9 @@ void halt()
   saveConfig();
 	systemShutdown();
 	wzShutdown();
+}
+
+int main()
+{
+  return 1;
 }

@@ -25,19 +25,24 @@
 
 enum GS_GAMEMODE
 {
-	GS_TITLE_SCREEN,
-	GS_NORMAL,
-	GS_SAVEGAMELOAD
+	GS_TITLE_SCREEN = 1,
+	GS_NORMAL = 2,
+	GS_SAVEGAMELOAD = 3
 };
 
 //flag to indicate when initialisation is complete
 extern bool gameInitialised;
 extern bool customDebugfile;
 
-GS_GAMEMODE GetGameMode();
+GS_GAMEMODE GetGameMode() asm ("getGameMode");
 void SetGameMode(GS_GAMEMODE status);
 void main2() asm ("main2");
 void mainLoop() asm ("WZLoop");
+void runGameLoop() asm ("runGameLoop");
+void runTitleLoop() asm ("runTitleLoop");
+void startGameLoop() asm ("startGameLoop");
+void stopGameLoop() asm ("stopGameLoop");
+bool initSaveGameLoad() asm ("initSaveGameLoad");
 void halt() asm ("halt");
 void init() asm ("init");
 void test(int argc, char* argv[]) asm ("test");

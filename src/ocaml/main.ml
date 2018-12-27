@@ -59,31 +59,53 @@ let init () =
   let initPhysFS = funer "initPhysFS" vv in
   let wzMain = funer "wzMain" vv in
   let initMain = funer "init" vv in
-  let main = funer "main2" vv in
   debug_init ();
   i18n_init ();
   initPhysFS();
   initMain();
   wzMain();
-  main();
 
   ()
 
 exception Halt
+exception Invalid_gamemode
 
 let () =
   let rec loop () =
     let sdl = funer "SDLLoop" (void @-> returning bool) in
     let wz = funer "WZLoop" vv in
     let tmp = funer "inputNewFrame" vv in
-    match sdl() with true -> raise Halt | false -> ();
-    wz();
-    tmp();
-    loop()
+    let frameUpdate = funer "frameUpdate" vv in
+    let getGameMode = funer "getGameMode" (void @-> returning int) in
+    let gameLoop = funer "gameLoop" (void @-> returning int) in
+    let runGameLoop = funer "runGameLoop" vv in
+    let stopGameLoop = funer "stopGameLoop" vv in
+    let startGameLoop = funer "startGameLoop" vv in
+    let runTitleLoop = funer "runTitleLoop" vv in
+    let initSaveGameLoad = funer "initSaveGameLoad" vv in
+    let realTimeUpdate = funer "realTimeUpdate" vv in
+
+    match sdl () with true -> raise Halt | false -> ();
+    frameUpdate ();
+      (*wz ();*)
+      (match getGameMode () with
+       | 1 -> runTitleLoop ()
+       | 2 -> (match gameLoop () with
+           | 1 | 2 -> ()
+           | 3 -> stopGameLoop (); runTitleLoop ()
+           | 4 -> stopGameLoop (); initSaveGameLoad ()
+           | 5 -> stopGameLoop (); startGameLoop ()
+           | x -> raise Invalid_gamemode
+           )
+       | x -> raise Invalid_gamemode
+      );
+      realTimeUpdate ();
+    tmp ();
+    loop ()
   in
   let halt = funer "halt" vv in
   parse specList (fun x -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments";
   init ();
   try
     loop()
-  with Halt -> halt()
+  with Halt -> halt ()

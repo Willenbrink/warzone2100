@@ -116,7 +116,7 @@ int getFramerateLimit();
 /** Call this each cycle to allow the framework to deal with
  * windows messages, and do general house keeping.
  */
-void frameUpdate();
+void frameUpdate() asm ("frameUpdate");
 
 /** Returns the current frame we're on - used to establish whats on screen. */
 UDWORD frameGetFrameNumber();

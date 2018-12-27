@@ -73,7 +73,7 @@ void gameTimeUpdate(bool mayUpdate);
 void gameTimeUpdateEnd();
 
 /// Updates the realTime timer, and corresponding deltaRealTime.
-void realTimeUpdate();
+void realTimeUpdate() asm ("realTimeUpdate");
 
 /* Returns true if gameTime is stopped. */
 bool gameTimeIsStopped();
