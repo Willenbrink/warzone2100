@@ -24,6 +24,7 @@
 
 // Get platform defines before checking for them!
 #include "lib/framework/wzapp.h"
+#include <stdalign.h>
 
 #include <QtWidgets/QApplication>
 // This is for the cross-compiler, for static QT 5 builds to avoid the 'plugins' crap on windows
@@ -38,6 +39,7 @@
 #include "lib/ivis_opengl/screen.h"
 #include "lib/gamelib/gtime.h"
 #include "src/warzoneconfig.h"
+#include "src/main.h"
 #include "src/game.h"
 #include <SDL.h>
 #include <SDL_thread.h>
@@ -52,11 +54,6 @@
 // This is for the cross-compiler, for static QT 5 builds to avoid the 'plugins' crap on windows
 #if defined(QT_STATICPLUGIN)
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)
-#endif
-
-#if defined(WZ_OS_MAC)
-#include "cocoa_sdl_helpers.h"
-#include "cocoa_wz_menus.h"
 #endif
 
 void mainLoop();
@@ -86,12 +83,7 @@ static std::vector<screeninfo> displaylist;	// holds all our possible display li
 
 QCoreApplication *appPtr;				// Needed for qtscript
 
-#if defined(WZ_OS_MAC)
-// on macOS, SDL_WINDOW_FULLSCREEN_DESKTOP *must* be used (or high-DPI fullscreen toggling breaks)
-const SDL_WindowFlags WZ_SDL_FULLSCREEN_MODE = SDL_WINDOW_FULLSCREEN_DESKTOP;
-#else
 const SDL_WindowFlags WZ_SDL_FULLSCREEN_MODE = SDL_WINDOW_FULLSCREEN;
-#endif
 
 std::atomic<Uint32> wzSDLAppEvent((Uint32)-1);
 enum wzSDLAppEventCodes
@@ -838,11 +830,7 @@ void keyScanToString(KEY_CODE code, char *ascii, UDWORD maxStringSize)
 	else if (code == KEY_LMETA)
 	{
 		// shortcuts with modifier keys work with either key.
-#ifdef WZ_OS_MAC
-		strcpy(ascii, "Cmd");
-#else
 		strcpy(ascii, "Meta");
-#endif
 		return;
 	}
 
@@ -1512,24 +1500,6 @@ bool wzChangeWindowResolution(int screen, unsigned int width, unsigned int heigh
 	assert(WZwindow != nullptr);
 	debug(LOG_WZ, "Attempt to change resolution to [%d] %dx%d", screen, width, height);
 
-#if defined(WZ_OS_MAC)
-	// Workaround for SDL (2.0.5) quirk on macOS:
-	//	When the green titlebar button is used to fullscreen the app in a new space:
-	//		- SDL does not return SDL_WINDOW_MAXIMIZED nor SDL_WINDOW_FULLSCREEN.
-	//		- Attempting to change the window resolution "succeeds" (in that the new window size is "set" and returned
-	//		  by the SDL GetWindowSize functions).
-	//		- But other things break (ex. mouse coordinate translation) if the resolution is changed while the window
-	//        is maximized in this way.
-	//		- And the GL drawable size remains unchanged.
-	//		- So if it's been fullscreened by the user like this, but doesn't show as SDL_WINDOW_FULLSCREEN,
-	//		  prevent window resolution changes.
-	if (cocoaIsSDLWindowFullscreened(WZwindow) && !wzIsFullscreen())
-	{
-		debug(LOG_WZ, "The main window is fullscreened, but SDL doesn't think it is. Changing window resolution is not possible in this state. (SDL Bug).");
-		return false;
-	}
-#endif
-
 	// Get current window size + position + bounds
 	int prev_x = 0, prev_y = 0, prev_width = 0, prev_height = 0;
 	SDL_GetWindowPosition(WZwindow, &prev_x, &prev_y);
@@ -1639,6 +1609,15 @@ void wzGetWindowResolution(int *screen, unsigned int *width, unsigned int *heigh
 	}
 }
 
+int getWindowSize()
+{
+  return alignof(WZwindow);
+}
+
+void setWindow(SDL_Window *window)
+{
+  WZwindow = window;
+}
 // This stage, we handle display mode setting
 bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highDPI)
 {
@@ -1662,14 +1641,6 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 		debug(LOG_ERROR, "Error: Failed to register app-defined SDL event (%s).", SDL_GetError());
 		return false;
 	}
-
-#if defined(WZ_OS_MAC)
-	// on macOS, support maximizing to a fullscreen space (modern behavior)
-	if (SDL_SetHint(SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES, "1") == SDL_FALSE)
-	{
-		debug(LOG_WARNING, "Failed to set hint: SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES");
-	}
-#endif
 
 	// Set the double buffer OpenGL attribute.
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -1783,15 +1754,6 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 	{
 		// Allow the window to be manually resized, if not fullscreen
 		video_flags |= SDL_WINDOW_RESIZABLE;
-	}
-
-	if (highDPI)
-	{
-#if defined(WZ_OS_MAC)
-		// Allow SDL to enable its built-in High-DPI display support.
-		// As of SDL 2.0.5, this only works on macOS. (But SDL 2.1.x+ may enable Windows support via a different interface.)
-		video_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
-#endif
 	}
 
 	SDL_Rect bounds;
@@ -1912,8 +1874,6 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 		exit(1);
 	}
 
-#if !defined(WZ_OS_MAC) // Do not use this method to set the window icon on macOS.
-
 	#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 		uint32_t rmask = 0xff000000;
 		uint32_t gmask = 0x00ff0000;
@@ -1947,7 +1907,6 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 	{
 		debug(LOG_ERROR, "Could not set window icon because %s", SDL_GetError());
 	}
-#endif
 
 	SDL_SetWindowTitle(WZwindow, PACKAGE_NAME);
 
@@ -1960,25 +1919,6 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 	{
 		sdlInitCursors();
 	}
-
-#if defined(WZ_OS_MAC)
-	// For the script engine, let Qt know we're alive
-	//
-	// IMPORTANT: This must come *after* SDL has had a chance to initialize,
-	//			  or Qt can step on certain SDL functionality.
-	//			  (For example, on macOS, Qt can break the "Quit" menu
-	//			  functionality if QApplication is initialized before SDL.)
-	appPtr = new QApplication(copied_argc, copied_argv);
-
-	// IMPORTANT: Because QApplication calls setlocale(LC_ALL,""),
-	//			  we *must* immediately call setlocale(LC_NUMERIC,"C") after initializing
-	//			  or things like loading (parsing) levels / resources can fail
-	setlocale(LC_NUMERIC, "C"); // set radix character to the period (".")
-#endif
-
-#if defined(WZ_OS_MAC)
-	cocoaSetupWZMenus();
-#endif
 
 	// FIXME: aspect ratio
 	glViewport(0, 0, width, height);

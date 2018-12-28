@@ -599,7 +599,7 @@ void init()
 
   initMods();
 
-	wzMainScreenSetup(war_getAntialiasing(), war_getFullscreen(), war_GetVsync());
+	//wzMainScreenSetup(war_getAntialiasing(), war_getFullscreen(), war_GetVsync());
 
 	float horizScaleFactor, vertScaleFactor;
 	wzGetGameToRendererScaleFactor(&horizScaleFactor, &vertScaleFactor);
@@ -646,6 +646,8 @@ void init()
 			break;
 	}
 }
+
+
 
 void halt()
 {

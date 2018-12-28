@@ -22,6 +22,7 @@
 #define __INCLUDED_SRC_MAIN_H__
 
 #include "lib/framework/frame.h"
+#include <SDL.h>
 
 enum GS_GAMEMODE
 {
@@ -47,6 +48,10 @@ void halt() asm ("halt");
 void init() asm ("init");
 void test(int argc, char* argv[]) asm ("test");
 void initPhysFS() asm ("initPhysFS");
+
+
+int getWindowSize() asm ("getWindowSize");
+void setWindow(SDL_Window *window) asm ("setWindow");
 
 extern char SaveGamePath[PATH_MAX];
 extern char datadir[PATH_MAX];

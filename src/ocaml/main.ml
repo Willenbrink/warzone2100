@@ -1,9 +1,13 @@
 #require "ctypes"
 #require "ctypes.foreign"
+#require "tsdl"
 
 open Ctypes
 open Foreign
 open Arg
+open Tsdl
+open Result
+
 
 let todo _ = failwith "TODO"
 
@@ -13,6 +17,7 @@ let libwar = libOpener "/warzone2100"
 
 let funer name params =
   foreign ~from:libwar
+    ~check_errno:true
     ~release_runtime_lock:false
     name params
 
@@ -27,7 +32,6 @@ let specList =
     let dbgflush = funer "debugFlushStderr" vv in
     let fs () = (funer "setFullscreen" (bool @-> returning void)) true in
     let autogame = funer "autogame" vv in
-
   [
     ("-configdir", String cd, "Set configuration directory");
     ("-datadir", String dd, "Add data directory");
@@ -64,7 +68,6 @@ let init () =
   initPhysFS();
   initMain();
   wzMain();
-
   ()
 
 exception Halt
@@ -82,71 +85,100 @@ type loopState =
   | NewLevel (*TODO remove this probably*)
   | Viewing
 
-let () =
-  let rec loop mode =
-    let sdl = funer "SDLLoop" (void @-> returning bool) in
-    let tmp = funer "inputNewFrame" vv in
-    let frameUpdate = funer "frameUpdate" vv in
-    let setGameMode mode =
-      let iMode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
-        funer "setGameMode" (int @-> returning void) iMode  in
-    let gameLoop = funer "gameLoop" (void @-> returning int) in
-    let titleLoop = funer "titleLoop" (void @-> returning int) in
-    let getState = function
-      | 1 -> Running
-      | 2 -> Quitting
-      | 3 -> Loading
-      | 4 -> NewLevel
-      | 5 -> Viewing
-      | x -> raise InvalidState
-    in
-    let setState state = function
-      | Running -> 1
-      | Quitting -> 2
-      | Loading -> 3
-      | NewLevel -> 4
-      | Viewing -> 5
-    in
-    let startGameLoop = funer "startGameLoop" vv in
-    let stopGameLoop = funer "stopGameLoop" vv in
-    let startTitleLoop = funer "startTitleLoop" vv in
-    let stopTitleLoop = funer "stopTitleLoop" vv in
-    let longOp f =
-      let startOp = funer "initLoadingScreen" (bool @-> returning void) in
-      let endOp = funer "closeLoadingScreen" vv in
-      startOp true;
-      List.iter (fun a -> a ()) f;
-      endOp ();
-    in
 
-    let initSaveGameLoad = funer "initSaveGameLoad" vv in
-    let realTimeUpdate = funer "realTimeUpdate" vv in
-
-    match sdl () with true -> raise Halt | false -> ();
-    frameUpdate ();
-    let newMode = (match mode with
-      | Title -> (match titleLoop () |> getState with
-          | Running -> mode
-          | Quitting -> stopTitleLoop(); raise Halt
-          | Loading -> longOp [stopTitleLoop; initSaveGameLoad]; Game
-          | NewLevel -> longOp [stopTitleLoop; startGameLoop]; Game
-          | Viewing -> todo () )
-      | Game -> (match gameLoop () |> getState with
-          | Running | Viewing -> mode
-          | Quitting -> longOp [stopGameLoop; startTitleLoop]; Title
-          | Loading -> longOp [stopGameLoop; initSaveGameLoad]; Game
-          | NewLevel -> longOp [stopGameLoop; startGameLoop]; Game)
-      | x -> raise InvalidState ) in
-    realTimeUpdate ();
-    tmp ();
-    let iMode mode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
-    if mode <> newMode then Printf.printf "Mode changed: %i -> %i\n" (iMode mode) (iMode newMode);
-    setGameMode newMode;
-    loop newMode
+let rec loop mode =
+  let sdl = funer "SDLLoop" (void @-> returning bool) in
+  let tmp = funer "inputNewFrame" vv in
+  let frameUpdate = funer "frameUpdate" vv in
+  let setGameMode mode =
+    let iMode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
+      funer "setGameMode" (int @-> returning void) iMode  in
+  let gameLoop = funer "gameLoop" (void @-> returning int) in
+  let titleLoop = funer "titleLoop" (void @-> returning int) in
+  let getState = function
+    | 1 -> Running
+    | 2 -> Quitting
+    | 3 -> Loading
+    | 4 -> NewLevel
+    | 5 -> Viewing
+    | x -> raise InvalidState
   in
-  let halt = funer "halt" vv in
+  let setState state = function
+    | Running -> 1
+    | Quitting -> 2
+    | Loading -> 3
+    | NewLevel -> 4
+    | Viewing -> 5
+  in
+  let startGameLoop = funer "startGameLoop" vv in
+  let stopGameLoop = funer "stopGameLoop" vv in
+  let startTitleLoop = funer "startTitleLoop" vv in
+  let stopTitleLoop = funer "stopTitleLoop" vv in
+  let longOp f =
+    let startOp = funer "initLoadingScreen" (bool @-> returning void) in
+    let endOp = funer "closeLoadingScreen" vv in
+    startOp true;
+    List.iter (fun a -> a ()) f;
+    endOp ();
+  in
+
+  let initSaveGameLoad = funer "initSaveGameLoad" vv in
+  let realTimeUpdate = funer "realTimeUpdate" vv in
+
+  match sdl () with true -> raise Halt | false -> ();
+  frameUpdate ();
+  let newMode = (match mode with
+    | Title -> (match titleLoop () |> getState with
+        | Running -> mode
+        | Quitting -> stopTitleLoop(); raise Halt
+        | Loading -> longOp [stopTitleLoop; initSaveGameLoad]; Game
+        | NewLevel -> longOp [stopTitleLoop; startGameLoop]; Game
+        | Viewing -> todo () )
+    | Game -> (match gameLoop () |> getState with
+        | Running | Viewing -> mode
+        | Quitting -> longOp [stopGameLoop; startTitleLoop]; Title
+        | Loading -> longOp [stopGameLoop; initSaveGameLoad]; Game
+        | NewLevel -> longOp [stopGameLoop; startGameLoop]; Game)
+    | x -> raise InvalidState ) in
+  realTimeUpdate ();
+  tmp ();
+  let iMode mode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
+  if mode <> newMode then Printf.printf "Mode changed: %i -> %i\n" (iMode mode) (iMode newMode);
+  setGameMode newMode;
+  loop newMode
+
+let size = 8
+let alignment = 8
+
+let test : Sdl.window typ =
+  abstract ~name:"test" ~size ~alignment
+
+type sdlwindow = unit ptr
+let window : sdlwindow typ = ptr void
+
+let createWindow () : unit abstract ptr = match Sdl.init Sdl.Init.(video + timer) with
+| Error (`Msg e) -> Sdl.log "Init error: %s" e; exit 1
+| Ok () ->
+  let set a b = match Sdl.gl_set_attribute a b with Error (`Msg e) -> Sdl.log "Error: %s" e | Ok () -> () in
+  set Sdl.Gl.doublebuffer 1;
+  set Sdl.Gl.stencil_size 8;
+  set Sdl.Gl.multisamplebuffers 1;
+  set Sdl.Gl.multisamplesamples 1;
+
+  match Sdl.create_window ~w:640 ~h:480 "Warzone 2100" Sdl.Window.(opengl + shown + borderless + resizable + input_grabbed) with
+    | Error (`Msg e) -> Sdl.log "Create window error: %s" e; exit 1
+    | Ok w -> allocate_n test ~count:1
+
+let _ =
+  let setWindow = funer "setWindow" (window @-> returning void) in
+  (*funer "_Z9getWindowv" (void @-> returning (ptr void))
+  funer "getWindowSize" (void @-> returning int)
+  *)
+  createWindow()
+(*
   parse specList (fun x -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments";
   init ();
   try
     loop Title
-  with Halt -> halt ()
+  with Halt -> funer "halt" vv ()
+   *)
