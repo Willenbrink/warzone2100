@@ -430,6 +430,16 @@ void deleteSaveGame(char *saveGameName)
 	return;
 }
 
+char *getSaveGame()
+{
+  return saveGameName;
+}
+
+void setSaveGame(char *newSave)
+{
+  fprintf(stderr, "Save set to: %s\n", newSave);
+  sstrcpy(saveGameName, newSave);
+}
 
 // ////////////////////////////////////////////////////////////////////////////
 // Returns true if cancel pressed or a valid game slot was selected.

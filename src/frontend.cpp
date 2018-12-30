@@ -452,7 +452,7 @@ static void loadOK()
 {
 	if (strlen(sRequestResult))
 	{
-		sstrcpy(saveGameName, sRequestResult);
+		setSaveGame(sRequestResult);
 		changeTitleMode(LOADSAVEGAME);
 	}
 }

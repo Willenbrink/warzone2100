@@ -243,7 +243,7 @@ static GAMECODE renderLoop()
 			{
 				loopMissionState = LMS_LOADGAME;
 				NET_InitPlayers();			// otherwise alliances were not cleared
-				sstrcpy(saveGameName, sRequestResult);
+				setSaveGame(sRequestResult);
 			}
 			else
 			{

@@ -57,6 +57,9 @@ extern bool		bRequestLoad;
  */
 /***************************************************************************/
 
+char *getSaveGame();
+void setSaveGame(char *newSave);
+
 void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h);
 
 bool addLoadSave(LOADSAVE_MODE mode, const char *title);

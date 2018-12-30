@@ -333,12 +333,7 @@ static void make_dir(char *dest, const char *dirname, const char *subdir)
 	}
 }
 
-
-/*!
- * Preparations before entering the title (mainmenu) loop
- * Would start the timer in an event based mainloop
- */
-void startTitleLoop()
+void startFrontend()
 {
 	if (!frontendInitialise("wrf/frontend.wrf"))
 	{
@@ -347,12 +342,7 @@ void startTitleLoop()
 	}
 }
 
-
-/*!
- * Shutdown/cleanup after the title (mainmenu) loop
- * Would stop the timer
- */
-void stopTitleLoop()
+void stopFrontend()
 {
 	if (!frontendShutdown())
 	{
@@ -375,21 +365,6 @@ void startGameLoop()
 	}
 
 	screen_StopBackDrop();
-
-	// Trap the cursor if cursor snapping is enabled
-	if (war_GetTrapCursor())
-	{
-		wzGrabMouse();
-	}
-
-	// Disable resizable windows if it's a multiplayer game
-	if (runningMultiplayer())
-	{
-		// This is because the main loop gets frozen while the window resizing / edge dragging occurs
-		// which effectively pauses the game, and pausing is otherwise disabled in multiplayer games.
-		// FIXME: Figure out a workaround?
-		wzSetWindowIsResizable(false);
-	}
 
 	// set a flag for the trigger/event system to indicate initialisation is complete
 	gameInitialised = true;
@@ -415,28 +390,9 @@ void startGameLoop()
  */
 void stopGameLoop()
 {
-	clearInfoMessages(); // clear CONPRINTF messages before each new game/mission
-
-  clearBlueprints();
   pie_EnableFog(false); // don't let the normal loop code set status on
-  reloadMPConfig();
-
-	// Disable cursor trapping
-	if (war_GetTrapCursor())
-	{
-		wzReleaseMouse();
-	}
-
-	// Re-enable resizable windows
-	if (!wzIsFullscreen())
-	{
-		// FIXME: This is required because of the disabling in startGameLoop()
-		wzSetWindowIsResizable(true);
-	}
-
 	gameInitialised = false;
 }
-
 
 /*!
  * Load a savegame and start into the game loop
@@ -445,13 +401,9 @@ void stopGameLoop()
 void initSaveGameLoad()
 {
 	// load up a save game
-	loadGameInit(saveGameName);
-
-	// Trap the cursor if cursor snapping is enabled
-	if (war_GetTrapCursor())
-	{
-		wzGrabMouse();
-	}
+	//loadGameInit(saveGameName);
+	loadGameInit("multiplay/maps/4c-rush.gam");
+  fprintf(stderr, "Success while loading map\n");
 
 	if (challengeActive)
 	{
@@ -634,7 +586,7 @@ void init()
   switch (GetGameMode())
   {
 		case GS_TITLE_SCREEN:
-			startTitleLoop();
+			startFrontend();
 			break;
 
 		case GS_SAVEGAMELOAD:
@@ -649,6 +601,7 @@ void init()
 
 void halt()
 {
+  stopFrontend();
   saveConfig();
 	systemShutdown();
 	wzShutdown();

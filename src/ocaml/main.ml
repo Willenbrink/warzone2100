@@ -64,7 +64,6 @@ let init () =
   initPhysFS();
   initMain();
   wzMain();
-
   ()
 
 exception Halt
@@ -82,71 +81,72 @@ type loopState =
   | NewLevel (*TODO remove this probably*)
   | Viewing
 
-let () =
-  let rec loop mode =
-    let sdl = funer "SDLLoop" (void @-> returning bool) in
-    let tmp = funer "inputNewFrame" vv in
-    let frameUpdate = funer "frameUpdate" vv in
-    let setGameMode mode =
-      let iMode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
-        funer "setGameMode" (int @-> returning void) iMode  in
-    let gameLoop = funer "gameLoop" (void @-> returning int) in
-    let titleLoop = funer "titleLoop" (void @-> returning int) in
-    let getState = function
-      | 1 -> Running
-      | 2 -> Quitting
-      | 3 -> Loading
-      | 4 -> NewLevel
-      | 5 -> Viewing
-      | x -> raise InvalidState
-    in
-    let setState state = function
-      | Running -> 1
-      | Quitting -> 2
-      | Loading -> 3
-      | NewLevel -> 4
-      | Viewing -> 5
-    in
-    let startGameLoop = funer "startGameLoop" vv in
-    let stopGameLoop = funer "stopGameLoop" vv in
-    let startTitleLoop = funer "startTitleLoop" vv in
-    let stopTitleLoop = funer "stopTitleLoop" vv in
-    let longOp f =
-      let startOp = funer "initLoadingScreen" (bool @-> returning void) in
-      let endOp = funer "closeLoadingScreen" vv in
-      startOp true;
-      List.iter (fun a -> a ()) f;
-      endOp ();
-    in
+let rec loop mode =
+  let getState = function
+    | 1 -> Running
+    | 2 -> Quitting
+    | 3 -> Loading
+    | 4 -> NewLevel
+    | 5 -> Viewing
+    | x -> raise InvalidState
+  in
+  let setState state = function
+    | Running -> 1
+    | Quitting -> 2
+    | Loading -> 3
+    | NewLevel -> 4
+    | Viewing -> 5
+  in
 
-    let initSaveGameLoad = funer "initSaveGameLoad" vv in
-    let realTimeUpdate = funer "realTimeUpdate" vv in
+  let sdl = funer "SDLLoop" (void @-> returning bool) in
+  let tmp = funer "inputNewFrame" vv in
+  let frameUpdate = funer "frameUpdate" vv in
+  let setGameMode mode =
+    let iMode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
+    funer "setGameMode" (int @-> returning void) iMode  in
+  let gameLoop = funer "gameLoop" (void @-> returning int) in
+  let titleLoop = funer "titleLoop" (void @-> returning int) in
+  let startGameLoop = funer "startGameLoop" vv in
+  let stopGameLoop = funer "stopGameLoop" vv in
+  let startFrontend = funer "startFrontend" vv in
+  let stopFrontend = funer "stopFrontend" vv in
+  let longOp f =
+    let startOp = funer "initLoadingScreen" (bool @-> returning void) in
+    let endOp = funer "closeLoadingScreen" vv in
+    startOp true;
+    List.iter (fun a -> a ()) f;
+    endOp ();
+  in
 
-    match sdl () with true -> raise Halt | false -> ();
-    frameUpdate ();
-    let newMode = (match mode with
+  let initSaveGameLoad = funer "initSaveGameLoad" vv in
+  let realTimeUpdate = funer "realTimeUpdate" vv in
+
+  (match sdl () with true -> raise Halt | false -> ());
+  frameUpdate ();
+  let newMode = (match mode with
       | Title -> (match titleLoop () |> getState with
           | Running -> mode
-          | Quitting -> stopTitleLoop(); raise Halt
-          | Loading -> longOp [stopTitleLoop; initSaveGameLoad]; Game
-          | NewLevel -> longOp [stopTitleLoop; startGameLoop]; Game
+          | Quitting -> raise Halt
+          | Loading -> longOp [stopFrontend; initSaveGameLoad]; Game
+          | NewLevel -> longOp [stopFrontend; startGameLoop]; Game
           | Viewing -> todo () )
       | Game -> (match gameLoop () |> getState with
           | Running | Viewing -> mode
-          | Quitting -> longOp [stopGameLoop; startTitleLoop]; Title
+          | Quitting -> longOp [stopGameLoop; startFrontend]; Title
           | Loading -> longOp [stopGameLoop; initSaveGameLoad]; Game
           | NewLevel -> longOp [stopGameLoop; startGameLoop]; Game)
       | x -> raise InvalidState ) in
-    realTimeUpdate ();
-    tmp ();
-    let iMode mode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
-    if mode <> newMode then Printf.printf "Mode changed: %i -> %i\n" (iMode mode) (iMode newMode);
-    setGameMode newMode;
-    loop newMode
-  in
-  let halt = funer "halt" vv in
+  tmp ();
+  realTimeUpdate ();
+
+  let iMode mode = match mode with Title -> 1 | Game -> 2 | SaveLoad -> 3 in
+  if mode <> newMode then Printf.printf "Mode changed: %i -> %i\n" (iMode mode) (iMode newMode);
+  setGameMode newMode;
+  loop newMode
+
+let () =
   parse specList (fun x -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments";
   init ();
   try
     loop Title
-  with Halt -> halt ()
+  with Halt -> funer "halt" vv ()
