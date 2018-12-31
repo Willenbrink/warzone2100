@@ -35,11 +35,12 @@ extern bool gameInitialised;
 extern bool customDebugfile;
 
 GS_GAMEMODE GetGameMode() asm ("getGameMode");
-void SetGameMode(GS_GAMEMODE status);
-void main2() asm ("main2");
+void SetGameMode(GS_GAMEMODE status) asm ("setGameMode");
 void mainLoop() asm ("WZLoop");
 void runGameLoop() asm ("runGameLoop");
 void runTitleLoop() asm ("runTitleLoop");
+void startTitleLoop() asm ("startTitleLoop");
+void stopTitleLoop() asm ("stopTitleLoop");
 void startGameLoop() asm ("startGameLoop");
 void stopGameLoop() asm ("stopGameLoop");
 bool initSaveGameLoad() asm ("initSaveGameLoad");

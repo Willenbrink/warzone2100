@@ -251,17 +251,9 @@ TITLECODE titleLoop()
 			break;
 
 		case STARTGAME:
+      return TITLECODE_STARTGAME;
 		case LOADSAVEGAME:
-			if (titleMode == LOADSAVEGAME)
-			{
-				RetCode = TITLECODE_SAVEGAMELOAD;
-			}
-			else
-			{
-				RetCode = TITLECODE_STARTGAME;
-			}
-
-			return RetCode;			// don't flip!
+      return TITLECODE_SAVEGAMELOAD;
 
 		case SHOWINTRO:
 			pie_SetFogStatus(false);

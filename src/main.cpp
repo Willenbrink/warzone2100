@@ -339,7 +339,7 @@ static void make_dir(char *dest, const char *dirname, const char *subdir)
  * Preparations before entering the title (mainmenu) loop
  * Would start the timer in an event based mainloop
  */
-static void startTitleLoop()
+void startTitleLoop()
 {
 	SetGameMode(GS_TITLE_SCREEN);
 
@@ -359,7 +359,7 @@ static void startTitleLoop()
  * Shutdown/cleanup after the title (mainmenu) loop
  * Would stop the timer
  */
-static void stopTitleLoop()
+void stopTitleLoop()
 {
 	if (!frontendShutdown())
 	{
@@ -663,6 +663,8 @@ void initMods()
 
 void init()
 {
+  //TODO move somewhere appropriate
+  setlocale(LC_NUMERIC, "C");
 	memset(rulesettag, 0, sizeof(rulesettag)); // stores tag property of ruleset.json files
   if (!customDebugfile)
     {
