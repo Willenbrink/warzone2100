@@ -503,63 +503,6 @@ bool initSaveGameLoad()
 	return true;
 }
 
-/*!
- * Run the code inside the titleloop
- */
-void runTitleLoop()
-{
-	switch (titleLoop())
-	{
-		case TITLECODE_CONTINUE:
-			break;
-
-		case TITLECODE_QUITGAME:
-			debug(LOG_MAIN, "TITLECODE_QUITGAME");
-			stopTitleLoop();
-			wzQuit();
-			break;
-
-		case TITLECODE_SAVEGAMELOAD:
-		{
-			debug(LOG_MAIN, "TITLECODE_SAVEGAMELOAD");
-			initLoadingScreen(true);
-			// Restart into gameloop and load a savegame, ONLY on a good savegame load!
-			stopTitleLoop();
-
-			if (!initSaveGameLoad())
-			{
-				// we had a error loading savegame (corrupt?), so go back to title screen?
-				stopGameLoop();
-				startTitleLoop();
-				changeTitleMode(TITLE);
-			}
-
-			closeLoadingScreen();
-			break;
-		}
-
-		case TITLECODE_STARTGAME:
-			debug(LOG_MAIN, "TITLECODE_STARTGAME");
-			initLoadingScreen(true);
-			stopTitleLoop();
-			startGameLoop(); // Restart into gameloop
-			closeLoadingScreen();
-			break;
-
-		case TITLECODE_SHOWINTRO:
-			debug(LOG_MAIN, "TITLECODE_SHOWINTRO");
-			seq_ClearSeqList();
-			seq_AddSeqToList("titles.ogg", nullptr, nullptr, false);
-			seq_AddSeqToList("devastation.ogg", nullptr, "devastation.txa", false);
-			seq_StartNextFullScreenVideo();
-			break;
-
-		default:
-			debug(LOG_ERROR, "Unknown code returned by titleLoop");
-			break;
-	}
-}
-
 // for backend detection
 extern const char *BACKEND;
 
