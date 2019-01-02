@@ -97,8 +97,22 @@ let setState state = function
   | NewLevel -> 4
   | Viewing -> 5
 
+let rec countUpdate player =
+  let coundUpdateSingleNew =
+    let setSatUplink = funer "setSatUplinkExists" (bool @-> int @-> returning void) in
+    let getSatUplink = funer "getSatUplinkExists" (void @-> returning bool) in
+    let setLasSat= funer "setLasSatExists" (bool @-> int @-> returning void) in
+    let getLasSat= funer "getLasSatExists" (void @-> returning bool) in
+    ()
+  in
+    let countUpdateSingle = funer "countUpdateSingle" (bool @-> int @-> returning void) in
+    if player >= 0
+    then
+      (countUpdateSingle true player;
+       countUpdate (player-1))
+    else ()
+
 let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
-  let gameLoopOld = funer "gameLoop" (void @-> returning int) in
   let getMaxPlayers = funer "getMaxPlayers" (void @-> returning int) in
   let recvMessage = funer "recvMessage" vv in
   let gameTimeUpdate = funer "gameTimeUpdate" (bool @-> returning void) in
@@ -110,15 +124,6 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
   let setDeltaGameTime = funer "setDeltaGameTime" (int @-> returning void) in
   let gameStateUpdate = funer "gameStateUpdate" vv in
 
-  let rec count player =
-    let countUpdateSingle = funer "countUpdateSingle" (bool @-> int @-> returning void) in
-    if player >= 0
-    then
-      (countUpdateSingle true player;
-       count (player-1))
-    else ()
-  in
-
   let rec innerLoop (renderBudget,lastUpdateRender) =
     recvMessage ();
     gameTimeUpdate (renderBudget > 0 || lastUpdateRender);
@@ -126,12 +131,12 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
     | 0 -> renderBudget
     | _ ->
       let before = wzGetTicks () in
+      let () = countUpdate (getMaxPlayers ()) in
       let () = gameStateUpdate () in
       let after = wzGetTicks () in
       innerLoop ((renderBudget - (after - before) * 2),false)
     ) in
 
-  count (getMaxPlayers ());
   let renderBudget = innerLoop (renderBudget, lastUpdateRender) in
   let newLastFlush = if getRealTime () - lastFlush >= 400 then (netflush(); getRealTime ()) else lastFlush in
   let before = wzGetTicks () in

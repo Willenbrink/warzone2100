@@ -181,16 +181,16 @@ static inline bool isLasSat(STRUCTURE_STATS *pStructureType)
 }
 
 /*sets the flag to indicate a SatUplink Exists - so draw everything!*/
-void setSatUplinkExists(bool state, UDWORD player);
+void setSatUplinkExists(bool state, UDWORD player) asm ("setSatUplinkExists");
 
 /*returns the status of the flag*/
-bool getSatUplinkExists(UDWORD player);
+bool getSatUplinkExists(UDWORD player) asm ("getSatUplinkExists");
 
 /*sets the flag to indicate a Las Sat Exists - ONLY EVER WANT ONE*/
-void setLasSatExists(bool state, UDWORD player);
+void setLasSatExists(bool state, UDWORD player) asm ("setLasSatExists");
 
 /*returns the status of the flag*/
-bool getLasSatExists(UDWORD player);
+bool getLasSatExists(UDWORD player) asm ("getLasSatExists");
 
 /* added int weapon_slot to fix the alway slot 0 hack */
 bool calcStructureMuzzleLocation(const STRUCTURE *psStructure, Vector3i *muzzle, int weapon_slot);

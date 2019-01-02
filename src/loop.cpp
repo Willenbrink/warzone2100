@@ -431,17 +431,11 @@ GAMECODE renderLoop()
 	return GAMECODE_CONTINUE;
 }
 
-// Carry out the various counting operations we perform each loop
-void countUpdate(bool synch)
-{
-	for (unsigned i = 0; i < MAX_PLAYERS; i++)
-    countUpdateSingle(synch, i);
-}
-
 void countUpdateSingle(bool synch, int i)
 {
   //set the flag for each player
   setSatUplinkExists(false, i);
+  setLasSatExists(false, i);
 
   numCommandDroids[i] = 0;
   numConstructorDroids[i] = 0;
@@ -450,133 +444,115 @@ void countUpdateSingle(bool synch, int i)
   numTransporterDroids[i] = 0;
 
   for (DROID *psCurr = apsDroidLists[i]; psCurr != nullptr; psCurr = psCurr->psNext)
-		{
-			numDroids[i]++;
+  {
+    numDroids[i]++;
 
-			switch (psCurr->droidType)
+    switch (psCurr->droidType)
+    {
+    case DROID_COMMAND:
+      numCommandDroids[i] += 1;
+      break;
+
+    case DROID_CONSTRUCT:
+    case DROID_CYBORG_CONSTRUCT:
+      numConstructorDroids[i] += 1;
+      break;
+
+    case DROID_TRANSPORTER:
+    case DROID_SUPERTRANSPORTER:
+      if ((psCurr->psGroup != nullptr))
+      {
+        DROID *psDroid = nullptr;
+
+        numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
+
+        // and count the units inside it...
+        for (psDroid = psCurr->psGroup->psList; psDroid != nullptr && psDroid != psCurr; psDroid = psDroid->psGrpNext)
         {
-				case DROID_COMMAND:
-					numCommandDroids[i] += 1;
-					break;
+          if (psDroid->droidType == DROID_CYBORG_CONSTRUCT || psDroid->droidType == DROID_CONSTRUCT)
+            numConstructorDroids[i] += 1;
 
-				case DROID_CONSTRUCT:
-				case DROID_CYBORG_CONSTRUCT:
-					numConstructorDroids[i] += 1;
-					break;
-
-				case DROID_TRANSPORTER:
-				case DROID_SUPERTRANSPORTER:
-					if ((psCurr->psGroup != nullptr))
-            {
-              DROID *psDroid = nullptr;
-
-              numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
-
-              // and count the units inside it...
-              for (psDroid = psCurr->psGroup->psList; psDroid != nullptr && psDroid != psCurr; psDroid = psDroid->psGrpNext)
-                {
-                  if (psDroid->droidType == DROID_CYBORG_CONSTRUCT || psDroid->droidType == DROID_CONSTRUCT)
-                    {
-                      numConstructorDroids[i] += 1;
-                    }
-
-                  if (psDroid->droidType == DROID_COMMAND)
-                    {
-                      numCommandDroids[i] += 1;
-                    }
-                }
-            }
-
-					break;
-
-				default:
-					break;
+          if (psDroid->droidType == DROID_COMMAND)
+            numCommandDroids[i] += 1;
         }
-		}
+      }
+
+      break;
+
+    default:
+      break;
+    }
+  }
 
   for (DROID *psCurr = mission.apsDroidLists[i]; psCurr != nullptr; psCurr = psCurr->psNext)
-		{
-			numMissionDroids[i]++;
+  {
+    numMissionDroids[i]++;
 
-			switch (psCurr->droidType)
-        {
-				case DROID_COMMAND:
-					numCommandDroids[i] += 1;
-					break;
+    switch (psCurr->droidType)
+    {
+    case DROID_COMMAND:
+      numCommandDroids[i] += 1;
+      break;
 
-				case DROID_CONSTRUCT:
-				case DROID_CYBORG_CONSTRUCT:
-					numConstructorDroids[i] += 1;
-					break;
+    case DROID_CONSTRUCT:
+    case DROID_CYBORG_CONSTRUCT:
+      numConstructorDroids[i] += 1;
+      break;
 
-				case DROID_TRANSPORTER:
-				case DROID_SUPERTRANSPORTER:
-					if ((psCurr->psGroup != nullptr))
-            {
-              numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
-            }
+    case DROID_TRANSPORTER:
+    case DROID_SUPERTRANSPORTER:
+      if ((psCurr->psGroup != nullptr))
+        numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
+      break;
 
-					break;
-
-				default:
-					break;
-        }
-		}
+    default:
+      break;
+    }
+  }
 
   for (DROID *psCurr = apsLimboDroids[i]; psCurr != nullptr; psCurr = psCurr->psNext)
-		{
-			// count the type of units
-			switch (psCurr->droidType)
-        {
-				case DROID_COMMAND:
-					numCommandDroids[i] += 1;
-					break;
+  {
+    // count the type of units
+    switch (psCurr->droidType)
+    {
+    case DROID_COMMAND:
+      numCommandDroids[i] += 1;
+      break;
 
-				case DROID_CONSTRUCT:
-				case DROID_CYBORG_CONSTRUCT:
-					numConstructorDroids[i] += 1;
-					break;
+    case DROID_CONSTRUCT:
+    case DROID_CYBORG_CONSTRUCT:
+      numConstructorDroids[i] += 1;
+      break;
 
-				default:
-					break;
-        }
-		}
+    default:
+      break;
+    }
+  }
 
   // FIXME: These for-loops are code duplicationo
-  setLasSatExists(false, i);
 
   for (STRUCTURE *psCBuilding = apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psCBuilding->psNext)
-		{
-			if (psCBuilding->pStructureType->type == REF_SAT_UPLINK && psCBuilding->status == SS_BUILT)
-        {
-          setSatUplinkExists(true, i);
-        }
+  {
+    if (psCBuilding->pStructureType->type == REF_SAT_UPLINK && psCBuilding->status == SS_BUILT)
+      setSatUplinkExists(true, i);
 
-			//don't wait for the Las Sat to be built - can't build another if one is partially built
-			if (asWeaponStats[psCBuilding->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT)
-        {
-          setLasSatExists(true, i);
-        }
-		}
+    //don't wait for the Las Sat to be built - can't build another if one is partially built
+    if (asWeaponStats[psCBuilding->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT)
+      setLasSatExists(true, i);
+  }
 
   for (STRUCTURE *psCBuilding = mission.apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psCBuilding->psNext)
-		{
-			if (psCBuilding->pStructureType->type == REF_SAT_UPLINK && psCBuilding->status == SS_BUILT)
-        {
-          setSatUplinkExists(true, i);
-        }
+  {
+    if (psCBuilding->pStructureType->type == REF_SAT_UPLINK && psCBuilding->status == SS_BUILT)
+      setSatUplinkExists(true, i);
 
-			//don't wait for the Las Sat to be built - can't build another if one is partially built
-			if (asWeaponStats[psCBuilding->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT)
-        {
-          setLasSatExists(true, i);
-        }
-		}
+    //don't wait for the Las Sat to be built - can't build another if one is partially built
+    if (asWeaponStats[psCBuilding->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT)
+      setLasSatExists(true, i);
+  }
 
   if (synch)
-		{
 			syncDebug("counts[%d] = {droid: %d, command: %d, constructor: %d, mission: %d, transporter: %d}", i, numDroids[i], numCommandDroids[i], numConstructorDroids[i], numMissionDroids[i], numTransporterDroids[i]);
-		}
 }
 
 void gameStateUpdate()
@@ -701,9 +677,6 @@ void gameStateUpdate()
 
 	// Must end update, since we may or may not have ticked, and some message queue processing code may vary depending on whether it's in an update.
 	gameTimeUpdateEnd();
-
-	// Must be at the beginning or end of each tick, since countUpdate is also called randomly (unsynchronised) between ticks.
-	countUpdate(true);
 
 	static int i = 0;
 
@@ -881,6 +854,31 @@ UDWORD	getNumCommandDroids(UDWORD player)
 UDWORD	getNumConstructorDroids(UDWORD player)
 {
 	return numConstructorDroids[player];
+}
+
+void	setNumDroids(UDWORD player , int newVal)
+{
+  numDroids[player] = newVal;
+}
+
+void	setNumTransporterDroids(UDWORD player , int newVal)
+{
+  numTransporterDroids[player] = newVal;
+}
+
+void	setNumMissionDroids(UDWORD player , int newVal)
+{
+  numMissionDroids[player] = newVal;
+}
+
+void	setNumCommandDroids(UDWORD player , int newVal)
+{
+  numCommandDroids[player] = newVal;
+}
+
+void	setNumConstructorDroids(UDWORD player , int newVal)
+{
+  numConstructorDroids[player] = newVal;
 }
 
 

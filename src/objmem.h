@@ -35,6 +35,8 @@ extern STRUCTURE		*apsExtractorLists[MAX_PLAYERS];
 extern BASE_OBJECT		*apsSensorList[1];
 extern FEATURE			*apsOilList[1];
 
+DROID *getDroids(int player) asm ("getDroids");
+
 /* The list of destroyed objects */
 extern BASE_OBJECT	*psDestroyedObj;
 

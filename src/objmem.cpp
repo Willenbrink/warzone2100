@@ -74,6 +74,11 @@ BASE_OBJECT		*psDestroyedObj = nullptr;
 static void objListIntegCheck();
 #endif
 
+DROID *getDroids(int player)
+{
+  return apsDroidLists[player];
+}
+
 
 /* Initialise the object heaps */
 bool objmemInitialise()

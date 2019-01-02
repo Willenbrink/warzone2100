@@ -172,7 +172,6 @@ public:
 	uint         blockedBits;                    ///< Bit set telling which tiles block this type of droid (TODO)
 	/* anim data */
 	int        iAudioID;
-private:
 	DROID_TEMPLATE *psTemplate;
 	void bodyUpgrade();
 };

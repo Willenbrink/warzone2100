@@ -80,19 +80,24 @@ void setConsolePause(bool state);
 //set all the pause states to the state value
 void setAllPauseStates(bool state);
 
-// Number of units in the current list.
-UDWORD getNumDroids(UDWORD player);
 void countUpdateSingle (bool synch, int i) asm ("countUpdateSingle");
+// Number of units in the current list.
+UDWORD getNumDroids(UDWORD player) asm ("getNumDroids");
 // Number of units on transporters.
-UDWORD getNumTransporterDroids(UDWORD player);
+UDWORD getNumTransporterDroids(UDWORD player) asm ("getNumTransporterDroids");
 // Number of units in the mission list.
-UDWORD getNumMissionDroids(UDWORD player);
-UDWORD getNumCommandDroids(UDWORD player);
-UDWORD getNumConstructorDroids(UDWORD player);
+UDWORD getNumMissionDroids(UDWORD player) asm ("getNumMissionDroids");
+UDWORD getNumCommandDroids(UDWORD player) asm ("getNumCommandDroids");
+UDWORD getNumConstructorDroids(UDWORD player) asm ("getNumConstructorDroids");
+void	setNumDroids(UDWORD player , int newVal) asm ("setNumDroids");
+void	setNumTransporterDroids(UDWORD player , int newVal) asm ("setNumTransporterDroids");
+void	setNumMissionDroids(UDWORD player , int newVal) asm ("setNumMissionDroids");
+void	setNumCommandDroids(UDWORD player , int newVal) asm ("setNumCommandDroids");
+void	setNumConstructorDroids(UDWORD player , int newVal) asm ("setNumConstructorDroids");
 // increase the droid counts - used by update factory to keep the counts in sync
-void incNumDroids(UDWORD player);
-void incNumCommandDroids(UDWORD player);
-void incNumConstructorDroids(UDWORD player);
+void incNumDroids(UDWORD player) asm ("incNumDroids");
+void incNumCommandDroids(UDWORD player) asm ("incNumCommandDroids");
+void incNumConstructorDroids(UDWORD player) asm ("incNumConstructorDroids");
 
 void countUpdate(bool synch = false) asm ("countUpdate");
 
