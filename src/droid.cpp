@@ -346,18 +346,20 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, P
 	, actionPos(0, 0)
 	, psTemplate(psTemplate)
 {
+	DROID_GROUP		*psGrp;
 	// Don't use this assertion in single player, since droids can finish building while on an away mission
 	ASSERT(!bMultiPlayer || worldOnMap(pos.x, pos.y), "the build locations are not on the map");
 	memset(aName, 0, sizeof(aName));
 	sstrcpy(this->aName, getName(psTemplate));
 	this->name = getName(psTemplate);
 	memset(asBits, 0, sizeof(asBits));
-  setPosition(pos.x, pos.y);
-	weight = psTemplate->getWeight();
-	rot = rot;
-  prevSpacetime = getSpacetime(this);
-	droidType = droidTemplateType(psTemplate);
-	setBits(psTemplate);
+	droidSetPosition(this, pos.x, pos.y);
+	this->rot = rot;
+	this->prevSpacetime.pos = pos;
+	//FIXME why is pos.z not set here?
+	this->prevSpacetime.rot = rot;
+	this->droidType = droidTemplateType(psTemplate);
+
 
 	// find the highest stored experience
 	// Unless game time is stopped, then we're hopefully loading a game and
@@ -373,6 +375,9 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, P
 		this->experience = recycled_experience[this->player].top();
 		recycled_experience[this->player].pop();
 	}
+
+	setBits(psTemplate);
+	this->weight = psTemplate->getWeight();
 
 	order.type = DORDER_NONE;
 	order.pos = Vector2i(0, 0);
@@ -402,28 +407,31 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, P
 	sDisplay.imd = nullptr;
 	illumination = UBYTE_MAX;
 	resistance = ACTION_START_TIME;	// init the resistance to indicate no EW performed on this droid
-	baseSpeed = calcDroidBaseSpeed(psTemplate, weight, player);
+	lastFrustratedTime = 0;		// make sure we do not start the game frustrated
+	this->baseSpeed = calcDroidBaseSpeed(psTemplate, this->weight, player);
+	clearPath();
 
 	//Allocate 'easy-access' data
-	health = calcDroidBaseBody(this); //Includes upgrades
-	maxHealth = health;
-	ASSERT(health > 0, "Invalid number of hitpoints");
+	this->health = calcDroidBaseBody(this); //Includes upgrades
+	this->maxHealth = this->health;
+	ASSERT(this->health > 0, "Invalid number of hitpoints");
 
-	sDisplay.imd = BODY_IMD(this, player);
+	this->sDisplay.imd = BODY_IMD(this, player);
 
-  //FIXME this should probably be refactored. why is psGroup = nullptr but psGrp set?
-	DROID_GROUP		*psGrp;
-	if (isTransporter(this) || droidType == DROID_COMMAND)
+	if (isTransporter(this) || this->droidType == DROID_COMMAND)
 	{
 		psGrp = grpCreate();
 		psGrp->add(this);
 	}
 
 	//don't worry if not on homebase cos not being drawn yet
-  /* People always stand upright */
-	if (!onMission && droidType != DROID_PERSON)
+	if (!onMission)
 	{
-		updateDroidOrientation(this);
+		/* People always stand upright */
+		if (this->droidType != DROID_PERSON)
+		{
+			updateDroidOrientation(this);
+		}
 	}
 
 	/* transporter-specific stuff */
@@ -445,6 +453,7 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, P
 	}
 
 	debug(LOG_LIFE, "created droid for player %d, droid = %p, id=%d (%s): position: x(%d)y(%d)z(%d)", player, static_cast<void *>(this), (int)this->id, this->aName, this->pos.x, this->pos.y, this->pos.z);
+
 }
 
 /* DROID::~DROID: release all resources associated with a droid -
@@ -2951,17 +2960,23 @@ void SelectDroid(DROID *psDroid)
 		return;
 	}
 
-	// we shouldn't ever control the transporter in SP games
+	//FIXME should work too?
 	if (isTransporter(psDroid) && !bMultiPlayer)
 		return;
 
-	psDroid->selected = true;
-	intRefreshScreen();
+	// we shouldn't ever control the transporter in SP games
+	if (!isTransporter(psDroid) || bMultiPlayer)
+	{
+		psDroid->selected = true;
+		intRefreshScreen();
+	}
+
 	triggerEventSelected();
 	jsDebugSelected(psDroid);
 }
 
 // De-select a droid and do any necessary housekeeping.
+//
 void DeSelectDroid(DROID *psDroid)
 {
 	psDroid->selected = false;
@@ -3026,13 +3041,14 @@ bool droidOnMap(const DROID *psDroid)
 	return worldOnMap(psDroid->pos.x, psDroid->pos.y);
 }
 
-void DROID::setPosition(int x, int y)
+/** Teleport a droid to a new position on the map */
+void droidSetPosition(DROID *psDroid, int x, int y)
 {
-  pos.x = x;
-  pos.y = y;
-  pos.z = map_Height(pos.x, pos.y);
-  clearPath();
-  visTilesUpdate((BASE_OBJECT *) this);
+	psDroid->pos.x = x;
+	psDroid->pos.y = y;
+	psDroid->pos.z = map_Height(psDroid->pos.x, psDroid->pos.y);
+	psDroid->clearPath();
+	visTilesUpdate((BASE_OBJECT *)psDroid);
 }
 
 /** Check validity of a droid. Crash hard if it fails. */

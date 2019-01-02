@@ -109,7 +109,6 @@ public:
   uint getBuildPower();
   uint getBuildTime();
 
-  void setPosition(int x, int y);
 	void update();
 	void centerView();
 	void cancelBuild();
@@ -128,7 +127,7 @@ public:
 	 * but stored here for easy access
 	 */
 	uint weight, baseSpeed, experience = 0;
-	uint          lastFrustratedTime = 0;             ///< Set when eg being stuck; used for eg firing indiscriminately at map features to clear the way
+	uint          lastFrustratedTime;             ///< Set when eg being stuck; used for eg firing indiscriminately at map features to clear the way
 	int           resistance;                     ///< used in Electronic Warfare
 	// The group the droid belongs to
 	DROID_GROUP    *psGroup;

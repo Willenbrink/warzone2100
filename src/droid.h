@@ -68,6 +68,15 @@ DROID *buildDroid(DROID_TEMPLATE *pTemplate, UDWORD x, UDWORD y, UDWORD player, 
 /// Creates a droid locally, instead of sending a message, even if the bMultiMessages HACK is set to true.
 DROID *reallyBuildDroid(DROID_TEMPLATE *pTemplate, Position pos, UDWORD player, bool onMission, Rotation rot = Rotation());
 
+/* Calculate the weight of a droid from it's template */
+UDWORD calcDroidWeight(DROID_TEMPLATE *psTemplate);
+
+/* Calculate the power points required to build/maintain a droid */
+UDWORD calcDroidPower(DROID *psDroid);
+
+// Calculate the number of points required to build a droid
+UDWORD calcDroidPoints(DROID *psDroid);
+
 /* Calculate the body points of a droid from it's template */
 UDWORD calcTemplateBody(DROID_TEMPLATE *psTemplate, UBYTE player);
 
@@ -77,11 +86,20 @@ UDWORD calcDroidBaseSpeed(DROID_TEMPLATE *psTemplate, UDWORD weight, UBYTE playe
 /* Calculate the speed of a droid over a terrain */
 UDWORD calcDroidSpeed(UDWORD baseSpeed, UDWORD terrainType, UDWORD propIndex, UDWORD level);
 
+/* Calculate the points required to build the template */
+UDWORD calcTemplateBuild(DROID_TEMPLATE *psTemplate);
+
+/* Calculate the power points required to build/maintain the droid */
+UDWORD calcTemplatePower(DROID_TEMPLATE *psTemplate);
+
 // return whether a droid is IDF
 bool idfDroid(DROID *psDroid);
 
 /* Do damage to a droid */
 int32_t droidDamage(DROID *psDroid, unsigned damage, WEAPON_CLASS weaponClass, WEAPON_SUBCLASS weaponSubClass, unsigned impactTime, bool isDamagePerSecond, int minDamage);
+
+/* The main update routine for all droids */
+void droidUpdate(DROID *psDroid);
 
 /* Set up a droid to build a structure - returns true if successful */
 enum DroidStartBuild {DroidStartBuildFailed, DroidStartBuildSuccess, DroidStartBuildPending};
@@ -156,6 +174,8 @@ const char *droidGetName(const DROID *psDroid);
 // Set a droid's name.
 void droidSetName(DROID *psDroid, const char *pName);
 
+// returns true when no droid on x,y square.
+bool noDroid(UDWORD x, UDWORD y);				// true if no droid at x,y
 // returns an x/y coord to place a droid
 bool pickHalfATile(UDWORD *x, UDWORD *y, UBYTE numIterations);
 bool zonedPAT(UDWORD x, UDWORD y);
@@ -163,6 +183,10 @@ bool pickATileGen(UDWORD *x, UDWORD *y, UBYTE numIterations, bool (*function)(UD
 bool pickATileGen(Vector2i *pos, unsigned numIterations, bool (*function)(UDWORD x, UDWORD y));
 bool pickATileGenThreat(UDWORD *x, UDWORD *y, UBYTE numIterations, SDWORD threatRange,
                         SDWORD player, bool (*function)(UDWORD x, UDWORD y));
+
+
+//initialises the droid movement model
+void initDroidMovement(DROID *psDroid);
 
 //Look through the players list of droids to check if any of them are working on the building
 bool checkDroidsWorking(STRUCTURE *psStruct);
@@ -173,7 +197,16 @@ int nextModuleToBuild(STRUCTURE const *psStruct, int lastOrderedModule);
 /// Deals with building a module - checking if any droid is currently doing this if so, helping to build the current one
 void setUpBuildModule(DROID *psDroid);
 
+/// Just returns true if the droid's present body points aren't as high as the original
+bool droidIsDamaged(const DROID *psDroid);
+
 char const *getDroidResourceName(char const *pName);
+
+/// Checks to see if an electronic warfare weapon is attached to the droid
+bool electronicDroid(const DROID *psDroid);
+
+/// checks to see if the droid is currently being repaired by another
+bool droidUnderRepair(const DROID *psDroid);
 
 /// Count how many Command Droids exist in the world at any one moment
 UBYTE checkCommandExist(UBYTE player);
@@ -251,6 +284,8 @@ bool isConstructionDroid(BASE_OBJECT const *psObject);
 
 /** Check if droid is in a legal world position and is not on its way to drive off the map. */
 bool droidOnMap(const DROID *psDroid);
+
+void droidSetPosition(DROID *psDroid, int x, int y);
 
 /// Return a percentage of how fully armed the object is, or -1 if N/A.
 int droidReloadBar(BASE_OBJECT *psObj, WEAPON *psWeap, int weapon_slot);
@@ -404,7 +439,7 @@ void cancelBuild(DROID *psDroid);
 void _syncDebugDroid(const char *function, DROID const *psDroid, char ch);
 
 
-// True if object is a droid.
+// True iff object is a droid.
 static inline bool isDroid(SIMPLE_OBJECT const *psObject)
 {
 	return psObject != nullptr && psObject->type == OBJ_DROID;
