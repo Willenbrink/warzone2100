@@ -97,7 +97,49 @@ let setState state = function
   | NewLevel -> 4
   | Viewing -> 5
 
-let rec loop mode =
+let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
+  let gameLoopOld = funer "gameLoop" (void @-> returning int) in
+  let getMaxPlayers = funer "getMaxPlayers" (void @-> returning int) in
+  let recvMessage = funer "recvMessage" vv in
+  let gameTimeUpdate = funer "gameTimeUpdate" (bool @-> returning void) in
+  let renderLoop = funer "renderLoop" (void @-> returning int) in
+  let wzGetTicks = funer "wzGetTicks" (void @-> returning int) in
+  let netflush = funer "NETflush" vv in
+  let getDeltaGameTime = funer "getDeltaGameTime" (void @-> returning int) in
+  let getRealTime = funer "getRealTime" (void @-> returning int) in
+  let setDeltaGameTime = funer "setDeltaGameTime" (int @-> returning void) in
+  let gameStateUpdate = funer "gameStateUpdate" vv in
+
+  let rec count player =
+    let countUpdateSingle = funer "countUpdateSingle" (bool @-> int @-> returning void) in
+    if player >= 0
+    then
+      (countUpdateSingle true player;
+       count (player-1))
+    else ()
+  in
+
+  let rec innerLoop (renderBudget,lastUpdateRender) =
+    recvMessage ();
+    gameTimeUpdate (renderBudget > 0 || lastUpdateRender);
+    (match getDeltaGameTime () with
+    | 0 -> renderBudget
+    | _ ->
+      let before = wzGetTicks () in
+      let () = gameStateUpdate () in
+      let after = wzGetTicks () in
+      innerLoop ((renderBudget - (after - before) * 2),false)
+    ) in
+
+  count (getMaxPlayers ());
+  let renderBudget = innerLoop (renderBudget, lastUpdateRender) in
+  let newLastFlush = if getRealTime () - lastFlush >= 400 then (netflush(); getRealTime ()) else lastFlush in
+  let before = wzGetTicks () in
+  let renderReturn = renderLoop () in
+  let after = wzGetTicks () in
+  (renderReturn,newLastFlush, (renderBudget + (after - before) * 3),true)
+
+let rec loop mode gameLoopState =
   let sdl = funer "SDLLoop" (void @-> returning bool) in
   let tmp = funer "inputNewFrame" vv in
   let frameUpdate = funer "frameUpdate" vv in
@@ -114,7 +156,6 @@ let rec loop mode =
     | Game -> worker 2
     | _ -> todo ()
   in
-  let gameLoop = funer "gameLoop" (void @-> returning int) in
   let startTitleLoop = funer "startTitleLoop" vv in
   let titleLoop = funer "titleLoop" (void @-> returning int) in
   let stopTitleLoop = funer "stopTitleLoop" vv in
@@ -127,29 +168,33 @@ let rec loop mode =
 
   (match sdl () with true -> raise Halt | false -> ());
   frameUpdate ();
-  let newMode = match getGameMode () with
+  let newMode,newState = match getGameMode () with
    | Title -> (match titleLoop () |> getState with
-       | Running -> Title
+       | Running -> Title,gameLoopState
        | Quitting -> stopTitleLoop (); raise Halt
-       | Loading -> initLoadingScreen true; stopTitleLoop (); initSaveGameLoad (); closeLoadingScreen (); Game
-       | NewLevel -> initLoadingScreen true; stopTitleLoop (); startGameLoop (); closeLoadingScreen (); Game
+       | Loading -> initLoadingScreen true; stopTitleLoop (); initSaveGameLoad (); closeLoadingScreen (); Game,gameLoopState
+       | NewLevel -> initLoadingScreen true; stopTitleLoop (); startGameLoop (); closeLoadingScreen (); Game,gameLoopState
        | Viewing -> todo ())
-   | Game -> (match gameLoop () |> getState with
-       | Running | Viewing -> Game
-       | Quitting -> stopGameLoop (); startTitleLoop (); Title
-       | Loading -> stopGameLoop (); initSaveGameLoad (); Game
-       | NewLevel -> stopGameLoop (); startGameLoop (); Game
+  | Game -> (
+      let (state,lastFlush,renderBudget,lastUpdateRender) =
+        gameLoop gameLoopState in
+      match state |> getState with
+       | Running | Viewing -> Game,(lastFlush,renderBudget,lastUpdateRender)
+       | Quitting -> stopGameLoop (); startTitleLoop (); Title,(lastFlush,renderBudget,lastUpdateRender)
+       | Loading -> stopGameLoop (); initSaveGameLoad (); Game,(lastFlush,renderBudget,lastUpdateRender)
+       | NewLevel -> stopGameLoop (); startGameLoop (); Game,(lastFlush,renderBudget,lastUpdateRender)
      )
    | x -> raise (Invalid_state "mainLoop")
   in
   realTimeUpdate ();
   tmp ();
   setGameMode newMode;
-  loop newMode
+  loop newMode newState
 
 let () =
+  let state = (0,0,false) in
   parse specList (fun x -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments";
   init ();
   try
-    loop Title
+    loop Title state
   with Halt -> funer "halt" vv ()

@@ -34,6 +34,7 @@ enum GS_GAMEMODE
 extern bool gameInitialised;
 extern bool customDebugfile;
 
+int getMaxPlayers() asm ("getMaxPlayers");
 GS_GAMEMODE GetGameMode() asm ("getGameMode");
 void SetGameMode(GS_GAMEMODE status) asm ("setGameMode");
 void mainLoop() asm ("WZLoop");

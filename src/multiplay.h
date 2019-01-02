@@ -153,7 +153,7 @@ Vector3i cameraToHome(UDWORD player, bool scroll);
 
 bool multiPlayerLoop();							// for loop.c
 
-bool recvMessage();
+bool recvMessage() asm ("recvMessage");
 bool SendResearch(uint8_t player, uint32_t index, bool trigger);
 bool SendDestroyFeature(FEATURE *pF);					// send a destruct feature message.
 bool sendTextMessage(const char *pStr, bool cast, uint32_t from = selectedPlayer);	// send a text message

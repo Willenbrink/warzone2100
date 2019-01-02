@@ -49,9 +49,13 @@ extern UDWORD gameTime;
 extern UDWORD graphicsTime;
 /// The current time in the real world - never stops, and not reset between games.
 extern UDWORD realTime;
+int getRealTime() asm ("getRealTime");
 
 /// The difference between the previous and current gameTime.
 extern UDWORD deltaGameTime;
+int getDeltaGameTime() asm ("getDeltaGameTime");
+void setDeltaGameTime(int newTime) asm ("setDeltaGameTime");
+
 /// The difference between the previous and current graphicsTime.
 extern UDWORD deltaGraphicsTime;
 /// The difference between the previous and current realTime.
@@ -67,7 +71,7 @@ void setGameTime(uint32_t newGameTime);
  * The game time increases in GAME_UNITS_PER_TICK increments, and deltaGameTime is either 0 or GAME_UNITS_PER_TICK.
  * @returns true iff the game time ticked.
  */
-void gameTimeUpdate(bool mayUpdate);
+void gameTimeUpdate(bool mayUpdate) asm ("gameTimeUpdate");
 
 /// Call after updating the state, and before processing any net messages that use deltaGameTime. (Sets deltaGameTime = 0.)
 void gameTimeUpdateEnd();

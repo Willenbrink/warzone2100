@@ -1340,7 +1340,7 @@ bool stageThreeInitialise()
 		}
 	}
 
-	countUpdate();
+	//countUpdate();
 
 	if (getLevelLoadType() != GTYPE_SAVE_MIDMISSION)
 	{

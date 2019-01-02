@@ -64,7 +64,9 @@ bool	gamePaused();
 void	setGamePauseStatus(bool val);
 void loopFastExit();
 
-bool gameUpdatePaused();
+bool gameUpdatePaused() asm ("gameUpdatePaused");
+void gameStateUpdate() asm ("gameStateUpdate");
+GAMECODE renderLoop() asm ("renderLoop");
 bool audioPaused();
 bool scriptPaused();
 bool scrollPaused();
@@ -80,6 +82,7 @@ void setAllPauseStates(bool state);
 
 // Number of units in the current list.
 UDWORD getNumDroids(UDWORD player);
+void countUpdateSingle (bool synch, int i) asm ("countUpdateSingle");
 // Number of units on transporters.
 UDWORD getNumTransporterDroids(UDWORD player);
 // Number of units in the mission list.
@@ -91,6 +94,6 @@ void incNumDroids(UDWORD player);
 void incNumCommandDroids(UDWORD player);
 void incNumConstructorDroids(UDWORD player);
 
-void countUpdate(bool synch = false);
+void countUpdate(bool synch = false) asm ("countUpdate");
 
 #endif // __INCLUDED_SRC_LOOP_H__

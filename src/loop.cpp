@@ -133,7 +133,7 @@ LOOP_MISSION_STATE		loopMissionState = LMS_NORMAL;
 // this is set by scrStartMission to say what type of new level is to be started
 LEVEL_TYPE nextMissionType = LDS_NONE;
 
-static GAMECODE renderLoop()
+GAMECODE renderLoop()
 {
 	if (bMultiPlayer && !NetPlay.isHostAlive && NetPlay.bComms && !NetPlay.isHost)
 	{
@@ -435,22 +435,26 @@ static GAMECODE renderLoop()
 void countUpdate(bool synch)
 {
 	for (unsigned i = 0; i < MAX_PLAYERS; i++)
-	{
-		//set the flag for each player
-		setSatUplinkExists(false, i);
+    countUpdateSingle(synch, i);
+}
 
-		numCommandDroids[i] = 0;
-		numConstructorDroids[i] = 0;
-		numDroids[i] = 0;
-		numMissionDroids[i] = 0;
-		numTransporterDroids[i] = 0;
+void countUpdateSingle(bool synch, int i)
+{
+  //set the flag for each player
+  setSatUplinkExists(false, i);
 
-		for (DROID *psCurr = apsDroidLists[i]; psCurr != nullptr; psCurr = psCurr->psNext)
+  numCommandDroids[i] = 0;
+  numConstructorDroids[i] = 0;
+  numDroids[i] = 0;
+  numMissionDroids[i] = 0;
+  numTransporterDroids[i] = 0;
+
+  for (DROID *psCurr = apsDroidLists[i]; psCurr != nullptr; psCurr = psCurr->psNext)
 		{
 			numDroids[i]++;
 
 			switch (psCurr->droidType)
-			{
+        {
 				case DROID_COMMAND:
 					numCommandDroids[i] += 1;
 					break;
@@ -463,39 +467,39 @@ void countUpdate(bool synch)
 				case DROID_TRANSPORTER:
 				case DROID_SUPERTRANSPORTER:
 					if ((psCurr->psGroup != nullptr))
-					{
-						DROID *psDroid = nullptr;
+            {
+              DROID *psDroid = nullptr;
 
-						numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
+              numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
 
-						// and count the units inside it...
-						for (psDroid = psCurr->psGroup->psList; psDroid != nullptr && psDroid != psCurr; psDroid = psDroid->psGrpNext)
-						{
-							if (psDroid->droidType == DROID_CYBORG_CONSTRUCT || psDroid->droidType == DROID_CONSTRUCT)
-							{
-								numConstructorDroids[i] += 1;
-							}
+              // and count the units inside it...
+              for (psDroid = psCurr->psGroup->psList; psDroid != nullptr && psDroid != psCurr; psDroid = psDroid->psGrpNext)
+                {
+                  if (psDroid->droidType == DROID_CYBORG_CONSTRUCT || psDroid->droidType == DROID_CONSTRUCT)
+                    {
+                      numConstructorDroids[i] += 1;
+                    }
 
-							if (psDroid->droidType == DROID_COMMAND)
-							{
-								numCommandDroids[i] += 1;
-							}
-						}
-					}
+                  if (psDroid->droidType == DROID_COMMAND)
+                    {
+                      numCommandDroids[i] += 1;
+                    }
+                }
+            }
 
 					break;
 
 				default:
 					break;
-			}
+        }
 		}
 
-		for (DROID *psCurr = mission.apsDroidLists[i]; psCurr != nullptr; psCurr = psCurr->psNext)
+  for (DROID *psCurr = mission.apsDroidLists[i]; psCurr != nullptr; psCurr = psCurr->psNext)
 		{
 			numMissionDroids[i]++;
 
 			switch (psCurr->droidType)
-			{
+        {
 				case DROID_COMMAND:
 					numCommandDroids[i] += 1;
 					break;
@@ -508,22 +512,22 @@ void countUpdate(bool synch)
 				case DROID_TRANSPORTER:
 				case DROID_SUPERTRANSPORTER:
 					if ((psCurr->psGroup != nullptr))
-					{
-						numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
-					}
+            {
+              numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
+            }
 
 					break;
 
 				default:
 					break;
-			}
+        }
 		}
 
-		for (DROID *psCurr = apsLimboDroids[i]; psCurr != nullptr; psCurr = psCurr->psNext)
+  for (DROID *psCurr = apsLimboDroids[i]; psCurr != nullptr; psCurr = psCurr->psNext)
 		{
 			// count the type of units
 			switch (psCurr->droidType)
-			{
+        {
 				case DROID_COMMAND:
 					numCommandDroids[i] += 1;
 					break;
@@ -535,52 +539,52 @@ void countUpdate(bool synch)
 
 				default:
 					break;
-			}
+        }
 		}
 
-		// FIXME: These for-loops are code duplicationo
-		setLasSatExists(false, i);
+  // FIXME: These for-loops are code duplicationo
+  setLasSatExists(false, i);
 
-		for (STRUCTURE *psCBuilding = apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psCBuilding->psNext)
+  for (STRUCTURE *psCBuilding = apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psCBuilding->psNext)
 		{
 			if (psCBuilding->pStructureType->type == REF_SAT_UPLINK && psCBuilding->status == SS_BUILT)
-			{
-				setSatUplinkExists(true, i);
-			}
+        {
+          setSatUplinkExists(true, i);
+        }
 
 			//don't wait for the Las Sat to be built - can't build another if one is partially built
 			if (asWeaponStats[psCBuilding->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT)
-			{
-				setLasSatExists(true, i);
-			}
+        {
+          setLasSatExists(true, i);
+        }
 		}
 
-		for (STRUCTURE *psCBuilding = mission.apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psCBuilding->psNext)
+  for (STRUCTURE *psCBuilding = mission.apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psCBuilding->psNext)
 		{
 			if (psCBuilding->pStructureType->type == REF_SAT_UPLINK && psCBuilding->status == SS_BUILT)
-			{
-				setSatUplinkExists(true, i);
-			}
+        {
+          setSatUplinkExists(true, i);
+        }
 
 			//don't wait for the Las Sat to be built - can't build another if one is partially built
 			if (asWeaponStats[psCBuilding->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT)
-			{
-				setLasSatExists(true, i);
-			}
+        {
+          setLasSatExists(true, i);
+        }
 		}
 
-		if (synch)
+  if (synch)
 		{
 			syncDebug("counts[%d] = {droid: %d, command: %d, constructor: %d, mission: %d, transporter: %d}", i, numDroids[i], numCommandDroids[i], numConstructorDroids[i], numMissionDroids[i], numTransporterDroids[i]);
 		}
-	}
 }
 
-static void gameStateUpdate()
+void gameStateUpdate()
 {
 	syncDebug("map = \"%s\", pseudorandom 32-bit integer = 0x%08X, allocated = %d %d %d %d %d %d %d %d %d %d, position = %d %d %d %d %d %d %d %d %d %d", game.map, gameRandU32(),
 	          NetPlay.players[0].allocated, NetPlay.players[1].allocated, NetPlay.players[2].allocated, NetPlay.players[3].allocated, NetPlay.players[4].allocated, NetPlay.players[5].allocated, NetPlay.players[6].allocated, NetPlay.players[7].allocated, NetPlay.players[8].allocated, NetPlay.players[9].allocated,
 	          NetPlay.players[0].position, NetPlay.players[1].position, NetPlay.players[2].position, NetPlay.players[3].position, NetPlay.players[4].position, NetPlay.players[5].position, NetPlay.players[6].position, NetPlay.players[7].position, NetPlay.players[8].position, NetPlay.players[9].position
+
 	         );
 
 	for (unsigned n = 0; n < MAX_PLAYERS; ++n)
@@ -707,64 +711,6 @@ static void gameStateUpdate()
 	{
 		jsDebugUpdate();
 	}
-}
-
-/* The main game loop */
-GAMECODE gameLoop()
-{
-	static uint32_t lastFlushTime = 0;
-
-	static int renderBudget = 0;  // Scaled time spent rendering minus scaled time spent updating.
-	static bool previousUpdateWasRender = false;
-	const Rational renderFraction(2, 5);  // Minimum fraction of time spent rendering.
-	const Rational updateFraction = Rational(1) - renderFraction;
-
-	countUpdate(false); // kick off with correct counts
-
-	while (true)
-	{
-		// Receive NET_BLAH messages.
-		// Receive GAME_BLAH messages, and if it's time, process exactly as many GAME_BLAH messages as required to be able to tick the gameTime.
-		recvMessage();
-
-		// Update gameTime and graphicsTime, and corresponding deltas. Note that gameTime and graphicsTime pause, if we aren't getting our GAME_GAME_TIME messages.
-		gameTimeUpdate(renderBudget > 0 || previousUpdateWasRender);
-
-		if (deltaGameTime == 0)
-		{
-			break;  // Not doing a game state update.
-		}
-
-		ASSERT(!paused && !gameUpdatePaused(), "Nonsensical pause values.");
-
-		unsigned before = wzGetTicks();
-		syncDebug("Begin game state update, gameTime = %d", gameTime);
-		gameStateUpdate();
-		syncDebug("End game state update, gameTime = %d", gameTime);
-		unsigned after = wzGetTicks();
-
-		renderBudget -= (after - before) * renderFraction.n;
-		renderBudget = std::max(renderBudget, (-updateFraction * 500).floor());
-		previousUpdateWasRender = false;
-
-		ASSERT(deltaGraphicsTime == 0, "Shouldn't update graphics and game state at once.");
-	}
-
-	if (realTime - lastFlushTime >= 400u)
-	{
-		lastFlushTime = realTime;
-		NETflush();  // Make sure that we aren't waiting too long to send data.
-	}
-
-	unsigned before = wzGetTicks();
-	GAMECODE renderReturn = renderLoop();
-	unsigned after = wzGetTicks();
-
-	renderBudget += (after - before) * updateFraction.n;
-	renderBudget = std::min(renderBudget, (renderFraction * 500).floor());
-	previousUpdateWasRender = true;
-
-	return renderReturn;
 }
 
 /* The video playback loop */

@@ -100,6 +100,11 @@ char	KeyMapPath[PATH_MAX];
 static GAMECODE gameLoopStatus = GAMECODE_CONTINUE;
 static GS_GAMEMODE gameStatus = GS_TITLE_SCREEN;
 
+int getMaxPlayers()
+{
+  return MAX_PLAYERS;
+}
+
 GS_GAMEMODE GetGameMode()
 {
 	return gameStatus;

@@ -88,7 +88,7 @@ void wzShowMouse(bool visible); ///< Show the Mouse?
 void wzGrabMouse();		///< Trap mouse cursor in application window
 void wzReleaseMouse();	///< Undo the wzGrabMouse operation
 bool wzActiveWindow();	///< Whether application currently has the mouse pointer over it
-int wzGetTicks();		///< Milliseconds since start of game
+int wzGetTicks() asm ("wzGetTicks");		///< Milliseconds since start of game
 WZ_DECL_NONNULL(1) void wzFatalDialog(const char *text);	///< Throw up a modal warning dialog
 
 std::vector<screeninfo> wzAvailableResolutions();

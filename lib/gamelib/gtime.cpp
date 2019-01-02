@@ -146,6 +146,20 @@ UDWORD getModularScaledRealTime(UDWORD timePeriod, UDWORD requiredRange)
 	return realTime % MAX(1, timePeriod) * requiredRange / MAX(1, timePeriod);
 }
 
+int getRealTime()
+{
+  return realTime;
+}
+
+int getDeltaGameTime()
+{
+  return deltaGameTime;
+}
+void setDeltaGameTime(int newTime)
+{
+  deltaGameTime = newTime;
+}
+
 /* Call this each loop to update the game timer */
 void gameTimeUpdate(bool mayUpdate)
 {
