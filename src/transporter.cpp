@@ -951,7 +951,7 @@ void transporterRemoveDroid(DROID *psTransport, DROID *psDroid, QUEUE_MODE mode)
 	}
 
 	//initialise the movement data
-  psDroid->clearPath();
+	initDroidMovement(psDroid);
 	//reset droid orders
 	orderDroid(psDroid, DORDER_STOP, ModeImmediate);
 

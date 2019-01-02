@@ -82,21 +82,9 @@ struct STRUCTURE;
 struct DROID : public BASE_OBJECT
 {
 public:
-	DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, bool onMission, Position pos = Position(), Rotation rot = Rotation());
+	DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rotation rot);
 	~DROID();
 
-  //Initialisation
-  void clearPath();
-  void setBits(DROID_TEMPLATE *);
-
-  //Getter
-  uint getLevel();
-  uint getEffectiveLevel();
-  std::string getDroidName(); //TODO rename to getName() and remove getName() typedef somewhere in structdef i think
-
-  void update();
-  void centerView();
-  void cancelBuild();
 	/// UTF-8 name of the droid. This is generated from the droid template
 	///  WARNING: This *can* be changed by the game player after creation & can be translated, do NOT rely on this being the same for everyone!
 	char            aName[MAX_STR_LENGTH];
@@ -156,7 +144,6 @@ public:
 	/* anim data */
 	int        iAudioID;
 private:
-  void bodyUpgrade();
 };
 
 #endif // __INCLUDED_DROIDDEF_H__

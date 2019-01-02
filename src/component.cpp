@@ -832,10 +832,12 @@ void displayComponentButtonTemplate(DROID_TEMPLATE *psTemplate, const Vector3i *
 	// Decide how to sort it.
 	leftFirst = angleDelta(DEG(Rotation->y)) < 0;
 
-	DROID *psDroid = new DROID(0, selectedPlayer, psTemplate, false, Vector3i(0, 0, 0), Vector3i(0, 0, 0));
+	DROID Droid(0, selectedPlayer, psTemplate, Vector3i(0, 0, 0), Vector3i(0, 0, 0));
+	memset(Droid.asBits, 0, sizeof(Droid.asBits));
+	droidSetBits(psTemplate, &Droid);
 
 	//draw multi component object as a button object
-	displayCompObj(psDroid, true, matrix);
+	displayCompObj(&Droid, true, matrix);
 }
 
 

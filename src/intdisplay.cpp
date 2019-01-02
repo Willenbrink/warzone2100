@@ -512,7 +512,7 @@ void intUpdateCommandExp(WIDGET *psWidget, W_CONTEXT *psContext)
 		ASSERT(psObj->type == OBJ_DROID, "Invalid droid pointer");
 		ASSERT(psDroid->droidType == DROID_COMMAND, "Droid is not a command droid");
 
-		int numStars = std::max((int)psDroid->getLevel() - 1, 0);
+		int numStars = std::max((int)getDroidLevel(psDroid) - 1, 0);
 		Label->aText = WzString(numStars, WzUniCodepoint::fromASCII('*'));
 		Label->show();
 	}

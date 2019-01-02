@@ -520,7 +520,7 @@ static SDWORD targetAttackWeight(BASE_OBJECT *psTarget, BASE_OBJECT *psAttacker,
 		//if commander is being targeted by our target, try to defend the commander
 		if (bTargetingCmd)
 		{
-			attackWeight += WEIGHT_CMD_RANK * (1 + psAttackerDroid->psGroup->psCommander->getLevel());
+			attackWeight += WEIGHT_CMD_RANK * (1 + getDroidLevel(psAttackerDroid->psGroup->psCommander));
 		}
 
 		//fire support - go through all droids assigned to the commander

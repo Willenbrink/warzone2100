@@ -152,10 +152,10 @@ SDWORD cmdDroidGetIndex(DROID *psCommander)
 }
 
 /** This function returns the maximum group size of the command droid.*/
-uint cmdDroidMaxGroup(DROID *psCommander)
+unsigned int cmdDroidMaxGroup(const DROID *psCommander)
 {
 	const BRAIN_STATS *psStats = getBrainStats(psCommander);
-	return psCommander->getLevel() * psStats->upgrade[psCommander->player].maxDroidsMult + psStats->upgrade[psCommander->player].maxDroids;
+	return getDroidLevel(psCommander) * psStats->upgrade[psCommander->player].maxDroidsMult + psStats->upgrade[psCommander->player].maxDroids;
 }
 
 /** This function adds experience to the command droid of the psKiller's command group.*/
@@ -186,9 +186,9 @@ bool hasCommander(const DROID *psDroid)
 }
 
 /** This function returns the level of a droids commander. If the droid doesn't have commander, it returns 0.*/
-unsigned int cmdGetCommanderLevel(DROID *psDroid)
+unsigned int cmdGetCommanderLevel(const DROID *psDroid)
 {
-	DROID *psCommander;
+	const DROID *psCommander;
 
 	ASSERT(psDroid != nullptr, "invalid droid pointer");
 
@@ -203,5 +203,5 @@ unsigned int cmdGetCommanderLevel(DROID *psDroid)
 	psCommander = psDroid->psGroup->psCommander;
 
 	// Return the experience level of this commander
-	return psCommander->getLevel();
+	return getDroidLevel(psCommander);
 }

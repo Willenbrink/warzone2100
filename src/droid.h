@@ -68,6 +68,9 @@ DROID *buildDroid(DROID_TEMPLATE *pTemplate, UDWORD x, UDWORD y, UDWORD player, 
 /// Creates a droid locally, instead of sending a message, even if the bMultiMessages HACK is set to true.
 DROID *reallyBuildDroid(DROID_TEMPLATE *pTemplate, Position pos, UDWORD player, bool onMission, Rotation rot = Rotation());
 
+/* Set the asBits in a DROID structure given it's template. */
+void droidSetBits(DROID_TEMPLATE *pTemplate, DROID *psDroid);
+
 /* Calculate the weight of a droid from it's template */
 UDWORD calcDroidWeight(DROID_TEMPLATE *psTemplate);
 
@@ -166,7 +169,9 @@ bool calcDroidMuzzleBaseLocation(const DROID *psDroid, Vector3i *muzzle, int wea
 bool selectDroidByID(UDWORD id, UDWORD player);
 
 /* Droid experience stuff */
-const char *getDroidLevelName(DROID *psDroid);
+unsigned int getDroidLevel(const DROID *psDroid);
+UDWORD getDroidEffectiveLevel(const DROID *psDroid);
+const char *getDroidLevelName(const DROID *psDroid);
 
 // Get a droid's name.
 const char *droidGetName(const DROID *psDroid);
