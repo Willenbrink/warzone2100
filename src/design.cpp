@@ -2942,14 +2942,14 @@ static void intSetTemplateBodyShadowStats(COMPONENT_STATS *psStats)
 /* Calculate the speed of a droid over a type of terrain */
 static UDWORD intCalcSpeed(TYPE_OF_TERRAIN type, PROPULSION_STATS *psProp)
 {
-	if (sCurrDesign.getWeight() == 0)
+	if (calcDroidWeight(&sCurrDesign) == 0)
 	{
 		return 0;
 	}
 
 	DROID_TEMPLATE *psTempl = new DROID_TEMPLATE(sCurrDesign);
 	psTempl->asParts[COMP_PROPULSION] = getCompFromID(COMP_PROPULSION, psProp->id);
-	UDWORD weight = psTempl->getWeight();
+	UDWORD weight = calcDroidWeight(psTempl);
 
 	if (weight == 0)
 	{
