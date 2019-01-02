@@ -57,11 +57,12 @@ struct DROID_TEMPLATE : public BASE_STATS
 {
  public:
 	DROID_TEMPLATE();
-  DROID_TEMPLATE(DROID *); //Create Template matching this droid
 
   //Getter
   uint getWeight();
 
+  //FIXME this could possibly be placed in a constructor
+  void copyDroid(DROID *psDroid); //Copies various stats from this droid
 
 	/*!
 	 * The droid components.
@@ -73,7 +74,7 @@ struct DROID_TEMPLATE : public BASE_STATS
 	 */
 	uint8_t         asParts[DROID_MAXCOMP];
 	/* The weapon systems */
-	int8_t          numWeaps = 0;                   ///< Number of weapons
+	int8_t          numWeaps;                   ///< Number of weapons
 	uint32_t        asWeaps[MAX_WEAPONS];       ///< weapon indices
 	DROID_TYPE      droidType;                  ///< The type of droid
 	UDWORD          multiPlayerID;              ///< multiplayer unique descriptor(cant use id's for templates). Used for save games as well now - AB 29/10/98
