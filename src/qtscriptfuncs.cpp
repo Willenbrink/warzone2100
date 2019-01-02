@@ -788,7 +788,7 @@ QScriptValue convDroid(DROID *psDroid, QScriptEngine *engine)
 	}
 
 	value.setProperty("order", (int)psDroid->order.type, QScriptValue::ReadOnly);
-	value.setProperty("cost", psDroid->getBuildPower(), QScriptValue::ReadOnly);
+	value.setProperty("cost", calcDroidPower(psDroid), QScriptValue::ReadOnly);
 	value.setProperty("hasIndirect", indirect, QScriptValue::ReadOnly);
 
 	switch (psDroid->droidType) // hide some engine craziness
@@ -927,9 +927,9 @@ QScriptValue convTemplate(DROID_TEMPLATE *psTempl, QScriptEngine *engine)
 	value.setProperty("fullname", WzStringToQScriptValue(engine, psTempl->name), QScriptValue::ReadOnly);
 	value.setProperty("name", WzStringToQScriptValue(engine, psTempl->id), QScriptValue::ReadOnly);
 	value.setProperty("id", WzStringToQScriptValue(engine, psTempl->id), QScriptValue::ReadOnly);
-	value.setProperty("points", psTempl->getBuildTime(), QScriptValue::ReadOnly);
-	value.setProperty("power", psTempl->getBuildPower(), QScriptValue::ReadOnly); // FIXME deprecated, use cost below
-	value.setProperty("cost", psTempl->getBuildPower(), QScriptValue::ReadOnly);
+	value.setProperty("points", calcTemplateBuild(psTempl), QScriptValue::ReadOnly);
+	value.setProperty("power", calcTemplatePower(psTempl), QScriptValue::ReadOnly); // deprecated, use cost below
+	value.setProperty("cost", calcTemplatePower(psTempl), QScriptValue::ReadOnly);
 	value.setProperty("droidType", psTempl->droidType, QScriptValue::ReadOnly);
 	value.setProperty("body", WzStringToQScriptValue(engine, (asBodyStats + psTempl->asParts[COMP_BODY])->id), QScriptValue::ReadOnly);
 	value.setProperty("propulsion", WzStringToQScriptValue(engine, (asPropulsionStats + psTempl->asParts[COMP_PROPULSION])->id), QScriptValue::ReadOnly);

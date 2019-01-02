@@ -96,7 +96,6 @@ static void groupConsoleInformOfCentering(UDWORD groupNumber);
 static void droidUpdateDroidSelfRepair(DROID *psRepairDroid);
 static UDWORD calcDroidBaseBody(DROID *psDroid);
 
-//FIXME sometimes a building is deconstructed instead of constructed on rightclick. Perhaps caused by unifying checkDroidsWorking?
 void DROID::cancelBuild()
 {
 	if (order.type == DORDER_NONE || order.type == DORDER_PATROL || order.type == DORDER_HOLD || order.type == DORDER_SCOUT || order.type == DORDER_GUARD)
@@ -331,6 +330,7 @@ DROID_TEMPLATE::DROID_TEMPLATE(DROID *psDroid)
 			asWeaps[i] = droidStat;
 		}
 	}
+
 	memcpy(asParts, psDroid->asBits, sizeof(psDroid->asBits));
 }
 
@@ -511,7 +511,7 @@ void recycleDroid(DROID *psDroid)
 	}
 
 	// return part of the cost of the droid
-	int cost = psDroid->getBuildPower();
+	int cost = calcDroidPower(psDroid);
 	cost = (cost / 2) * psDroid->health / psDroid->maxHealth;
 	addPower(psDroid->player, (UDWORD)cost);
 
@@ -1642,26 +1642,30 @@ UDWORD calcDroidSpeed(UDWORD baseSpeed, UDWORD terrainType, UDWORD propIndex, UD
 	return speed;
 }
 
-//TODO verify that buildPoints and buildPower are inherently different
 /* Calculate the points required to build the template - used to calculate time*/
-uint DROID_TEMPLATE::getBuildTime()
+UDWORD calcTemplateBuild(DROID_TEMPLATE *psTemplate)
 {
-  uint build = 0;
-	build += (asBodyStats + asParts[COMP_BODY])->buildPoints;
-  build += (asBrainStats + asParts[COMP_BRAIN])->buildPoints;
-  build += (asSensorStats + asParts[COMP_SENSOR])->buildPoints;
-  build += (asECMStats + asParts[COMP_ECM])->buildPoints;
-  build += (asRepairStats + asParts[COMP_REPAIRUNIT])->buildPoints;
-  build += (asConstructStats + asParts[COMP_CONSTRUCT])->buildPoints;
+	UDWORD	build, i;
 
-	/* propulsion build time is a percentage of the bodys' build time */
-	build += (((asPropulsionStats + asParts[COMP_PROPULSION])->buildPoints *
-	           (asBodyStats + asParts[COMP_BODY])->buildPoints) / 100);
+	build = (asBodyStats + psTemplate->asParts[COMP_BODY])->buildPoints +
+	        (asBrainStats + psTemplate->asParts[COMP_BRAIN])->buildPoints +
+	        (asSensorStats + psTemplate->asParts[COMP_SENSOR])->buildPoints +
+	        (asECMStats + psTemplate->asParts[COMP_ECM])->buildPoints +
+	        (asRepairStats + psTemplate->asParts[COMP_REPAIRUNIT])->buildPoints +
+	        (asConstructStats + psTemplate->asParts[COMP_CONSTRUCT])->buildPoints;
+
+	/* propulsion build points are a percentage of the bodys' build points */
+	build += (((asPropulsionStats + psTemplate->asParts[COMP_PROPULSION])->buildPoints *
+	           (asBodyStats + psTemplate->asParts[COMP_BODY])->buildPoints) / 100);
 
 	//add weapon power
-	for (int i = 0; i < numWeaps; i++)
+	for (i = 0; i < psTemplate->numWeaps; i++)
 	{
-		build += (asWeaponStats + asWeaps[i])->buildPoints;
+		// FIX ME:
+		ASSERT(psTemplate->asWeaps[i] < numWeaponStats,
+		       //"Invalid Template weapon for %s", psTemplate->pName );
+		       "Invalid Template weapon for %s", getName(psTemplate));
+		build += (asWeaponStats + psTemplate->asWeaps[i])->buildPoints;
 	}
 
 	return build;
@@ -1669,39 +1673,81 @@ uint DROID_TEMPLATE::getBuildTime()
 
 
 /* Calculate the power points required to build/maintain a template */
-uint DROID_TEMPLATE::getBuildPower()
+UDWORD	calcTemplatePower(DROID_TEMPLATE *psTemplate)
 {
-  uint build = 0;
-	build += (asBodyStats + asParts[COMP_BODY])->buildPower;
-  build += (asBrainStats + asParts[COMP_BRAIN])->buildPower;
-  build += (asSensorStats + asParts[COMP_SENSOR])->buildPower;
-  build += (asECMStats + asParts[COMP_ECM])->buildPower;
-  build += (asRepairStats + asParts[COMP_REPAIRUNIT])->buildPower;
-  build += (asConstructStats + asParts[COMP_CONSTRUCT])->buildPower;
+	UDWORD power, i;
 
-	/* propulsion build time is a percentage of the bodys' build time */
-	build += (((asPropulsionStats + asParts[COMP_PROPULSION])->buildPower *
-	           (asBodyStats + asParts[COMP_BODY])->buildPower) / 100);
+	//get the component power
+	power = (asBodyStats + psTemplate->asParts[COMP_BODY])->buildPower;
+	power += (asBrainStats + psTemplate->asParts[COMP_BRAIN])->buildPower;
+	power += (asSensorStats + psTemplate->asParts[COMP_SENSOR])->buildPower;
+	power += (asECMStats + psTemplate->asParts[COMP_ECM])->buildPower;
+	power += (asRepairStats + psTemplate->asParts[COMP_REPAIRUNIT])->buildPower;
+	power += (asConstructStats + psTemplate->asParts[COMP_CONSTRUCT])->buildPower;
+
+	/* propulsion power points are a percentage of the bodys' power points */
+	power += (((asPropulsionStats + psTemplate->asParts[COMP_PROPULSION])->buildPower *
+	           (asBodyStats + psTemplate->asParts[COMP_BODY])->buildPower) / 100);
 
 	//add weapon power
-	for (int i = 0; i < numWeaps; i++)
-    {
-      build += (asWeaponStats + asWeaps[i])->buildPower;
-    }
+	for (i = 0; i < psTemplate->numWeaps; i++)
+	{
+		power += (asWeaponStats + psTemplate->asWeaps[i])->buildPower;
+	}
 
-	return build;
+	return power;
 }
 
-//Propulsion cost depends on body
-uint DROID::getBuildPower()
+
+/* Calculate the power points required to build/maintain a droid */
+UDWORD	calcDroidPower(DROID *psDroid)
 {
-  return psTemplate->getBuildPower();
+	//re-enabled i
+	UDWORD      power, i;
+
+	//get the component power
+	power = (asBodyStats + psDroid->asBits[COMP_BODY])->buildPower +
+	        (asBrainStats + psDroid->asBits[COMP_BRAIN])->buildPower +
+	        (asSensorStats + psDroid->asBits[COMP_SENSOR])->buildPower +
+	        (asECMStats + psDroid->asBits[COMP_ECM])->buildPower +
+	        (asRepairStats + psDroid->asBits[COMP_REPAIRUNIT])->buildPower +
+	        (asConstructStats + psDroid->asBits[COMP_CONSTRUCT])->buildPower;
+
+	/* propulsion power points are a percentage of the bodys' power points */
+	power += (((asPropulsionStats + psDroid->asBits[COMP_PROPULSION])->buildPower *
+	           (asBodyStats + psDroid->asBits[COMP_BODY])->buildPower) / 100);
+
+	//add weapon power
+	for (i = 0; i < psDroid->numWeaps; i++)
+	{
+		if (psDroid->asWeaps[i].nStat > 0)
+		{
+			power += (asWeaponStats + psDroid->asWeaps[i].nStat)->buildPower;
+		}
+	}
+
+	return power;
 }
 
-//Simple sum of all components
-uint DROID::getBuildTime()
+UDWORD calcDroidPoints(DROID *psDroid)
 {
-  return psTemplate->getBuildTime();
+	unsigned int i;
+	int points;
+
+	points  = getBodyStats(psDroid)->buildPoints;
+	points += getBrainStats(psDroid)->buildPoints;
+	points += getPropulsionStats(psDroid)->buildPoints;
+	points += getSensorStats(psDroid)->buildPoints;
+	points += getECMStats(psDroid)->buildPoints;
+	points += getRepairStats(psDroid)->buildPoints;
+	points += getConstructStats(psDroid)->buildPoints;
+
+	for (i = 0; i < psDroid->numWeaps; i++)
+	{
+		points += (asWeaponStats + psDroid->asWeaps[i].nStat)->buildPoints;
+	}
+
+	return points;
 }
 
 //Builds an instance of a Droid - the x/y passed in are in world coords.
@@ -2132,6 +2178,7 @@ UDWORD	getNumDroidsForLevel(UDWORD	level)
 }
 
 // Get the name of a droid from it's DROID structure.
+//
 const char *droidGetName(const DROID *psDroid)
 {
 	return psDroid->aName;
@@ -2403,10 +2450,11 @@ void setUpBuildModule(DROID *psDroid)
 	psDroid->cancelBuild();
 }
 
-bool DROID::isDamaged()
+bool droidIsDamaged(const DROID *psDroid)
 {
-	return health < maxHealth;
+	return psDroid->health < psDroid->maxHealth;
 }
+
 
 char const *getDroidResourceName(char const *pName)
 {
@@ -2416,20 +2464,24 @@ char const *getDroidResourceName(char const *pName)
 	return strresGetString(psStringRes, pName);
 }
 
-bool DROID::isEW()
+
+/*checks to see if an electronic warfare weapon is attached to the droid*/
+bool electronicDroid(const DROID *psDroid)
 {
+	CHECK_DROID(psDroid);
+
 	//use slot 0 for now
-	if (numWeaps > 0 && asWeaponStats[asWeaps[0].nStat].weaponSubClass == WSC_ELECTRONIC)
+	if (psDroid->numWeaps > 0 && asWeaponStats[psDroid->asWeaps[0].nStat].weaponSubClass == WSC_ELECTRONIC)
 	{
 		return true;
 	}
 
-	if (droidType == DROID_COMMAND && psGroup && psGroup->psCommander == this)
+	if (psDroid->droidType == DROID_COMMAND && psDroid->psGroup && psDroid->psGroup->psCommander == psDroid)
 	{
 		// if a commander has EW units attached it is electronic
-		for (DROID *psCurr = psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
+		for (const DROID *psCurr = psDroid->psGroup->psList; psCurr; psCurr = psCurr->psGrpNext)
 		{
-			if (this != psCurr && psCurr->isEW())
+			if (psDroid != psCurr && electronicDroid(psCurr))
 			{
 				return true;
 			}
@@ -2439,17 +2491,23 @@ bool DROID::isEW()
 	return false;
 }
 
-bool DROID::underRepair()
+/*checks to see if the droid is currently being repaired by another*/
+bool droidUnderRepair(const DROID *psDroid)
 {
-  if(isDamaged())
+	CHECK_DROID(psDroid);
+
+	//droid must be damaged
+	if (droidIsDamaged(psDroid))
 	{
 		//look thru the list of players droids to see if any are repairing this droid
-		for (const DROID *psCurr = apsDroidLists[player]; psCurr != nullptr; psCurr = psCurr->psNext)
+		for (const DROID *psCurr = apsDroidLists[psDroid->player]; psCurr != nullptr; psCurr = psCurr->psNext)
 		{
 			if ((psCurr->droidType == DROID_REPAIR || psCurr->droidType ==
 			        DROID_CYBORG_REPAIR) && psCurr->action ==
-			        DACTION_DROIDREPAIR && psCurr->order.psObj == this)
+			        DACTION_DROIDREPAIR && psCurr->order.psObj == psDroid)
+			{
 				return true;
+			}
 		}
 	}
 
@@ -2598,13 +2656,16 @@ bool vtolRearming(const DROID *psDroid)
 	           psDroid->action == DACTION_WAITDURINGREARM);
 }
 
-bool DROID::isAttacking()
+// true if a droid is currently attacking
+bool droidAttacking(const DROID *psDroid)
 {
-	return action == DACTION_ATTACK ||
-	       action == DACTION_MOVETOATTACK ||
-	       action == DACTION_ROTATETOATTACK ||
-	       action == DACTION_VTOLATTACK ||
-	       action == DACTION_MOVEFIRE;
+	CHECK_DROID(psDroid);
+
+	return psDroid->action == DACTION_ATTACK ||
+	       psDroid->action == DACTION_MOVETOATTACK ||
+	       psDroid->action == DACTION_ROTATETOATTACK ||
+	       psDroid->action == DACTION_VTOLATTACK ||
+	       psDroid->action == DACTION_MOVEFIRE;
 }
 
 // see if there are any other vtols attacking the same target

@@ -900,7 +900,7 @@ CURSOR processMouseClickInput()
 
 			// special droid at full health
 			if (arnMPointers[item][selection] == CURSOR_FIX && ObjUnderMouse && ObjUnderMouse->type == OBJ_DROID &&
-          !((DROID *)ObjUnderMouse)->isDamaged())
+			        !droidIsDamaged((DROID *)ObjUnderMouse))
 			{
 				item = MT_OWNDROID;
 			}
@@ -1758,7 +1758,7 @@ static void dealWithLMBDroid(DROID *psDroid, SELECTION_TYPE selection)
 		FeedbackOrderGiven();
 	}
 	// Clicked on a damaged unit? Will repair it.
-	else if (psDroid->isDamaged() && repairDroidSelected(selectedPlayer))
+	else if (droidIsDamaged(psDroid) && repairDroidSelected(selectedPlayer))
 	{
 		assignDestTarget();
 		orderSelectedObjAdd(selectedPlayer, (BASE_OBJECT *)psDroid, ctrlShiftDown());
@@ -2481,7 +2481,7 @@ static MOUSE_TARGET	itemUnderMouse(BASE_OBJECT **ppObjectUnderMouse)
 						}
 						else
 						{
-							if (psDroid->isDamaged())
+							if (droidIsDamaged(psDroid))
 							{
 								retVal = MT_OWNDROIDDAM;
 							}

@@ -868,7 +868,7 @@ void actionUpdateDroid(DROID *psDroid)
 						setDroidActionTarget(psDroid, nullptr, i);
 					}
 					// Is target from our team now? (Electronic Warfare)
-					else if (psDroid->isEW() && psDroid->player == psDroid->psActionTarget[i]->player)
+					else if (electronicDroid(psDroid) && psDroid->player == psDroid->psActionTarget[i]->player)
 					{
 						setDroidActionTarget(psDroid, nullptr, i);
 					}
@@ -962,7 +962,7 @@ void actionUpdateDroid(DROID *psDroid)
 			}
 
 			//check the target hasn't become one the same player ID - Electronic Warfare
-			if (psDroid->isEW() && psDroid->player == psDroid->psActionTarget[0]->player)
+			if (electronicDroid(psDroid) && psDroid->player == psDroid->psActionTarget[0]->player)
 			{
 				for (unsigned i = 0; i < psDroid->numWeaps; ++i)
 				{
@@ -1098,7 +1098,7 @@ void actionUpdateDroid(DROID *psDroid)
 				if ((vtolEmpty(psDroid)) ||
 				        (psDroid->psActionTarget[0] == nullptr) ||
 				        //check the target hasn't become one the same player ID - Electronic Warfare
-            (psDroid->isEW() && (psDroid->player == psDroid->psActionTarget[0]->player)) ||
+				        (electronicDroid(psDroid) && (psDroid->player == psDroid->psActionTarget[0]->player)) ||
 				        !validTarget(psDroid, psDroid->psActionTarget[0], 0))
 				{
 					moveToRearm(psDroid);
@@ -1194,7 +1194,7 @@ void actionUpdateDroid(DROID *psDroid)
 			ASSERT_OR_RETURN(, psDroid->psActionTarget[0] != nullptr, "action update move to attack target is NULL");
 
 			//check the target hasn't become one the same player ID - Electronic Warfare, and that the target is still valid.
-			if ((psDroid->isEW() && psDroid->player == psDroid->psActionTarget[0]->player) ||
+			if ((electronicDroid(psDroid) && psDroid->player == psDroid->psActionTarget[0]->player) ||
 			        !validTarget(psDroid, psDroid->psActionTarget[0], 0))
 			{
 				for (unsigned i = 0; i < psDroid->numWeaps; ++i)
@@ -2036,7 +2036,7 @@ static void actionDroidBase(DROID *psDroid, DROID_ACTION_DATA *psAction)
 				break;
 			}
 
-			if (psDroid->isEW())
+			if (electronicDroid(psDroid))
 			{
 				//check for low or zero resistance - just zero resistance!
 				if (psAction->psObj->type == OBJ_STRUCTURE

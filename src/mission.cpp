@@ -805,7 +805,7 @@ static void saveMissionData()
 	{
 		for (psDroid = apsDroidLists[selectedPlayer]; psDroid != nullptr; psDroid = psDroid->psNext)
 		{
-			if (psDroid->isDamaged())
+			if (droidIsDamaged(psDroid))
 			{
 				psDroid->health = psDroid->maxHealth;
 			}

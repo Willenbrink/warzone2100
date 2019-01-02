@@ -7685,7 +7685,7 @@ static UDWORD costOrAmountInRange(SDWORD player, SDWORD lookingPlayer, SDWORD ra
 				}
 				else
 				{
-					droidCost += psDroid->getBuildPower();
+					droidCost += calcDroidPower(psDroid);
 				}
 			}
 		}
@@ -10586,7 +10586,7 @@ bool scrCalcDroidPower()
 
 	ASSERT_OR_RETURN(false, psDroid != nullptr, "can't calculate cost of a null-droid");
 
-	scrFunctionResult.v.ival = (int)psDroid->getBuildPower();
+	scrFunctionResult.v.ival = (SDWORD)calcDroidPower(psDroid);
 
 	if (!stackPushResult(VAL_INT, &scrFunctionResult))
 	{

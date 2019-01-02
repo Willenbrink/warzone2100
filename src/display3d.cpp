@@ -3052,7 +3052,7 @@ static void	drawDroidSelections()
 		/* If it's selected and on screen or it's the one the mouse is over */
 		if (eitherSelected(psDroid) ||
 		        (bMouseOverOwnDroid && psDroid == (DROID *) psClickedOn) ||
-        psDroid->underRepair() ||
+		        droidUnderRepair(psDroid) ||
 		        barMode == BAR_DROIDS || barMode == BAR_DROIDS_AND_STRUCTURES
 		   )
 		{
