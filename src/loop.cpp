@@ -34,6 +34,8 @@
 #include "lib/ivis_opengl/piemode.h"
 // FIXME Direct iVis implementation include!
 #include "lib/ivis_opengl/screen.h"
+#include "baseobject.h"
+#include "basedef.h"
 
 #include "lib/gamelib/gtime.h"
 #include "lib/script/script.h"
@@ -433,6 +435,9 @@ GAMECODE renderLoop()
 
 void countUpdateSingle(bool synch, int i)
 {
+  //TODO This is preventing an efficient implementation of this function. Rewriting the classes as simple structs is timeconsuming and therefore delayed
+  fprintf(stderr, "Is trivially copiable: %d %d %d\n", std::is_trivially_copyable<SIMPLE_OBJECT>::value, std::is_trivially_copyable<BASE_OBJECT>::value, std::is_trivially_copyable<DROID>::value);
+
   //set the flag for each player
   setSatUplinkExists(false, i);
   setLasSatExists(false, i);

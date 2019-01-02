@@ -84,7 +84,6 @@ struct NEXTOBJ
 struct SIMPLE_OBJECT
 {
 	SIMPLE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player);
-	virtual ~SIMPLE_OBJECT();
 
 	const OBJECT_TYPE type;                         ///< The type of object
 	UDWORD          id;                             ///< ID number of the object
@@ -110,7 +109,6 @@ enum OBJECT_FLAG
 struct BASE_OBJECT : public SIMPLE_OBJECT
 {
 	BASE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player);
-	~BASE_OBJECT();
 
 	SCREEN_DISP_DATA    sDisplay;                   ///< screen coordinate details
 	//FIXME why group = 0? it should be -1 or else it would end up in ctrl+0?

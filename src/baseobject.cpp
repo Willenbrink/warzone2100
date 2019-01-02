@@ -85,14 +85,6 @@ SIMPLE_OBJECT::SIMPLE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player)
 	, time(0)
 {}
 
-SIMPLE_OBJECT::~SIMPLE_OBJECT()
-{
-	// Make sure to get rid of some final references in the sound code to this object first
-	audio_RemoveObj(this);
-
-	const_cast<OBJECT_TYPE volatile &>(type) = (OBJECT_TYPE)(type + 1000000000);  // Hopefully this will trigger an assert              if someone uses the freed object.
-	const_cast<UBYTE volatile &>(player) += 100;                                  // Hopefully this will trigger an assert and/or crash if someone uses the freed object.
-}
 
 BASE_OBJECT::BASE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player)
 	: SIMPLE_OBJECT(type, id, player)
@@ -119,16 +111,6 @@ BASE_OBJECT::BASE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player)
 	sDisplay.screenR = 0;
 }
 
-BASE_OBJECT::~BASE_OBJECT()
-{
-	visRemoveVisibility(this);
-	free(watchedTiles);
-
-#ifdef DEBUG
-	psNext = this;                                                       // Hopefully this will trigger an infinite loop       if someone uses the freed object.
-	psNextFunc = this;                                                   // Hopefully this will trigger an infinite loop       if someone uses the freed object.
-#endif //DEBUG
-}
 
 void checkObject(const SIMPLE_OBJECT *psObject, const char *const location_description, const char *function, const int recurse)
 {
