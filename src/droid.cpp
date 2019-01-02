@@ -143,7 +143,7 @@ void DROID::bodyUpgrade()
 		{
 			if (psCurr != this)
 			{
-				psCurr->bodyUpgrade();
+        psCurr->bodyUpgrade();
 			}
 		}
 	}
@@ -317,21 +317,19 @@ int32_t droidDamage(DROID *psDroid, unsigned damage, WEAPON_CLASS weaponClass, W
 DROID_TEMPLATE::DROID_TEMPLATE(DROID *psDroid)
 {
 	name = WzString::fromUtf8(psDroid->aName);	// copy the name across
-	droidType = psDroid->droidType;
+  droidType = psDroid->droidType;
 
-	for (int i = 0; i < MAX_WEAPONS; i++)
-	{
-		asWeaps[i] = 0;
-		int droidStat = psDroid->asWeaps[i].nStat;
-
-		if (droidStat > 0)
-		{
-			numWeaps++;
-			asWeaps[i] = droidStat;
-		}
-	}
-
-	memcpy(asParts, psDroid->asBits, sizeof(psDroid->asBits));
+  for (int i = 0; i < MAX_WEAPONS; i++)
+    {
+      asWeaps[i] = 0;
+      int droidStat = psDroid->asWeaps[i].nStat;
+      if(droidStat > 0)
+        {
+          numWeaps++;
+          asWeaps[i] = droidStat;
+        }
+    }
+  memcpy(asParts, psDroid->asBits, sizeof(psDroid->asBits));
 }
 
 DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, Position pos, Rotation rot)
@@ -344,16 +342,16 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, P
 	, secondaryOrderPendingCount(0)
 	, action(DACTION_NONE)
 	, actionPos(0, 0)
-	, psTemplate(psTemplate)
+  , psTemplate(psTemplate)
 {
 	DROID_GROUP		*psGrp;
 	// Don't use this assertion in single player, since droids can finish building while on an away mission
 	ASSERT(!bMultiPlayer || worldOnMap(pos.x, pos.y), "the build locations are not on the map");
 	memset(aName, 0, sizeof(aName));
 	sstrcpy(this->aName, getName(psTemplate));
-	this->name = getName(psTemplate);
+  this->name = getName(psTemplate);
 	memset(asBits, 0, sizeof(asBits));
-	droidSetPosition(this, pos.x, pos.y);
+  droidSetPosition(this, pos.x, pos.y);
 	this->rot = rot;
 	this->prevSpacetime.pos = pos;
 	//FIXME why is pos.z not set here?
@@ -409,7 +407,7 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, P
 	resistance = ACTION_START_TIME;	// init the resistance to indicate no EW performed on this droid
 	lastFrustratedTime = 0;		// make sure we do not start the game frustrated
 	this->baseSpeed = calcDroidBaseSpeed(psTemplate, this->weight, player);
-	clearPath();
+  clearPath();
 
 	//Allocate 'easy-access' data
 	this->health = calcDroidBaseBody(this); //Includes upgrades
@@ -418,7 +416,7 @@ DROID::DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, P
 
 	this->sDisplay.imd = BODY_IMD(this, player);
 
-	if (isTransporter(this) || this->droidType == DROID_COMMAND)
+if (isTransporter(this) || this->droidType == DROID_COMMAND)
 	{
 		psGrp = grpCreate();
 		psGrp->add(this);
@@ -778,7 +776,7 @@ void DROID::update()
 	BASE_OBJECT     *psBeingTargetted = nullptr;
 	unsigned        i;
 
-	CHECK_DROID(this);
+  CHECK_DROID(this);
 
 #ifdef DEBUG
 
@@ -806,7 +804,7 @@ void DROID::update()
 	if (this->flags.test(OBJECT_FLAG_DIRTY))
 	{
 		visTilesUpdate(this);
-		bodyUpgrade();
+    bodyUpgrade();
 		this->flags.set(OBJECT_FLAG_DIRTY, false);
 	}
 
@@ -945,7 +943,7 @@ void DROID::update()
 
 	syncDebugDroid(this, '>');
 
-	CHECK_DROID(this);
+  CHECK_DROID(this);
 }
 
 /* See if a droid is next to a structure */
@@ -1060,7 +1058,7 @@ DroidStartBuild droidStartBuild(DROID *psDroid)
 		{
 			ASSERT(false, "Cannot build \"%s\" for player %d.", psStructStat->name.toUtf8().c_str(), psDroid->player);
 			intBuildFinished(psDroid);
-			psDroid->cancelBuild();
+      psDroid->cancelBuild();
 			objTrace(psDroid->id, "DroidStartBuildFailed: not researched");
 			return DroidStartBuildFailed;
 		}
@@ -1069,7 +1067,7 @@ DroidStartBuild droidStartBuild(DROID *psDroid)
 		if (psStructStat->curCount[psDroid->player] >= psStructStat->upgrade[psDroid->player].limit)
 		{
 			intBuildFinished(psDroid);
-			psDroid->cancelBuild();
+      psDroid->cancelBuild();
 			objTrace(psDroid->id, "DroidStartBuildFailed: structure limits");
 			return DroidStartBuildFailed;
 		}
@@ -1088,7 +1086,7 @@ DroidStartBuild droidStartBuild(DROID *psDroid)
 		if (!psStruct)
 		{
 			intBuildFinished(psDroid);
-			psDroid->cancelBuild();
+      psDroid->cancelBuild();
 			objTrace(psDroid->id, "DroidStartBuildFailed: buildStructureDir failed");
 			return DroidStartBuildFailed;
 		}
@@ -1196,7 +1194,7 @@ bool droidUpdateBuild(DROID *psDroid)
 		if (psDroid->order.type != DORDER_LINEBUILD ||
 		        map_coord(psDroid->order.pos) == map_coord(psDroid->order.pos2))
 		{
-			psDroid->cancelBuild();
+      psDroid->cancelBuild();
 		}
 		else
 		{
@@ -1478,7 +1476,7 @@ DROID_TYPE droidTemplateType(DROID_TEMPLATE *psTemplate)
 
 uint DROID_TEMPLATE::getWeight()
 {
-	uint weight = 0;
+  uint weight = 0;
 
 	/* Get the basic component weight */
 	weight +=
@@ -1505,7 +1503,7 @@ uint DROID_TEMPLATE::getWeight()
 
 uint DROID::getWeight()
 {
-	return psTemplate->getWeight();
+  return psTemplate->getWeight();
 }
 
 static uint32_t calcDroidOrTemplateBody(uint8_t (&asParts)[DROID_MAXCOMP], unsigned numWeaps, uint32_t (&asWeaps)[MAX_WEAPONS], unsigned player)
@@ -1782,7 +1780,7 @@ void DROID::clearPath()
 // Set the asBits in a DROID structure given it's template.
 void DROID::setBits(DROID_TEMPLATE *psTemplate)
 {
-	DROID *psDroid = this;
+  DROID *psDroid = this;
 	psDroid->droidType = droidTemplateType(psTemplate);
 	psDroid->numWeaps = psTemplate->numWeaps;
 	psDroid->health = calcTemplateBody(psTemplate, psDroid->player);
@@ -1925,7 +1923,7 @@ bool selectAndCenterGroup(uint player, uint group)
 
 	if (psDroid != nullptr)
 	{
-		psDroid->centerView();
+    psDroid->centerView();
 		groupConsoleInformOfCentering(group);
 		return true;
 	}
@@ -2117,7 +2115,7 @@ struct rankMap
 
 uint DROID::getLevel()
 {
-	uint numKills = experience / 65536;
+  uint numKills = experience / 65536;
 
 	// Search through the array of ranks until one is found
 	// which requires more kills than the droid has.
@@ -2154,7 +2152,7 @@ uint DROID::getEffectiveLevel()
 	return MAX(level, cmdLevel);
 }
 
-const char *getDroidLevelName(DROID *psDroid)
+  const char *getDroidLevelName(DROID *psDroid)
 {
 	const BRAIN_STATS *psStats = getBrainStats(psDroid);
 	return PE_("rank", psStats->rankNames[psDroid->getLevel()].c_str());
@@ -2418,7 +2416,7 @@ void setUpBuildModule(DROID *psDroid)
 	//Cancel order when no structure present
 	if (!psStruct)
 	{
-		psDroid->cancelBuild();
+    psDroid->cancelBuild();
 		return;
 	}
 
@@ -2447,7 +2445,7 @@ void setUpBuildModule(DROID *psDroid)
 		return;
 	}
 
-	psDroid->cancelBuild();
+  psDroid->cancelBuild();
 }
 
 bool droidIsDamaged(const DROID *psDroid)
@@ -3108,7 +3106,7 @@ void droidSetPosition(DROID *psDroid, int x, int y)
 	psDroid->pos.x = x;
 	psDroid->pos.y = y;
 	psDroid->pos.z = map_Height(psDroid->pos.x, psDroid->pos.y);
-	psDroid->clearPath();
+  psDroid->clearPath();
 	visTilesUpdate((BASE_OBJECT *)psDroid);
 }
 
@@ -3148,5 +3146,5 @@ int droidSqDist(DROID *psDroid, BASE_OBJECT *psObj)
 
 std::string DROID::getDroidName()
 {
-	return name;
+  return name;
 }

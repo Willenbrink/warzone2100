@@ -55,12 +55,12 @@ typedef std::vector<DROID_ORDER_DATA> OrderList;
 
 struct DROID_TEMPLATE : public BASE_STATS
 {
-public:
+ public:
 	DROID_TEMPLATE();
-	DROID_TEMPLATE(DROID *); //Create Template matching this droid
+  DROID_TEMPLATE(DROID *); //Create Template matching this droid
 
-	//Getter
-	uint getWeight();
+  //Getter
+  uint getWeight();
 
 
 	/*!
@@ -80,7 +80,7 @@ public:
 	bool            prefab;                     ///< Not player designed, not saved, never delete or change
 	bool            stored;                     ///< Stored template
 	bool            enabled;                    ///< Has been enabled
-private:
+ private:
 };
 
 class DROID_GROUP;
@@ -92,19 +92,19 @@ public:
 	DROID(uint id, uint player, DROID_TEMPLATE *psTemplate, bool onMission, Position pos = Position(), Rotation rot = Rotation());
 	~DROID();
 
-	//Initialisation
-	void clearPath();
-	void setBits(DROID_TEMPLATE *);
+  //Initialisation
+  void clearPath();
+  void setBits(DROID_TEMPLATE *);
 
-	//Getter
-	uint getLevel();
-	uint getEffectiveLevel();
-	std::string getDroidName(); //TODO rename to getName() and remove getName() typedef somewhere in structdef i think
-	uint getWeight();
+  //Getter
+  uint getLevel();
+  uint getEffectiveLevel();
+  std::string getDroidName(); //TODO rename to getName() and remove getName() typedef somewhere in structdef i think
+  uint getWeight();
 
-	void update();
-	void centerView();
-	void cancelBuild();
+  void update();
+  void centerView();
+  void cancelBuild();
 	/// UTF-8 name of the droid. This is generated from the droid template
 	///  WARNING: This *can* be changed by the game player after creation & can be translated, do NOT rely on this being the same for everyone!
 	char            aName[MAX_STR_LENGTH];
@@ -165,8 +165,8 @@ public:
 	/* anim data */
 	int        iAudioID;
 private:
-	DROID_TEMPLATE *psTemplate;
-	void bodyUpgrade();
+  DROID_TEMPLATE *psTemplate;
+  void bodyUpgrade();
 };
 
 #endif // __INCLUDED_DROIDDEF_H__

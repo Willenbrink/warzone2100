@@ -102,9 +102,7 @@ BASE_OBJECT::BASE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player)
 	, animationEvent(ANIM_EVENT_NONE)
 {
 	memset(visible, 0, sizeof(visible));
-	//FIXME previously: imd = nullptr, which resulted in segfaults
-	//Apparently imd should be overwritten but is not in some places...
-	sDisplay.imd = new iIMDShape();
+	sDisplay.imd = nullptr;
 	sDisplay.frameNumber = 0;
 	sDisplay.screenX = 0;
 	sDisplay.screenY = 0;
