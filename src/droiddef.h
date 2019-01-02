@@ -81,14 +81,11 @@ struct STRUCTURE;
 
 struct DROID : public BASE_OBJECT
 {
-public:
 	DROID(uint id, uint player, DROID_TEMPLATE *pTemplate, Position pos, Rotation rot);
-	~DROID();
 
 	/// UTF-8 name of the droid. This is generated from the droid template
 	///  WARNING: This *can* be changed by the game player after creation & can be translated, do NOT rely on this being the same for everyone!
 	char            aName[MAX_STR_LENGTH];
-	std::string name;
 	DROID_TYPE      droidType;                      ///< The type of droid
 	/** Holds the specifics for the component parts - allows damage
 	 *  per part to be calculated. Indexed by COMPONENT_TYPE.
@@ -107,10 +104,10 @@ public:
 	STRUCTURE      *psBaseStruct;                   ///< a structure that this droid might be associated with. For VTOLs this is the rearming pad
 	// queued orders
 	int        listSize;                       ///< Gives the number of synchronised orders. Orders from listSize to the real end of the list may not affect game state.
-	OrderList       asOrderList;                    ///< The range [0; listSize - 1] corresponds to synchronised orders, and the range [listPendingBegin; listPendingEnd - 1] corresponds to the orders that will remain, once all orders are synchronised.
+	OrderList       *asOrderList;                    ///< The range [0; listSize - 1] corresponds to synchronised orders, and the range [listPendingBegin; listPendingEnd - 1] corresponds to the orders that will remain, once all orders are synchronised.
 	uint      listPendingBegin;               ///< Index of first order which will not be erased by a pending order. After all messages are processed, the orders in the range [listPendingBegin; listPendingEnd - 1] will remain.
 	/* Order data */
-	DROID_ORDER_DATA order;
+	DROID_ORDER_DATA *order;
 
 #ifdef DEBUG
 	// these are to help tracking down dangling pointers
@@ -129,7 +126,7 @@ public:
 
 	/* Action data */
 	DROID_ACTION    action;
-	Vector2i        actionPos;
+	Vector2i        *actionPos;
 	BASE_OBJECT    *psActionTarget[MAX_WEAPONS]; ///< Action target object
 	uint        actionStarted;                  ///< Game time action started
 	uint        actionPoints;                   ///< number of points done by action since start
@@ -138,12 +135,11 @@ public:
 	///< but shouldn't make a difference unless 3 mutual enemies happen to be fighting each other at the same time.
 	uint         illumination;
 	/* Movement control data */
-	MOVE_CONTROL    sMove;
-	Spacetime       prevSpacetime;                  ///< Location of droid in previous tick.
+	MOVE_CONTROL    *sMove;
+	Spacetime       *prevSpacetime;                  ///< Location of droid in previous tick.
 	uint         blockedBits;                    ///< Bit set telling which tiles block this type of droid (TODO)
 	/* anim data */
 	int        iAudioID;
-private:
 };
 
 #endif // __INCLUDED_DROIDDEF_H__

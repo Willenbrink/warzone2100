@@ -205,7 +205,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 		resultHitChance -= EXP_ACCURACY_BONUS * level * baseHitChance / 100;
 	}
 
-	if (psAttacker->type == OBJ_DROID && ((DROID *)psAttacker)->sMove.Status != MOVEINACTIVE
+	if (psAttacker->type == OBJ_DROID && ((DROID *)psAttacker)->sMove->Status != MOVEINACTIVE
 	        && !psStats->fireOnMove)
 	{
 		return false;	// Can't fire while moving
@@ -229,7 +229,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 	Vector3i predict = psTarget->pos;
 
 	// Target prediction
-	if (isDroid(psTarget) && castDroid(psTarget)->sMove.bumpTime == 0)
+	if (isDroid(psTarget) && castDroid(psTarget)->sMove->bumpTime == 0)
 	{
 		DROID *psDroid = castDroid(psTarget);
 
@@ -260,7 +260,7 @@ bool combFire(WEAPON *psWeap, BASE_OBJECT *psAttacker, BASE_OBJECT *psTarget, in
 			}
 		}
 
-		predict += Vector3i(iSinCosR(psDroid->sMove.moveDir, psDroid->sMove.speed * flightTime / GAME_TICKS_PER_SEC), 0);
+		predict += Vector3i(iSinCosR(psDroid->sMove->moveDir, psDroid->sMove->speed * flightTime / GAME_TICKS_PER_SEC), 0);
 
 		if (!isFlying(psDroid))
 		{

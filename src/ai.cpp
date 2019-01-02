@@ -529,7 +529,7 @@ static SDWORD targetAttackWeight(BASE_OBJECT *psTarget, BASE_OBJECT *psAttacker,
 			for (weaponSlot = 0; weaponSlot < psGroupDroid->numWeaps; weaponSlot++)
 			{
 				//see if this droid is currently targeting current target
-				if (psGroupDroid->order.psObj == psTarget ||
+				if (psGroupDroid->order->psObj == psTarget ||
 				        psGroupDroid->psActionTarget[weaponSlot] == psTarget)
 				{
 					//we prefer targets that are already targeted and hence will be destroyed faster
@@ -615,7 +615,7 @@ int aiBestNearestTarget(DROID *psDroid, BASE_OBJECT **ppsObj, int weapon_slot, i
 						if (friendlyDroid->numWeaps > 0)
 						{
 							// make sure this target wasn't assigned explicitly to this droid
-							if (friendlyDroid->order.type != DORDER_ATTACK)
+							if (friendlyDroid->order->type != DORDER_ATTACK)
 							{
 								targetInQuestion = tempTarget;  //consider this target
 							}
@@ -1145,14 +1145,14 @@ void aiUpdateDroid(DROID *psDroid)
 	}
 
 	if ((orderState(psDroid, DORDER_OBSERVE) || orderState(psDroid, DORDER_ATTACKTARGET)) &&
-	        psDroid->order.psObj && psDroid->order.psObj->died)
+	        psDroid->order->psObj && psDroid->order->psObj->died)
 	{
 		lookForTarget = true;
 		updateTarget = false;
 	}
 
 	/* Don't update target if we are sent to attack and reached attack destination (attacking our target) */
-	if (orderState(psDroid, DORDER_ATTACK) && psDroid->psActionTarget[0] == psDroid->order.psObj)
+	if (orderState(psDroid, DORDER_ATTACK) && psDroid->psActionTarget[0] == psDroid->order->psObj)
 	{
 		updateTarget = false;
 	}
@@ -1212,7 +1212,8 @@ void aiUpdateDroid(DROID *psDroid)
 			{
 				if (!orderState(psDroid, DORDER_HOLD))
 				{
-					psDroid->order = DroidOrder(DORDER_OBSERVE, psTarget);
+          psDroid->order = (DroidOrder *) malloc(sizeof(DroidOrder));
+					*(psDroid->order) = DroidOrder(DORDER_OBSERVE, psTarget);
 				}
 
 				actionDroid(psDroid, DACTION_OBSERVE, psTarget);
@@ -1224,7 +1225,8 @@ void aiUpdateDroid(DROID *psDroid)
 			{
 				if (!orderState(psDroid, DORDER_HOLD))
 				{
-					psDroid->order = DroidOrder(DORDER_ATTACK, psTarget);
+          psDroid->order = (DroidOrder *) malloc(sizeof(DroidOrder));
+					*(psDroid->order) = DroidOrder(DORDER_ATTACK, psTarget);
 				}
 
 				actionDroid(psDroid, DACTION_ATTACK, psTarget);
@@ -1266,7 +1268,7 @@ bool validTarget(BASE_OBJECT *psObject, BASE_OBJECT *psTarget, int weapon_slot)
 		case OBJ_DROID:
 			if (asPropulsionTypes[asPropulsionStats[((DROID *)psTarget)->asBits[COMP_PROPULSION]].propulsionType].travel == AIR)
 			{
-				if (((DROID *)psTarget)->sMove.Status != MOVEINACTIVE)
+				if (((DROID *)psTarget)->sMove->Status != MOVEINACTIVE)
 				{
 					bTargetInAir = true;
 				}

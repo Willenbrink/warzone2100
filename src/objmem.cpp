@@ -26,6 +26,8 @@
 #include <string.h>
 
 #include "lib/framework/frame.h"
+#include "lib/sound/audio.h"
+#include "fpath.h"
 #include "objects.h"
 #include "lib/gamelib/gtime.h"
 #include "lib/netplay/netplay.h"
@@ -416,10 +418,35 @@ static inline void releaseAllObjectsInList(OBJECT *list[])
 
 			// FIXME: the next call is disabled for now, yes, it will leak memory again.
 			// issue is with campaign games, and the swapping pointers 'trick' Pumpkin uses.
-			//	visRemoveVisibility(psCurr);
+			visRemoveVisibility(psCurr);
 			// Release object's memory
-			delete psCurr;
-		}
+      DROID *psDroid = (DROID *) psCurr;
+      DROID *psDCurr;
+      audio_RemoveObj(psCurr);
+      DROID	*pNextGroupDroid = nullptr;
+      
+      if (isTransporter(psDroid))
+        {
+          if (psDroid->psGroup)
+            {
+              //free all droids associated with this Transporter
+              for (psDCurr = psDroid->psGroup->psList; psDCurr != nullptr && psDCurr != psDroid; psDCurr = pNextGroupDroid)
+                {
+                  pNextGroupDroid = psDCurr->psGrpNext;
+                  delete psDCurr;
+                }
+            }
+        }
+      
+      fpathRemoveDroidData(psDroid->id);
+      
+      // leave the current group if any
+      if (psDroid->psGroup)
+        {
+          psDroid->psGroup->remove(psDroid);
+        }
+      free(psCurr);
+    }
 
 		list[i] = nullptr;
 	}

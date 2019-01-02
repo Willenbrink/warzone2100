@@ -532,17 +532,17 @@ static void showDroidPaths()
 
 	for (DROID *psDroid = apsDroidLists[selectedPlayer]; psDroid; psDroid = psDroid->psNext)
 	{
-		if (psDroid->selected && psDroid->sMove.Status != MOVEINACTIVE)
+		if (psDroid->selected && psDroid->sMove->Status != MOVEINACTIVE)
 		{
-			const int len = psDroid->sMove.asPath.size();
+			const int len = psDroid->sMove->asPath.size();
 
-			for (int i = std::max(psDroid->sMove.pathIndex - 1, 0); i < len; i++)
+			for (int i = std::max(psDroid->sMove->pathIndex - 1, 0); i < len; i++)
 			{
 				Vector3i pos;
 
-				ASSERT(worldOnMap(psDroid->sMove.asPath[i].x, psDroid->sMove.asPath[i].y), "Path off map!");
-				pos.x = psDroid->sMove.asPath[i].x;
-				pos.z = psDroid->sMove.asPath[i].y;
+				ASSERT(worldOnMap(psDroid->sMove->asPath[i].x, psDroid->sMove->asPath[i].y), "Path off map!");
+				pos.x = psDroid->sMove->asPath[i].x;
+				pos.z = psDroid->sMove->asPath[i].y;
 				pos.y = map_Height(pos.x, pos.z) + 16;
 
 				effectGiveAuxVar(80);
@@ -1674,11 +1674,11 @@ static void drawLineBuild(STRUCTURE_STATS const *psStats, int left, int right, i
 static void renderBuildOrder(DroidOrder const &order, STRUCT_STATES state)
 {
 	STRUCTURE_STATS const *stats;
-	Vector2i pos = order.pos;
+	Vector2i pos = order->pos;
 
-	if (order.type == DORDER_BUILDMODULE)
+	if (order->type == DORDER_BUILDMODULE)
 	{
-		STRUCTURE const *structure = castStructure(order.psObj);
+		STRUCTURE const *structure = castStructure(order->psObj);
 
 		if (structure == nullptr)
 		{
@@ -1690,7 +1690,7 @@ static void renderBuildOrder(DroidOrder const &order, STRUCT_STATES state)
 	}
 	else
 	{
-		stats = order.psStats;
+		stats = order->psStats;
 	}
 
 	if (stats == nullptr)
@@ -1699,22 +1699,22 @@ static void renderBuildOrder(DroidOrder const &order, STRUCT_STATES state)
 	}
 
 	//draw the current build site if its a line of structures
-	if (order.type == DORDER_LINEBUILD)
+	if (order->type == DORDER_LINEBUILD)
 	{
 		int left, right, up, down;
 		// a wall (or something like that)
 
-		left = MIN(map_coord(pos.x), map_coord(order.pos2.x));
-		right = MAX(map_coord(pos.x), map_coord(order.pos2.x));
-		up = MIN(map_coord(pos.y), map_coord(order.pos2.y));
-		down = MAX(map_coord(pos.y), map_coord(order.pos2.y));
+		left = MIN(map_coord(pos.x), map_coord(order->pos2.x));
+		right = MAX(map_coord(pos.x), map_coord(order->pos2.x));
+		up = MIN(map_coord(pos.y), map_coord(order->pos2.y));
+		down = MAX(map_coord(pos.y), map_coord(order->pos2.y));
 
-		drawLineBuild(stats, left, right, up, down, order.direction, state);
+		drawLineBuild(stats, left, right, up, down, order->direction, state);
 	}
 
-	if ((order.type == DORDER_BUILD || order.type == DORDER_BUILDMODULE) && !tileHasIncompatibleStructure(mapTile(map_coord(pos)), stats, order.index))
+	if ((order->type == DORDER_BUILD || order->type == DORDER_BUILDMODULE) && !tileHasIncompatibleStructure(mapTile(map_coord(pos)), stats, order->index))
 	{
-		Blueprint blueprint(stats, pos, order.direction, order.index, state);
+		Blueprint blueprint(stats, pos, order->direction, order->index, state);
 		blueprints.push_back(blueprint);
 	}
 }
@@ -1793,12 +1793,12 @@ void displayBlueprints(const glm::mat4 &viewMatrix)
 		{
 			if (psDroid->droidType == DROID_CONSTRUCT || psDroid->droidType == DROID_CYBORG_CONSTRUCT)
 			{
-				renderBuildOrder(psDroid->order, state);
+				renderBuildOrder(*(psDroid->order), state);
 
 				//now look thru' the list of orders to see if more building sites
-				for (int order = psDroid->listPendingBegin; order < (int)psDroid->asOrderList.size(); order++)
+				for (int order = psDroid->listPendingBegin; order < (int)psDroid->asOrderList->size(); order++)
 				{
-					renderBuildOrder(psDroid->asOrderList[order], state);
+					renderBuildOrder((*(psDroid->asOrderList))[order], state);
 				}
 			}
 		}
@@ -3323,7 +3323,7 @@ static void drawDroidOrder(const DROID *psDroid)
 {
 	const int xShift = psDroid->sDisplay.screenR + GN_X_OFFSET;
 	const int yShift = psDroid->sDisplay.screenR - CMND_GN_Y_OFFSET;
-	const char *letter = getDroidOrderKey(psDroid->order.type);
+	const char *letter = getDroidOrderKey(psDroid->order->type);
 	iV_SetTextColour(WZCOL_TEXT_BRIGHT);
 	iV_DrawText(letter, psDroid->sDisplay.screenX - xShift - CMND_STAR_X_OFFSET,  psDroid->sDisplay.screenY + yShift, font_regular);
 }
@@ -4003,15 +4003,15 @@ static	void	doConstructionLines(const glm::mat4 &viewMatrix)
 		{
 			if (clipXY(psDroid->pos.x, psDroid->pos.y)
 			        && psDroid->visible[selectedPlayer] == UBYTE_MAX
-			        && psDroid->sMove.Status != MOVESHUFFLE)
+			        && psDroid->sMove->Status != MOVESHUFFLE)
 			{
 				if (psDroid->action == DACTION_BUILD)
 				{
-					if (psDroid->order.psObj)
+					if (psDroid->order->psObj)
 					{
-						if (psDroid->order.psObj->type == OBJ_STRUCTURE)
+						if (psDroid->order->psObj->type == OBJ_STRUCTURE)
 						{
-							addConstructionLine(psDroid, (STRUCTURE *)psDroid->order.psObj, viewMatrix);
+							addConstructionLine(psDroid, (STRUCTURE *)psDroid->order->psObj, viewMatrix);
 						}
 					}
 				}

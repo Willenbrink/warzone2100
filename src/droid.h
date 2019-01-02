@@ -345,7 +345,7 @@ static inline WEAPON_STATS *getWeaponStats(const DROID *psDroid, int weapon_slot
 
 static inline Rotation getInterpolatedWeaponRotation(const DROID *psDroid, int weaponSlot, uint32_t time)
 {
-	return interpolateRot(psDroid->asWeaps[weaponSlot].prevRot, psDroid->asWeaps[weaponSlot].rot, psDroid->prevSpacetime.time, psDroid->time, time);
+	return interpolateRot(psDroid->asWeaps[weaponSlot].prevRot, psDroid->asWeaps[weaponSlot].rot, psDroid->prevSpacetime->time, psDroid->time, time);
 }
 
 /** helper functions for future refcount patch **/
@@ -353,7 +353,7 @@ static inline Rotation getInterpolatedWeaponRotation(const DROID *psDroid, int w
 #define setDroidTarget(_psDroid, _psNewTarget) _setDroidTarget(_psDroid, _psNewTarget, __LINE__, __FUNCTION__)
 static inline void _setDroidTarget(DROID *psDroid, BASE_OBJECT *psNewTarget, int line, const char *func)
 {
-	psDroid->order.psObj = psNewTarget;
+	psDroid->order->psObj = psNewTarget;
 	ASSERT(psNewTarget == nullptr || !psNewTarget->died, "setDroidTarget: Set dead target");
 	ASSERT(psNewTarget == nullptr || !psNewTarget->died || (psNewTarget->died == NOT_CURRENT_LIST && psDroid->died == NOT_CURRENT_LIST),
 	       "setDroidTarget: Set dead target");
@@ -400,7 +400,7 @@ static inline void _setDroidBase(DROID *psDroid, STRUCTURE *psNewBase, int line,
 
 static inline void setSaveDroidTarget(DROID *psSaveDroid, BASE_OBJECT *psNewTarget)
 {
-	psSaveDroid->order.psObj = psNewTarget;
+	psSaveDroid->order->psObj = psNewTarget;
 #ifdef DEBUG
 	psSaveDroid->targetLine = 0;
 	sstrcpy(psSaveDroid->targetFunc, "savegame");

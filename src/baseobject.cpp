@@ -67,7 +67,7 @@ Spacetime interpolateObjectSpacetime(const SIMPLE_OBJECT *obj, uint32_t t)
 			return getSpacetime(obj);
 
 		case OBJ_DROID:
-			return interpolateSpacetime(castDroid(obj)->prevSpacetime, getSpacetime(obj), t);
+			return interpolateSpacetime(*(castDroid(obj)->prevSpacetime), getSpacetime(obj), t);
 
 		case OBJ_PROJECTILE:
 			return interpolateSpacetime(castProjectile(obj)->prevSpacetime, getSpacetime(obj), t);
