@@ -132,10 +132,10 @@ void cancelBuild(DROID *psDroid)
 static void droidBodyUpgrade(DROID *psDroid)
 {
 	const int factor = 10000; // HACK use big numbers to scare away rounding errors
-	int prev = maxHealth;
-	maxHealth = calcDroidBaseBody(this);
-	int increase = maxHealth * factor / prev;
-	health = MIN(maxHealth, (health * increase) / factor + 1);
+	int prev = psDroid->maxHealth;
+	psDroid->maxHealth = calcDroidBaseBody(psDroid);
+	int increase = psDroid->maxHealth * factor / prev;
+	psDroid->health = MIN(psDroid->maxHealth, (psDroid->health * increase) / factor + 1);
 
 	if (isTransporter(psDroid))
 	{
@@ -3152,4 +3152,44 @@ int droidSqDist(DROID *psDroid, BASE_OBJECT *psObj)
 	}
 
 	return objPosDiffSq(psDroid->pos, psObj->pos);
+}
+
+int getDroidId(DROID *ptr) {
+  return ptr->id;
+}
+
+int getDroidType (DROID *ptr) {
+  return ptr->droidType;
+}
+
+DROID *getDroidGroup (DROID *ptr) {
+  static DROID *psCurr = nullptr;
+  if(ptr != nullptr)
+    psCurr = ptr->psGroup->psList;
+  else
+    psCurr = psCurr->psNext;
+  return psCurr;
+}
+
+DROID *getDroidList (int player, int whichList)
+{
+  static DROID *psCurr = nullptr;
+  switch (whichList)
+    {
+    case 0:
+      if(psCurr != nullptr)
+        psCurr = psCurr->psNext;
+      return psCurr;
+    case 1:
+      psCurr = apsDroidLists[player];
+      return psCurr;
+    case 2:
+      psCurr = mission.apsDroidLists[player];
+      return psCurr;
+    case 3:
+      psCurr = apsLimboDroids[player];
+      return psCurr;
+    default:
+      exit(-1);
+    }
 }

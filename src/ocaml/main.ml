@@ -1,5 +1,6 @@
 #require "ctypes"
 #require "ctypes.foreign"
+#mod_use "interface.ml"
 
 open Ctypes
 open Foreign
@@ -15,6 +16,7 @@ let funer name params =
   foreign ~from:libwar
     ~release_runtime_lock:false
     name params
+
 
 let vv = void @-> returning void
 let sv = string @-> returning void
@@ -97,20 +99,188 @@ let setState state = function
   | NewLevel -> 4
   | Viewing -> 5
 
-let rec countUpdate player =
-  let coundUpdateSingleNew =
+type player = {id : int}
+
+module Droid = struct
+  type typ =
+    | Weapon
+    | Sensor
+    | ECM
+    | Construct
+    | Person
+    | Cyborg
+    | Transporter of t list
+    | Supertransporter of t list
+    | Command
+    | Repair
+    | Default
+    | CyborgConstruct
+    | CyborgRepair
+    | CyborgSuper
+    | Any
+
+  and t = {id : int; typ : typ; pointer : (unit Ctypes_static.ptr)}
+
+  let rec getGroup t =
+    match funer "getDroidGroup" (ptr void @-> returning (ptr_opt void)) t with
+    | Some x -> getDroid x :: getGroup (from_voidp void null)
+    | None -> []
+  and getType t =
+    let f = funer "getDroidType" (ptr void @-> returning int) in
+    match f t with
+    | 0 -> Weapon
+    | 1 -> Sensor
+    | 2 -> ECM
+    | 3 -> Construct
+    | 4 -> Person
+    | 5 -> Cyborg
+    | 6 -> Transporter (getGroup t)
+    | 7 -> Command
+    | 8 -> Repair
+    | 9 -> Default
+    | 10 -> CyborgConstruct
+    | 11 -> CyborgRepair
+    | 12 -> CyborgSuper
+    | 13 -> Supertransporter (getGroup t)
+    | 14 -> Any
+    | _ -> raise (Invalid_state "getType")
+  and getDroid t =
+    let id = funer "getDroidId" (ptr void @-> returning int) t in
+    let typ = getType t in
+    {id; typ; pointer = t}
+
+  let getList ({id} : player) list =
+    let getList = funer "getDroidList" (int @-> int @-> returning (ptr_opt void)) in
+    let rec f l =
+      match getList id l with
+      | Some x -> getDroid x :: f 0
+      | None -> []
+    in
+    f list
+end
+
+module Building = struct
+  type typ =
+    | HQ
+    | Factory
+    | FactoryModule
+    | Generator
+    | GeneratorModule
+    | Pump
+    | Defense
+    | Wall
+    | WallCorner
+    | Generic
+    | Research
+    | ResearchModule
+    | RepairFacility
+    | CommandControl
+    | Bridge
+    | Demolish (*TODO why? what? "//the demolish structure type - should only be one stat with this type"*)
+    | CyborgFactory
+    | VTOLFactory
+    | Lab (*TODO Difference to research? Some campaign object?*)
+    | RearmPad
+    | MissileSilo
+    | SatUplink
+    | Gate
+
+  and t = {id : int; typ : typ; pointer : (unit Ctypes_static.ptr)}
+
+  let rec getType t =
+    let f = funer "getBuildingType" (ptr void @-> returning int) in
+    match f t with
+    | 0 -> HQ
+    | 1 -> Factory
+    | 2 -> FactoryModule
+    | 3 -> Generator
+    | 4 -> GeneratorModule
+    | 5 -> Pump
+    | 6 -> Defense
+    | 7 -> Wall
+    | 8 -> WallCorner
+    | 9 -> Generic
+    | 10 -> Research
+    | 11 -> ResearchModule
+    | 12 -> RepairFacility
+    | 13 -> CommandControl
+    | 14 -> Bridge
+    | 15 -> Demolish (*TODO why? what? "//the demolish structure type - should only be one stat with this type"*)
+    | 16 -> CyborgFactory
+    | 17 -> VTOLFactory
+    | 18 -> Lab (*TODO Difference to research? Some campaign object?*)
+    | 19 -> RearmPad
+    | 20 -> MissileSilo
+    | 21 -> SatUplink
+    | 22 -> Gate
+    | _ -> raise (Invalid_state "getType: Building")
+  and getBuilding t =
+    let id = funer "getBuildingId" (ptr void @-> returning int) t in
+    let typ = getType t in
+    {id; typ; pointer = t}
+
+  let getList ({id} : player) list =
+    let getList = funer "getBuildingList" (int @-> int @-> returning (ptr_opt void)) in
+    let rec f l =
+      match getList id l with
+      | Some x -> getBuilding x :: f 0
+      | None -> []
+    in
+    f list
+
+end
+
+let rec countUpdate {id} =
+  let countUpdateSingleNew () =
     let setSatUplink = funer "setSatUplinkExists" (bool @-> int @-> returning void) in
     let getSatUplink = funer "getSatUplinkExists" (void @-> returning bool) in
     let setLasSat= funer "setLasSatExists" (bool @-> int @-> returning void) in
     let getLasSat= funer "getLasSatExists" (void @-> returning bool) in
+    let setNumDroids = funer "setNumDroids" (int @-> int @-> returning void) id in
+    let setNumMissionDroids = funer "setNumMissionDroids" (int @-> int @-> returning void) id in
+    let setNumConstructor = funer "setNumConstructorDroids" (int @-> int @-> returning void) id in
+    let setNumCommand = funer "setNumCommandDroids" (int @-> int @-> returning void) id in
+    let setNumTransporter = funer "setNumTransporterDroids" (int @-> int @-> returning void) id in
+
+    let droidsMain = Droid.getList {id} 1 in
+    let droidsMission = Droid.getList {id} 2 in
+    let droidsLimbo = Droid.getList {id} 3 in
+
+    let rec count f droids =
+      let mapAll (droid : Droid.t) = match droid with
+        | {typ = Transporter x} | {typ = Supertransporter x} -> f droid + count f x
+        | _ -> f droid
+      in
+      List.map mapAll droids |>
+      List.fold_left (+) 0
+    in
+
+    let f_total list = count (fun x -> 1) list in
+    let f_builder list = count (function {typ=Construct} | {typ=CyborgConstruct} -> 1 | _ -> 0) list in
+    let f_command list = count (function {typ = Command} -> 1 | _ -> 0) list in
+    let f_transporter list =
+      (*TODO This is not the amount of transporters but the units in the transporters.
+             I do not know why this would be useful in the two spots its used...*)
+      count (function {typ = Transporter x} | {typ = Supertransporter x} -> List.length x | _ -> 0) list
+    in
+
+    let total = f_total droidsMain in
+    let missionTotal = f_total droidsMission in
+    let builder = f_builder (droidsMain @ droidsMission @ droidsLimbo) in
+    let command = f_command (droidsMain @ droidsMission @ droidsLimbo) in
+    let transporter = f_transporter (droidsMain @ droidsMission) in
+
+    setNumDroids total;
+    setNumMissionDroids missionTotal;
+    setNumConstructor builder;
+    setNumCommand command;
+    setNumTransporter transporter;
+
     ()
   in
-    let countUpdateSingle = funer "countUpdateSingle" (bool @-> int @-> returning void) in
-    if player >= 0
-    then
-      (countUpdateSingle true player;
-       countUpdate (player-1))
-    else ()
+  let countUpdateSingle = funer "countUpdateSingle" (bool @-> int @-> returning void) in
+  countUpdateSingleNew ();
+  countUpdateSingle false id
 
 let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
   let getMaxPlayers = funer "getMaxPlayers" (void @-> returning int) in
@@ -131,7 +301,8 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
     | 0 -> renderBudget
     | _ ->
       let before = wzGetTicks () in
-      let () = countUpdate (getMaxPlayers ()) in
+      let players = List.init (getMaxPlayers ()) (fun id -> {id}) in
+      let () = List.iter countUpdate players in
       let () = gameStateUpdate () in
       let after = wzGetTicks () in
       innerLoop ((renderBudget - (after - before) * 2),false)
@@ -183,7 +354,7 @@ let rec loop mode gameLoopState =
   | Game -> (
       let (state,lastFlush,renderBudget,lastUpdateRender) =
         gameLoop gameLoopState in
-      match state |> getState with
+      match getState state with
        | Running | Viewing -> Game,(lastFlush,renderBudget,lastUpdateRender)
        | Quitting -> stopGameLoop (); startTitleLoop (); Title,(lastFlush,renderBudget,lastUpdateRender)
        | Loading -> stopGameLoop (); initSaveGameLoad (); Game,(lastFlush,renderBudget,lastUpdateRender)

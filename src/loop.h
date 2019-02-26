@@ -26,6 +26,7 @@
 
 #include "lib/framework/frame.h"
 #include "levels.h"
+#include "cmddroid.h"
 
 enum GAMECODE
 {
@@ -64,6 +65,7 @@ bool	gamePaused();
 void	setGamePauseStatus(bool val);
 void loopFastExit();
 
+DROID *getDroidList (int player, int whichList) asm ("getDroidList");
 bool gameUpdatePaused() asm ("gameUpdatePaused");
 void gameStateUpdate() asm ("gameStateUpdate");
 GAMECODE renderLoop() asm ("renderLoop");
@@ -98,7 +100,6 @@ void	setNumConstructorDroids(UDWORD player , int newVal) asm ("setNumConstructor
 void incNumDroids(UDWORD player) asm ("incNumDroids");
 void incNumCommandDroids(UDWORD player) asm ("incNumCommandDroids");
 void incNumConstructorDroids(UDWORD player) asm ("incNumConstructorDroids");
-
-void countUpdate(bool synch = false) asm ("countUpdate");
-
+int getBuildingId(STRUCTURE *ptr) asm ("getBuildingId");
+int getBuildingType(STRUCTURE *ptr) asm ("getBuildingType");
 #endif // __INCLUDED_SRC_LOOP_H__

@@ -32,7 +32,6 @@
 #include "hci.h"
 #include "map.h"
 #include "power.h"
-#include "objects.h"
 #include "lib/script/script.h"
 #include "scriptvals.h"
 #include "scripttabs.h"

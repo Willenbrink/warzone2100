@@ -36,21 +36,21 @@ struct iIMDShape;
 // to update the DroidSelectionWeights lookup table in Display.c
 enum DROID_TYPE
 {
-	DROID_WEAPON,           ///< Weapon droid
-	DROID_SENSOR,           ///< Sensor droid
-	DROID_ECM,              ///< ECM droid
-	DROID_CONSTRUCT,        ///< Constructor droid
-	DROID_PERSON,           ///< person
-	DROID_CYBORG,           ///< cyborg-type thang
-	DROID_TRANSPORTER,      ///< guess what this is!
-	DROID_COMMAND,          ///< Command droid
-	DROID_REPAIR,           ///< Repair droid
-	DROID_DEFAULT,          ///< Default droid
-	DROID_CYBORG_CONSTRUCT, ///< cyborg constructor droid - new for update 28/5/99
-	DROID_CYBORG_REPAIR,    ///< cyborg repair droid - new for update 28/5/99
-	DROID_CYBORG_SUPER,     ///< cyborg repair droid - new for update 7/6/99
-	DROID_SUPERTRANSPORTER,	///< SuperTransport (MP)
-	DROID_ANY,              ///< Any droid. Used as a parameter for various stuff.
+	DROID_WEAPON = 0,           ///< Weapon droid
+	DROID_SENSOR = 1,           ///< Sensor droid
+	DROID_ECM = 2,              ///< ECM droid
+	DROID_CONSTRUCT = 3,        ///< Constructor droid
+	DROID_PERSON = 4,           ///< person
+	DROID_CYBORG = 5,           ///< cyborg-type thang
+	DROID_TRANSPORTER = 6,      ///< guess what this is!
+	DROID_COMMAND = 7,          ///< Command droid
+	DROID_REPAIR = 8,           ///< Repair droid
+	DROID_DEFAULT = 9,          ///< Default droid
+	DROID_CYBORG_CONSTRUCT = 10, ///< cyborg constructor droid - new for update 28/5/99
+	DROID_CYBORG_REPAIR = 11,    ///< cyborg repair droid - new for update 28/5/99
+	DROID_CYBORG_SUPER = 12,     ///< cyborg repair droid - new for update 7/6/99
+	DROID_SUPERTRANSPORTER = 13,	///< SuperTransport (MP)
+	DROID_ANY = 14,              ///< Any droid. Used as a parameter for various stuff.
 };
 
 static inline bool stringToEnumSortFunction(std::pair<char const *, unsigned> const &a, std::pair<char const *, unsigned> const &b)

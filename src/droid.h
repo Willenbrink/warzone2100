@@ -460,5 +460,8 @@ static inline DROID const *castDroid(SIMPLE_OBJECT const *psObject)
 	return isDroid(psObject) ? (DROID const *)psObject : (DROID const *)nullptr;
 }
 
+int getDroidType (DROID *ptr) asm ("getDroidType");
+int getDroidId(DROID *ptr) asm ("getDroidId");
+DROID *getDroidGroup (DROID *ptr) asm ("getDroidGroup");
 
 #endif // __INCLUDED_SRC_DROID_H__

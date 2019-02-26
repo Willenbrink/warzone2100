@@ -433,106 +433,21 @@ GAMECODE renderLoop()
 	return GAMECODE_CONTINUE;
 }
 
+int getBuildingType(STRUCTURE *ptr)
+{
+  return ptr->pStructureType->type;
+}
+
+int getBuildingId(STRUCTURE *ptr)
+{
+  return ptr->id;
+}
+
 void countUpdateSingle(bool synch, int i)
 {
-  //TODO This is preventing an efficient implementation of this function. Rewriting the classes as simple structs is timeconsuming and therefore delayed
-  fprintf(stderr, "Is trivially copiable: %d %d %d\n", std::is_trivially_copyable<SIMPLE_OBJECT>::value, std::is_trivially_copyable<BASE_OBJECT>::value, std::is_trivially_copyable<DROID>::value);
-
   //set the flag for each player
   setSatUplinkExists(false, i);
   setLasSatExists(false, i);
-
-  numCommandDroids[i] = 0;
-  numConstructorDroids[i] = 0;
-  numDroids[i] = 0;
-  numMissionDroids[i] = 0;
-  numTransporterDroids[i] = 0;
-
-  for (DROID *psCurr = apsDroidLists[i]; psCurr != nullptr; psCurr = psCurr->psNext)
-  {
-    numDroids[i]++;
-
-    switch (psCurr->droidType)
-    {
-    case DROID_COMMAND:
-      numCommandDroids[i] += 1;
-      break;
-
-    case DROID_CONSTRUCT:
-    case DROID_CYBORG_CONSTRUCT:
-      numConstructorDroids[i] += 1;
-      break;
-
-    case DROID_TRANSPORTER:
-    case DROID_SUPERTRANSPORTER:
-      if ((psCurr->psGroup != nullptr))
-      {
-        DROID *psDroid = nullptr;
-
-        numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
-
-        // and count the units inside it...
-        for (psDroid = psCurr->psGroup->psList; psDroid != nullptr && psDroid != psCurr; psDroid = psDroid->psGrpNext)
-        {
-          if (psDroid->droidType == DROID_CYBORG_CONSTRUCT || psDroid->droidType == DROID_CONSTRUCT)
-            numConstructorDroids[i] += 1;
-
-          if (psDroid->droidType == DROID_COMMAND)
-            numCommandDroids[i] += 1;
-        }
-      }
-
-      break;
-
-    default:
-      break;
-    }
-  }
-
-  for (DROID *psCurr = mission.apsDroidLists[i]; psCurr != nullptr; psCurr = psCurr->psNext)
-  {
-    numMissionDroids[i]++;
-
-    switch (psCurr->droidType)
-    {
-    case DROID_COMMAND:
-      numCommandDroids[i] += 1;
-      break;
-
-    case DROID_CONSTRUCT:
-    case DROID_CYBORG_CONSTRUCT:
-      numConstructorDroids[i] += 1;
-      break;
-
-    case DROID_TRANSPORTER:
-    case DROID_SUPERTRANSPORTER:
-      if ((psCurr->psGroup != nullptr))
-        numTransporterDroids[i] += psCurr->psGroup->refCount - 1;
-      break;
-
-    default:
-      break;
-    }
-  }
-
-  for (DROID *psCurr = apsLimboDroids[i]; psCurr != nullptr; psCurr = psCurr->psNext)
-  {
-    // count the type of units
-    switch (psCurr->droidType)
-    {
-    case DROID_COMMAND:
-      numCommandDroids[i] += 1;
-      break;
-
-    case DROID_CONSTRUCT:
-    case DROID_CYBORG_CONSTRUCT:
-      numConstructorDroids[i] += 1;
-      break;
-
-    default:
-      break;
-    }
-  }
 
   // FIXME: These for-loops are code duplicationo
 
@@ -555,9 +470,6 @@ void countUpdateSingle(bool synch, int i)
     if (asWeaponStats[psCBuilding->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT)
       setLasSatExists(true, i);
   }
-
-  if (synch)
-			syncDebug("counts[%d] = {droid: %d, command: %d, constructor: %d, mission: %d, transporter: %d}", i, numDroids[i], numCommandDroids[i], numConstructorDroids[i], numMissionDroids[i], numTransporterDroids[i]);
 }
 
 void gameStateUpdate()

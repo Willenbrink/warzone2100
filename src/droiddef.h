@@ -88,6 +88,7 @@ public:
 	/// UTF-8 name of the droid. This is generated from the droid template
 	///  WARNING: This *can* be changed by the game player after creation & can be translated, do NOT rely on this being the same for everyone!
 	char            aName[MAX_STR_LENGTH];
+
 	std::string name;
 	DROID_TYPE      droidType;                      ///< The type of droid
 	/** Holds the specifics for the component parts - allows damage
@@ -145,5 +146,6 @@ public:
 	int        iAudioID;
 private:
 };
+
 
 #endif // __INCLUDED_DROIDDEF_H__

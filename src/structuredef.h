@@ -38,30 +38,30 @@
 /* Defines for indexing an appropriate IMD object given a buildings purpose. */
 enum STRUCTURE_TYPE
 {
-	REF_HQ,
-	REF_FACTORY,
-	REF_FACTORY_MODULE,//draw as factory 2
-	REF_POWER_GEN,
-	REF_POWER_MODULE,
-	REF_RESOURCE_EXTRACTOR,
-	REF_DEFENSE,
-	REF_WALL,
-	REF_WALLCORNER,				//corner wall - no gun
-	REF_GENERIC,
-	REF_RESEARCH,
-	REF_RESEARCH_MODULE,
-	REF_REPAIR_FACILITY,
-	REF_COMMAND_CONTROL,		//control centre for command droids
-	REF_BRIDGE,			//NOT USED, but removing it would change savegames
-	REF_DEMOLISH,			//the demolish structure type - should only be one stat with this type
-	REF_CYBORG_FACTORY,
-	REF_VTOL_FACTORY,
-	REF_LAB,
-	REF_REARM_PAD,
-	REF_MISSILE_SILO,
-	REF_SAT_UPLINK,         //added for updates - AB 8/6/99
-	REF_GATE,
-	NUM_DIFF_BUILDINGS,		//need to keep a count of how many types for IMD loading
+	REF_HQ = 0,
+	REF_FACTORY = 1,
+	REF_FACTORY_MODULE = 2,//draw as factory 2
+	REF_POWER_GEN = 3,
+	REF_POWER_MODULE = 4,
+	REF_RESOURCE_EXTRACTOR = 5,
+	REF_DEFENSE = 6,
+	REF_WALL = 7,
+	REF_WALLCORNER = 8,				//corner wall - no gun
+	REF_GENERIC = 9,
+	REF_RESEARCH = 10,
+	REF_RESEARCH_MODULE = 11,
+	REF_REPAIR_FACILITY = 12,
+	REF_COMMAND_CONTROL = 13,		//control centre for command droids
+	REF_BRIDGE = 14,			//NOT USED, but removing it would change savegames
+	REF_DEMOLISH = 15,			//the demolish structure type - should only be one stat with this type
+	REF_CYBORG_FACTORY = 16,
+	REF_VTOL_FACTORY = 17,
+	REF_LAB = 18,
+	REF_REARM_PAD = 19,
+	REF_MISSILE_SILO = 20,
+	REF_SAT_UPLINK = 21,         //added for updates - AB 8/6/99
+	REF_GATE = 22,
+	NUM_DIFF_BUILDINGS = 23,		//need to keep a count of how many types for IMD loading
 };
 
 struct FLAG_POSITION : public OBJECT_POSITION
