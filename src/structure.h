@@ -70,8 +70,6 @@ extern UDWORD				numStructureStats;
 //used to hold the modifiers cross refd by weapon effect and structureStrength
 extern STRUCTSTRENGTH_MODIFIER		asStructStrengthModifier[WE_NUMEFFECTS][NUM_STRUCT_STRENGTH];
 
-void handleAbandonedStructures();
-
 int getMaxDroids(int player);
 int getMaxCommanders(int player);
 int getMaxConstructors(int player);
@@ -512,5 +510,7 @@ static inline int getBuildingRearmPoints(STRUCTURE *psStruct)
 {
 	return psStruct->pStructureType->upgrade[psStruct->player].rearm;
 }
+
+STRUCTURE *getBuildingList (int player, int whichList) asm ("getBuildingList");
 
 #endif // __INCLUDED_SRC_STRUCTURE_H__

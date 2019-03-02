@@ -67,7 +67,9 @@ void loopFastExit();
 
 DROID *getDroidList (int player, int whichList) asm ("getDroidList");
 bool gameUpdatePaused() asm ("gameUpdatePaused");
-void gameStateUpdate() asm ("gameStateUpdate");
+void gameStatePreUpdate() asm ("gameStatePreUpdate");
+void gameStateUpdate(int i) asm ("gameStateUpdate");
+void gameStatePostUpdate() asm ("gameStatePostUpdate");
 GAMECODE renderLoop() asm ("renderLoop");
 bool audioPaused();
 bool scriptPaused();
@@ -82,7 +84,6 @@ void setConsolePause(bool state);
 //set all the pause states to the state value
 void setAllPauseStates(bool state);
 
-void countUpdateSingle (bool synch, int i) asm ("countUpdateSingle");
 // Number of units in the current list.
 UDWORD getNumDroids(UDWORD player) asm ("getNumDroids");
 // Number of units on transporters.
@@ -102,4 +103,6 @@ void incNumCommandDroids(UDWORD player) asm ("incNumCommandDroids");
 void incNumConstructorDroids(UDWORD player) asm ("incNumConstructorDroids");
 int getBuildingId(STRUCTURE *ptr) asm ("getBuildingId");
 int getBuildingType(STRUCTURE *ptr) asm ("getBuildingType");
+int getBuildingStatus(STRUCTURE *ptr) asm ("getBuildingStatus");
+bool isLasSat(STRUCTURE *psCurr) asm ("isLasSat");
 #endif // __INCLUDED_SRC_LOOP_H__

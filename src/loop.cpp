@@ -443,47 +443,14 @@ int getBuildingId(STRUCTURE *ptr)
   return ptr->id;
 }
 
-void countUpdateSingle(bool synch, int i)
+void gameStatePreUpdate()
 {
-  //set the flag for each player
-  setSatUplinkExists(false, i);
-  setLasSatExists(false, i);
-
-  // FIXME: These for-loops are code duplicationo
-
-  for (STRUCTURE *psCBuilding = apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psCBuilding->psNext)
-  {
-    if (psCBuilding->pStructureType->type == REF_SAT_UPLINK && psCBuilding->status == SS_BUILT)
-      setSatUplinkExists(true, i);
-
-    //don't wait for the Las Sat to be built - can't build another if one is partially built
-    if (asWeaponStats[psCBuilding->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT)
-      setLasSatExists(true, i);
-  }
-
-  for (STRUCTURE *psCBuilding = mission.apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psCBuilding->psNext)
-  {
-    if (psCBuilding->pStructureType->type == REF_SAT_UPLINK && psCBuilding->status == SS_BUILT)
-      setSatUplinkExists(true, i);
-
-    //don't wait for the Las Sat to be built - can't build another if one is partially built
-    if (asWeaponStats[psCBuilding->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT)
-      setLasSatExists(true, i);
-  }
-}
-
-void gameStateUpdate()
-{
-	syncDebug("map = \"%s\", pseudorandom 32-bit integer = 0x%08X, allocated = %d %d %d %d %d %d %d %d %d %d, position = %d %d %d %d %d %d %d %d %d %d", game.map, gameRandU32(),
-	          NetPlay.players[0].allocated, NetPlay.players[1].allocated, NetPlay.players[2].allocated, NetPlay.players[3].allocated, NetPlay.players[4].allocated, NetPlay.players[5].allocated, NetPlay.players[6].allocated, NetPlay.players[7].allocated, NetPlay.players[8].allocated, NetPlay.players[9].allocated,
-	          NetPlay.players[0].position, NetPlay.players[1].position, NetPlay.players[2].position, NetPlay.players[3].position, NetPlay.players[4].position, NetPlay.players[5].position, NetPlay.players[6].position, NetPlay.players[7].position, NetPlay.players[8].position, NetPlay.players[9].position
-
-	         );
+  syncDebug("map = \"%s\", pseudorandom 32-bit integer = 0x%08X, allocated = %d %d %d %d %d %d %d %d %d %d, position = %d %d %d %d %d %d %d %d %d %d", game.map, gameRandU32(), NetPlay.players[0].allocated, NetPlay.players[1].allocated, NetPlay.players[2].allocated, NetPlay.players[3].allocated, NetPlay.players[4].allocated, NetPlay.players[5].allocated, NetPlay.players[6].allocated, NetPlay.players[7].allocated, NetPlay.players[8].allocated, NetPlay.players[9].allocated, NetPlay.players[0].position, NetPlay.players[1].position, NetPlay.players[2].position, NetPlay.players[3].position, NetPlay.players[4].position, NetPlay.players[5].position, NetPlay.players[6].position, NetPlay.players[7].position, NetPlay.players[8].position, NetPlay.players[9].position);
 
 	for (unsigned n = 0; n < MAX_PLAYERS; ++n)
-	{
-		syncDebug("Player %d = \"%s\"", n, NetPlay.players[n].name);
-	}
+    {
+      syncDebug("Player %d = \"%s\"", n, NetPlay.players[n].name);
+    }
 
 	// Add version string to desynch logs. Different version strings will not trigger a desynch dump per se, due to the syncDebug{Get, Set}Crc guard.
 	auto crc = syncDebugGetCrc();
@@ -494,30 +461,23 @@ void gameStateUpdate()
 	sendQueuedDroidInfo();
 
 	sendPlayerGameTime();
+
 	NETflush();  // Make sure the game time tick message is really sent over the network.
 
-	if (!paused && !scriptPaused())
-	{
-		/* Update the event system */
-		if (!bInTutorial)
-		{
-			eventProcessTriggers(gameTime / SCR_TICKRATE);
-		}
-		else
-		{
-			eventProcessTriggers(realTime / SCR_TICKRATE);
-		}
-
-		updateScripts();
-	}
-
-	// Update abandoned structures
-	handleAbandonedStructures();
+	if (!paused && !scriptPaused()) {
+    /* Update the event system */
+    if (!bInTutorial) {
+      eventProcessTriggers(gameTime / SCR_TICKRATE);
+    }
+    else {
+      eventProcessTriggers(realTime / SCR_TICKRATE);
+    }
+    updateScripts();
+  }
 
 	// Update the visibility change stuff
 	visUpdateLevel();
-
-	// Put all droids/structures/features into the grid.
+  // Put all droids/structures/features into the grid.
 	gridReset();
 
 	// Check which objects are visible.
@@ -533,9 +493,10 @@ void gameStateUpdate()
 	cmdDroidUpdate();
 
 	fireWaitingCallbacks(); //Now is the good time to fire waiting callbacks (since interpreter is off now)
+}
 
-	for (unsigned i = 0; i < MAX_PLAYERS; i++)
-	{
+void gameStateUpdate(int i)
+{
 		//update the current power available for a player
 		updatePlayerPower(i);
 
@@ -572,8 +533,10 @@ void gameStateUpdate()
 			psNBuilding = psCBuilding->psNext;
 			structureUpdate(psCBuilding, true); // update for mission
 		}
-	}
+}
 
+void gameStatePostUpdate()
+{
 	missionTimerUpdate();
 
 	proj_UpdateAll();
@@ -581,10 +544,10 @@ void gameStateUpdate()
 	FEATURE *psNFeat;
 
 	for (FEATURE *psCFeat = apsFeatureLists[0]; psCFeat; psCFeat = psNFeat)
-	{
-		psNFeat = psCFeat->psNext;
-		featureUpdate(psCFeat);
-	}
+    {
+      psNFeat = psCFeat->psNext;
+      featureUpdate(psCFeat);
+    }
 
 	// Clean up dead droid pointers in UI.
 	hciUpdate();
@@ -598,9 +561,10 @@ void gameStateUpdate()
 	static int i = 0;
 
 	if (i++ % 10 == 0) // trigger every second
-	{
-		jsDebugUpdate();
-	}
+    {
+      jsDebugUpdate();
+    }
+
 }
 
 /* The video playback loop */
@@ -827,4 +791,9 @@ static void fireWaitingCallbacks()
 			ASSERT(false, "fireWaitingCallbacks: msgStackFireTop() failed (stack count: %d)", msgStackGetCount());
 		}
 	}
+}
+
+bool isLasSat(STRUCTURE *psCurr)
+{
+  return asWeaponStats[psCurr->asWeaps[0].nStat].weaponSubClass == WSC_LAS_SAT;
 }

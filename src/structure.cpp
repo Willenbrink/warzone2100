@@ -718,12 +718,6 @@ bool structureStatsShutDown()
 	return true;
 }
 
-// TODO: The abandoned code needs to be factored out, see: saveMissionData
-void handleAbandonedStructures()
-{
-	// TODO: do something here
-}
-
 /* Deals damage to a Structure.
  * \param psStructure structure to deal damage to
  * \param damage amount of damage to deal
@@ -7354,4 +7348,29 @@ void checkStructure(const STRUCTURE *psStructure, const char *const location_des
 			checkObject(psStructure->psTarget[i], location_description, function, recurse - 1);
 		}
 	}
+}
+
+int getBuildingStatus (STRUCTURE *psCurr)
+{
+  return psCurr->status;
+}
+
+STRUCTURE *getBuildingList (int player, int whichList)
+{
+  static STRUCTURE *psCurr = nullptr;
+  switch (whichList)
+    {
+    case 0:
+      if(psCurr != nullptr)
+        psCurr = psCurr->psNext;
+      return psCurr;
+    case 1:
+      psCurr = apsStructLists[player];
+      return psCurr;
+    case 2:
+      psCurr = mission.apsStructLists[player];
+      return psCurr;
+    default:
+      exit(-1);
+    }
 }
