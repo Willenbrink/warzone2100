@@ -102,7 +102,7 @@ bool idfDroid(DROID *psDroid);
 int32_t droidDamage(DROID *psDroid, unsigned damage, WEAPON_CLASS weaponClass, WEAPON_SUBCLASS weaponSubClass, unsigned impactTime, bool isDamagePerSecond, int minDamage);
 
 /* The main update routine for all droids */
-void droidUpdate(DROID *psDroid);
+void droidUpdate(DROID *psDroid) asm ("droidUpdate");
 
 /* Set up a droid to build a structure - returns true if successful */
 enum DroidStartBuild {DroidStartBuildFailed, DroidStartBuildSuccess, DroidStartBuildPending};

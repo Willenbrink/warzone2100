@@ -46,12 +46,7 @@
 //flag used to check for power calculations to be done or not
 bool	powerCalculated;
 
-/* Updates the current power based on the extracted power and a Power Generator*/
-static void updateCurrentPower(STRUCTURE *psStruct, UDWORD player, int ticks);
 static int64_t updateExtractedPower(STRUCTURE *psBuilding);
-
-//returns the relevant list based on OffWorld or OnWorld
-static STRUCTURE *powerStructList(int player);
 
 struct PowerRequest
 {
@@ -200,13 +195,6 @@ int getQueuedPower(int player)
 	return requiredPower / FP_ONE;
 }
 
-static void syncDebugEconomy(unsigned player, char ch)
-{
-	ASSERT_OR_RETURN(, player < MAX_PLAYERS, "Bad player (%d)", player);
-
-	syncDebug("%c economy%u = %" PRId64"", ch, player, asPower[player].currentPower);
-}
-
 /*check the current power - if enough return true, else return false */
 bool checkPower(int player, uint32_t quantity)
 {
@@ -269,52 +257,12 @@ static int64_t updateExtractedPower(STRUCTURE *psBuilding)
 	return extractedPoints;
 }
 
-//returns the relevant list based on OffWorld or OnWorld
-STRUCTURE *powerStructList(int player)
-{
-	ASSERT_OR_RETURN(nullptr, player < MAX_PLAYERS, "Invalid player %d", player);
-
-	if (offWorldKeepLists)
-	{
-		return (mission.apsStructLists[player]);
-	}
-	else
-	{
-		return (apsStructLists[player]);
-	}
-}
-
-/* Update current power based on what Power Generators exist */
-void updatePlayerPower(int player, int ticks)
-{
-	STRUCTURE		*psStruct;//, *psList;
-	int64_t powerBefore = asPower[player].currentPower;
-
-	ASSERT_OR_RETURN(, player < MAX_PLAYERS, "Invalid player %d", player);
-
-	syncDebugEconomy(player, '<');
-
-	for (psStruct = powerStructList(player); psStruct != nullptr; psStruct = psStruct->psNext)
-	{
-		if (psStruct->pStructureType->type == REF_POWER_GEN && psStruct->status == SS_BUILT)
-		{
-			updateCurrentPower(psStruct, player, ticks);
-		}
-	}
-
-	syncDebug("updatePlayerPower%u %" PRId64"->%" PRId64"", player, powerBefore, asPower[player].currentPower);
-
-	syncDebugEconomy(player, '<');
-}
-
 /* Updates the current power based on the extracted power and a Power Generator*/
-static void updateCurrentPower(STRUCTURE *psStruct, UDWORD player, int ticks)
+void updateCurrentPower(STRUCTURE *psStruct, UDWORD player, int ticks)
 {
 	POWER_GEN *psPowerGen = (POWER_GEN *)psStruct->pFunctionality;
 	int i;
 	int64_t extractedPower;
-
-	ASSERT_OR_RETURN(, player < MAX_PLAYERS, "Invalid player %u", player);
 
 	//each power gen can cope with its associated resource extractors
 	extractedPower = 0;

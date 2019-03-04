@@ -3519,7 +3519,8 @@ static QScriptValue js_extraPowerTime(QScriptContext *context, QScriptEngine *en
 		player = engine->globalObject().property("me").toInt32();
 	}
 
-	updatePlayerPower(player, ticks);
+	//FIXME updatePlayerPower(player, ticks);
+  ticks = ticks;
 	return QScriptValue();
 }
 

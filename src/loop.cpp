@@ -497,11 +497,7 @@ void gameStatePreUpdate()
 
 void gameStateUpdate(int i)
 {
-		//update the current power available for a player
-		updatePlayerPower(i);
-
 		DROID *psNext;
-
 		for (DROID *psCurr = apsDroidLists[i]; psCurr != nullptr; psCurr = psNext)
 		{
 			// Copy the next pointer - not 100% sure if the droid could get destroyed but this covers us anyway

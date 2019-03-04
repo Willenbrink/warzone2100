@@ -46,59 +46,83 @@ let setState = function
 
 type player = {id : int}
 
-let rec countUpdate {id} =
-  let setSatUplink = funer "setSatUplinkExists" (bool @-> int @-> returning void) in
-  let setLasSat= funer "setLasSatExists" (bool @-> int @-> returning void) in
-  let setNumDroids = funer "setNumDroids" (int @-> int @-> returning void) id in
-  let setNumMissionDroids = funer "setNumMissionDroids" (int @-> int @-> returning void) id in
-  let setNumConstructor = funer "setNumConstructorDroids" (int @-> int @-> returning void) id in
-  let setNumCommand = funer "setNumCommandDroids" (int @-> int @-> returning void) id in
-  let setNumTransporter = funer "setNumTransporterDroids" (int @-> int @-> returning void) id in
+let applyPlayers f =
+  let getMaxPlayers = funer "getMaxPlayers" (void @-> returning int) () in
+  List.init getMaxPlayers (fun id -> {id}) |> f
 
-  let droidsMain = Droid.getList id 1 in
-  let droidsMission = Droid.getList id 2 in
-  let droidsLimbo = Droid.getList id 3 in
+let mapPlayers f = applyPlayers (List.map f)
+let iterPlayers f = applyPlayers (List.iter f)
+let foldPlayers f acc = applyPlayers (List.fold_left f acc)
 
-  let rec count f droids =
-    let mapAll (droid : Droid.t) = match droid with
-      | {typ = Transporter x; _} | {typ = Supertransporter x; _} -> f droid + count f x
-      | _ -> f droid
-    in
-    List.map mapAll droids |>
-    List.fold_left (+) 0
+let applyDroids droids f =
+  let rec worker acc (xs : Droid.t list) = match xs with
+    | [] -> acc
+    | droid::xs -> match (droid : Droid.t) with
+      | {typ = Transporter x; _} | {typ = Supertransporter x; _} -> worker (droid :: acc) (x @ xs)
+      | _ -> worker (droid :: acc) xs
+  in
+  droids
+  |> List.fold_left worker []
+  |> f
+
+let mapDroids droids f = applyDroids droids (List.map f)
+let iterDroids droids f = applyDroids droids (List.iter f)
+let foldDroids droids f acc = applyDroids droids (List.fold_left f acc)
+
+let applyBuildings f =
+  let buildings = mapPlayers (fun {id} -> Building.getList id 1 @ Building.getList id 2) in
+  buildings |> f
+
+let mapBuildings f = applyBuildings (List.map f)
+let iterBuildings f = applyBuildings (List.iter f)
+let foldBuildings f acc = applyBuildings (List.fold_left f acc)
+
+let rec countUpdate () =
+  let setSatUplink i b = funer "setSatUplinkExists" (bool @-> int @-> returning void) b i in
+  let setLasSat i b = funer "setLasSatExists" (bool @-> int @-> returning void) b i in
+  let setNumDroids = funer "setNumDroids" (int @-> int @-> returning void) in
+  let setNumMissionDroids = funer "setNumMissionDroids" (int @-> int @-> returning void) in
+  let setNumConstructor = funer "setNumConstructorDroids" (int @-> int @-> returning void) in
+  let setNumCommand = funer "setNumCommandDroids" (int @-> int @-> returning void) in
+  let setNumTransporter = funer "setNumTransporterDroids" (int @-> int @-> returning void) in
+
+  let getDroids list id = Droid.getList id list in
+  let droidsMain = getDroids 1 in
+  let droidsMission = getDroids 2 in (*TODO Probably only droids left at home?*)
+  let droidsLimbo = getDroids 3 in (*TODO figure out when this is non-empty*)
+
+  let count f droids =
+    List.map f droids
+    |> List.fold_left (+) 0
+  in
+  let all id = droidsMain id @ droidsMission id @ droidsLimbo id in
+  let setForAll counter f fDroid =
+    iterPlayers (fun {id; _} -> counter (fDroid id) |> f id)
   in
 
-  let f_total list = count (fun _ -> 1) list in
-  let f_builder list = count (function {typ=Construct; _} | {typ=CyborgConstruct; _} -> 1 | _ -> 0) list in
-  let f_command list = count (function {typ = Command; _} -> 1 | _ -> 0) list in
-  let f_transporter list =
-    (*TODO This is not the amount of transporters but the units in the transporters.
-           I do not know why this would be useful in the two spots its used...*)
-    count (function {typ = Transporter x; _} | {typ = Supertransporter x; _} -> List.length x | _ -> 0) list
-  in
+  setForAll (count @@ fun _ -> 1) setNumDroids droidsMain;
+  setForAll (count @@ fun _ -> 1) setNumMissionDroids droidsMission;
+  setForAll (count @@ function ({typ = Construct; _} : Droid.t) | {typ = CyborgConstruct; _} -> 1 | _ -> 0) setNumConstructor all;
+  setForAll (count @@ function ({typ = Command; _} : Droid.t) -> 1 | _ -> 0) setNumCommand all;
+  setForAll (count @@ function ({typ = Transporter x; _} : Droid.t) | {typ = Supertransporter x; _} -> List.length x | _ -> 0) setNumTransporter all;
+  (*TODO This is not the amount of transporters but the units in the transporters.
+           I do not know why this would be useful on its own in the two spots its used...*)
 
-  let total = f_total droidsMain in
-  let missionTotal = f_total droidsMission in
-  let builder = f_builder (droidsMain @ droidsMission @ droidsLimbo) in
-  let command = f_command (droidsMain @ droidsMission @ droidsLimbo) in
-  let transporter = f_transporter (droidsMain @ droidsMission) in
-
-  setNumDroids total;
-  setNumMissionDroids missionTotal;
-  setNumConstructor builder;
-  setNumCommand command;
-  setNumTransporter transporter;
-
-  let buildings = Building.getList id 1 in
-  let buildingsMission = Building.getList id 2 in
-  let satUplink = List.fold_left (fun acc ({typ; status; _} : Building.t) ->
+  let uplinkExists =
+    List.fold_left (fun acc ({typ; status; _} : Building.t) ->
       match typ,status with
       | SatUplink, Built -> true
-      | _,_ -> acc) false (buildings @ buildingsMission)
+      | _,_ -> acc) false
+    |> mapBuildings
   in
-  setSatUplink satUplink id;
-  let lasSat = List.map (fun ({pointer; _} : Building.t) -> funer "isLasSat" (ptr void @-> returning bool) pointer) (buildings @ buildingsMission) |> List.fold_left (||) false in
-  setLasSat lasSat id;
+  let lasSatExists =
+    List.fold_left (fun acc ({pointer; _} : Building.t) -> (*No check for build-progress because only one lasSat can exist at a time*)
+      funer "isLasSat" (ptr void @-> returning bool) pointer || acc) false
+  |> mapBuildings
+  in
+
+  iterPlayers (fun {id; _} -> setSatUplink id (List.nth uplinkExists id));
+  iterPlayers (fun {id; _} -> setLasSat id (List.nth lasSatExists id));
   ()
 
 let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
@@ -112,8 +136,16 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
   let getRealTime = funer "getRealTime" (void @-> returning int) in
   let setDeltaGameTime = funer "setDeltaGameTime" (int @-> returning void) in
   let gameStatePreUpdate = funer "gameStatePreUpdate" vv in
-  let gameStateUpdate = funer "gameStateUpdate" (int @-> returning void) in
+  let gameStateUpdate {id} = funer "gameStateUpdate" (int @-> returning void) id in
   let gameStatePostUpdate = funer "gameStatePostUpdate" vv in
+
+  let updatePower {id} = (*FIXME TODO this does check all buildings, also those offworld*)
+    let updateCurrentPower = funer "updateCurrentPower" (ptr void @-> int @-> int @-> returning void) in
+    let buildings = Building.getList id 1 in
+    List.iter (fun ({typ; status; pointer; _} : Building.t) -> match typ,status with
+        | Generator,Built -> updateCurrentPower pointer id 1
+        | _,_ -> ()) buildings
+  in
 
   let rec innerLoop (renderBudget,lastUpdateRender) =
     recvMessage ();
@@ -122,10 +154,10 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
     | 0 -> renderBudget
     | _ ->
       let before = wzGetTicks () in
-      let players = List.init (getMaxPlayers ()) (fun id -> {id}) in
-      let () = List.iter countUpdate players in
       let () = gameStatePreUpdate () in
-      let () = List.map (fun {id} -> id) players |> List.iter gameStateUpdate in
+      countUpdate ();
+      iterPlayers updatePower;
+      iterPlayers gameStateUpdate;
       let () = gameStatePostUpdate () in
       let after = wzGetTicks () in
       innerLoop ((renderBudget - (after - before) * 2),false)
