@@ -2582,7 +2582,7 @@ int getMaxConstructors(int player)
 
 bool IsPlayerDroidLimitReached(int player)
 {
-	unsigned int numDroids = getNumDroids(player) + getNumMissionDroids(player) + getNumTransporterDroids(player);
+	unsigned int numDroids = getNumDroids(player) + getNumMissionDroids(player);
 	return numDroids >= getMaxDroids(player);
 }
 

@@ -35,8 +35,8 @@ extern bool gameInitialised;
 extern bool customDebugfile;
 
 int getMaxPlayers() asm ("getMaxPlayers");
-GS_GAMEMODE GetGameMode() asm ("getGameMode");
-void SetGameMode(GS_GAMEMODE status) asm ("setGameMode");
+GS_GAMEMODE getGameMode() asm ("getGameMode");
+void setGameMode(GS_GAMEMODE status) asm ("setGameMode");
 void mainLoop() asm ("WZLoop");
 void runGameLoop() asm ("runGameLoop");
 void startTitleLoop() asm ("startTitleLoop");

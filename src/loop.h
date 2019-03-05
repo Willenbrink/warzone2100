@@ -68,7 +68,6 @@ void loopFastExit();
 DROID *getDroidList (int player, int whichList) asm ("getDroidList");
 bool gameUpdatePaused() asm ("gameUpdatePaused");
 void gameStatePreUpdate() asm ("gameStatePreUpdate");
-void gameStateUpdate(int i) asm ("gameStateUpdate");
 void gameStatePostUpdate() asm ("gameStatePostUpdate");
 GAMECODE renderLoop() asm ("renderLoop");
 bool audioPaused();
@@ -86,8 +85,6 @@ void setAllPauseStates(bool state);
 
 // Number of units in the current list.
 UDWORD getNumDroids(UDWORD player) asm ("getNumDroids");
-// Number of units on transporters.
-UDWORD getNumTransporterDroids(UDWORD player) asm ("getNumTransporterDroids");
 // Number of units in the mission list.
 UDWORD getNumMissionDroids(UDWORD player) asm ("getNumMissionDroids");
 UDWORD getNumCommandDroids(UDWORD player) asm ("getNumCommandDroids");

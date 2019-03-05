@@ -960,7 +960,7 @@ static void displayMultiPlayer(WIDGET *psWidget, UDWORD xOffset, UDWORD yOffset)
 	//c10:units
 	if (isAlly || getDebugMappingStatus())
 	{
-		sprintf(str, "%d", getNumDroids(player) + getNumTransporterDroids(player));
+		sprintf(str, "%d", getNumDroids(player));
 		data.wzUnitsText.setText(str, font_regular);
 		data.wzUnitsText.render(x + MULTIMENU_C10, y + MULTIMENU_FONT_OSET, playerTextColor);
 	}

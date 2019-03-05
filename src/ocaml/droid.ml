@@ -60,13 +60,6 @@ let getList list id =
   f list
 
 let getAssoc () : entry list =
-  Player.map (fun id -> (1,id), getList 1 id)
-  :: Player.map (fun id -> (2,id), getList 2 id)
-  :: Player.map (fun id -> (3,id), getList 3 id)
-  :: []
-|> List.flatten
-
-let apply (f : entry list -> 'a) =
   let worker (acc : t list) (droid : t) =
     let nextEntry = match droid with
       | {typ = Transporter x; _} | {typ = Supertransporter x; _} -> droid::x
@@ -74,9 +67,26 @@ let apply (f : entry list -> 'a) =
     in
     nextEntry @ acc
   in
+  Player.map (fun id -> (1,id), getList 1 id)
+  :: Player.map (fun id -> (2,id), getList 2 id)
+  :: Player.map (fun id -> (3,id), getList 3 id)
+  :: []
+  |> List.flatten
+  |> List.map (fun (key,droids) -> key,List.fold_left worker [] droids)
+
+let applyAssoc (f : entry list -> 'a) =
   getAssoc ()
-|> List.map (fun (key,droids) -> key,List.fold_left worker [] droids)
-|> f
+  |> f
+
+let mapAssoc f = applyAssoc (List.map f)
+let iterAssoc f = applyAssoc (List.iter f)
+let foldAssoc f acc = applyAssoc (List.fold_left f acc)
+
+let apply f =
+  getAssoc ()
+  |> List.map (fun (_,droids) -> droids)
+  |> List.flatten
+  |> f
 
 let map f = apply (List.map f)
 let iter f = apply (List.iter f)

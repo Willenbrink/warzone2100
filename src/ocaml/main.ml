@@ -51,19 +51,22 @@ let countUpdate () =
   let setNumMissionDroids = funer "setNumMissionDroids" (int @-> int @-> returning void) in
   let setNumConstructor = funer "setNumConstructorDroids" (int @-> int @-> returning void) in
   let setNumCommand = funer "setNumCommandDroids" (int @-> int @-> returning void) in
-  let setNumTransporter = funer "setNumTransporterDroids" (int @-> int @-> returning void) in
 
-  let count matches ({typ; _} : Droid.t) = if List.exists ( (=) typ ) matches then 1 else 0 in
-  let sum list = List.fold_left (+) 0 list in
+  let count matches droids =
+    let count matches ({typ; _} : Droid.t) = if List.exists ( (=) typ ) matches then 1 else 0 in
+    let sum list = List.fold_left (+) 0 list in
+    List.map (count matches) droids
+    |> sum
+  in
 
-  Droid.iter (function ((1,id),droids) -> List.length droids |> setNumDroids id | _ -> ());
-  Droid.iter (function ((2,id),droids) -> List.length droids |> setNumMissionDroids id | _ -> ());
-  Droid.iter (function ((_,id),droids) -> List.map (count [Construct; CyborgConstruct]) droids |> sum |> setNumConstructor id | _ -> ());
-  Droid.iter (function ((_,id),droids) -> List.map (count [Command]) droids |> sum |> setNumCommand id | _ -> ());
-  (*FIXME Transporter [] = Transporter x? *)
-  (*TODO This is not the amount of transporters but the units in the transporters.
-           I do not know why this would be useful on its own in the two spots its used...*)
-  Droid.iter (function ((_,id),droids) -> List.map (count [Transporter []; Supertransporter []]) droids |> sum |> setNumTransporter id | _ -> ());
+  Droid.iterAssoc (function ((1,id),droids) -> List.length droids |> setNumDroids id | _ -> ());
+  Droid.iterAssoc (function ((2,id),droids) -> List.length droids |> setNumMissionDroids id | _ -> ());
+  Player.iter (fun id ->
+      count [Construct; CyborgConstruct] (Droid.getList 1 id @ Droid.getList 2 id @ Droid.getList 3 id)
+      |> setNumConstructor id);
+  Player.iter (fun id ->
+      count [Command] (Droid.getList 1 id @ Droid.getList 2 id @ Droid.getList 3 id)
+      |> setNumCommand id);
 
   let uplinkExists blist =
     List.fold_left (fun acc ({typ; status; _} : Building.t) ->
@@ -76,13 +79,11 @@ let countUpdate () =
       funer "isLasSat" (ptr void @-> returning bool) pointer || acc) false blist
   in
 
-  Building.iter (fun ((_,id),blist) -> uplinkExists blist |> setSatUplink id);
-  Building.iter (fun ((_,id),blist) -> lasSatExists blist |> setLasSat id);
-
+  Building.iterAssoc (fun ((_,id),blist) -> uplinkExists blist |> setSatUplink id);
+  Building.iterAssoc (fun ((_,id),blist) -> lasSatExists blist |> setLasSat id);
   ()
 
 let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
-  let getMaxPlayers = funer "getMaxPlayers" (void @-> returning int) in
   let recvMessage = funer "recvMessage" vv in
   let gameTimeUpdate = funer "gameTimeUpdate" (bool @-> returning void) in
   let renderLoop = funer "renderLoop" (void @-> returning int) in
@@ -92,7 +93,11 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
   let getRealTime = funer "getRealTime" (void @-> returning int) in
   let setDeltaGameTime = funer "setDeltaGameTime" (int @-> returning void) in
   let gameStatePreUpdate = funer "gameStatePreUpdate" vv in
-  let gameStateUpdate id = funer "gameStateUpdate" (int @-> returning void) id in
+  let gameStateUpdate () =
+      Droid.iterAssoc (function ((1,_),droids) -> List.iter (fun ({pointer; _} : Droid.t ) -> funer "droidUpdate" (ptr void @-> returning void) pointer) droids | _ -> ());
+      Droid.iterAssoc (function ((2,_),droids) -> List.iter (fun ({pointer; _} : Droid.t ) -> funer "missionDroidUpdate" (ptr void @-> returning void) pointer) droids | _ -> ());
+      Building.iterAssoc (function ((l,_),buildings) -> List.iter (fun ({pointer; _} : Building.t ) -> funer "structureUpdate" (ptr void @-> bool @-> returning void) pointer (l = 2)) buildings);
+  in
   let gameStatePostUpdate = funer "gameStatePostUpdate" vv in
 
   let updatePower id = (*FIXME TODO this does check all buildings, also those offworld*)
@@ -113,7 +118,7 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
       let () = gameStatePreUpdate () in
       countUpdate ();
       Player.iter updatePower;
-      Player.iter gameStateUpdate;
+      gameStateUpdate ();
       let () = gameStatePostUpdate () in
       let after = wzGetTicks () in
       innerLoop ((renderBudget - (after - before) * 2),false)

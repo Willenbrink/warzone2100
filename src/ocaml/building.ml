@@ -88,10 +88,26 @@ let getList id list =
   in
   f list
 
-let apply f =
+let _privateGetList () =
   let get list id = getList id list in
   let buildings = Player.map (fun id -> (1,id),get 1 id) :: Player.map (fun id -> (2,id),get 2 id) :: [] in
-  List.flatten buildings |> f
+  buildings
+|> List.flatten
+
+let applyAssoc f =
+  let buildings = _privateGetList () in
+  buildings |> f
+
+let mapAssoc f = applyAssoc (List.map f)
+let iterAssoc f = applyAssoc (List.iter f)
+let foldAssoc f acc = applyAssoc (List.fold_left f acc)
+
+let apply f =
+  let buildings = _privateGetList () in
+  buildings
+|> List.map (fun (_,buildings) -> buildings)
+|> List.flatten
+|> f
 
 let map f = apply (List.map f)
 let iter f = apply (List.iter f)

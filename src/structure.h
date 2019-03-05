@@ -105,7 +105,7 @@ STRUCTURE *buildStructureDir(STRUCTURE_STATS *pStructureType, UDWORD x, UDWORD y
 /// Create a blueprint structure, with just enough information to render it
 STRUCTURE *buildBlueprint(STRUCTURE_STATS const *psStats, Vector2i xy, uint16_t direction, unsigned moduleIndex, STRUCT_STATES state);
 /* The main update routine for all Structures */
-void structureUpdate(STRUCTURE *psBuilding, bool mission);
+void structureUpdate(STRUCTURE *psBuilding, bool mission) asm ("structureUpdate");
 
 /* Remove a structure and free it's memory */
 bool destroyStruct(STRUCTURE *psDel, unsigned impactTime);

@@ -105,12 +105,12 @@ int getMaxPlayers()
   return MAX_PLAYERS;
 }
 
-GS_GAMEMODE GetGameMode()
+GS_GAMEMODE getGameMode()
 {
 	return gameStatus;
 }
 
-void SetGameMode(GS_GAMEMODE status)
+void setGameMode(GS_GAMEMODE status)
 {
 	gameStatus = status;
 }
@@ -346,7 +346,7 @@ static void make_dir(char *dest, const char *dirname, const char *subdir)
  */
 void startTitleLoop()
 {
-	SetGameMode(GS_TITLE_SCREEN);
+	setGameMode(GS_TITLE_SCREEN);
 
 	initLoadingScreen(true);
 
@@ -380,7 +380,7 @@ void stopTitleLoop()
  */
 void startGameLoop()
 {
-	SetGameMode(GS_NORMAL);
+	setGameMode(GS_NORMAL);
 
 	// Not sure what aLevelName is, in relation to game.map. But need to use aLevelName here, to be able to start the right map for campaign, and need game.hash, to start the right non-campaign map, if there are multiple identically named maps.
 	if (!levLoadData(aLevelName, &game.hash, nullptr, GTYPE_SCENARIO_START))
@@ -474,7 +474,7 @@ void stopGameLoop()
 bool initSaveGameLoad()
 {
 	// NOTE: always setGameMode correctly before *any* loading routines!
-	SetGameMode(GS_NORMAL);
+	setGameMode(GS_NORMAL);
 	screen_RestartBackDrop();
 
 	// load up a save game
@@ -487,7 +487,7 @@ bool initSaveGameLoad()
 		// Doesn't seem to be a way to tell where we are in game loop to determine if/when we should do the two calls.
 		stopGameLoop();
 		startTitleLoop(); // Restart into titleloop
-		SetGameMode(GS_TITLE_SCREEN);
+		setGameMode(GS_TITLE_SCREEN);
 		return false;
 	}
 
@@ -682,7 +682,7 @@ void init()
 	setAllPauseStates(false);
 
 	// Do the game mode specific initialisation.
-  switch (GetGameMode())
+  switch (getGameMode())
   {
 		case GS_TITLE_SCREEN:
 			startTitleLoop();

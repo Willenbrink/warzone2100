@@ -178,7 +178,7 @@ bool addLoadSave(LOADSAVE_MODE savemode, const char *title)
 		{
 			gameTimeStop();
 
-			if (GetGameMode() == GS_NORMAL)
+			if (getGameMode() == GS_NORMAL)
 			{
 				bool radOnScreen = radarOnScreen;				// Only do this in main game.
 

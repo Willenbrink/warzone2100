@@ -68,7 +68,7 @@ bool setUpMission(UDWORD type);
 void launchMission();
 
 /** The update routine for all droids left back at home base. Only interested in Transporters at present. */
-void missionDroidUpdate(DROID *psDroid);
+void missionDroidUpdate(DROID *psDroid) asm ("missionDroidUpdate");
 
 bool missionIsOffworld();
 bool missionCanReEnforce();

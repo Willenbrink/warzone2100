@@ -124,7 +124,6 @@ struct PAUSE_STATE
 static PAUSE_STATE	pauseState;
 static	UDWORD	numDroids[MAX_PLAYERS];
 static	UDWORD	numMissionDroids[MAX_PLAYERS];
-static	UDWORD	numTransporterDroids[MAX_PLAYERS];
 static	UDWORD	numCommandDroids[MAX_PLAYERS];
 static	UDWORD	numConstructorDroids[MAX_PLAYERS];
 
@@ -495,42 +494,6 @@ void gameStatePreUpdate()
 	fireWaitingCallbacks(); //Now is the good time to fire waiting callbacks (since interpreter is off now)
 }
 
-void gameStateUpdate(int i)
-{
-		DROID *psNext;
-		for (DROID *psCurr = apsDroidLists[i]; psCurr != nullptr; psCurr = psNext)
-		{
-			// Copy the next pointer - not 100% sure if the droid could get destroyed but this covers us anyway
-			psNext = psCurr->psNext;
-			droidUpdate(psCurr);
-		}
-
-		for (DROID *psCurr = mission.apsDroidLists[i]; psCurr != nullptr; psCurr = psNext)
-		{
-			/* Copy the next pointer - not 100% sure if the droid could
-			get destroyed but this covers us anyway */
-			psNext = psCurr->psNext;
-			missionDroidUpdate(psCurr);
-		}
-
-		// FIXME: These for-loops are code duplicationo
-		STRUCTURE *psNBuilding;
-
-		for (STRUCTURE *psCBuilding = apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psNBuilding)
-		{
-			/* Copy the next pointer - not 100% sure if the structure could get destroyed but this covers us anyway */
-			psNBuilding = psCBuilding->psNext;
-			structureUpdate(psCBuilding, false);
-		}
-
-		for (STRUCTURE *psCBuilding = mission.apsStructLists[i]; psCBuilding != nullptr; psCBuilding = psNBuilding)
-		{
-			/* Copy the next pointer - not 100% sure if the structure could get destroyed but this covers us anyway. It shouldn't do since its not even on the map!*/
-			psNBuilding = psCBuilding->psNext;
-			structureUpdate(psCBuilding, true); // update for mission
-		}
-}
-
 void gameStatePostUpdate()
 {
 	missionTimerUpdate();
@@ -713,11 +676,6 @@ UDWORD	getNumDroids(UDWORD player)
 	return (numDroids[player]);
 }
 
-UDWORD	getNumTransporterDroids(UDWORD player)
-{
-	return (numTransporterDroids[player]);
-}
-
 UDWORD	getNumMissionDroids(UDWORD player)
 {
 	return (numMissionDroids[player]);
@@ -738,11 +696,6 @@ void	setNumDroids(UDWORD player , int newVal)
   numDroids[player] = newVal;
 }
 
-void	setNumTransporterDroids(UDWORD player , int newVal)
-{
-  numTransporterDroids[player] = newVal;
-}
-
 void	setNumMissionDroids(UDWORD player , int newVal)
 {
   numMissionDroids[player] = newVal;
@@ -757,7 +710,6 @@ void	setNumConstructorDroids(UDWORD player , int newVal)
 {
   numConstructorDroids[player] = newVal;
 }
-
 
 // increase the droid counts - used by update factory to keep the counts in sync
 void incNumDroids(UDWORD player)
