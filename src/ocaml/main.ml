@@ -53,9 +53,9 @@ let countUpdate () =
   let setNumCommand = funer "setNumCommandDroids" (int @-> int @-> returning void) in
 
   let count matches droids =
-    let count matches ({typ; _} : Droid.t) = if List.exists ( (=) typ ) matches then 1 else 0 in
+    let count ({typ; _} : Droid.t) = if List.exists ( (=) typ ) matches then 1 else 0 in
     let sum list = List.fold_left (+) 0 list in
-    List.map (count matches) droids
+    List.map count droids
     |> sum
   in
 
@@ -121,8 +121,8 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
       gameStateUpdate ();
       let () = gameStatePostUpdate () in
       let after = wzGetTicks () in
-      innerLoop ((renderBudget - (after - before) * 2),false)
-    ) in
+      innerLoop ((renderBudget - (after - before) * 2),false))
+  in
 
   let renderBudget = innerLoop (renderBudget, lastUpdateRender) in
   let newLastFlush = if getRealTime () - lastFlush >= 400 then (netflush(); getRealTime ()) else lastFlush in
