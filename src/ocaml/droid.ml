@@ -16,8 +16,11 @@ type typ =
   | CyborgRepair
   | CyborgSuper
   | Any
-
 and t = {id : int; typ : typ; pointer : (unit Ctypes_static.ptr)}
+
+(* list * player -> droid list*)
+type entry = (int * int) * t list
+
 
 let rec getGroup t =
   match funer "getDroidGroup" (ptr void @-> returning (ptr_opt void)) t with
@@ -47,7 +50,7 @@ and getDroid t =
   let typ = getType t in
   {id; typ; pointer = t}
 
-let getList id list =
+let getList list id =
   let getList = funer "getDroidList" (int @-> int @-> returning (ptr_opt void)) in
   let rec f l =
     match getList id l with
@@ -55,3 +58,26 @@ let getList id list =
     | None -> []
   in
   f list
+
+let getAssoc () : entry list =
+  Player.map (fun id -> (1,id), getList 1 id)
+  :: Player.map (fun id -> (2,id), getList 2 id)
+  :: Player.map (fun id -> (3,id), getList 3 id)
+  :: []
+|> List.flatten
+
+let apply (f : entry list -> 'a) =
+  let worker (acc : t list) (droid : t) =
+    let nextEntry = match droid with
+      | {typ = Transporter x; _} | {typ = Supertransporter x; _} -> droid::x
+      | _ -> [droid]
+    in
+    nextEntry @ acc
+  in
+  getAssoc ()
+|> List.map (fun (key,droids) -> key,List.fold_left worker [] droids)
+|> f
+
+let map f = apply (List.map f)
+let iter f = apply (List.iter f)
+let fold f acc = apply (List.fold_left f acc)

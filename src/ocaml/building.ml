@@ -87,3 +87,12 @@ let getList id list =
     | None -> []
   in
   f list
+
+let apply f =
+  let get list id = getList id list in
+  let buildings = Player.map (fun id -> (1,id),get 1 id) :: Player.map (fun id -> (2,id),get 2 id) :: [] in
+  List.flatten buildings |> f
+
+let map f = apply (List.map f)
+let iter f = apply (List.iter f)
+let fold f acc = apply (List.fold_left f acc)

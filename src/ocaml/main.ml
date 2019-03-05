@@ -44,40 +44,7 @@ let setState = function
   | NewLevel -> 4
   | Viewing -> 5
 
-type player = {id : int}
-
-let applyPlayers f =
-  let getMaxPlayers = funer "getMaxPlayers" (void @-> returning int) () in
-  List.init getMaxPlayers (fun id -> {id}) |> f
-
-let mapPlayers f = applyPlayers (List.map f)
-let iterPlayers f = applyPlayers (List.iter f)
-let foldPlayers f acc = applyPlayers (List.fold_left f acc)
-
-let applyDroids droids f =
-  let rec worker acc (xs : Droid.t list) = match xs with
-    | [] -> acc
-    | droid::xs -> match (droid : Droid.t) with
-      | {typ = Transporter x; _} | {typ = Supertransporter x; _} -> worker (droid :: acc) (x @ xs)
-      | _ -> worker (droid :: acc) xs
-  in
-  droids
-  |> List.fold_left worker []
-  |> f
-
-let mapDroids droids f = applyDroids droids (List.map f)
-let iterDroids droids f = applyDroids droids (List.iter f)
-let foldDroids droids f acc = applyDroids droids (List.fold_left f acc)
-
-let applyBuildings f =
-  let buildings = mapPlayers (fun {id} -> Building.getList id 1 @ Building.getList id 2) in
-  buildings |> f
-
-let mapBuildings f = applyBuildings (List.map f)
-let iterBuildings f = applyBuildings (List.iter f)
-let foldBuildings f acc = applyBuildings (List.fold_left f acc)
-
-let rec countUpdate () =
+let countUpdate () =
   let setSatUplink i b = funer "setSatUplinkExists" (bool @-> int @-> returning void) b i in
   let setLasSat i b = funer "setLasSatExists" (bool @-> int @-> returning void) b i in
   let setNumDroids = funer "setNumDroids" (int @-> int @-> returning void) in
@@ -86,43 +53,32 @@ let rec countUpdate () =
   let setNumCommand = funer "setNumCommandDroids" (int @-> int @-> returning void) in
   let setNumTransporter = funer "setNumTransporterDroids" (int @-> int @-> returning void) in
 
-  let getDroids list id = Droid.getList id list in
-  let droidsMain = getDroids 1 in
-  let droidsMission = getDroids 2 in (*TODO Probably only droids left at home?*)
-  let droidsLimbo = getDroids 3 in (*TODO figure out when this is non-empty*)
+  let count matches ({typ; _} : Droid.t) = if List.exists ( (=) typ ) matches then 1 else 0 in
+  let sum list = List.fold_left (+) 0 list in
 
-  let count f droids =
-    List.map f droids
-    |> List.fold_left (+) 0
-  in
-  let all id = droidsMain id @ droidsMission id @ droidsLimbo id in
-  let setForAll counter f fDroid =
-    iterPlayers (fun {id; _} -> counter (fDroid id) |> f id)
-  in
-
-  setForAll (count @@ fun _ -> 1) setNumDroids droidsMain;
-  setForAll (count @@ fun _ -> 1) setNumMissionDroids droidsMission;
-  setForAll (count @@ function ({typ = Construct; _} : Droid.t) | {typ = CyborgConstruct; _} -> 1 | _ -> 0) setNumConstructor all;
-  setForAll (count @@ function ({typ = Command; _} : Droid.t) -> 1 | _ -> 0) setNumCommand all;
-  setForAll (count @@ function ({typ = Transporter x; _} : Droid.t) | {typ = Supertransporter x; _} -> List.length x | _ -> 0) setNumTransporter all;
+  Droid.iter (function ((1,id),droids) -> List.length droids |> setNumDroids id | _ -> ());
+  Droid.iter (function ((2,id),droids) -> List.length droids |> setNumMissionDroids id | _ -> ());
+  Droid.iter (function ((_,id),droids) -> List.map (count [Construct; CyborgConstruct]) droids |> sum |> setNumConstructor id | _ -> ());
+  Droid.iter (function ((_,id),droids) -> List.map (count [Command]) droids |> sum |> setNumCommand id | _ -> ());
+  (*FIXME Transporter [] = Transporter x? *)
   (*TODO This is not the amount of transporters but the units in the transporters.
            I do not know why this would be useful on its own in the two spots its used...*)
+  Droid.iter (function ((_,id),droids) -> List.map (count [Transporter []; Supertransporter []]) droids |> sum |> setNumTransporter id | _ -> ());
 
-  let uplinkExists =
+  let uplinkExists blist =
     List.fold_left (fun acc ({typ; status; _} : Building.t) ->
       match typ,status with
       | SatUplink, Built -> true
-      | _,_ -> acc) false
-    |> mapBuildings
+      | _,_ -> acc) false blist
   in
-  let lasSatExists =
-    List.fold_left (fun acc ({pointer; _} : Building.t) -> (*No check for build-progress because only one lasSat can exist at a time*)
-      funer "isLasSat" (ptr void @-> returning bool) pointer || acc) false
-  |> mapBuildings
+  let lasSatExists blist = (*No check for build-progress because only one lasSat can exist at a time*)
+    List.fold_left (fun acc ({pointer; _} : Building.t) ->
+      funer "isLasSat" (ptr void @-> returning bool) pointer || acc) false blist
   in
 
-  iterPlayers (fun {id; _} -> setSatUplink id (List.nth uplinkExists id));
-  iterPlayers (fun {id; _} -> setLasSat id (List.nth lasSatExists id));
+  Building.iter (fun ((_,id),blist) -> uplinkExists blist |> setSatUplink id);
+  Building.iter (fun ((_,id),blist) -> lasSatExists blist |> setLasSat id);
+
   ()
 
 let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
@@ -136,10 +92,10 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
   let getRealTime = funer "getRealTime" (void @-> returning int) in
   let setDeltaGameTime = funer "setDeltaGameTime" (int @-> returning void) in
   let gameStatePreUpdate = funer "gameStatePreUpdate" vv in
-  let gameStateUpdate {id} = funer "gameStateUpdate" (int @-> returning void) id in
+  let gameStateUpdate id = funer "gameStateUpdate" (int @-> returning void) id in
   let gameStatePostUpdate = funer "gameStatePostUpdate" vv in
 
-  let updatePower {id} = (*FIXME TODO this does check all buildings, also those offworld*)
+  let updatePower id = (*FIXME TODO this does check all buildings, also those offworld*)
     let updateCurrentPower = funer "updateCurrentPower" (ptr void @-> int @-> int @-> returning void) in
     let buildings = Building.getList id 1 in
     List.iter (fun ({typ; status; pointer; _} : Building.t) -> match typ,status with
@@ -156,8 +112,8 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
       let before = wzGetTicks () in
       let () = gameStatePreUpdate () in
       countUpdate ();
-      iterPlayers updatePower;
-      iterPlayers gameStateUpdate;
+      Player.iter updatePower;
+      Player.iter gameStateUpdate;
       let () = gameStatePostUpdate () in
       let after = wzGetTicks () in
       innerLoop ((renderBudget - (after - before) * 2),false)
