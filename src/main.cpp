@@ -649,9 +649,10 @@ void init()
 	scanDataDirs();
 
   initMods();
+}
 
-	wzMainScreenSetup(war_getAntialiasing(), war_getFullscreen(), war_GetVsync());
-
+void init2 ()
+{
 	float horizScaleFactor, vertScaleFactor;
 	wzGetGameToRendererScaleFactor(&horizScaleFactor, &vertScaleFactor);
 	debug(LOG_WZ, "Game to Renderer Scale Factor (w x h): %f x %f", horizScaleFactor, vertScaleFactor);

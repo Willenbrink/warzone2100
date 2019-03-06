@@ -68,7 +68,6 @@ std::map<SDL_Keycode, KEY_CODE > SDLKey_to_KEY_CODE;
 
 // At this time, we only have 1 window and 1 GL context.
 static SDL_Window *WZwindow = nullptr;
-static SDL_GLContext WZglcontext = nullptr;
 
 // The screen that the game window is on.
 int screenIndex = 0;
@@ -401,39 +400,6 @@ int wzGetSwapInterval()
 		swapInterval = 0;
 	}
 	return swapInterval;
-}
-
-#elif defined(WZ_WS_WIN)
-
-void wzSetSwapInterval(int interval)
-{
-	typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC)(int);
-	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
-
-	if (interval < 0)
-	{
-		interval = 0;
-	}
-
-	wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC) SDL_GL_GetProcAddress("wglSwapIntervalEXT");
-
-	if (wglSwapIntervalEXT)
-	{
-		wglSwapIntervalEXT(interval);
-	}
-}
-
-int wzGetSwapInterval()
-{
-	typedef int (WINAPI * PFNWGLGETSWAPINTERVALEXTPROC)(void);
-	PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT;
-
-	wglGetSwapIntervalEXT = (PFNWGLGETSWAPINTERVALEXTPROC) SDL_GL_GetProcAddress("wglGetSwapIntervalEXT");
-	if (wglGetSwapIntervalEXT)
-	{
-		return wglGetSwapIntervalEXT();
-	}
-	return 0;
 }
 
 #elif !defined(WZ_OS_MAC)
@@ -1621,6 +1587,22 @@ void wzGetWindowResolution(int *screen, unsigned int *width, unsigned int *heigh
 	}
 }
 
+void initGL(int width, int height) {
+	glViewport(0, 0, width, height);
+	glCullFace(GL_FRONT);
+	glEnable(GL_CULL_FACE);
+}
+
+void pushResolution (int w, int h, int refresh_rate, int i)
+{
+  struct screeninfo screenlist;
+  screenlist.width = w;
+  screenlist.height = h;
+  screenlist.refresh_rate = refresh_rate;
+  screenlist.screen = i;		// which monitor this belongs to
+  displaylist.push_back(screenlist);
+}
+
 // This stage, we handle display mode setting
 bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highDPI)
 {
@@ -1630,7 +1612,6 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 	// to the *game screen* width and height (taking into account the display scale).
 	int width = pie_GetVideoBufferWidth();
 	int height = pie_GetVideoBufferHeight();
-	int bitDepth = pie_GetVideoBufferDepth();
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
 	{
@@ -1658,13 +1639,12 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 	}
 
 	// Populated our resolution list (does all displays now)
-	SDL_DisplayMode	displaymode;
-	struct screeninfo screenlist;
 	for (int i = 0; i < SDL_GetNumVideoDisplays(); ++i)		// How many monitors we got
 	{
 		int numdisplaymodes = SDL_GetNumDisplayModes(i);	// Get the number of display modes on this monitor
 		for (int j = 0; j < numdisplaymodes; j++)
 		{
+      SDL_DisplayMode	displaymode;
 			displaymode.format = displaymode.w = displaymode.h = displaymode.refresh_rate = 0;
 			displaymode.driverdata = 0;
 			if (SDL_GetDisplayMode(i, j, &displaymode) < 0)
@@ -1686,11 +1666,7 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 			}
 			else
 			{
-				screenlist.width = displaymode.w;
-				screenlist.height = displaymode.h;
-				screenlist.refresh_rate = displaymode.refresh_rate;
-				screenlist.screen = i;		// which monitor this belongs to
-				displaylist.push_back(screenlist);
+        pushResolution(displaymode.w, displaymode.h, displaymode.refresh_rate, i);
 			}
 		}
 	}
@@ -1751,12 +1727,6 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 		video_flags |= SDL_WINDOW_RESIZABLE;
 	}
 
-	SDL_Rect bounds;
-	for (int i = 0; i < SDL_GetNumVideoDisplays(); i++)
-	{
-		SDL_GetDisplayBounds(i, &bounds);
-		debug(LOG_WZ, "Monitor %d: pos %d x %d : res %d x %d", i, (int)bounds.x, (int)bounds.y, (int)bounds.w, (int)bounds.h);
-	}
 	screenIndex = war_GetScreen();
 	const int currentNumDisplays = SDL_GetNumVideoDisplays();
 	if (currentNumDisplays < 1)
@@ -1810,117 +1780,29 @@ bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highD
 	// Set the minimum window size
 	SDL_SetWindowMinimumSize(WZwindow, minWindowWidth, minWindowHeight);
 
-	WZglcontext = SDL_GL_CreateContext(WZwindow);
+	SDL_GLContext WZglcontext = SDL_GL_CreateContext(WZwindow);
 	if (!WZglcontext)
 	{
 		debug(LOG_ERROR, "Failed to create a openGL context! [%s]", SDL_GetError());
 		return false;
 	}
 
-	if (highDPI)
-	{
-		// When high-DPI mode is enabled, retrieve the DrawableSize in pixels
-		// for use in the glViewport function - this will be the actual
-		// pixel dimensions, not the window size (which is in points).
-		//
-		// NOTE: Do not do this if high-DPI support is disabled, or the viewport
-		// size may be set inappropriately.
-
-		SDL_GL_GetDrawableSize(WZwindow, &width, &height);
-		debug(LOG_WZ, "Logical Size: %d x %d; Drawable Size: %d x %d", windowWidth, windowHeight, width, height);
-	}
-
-	int bpp = SDL_BITSPERPIXEL(SDL_GetWindowPixelFormat(WZwindow));
-	debug(LOG_WZ, "Bpp = %d format %s" , bpp, SDL_GetPixelFormatName(SDL_GetWindowPixelFormat(WZwindow)));
-	if (!bpp)
-	{
-		debug(LOG_ERROR, "Video mode %dx%d@%dbpp is not supported!", width, height, bitDepth);
-		return false;
-	}
-	switch (bpp)
-	{
-	case 32:
-	case 24:		// all is good...
-		break;
-	case 16:
-		info("Using colour depth of %i instead of a 32/24 bit depth (True color).", bpp);
-		info("You will experience graphics glitches!");
-		break;
-	case 8:
-		debug(LOG_FATAL, "You don't want to play Warzone with a bit depth of %i, do you?", bpp);
-		SDL_Quit();
-		exit(1);
-		break;
-	default:
-		debug(LOG_FATAL, "Unsupported bit depth: %i", bpp);
-		exit(1);
-		break;
-	}
-
 	// Enable/disable vsync if requested by the user
 	wzSetSwapInterval(vsync);
-
-	int value = 0;
-	if (SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &value) == -1 || value == 0)
-	{
-		debug(LOG_FATAL, "OpenGL initialization did not give double buffering!");
-		debug(LOG_FATAL, "Double buffering is required for this game!");
-		SDL_Quit();
-		exit(1);
-	}
-
-	#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		uint32_t rmask = 0xff000000;
-		uint32_t gmask = 0x00ff0000;
-		uint32_t bmask = 0x0000ff00;
-		uint32_t amask = 0x000000ff;
-	#else
-		uint32_t rmask = 0x000000ff;
-		uint32_t gmask = 0x0000ff00;
-		uint32_t bmask = 0x00ff0000;
-		uint32_t amask = 0xff000000;
-	#endif
-
-#if defined(__GNUC__)
-	#pragma GCC diagnostic push
-	// ignore warning: cast from type 'const unsigned char*' to type 'void*' casts away qualifiers [-Wcast-qual]
-	// FIXME?
-	#pragma GCC diagnostic ignored "-Wcast-qual"
-#endif
-	SDL_Surface *surface_icon = SDL_CreateRGBSurfaceFrom((void *)wz2100icon.pixel_data, wz2100icon.width, wz2100icon.height, wz2100icon.bytes_per_pixel * 8,
-	                            wz2100icon.width * wz2100icon.bytes_per_pixel, rmask, gmask, bmask, amask);
-#if defined(__GNUC__)
-	#pragma GCC diagnostic pop
-#endif
-
-	if (surface_icon)
-	{
-		SDL_SetWindowIcon(WZwindow, surface_icon);
-		SDL_FreeSurface(surface_icon);
-	}
-	else
-	{
-		debug(LOG_ERROR, "Could not set window icon because %s", SDL_GetError());
-	}
 
 	SDL_SetWindowTitle(WZwindow, PACKAGE_NAME);
 
 	/* initialise all cursors */
-	if (war_GetColouredCursor())
-	{
-		sdlInitColoredCursors();
-	}
-	else
-	{
-		sdlInitCursors();
-	}
+  sdlInitCursors();
 
 	// FIXME: aspect ratio
-	glViewport(0, 0, width, height);
-	glCullFace(GL_FRONT);
-	glEnable(GL_CULL_FACE);
-
+  initGL(width, height);
 	return true;
+}
+
+void setWindow (void *ptr)
+{
+  WZwindow = (SDL_Window *) ptr;
 }
 
 

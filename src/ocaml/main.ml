@@ -7,11 +7,23 @@ let init () =
   let i18n_init = funer "initI18n" vv in
   let initPhysFS = funer "initPhysFS" vv in
   let wzMain = funer "wzMain" vv in
-  let initMain = funer "init" vv in
+  let initMain1 = funer "init" vv in
+  let sdl_init = funer "wzMainScreenSetup" (int @-> bool @-> bool @-> bool @-> returning bool) in
+  let initMain2 = funer "init2" vv in
   debug_init ();
   i18n_init ();
   initPhysFS();
-  initMain();
+  initMain1();
+  let getaa = funer "getAntialiasing" (void @-> returning int) in
+  let getfs = funer "getFullscreen" (void @-> returning bool) in
+  let getvs = funer "getVsync" (void @-> returning bool) in
+  (*
+  (match sdl_init (getaa ()) (getfs ()) (getvs ()) false (*TODO High DPI*) with
+  | true -> ()
+  | false -> raise Not_found);
+     *)
+  Bsdl.init ();
+  initMain2();
   wzMain();
   ()
 

@@ -27,7 +27,7 @@
 #include "lib/framework/cursors.h"
 #include <SDL_mouse.h>
 
-void sdlInitCursors();
+void sdlInitCursors() asm ("sdlInitCursors");
 void sdlInitColoredCursors();
 void sdlFreeCursors();
 

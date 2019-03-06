@@ -7,6 +7,7 @@ let libwar = libOpener "/warzone2100"
 
 let funer name params =
   foreign ~from:libwar
+    (*    ~check_errno:true *)
     ~release_runtime_lock:false
     name params
 

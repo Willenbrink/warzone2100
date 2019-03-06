@@ -46,6 +46,7 @@ void stopGameLoop() asm ("stopGameLoop");
 bool initSaveGameLoad() asm ("initSaveGameLoad");
 void halt() asm ("halt");
 void init() asm ("init");
+void init2 () asm ("init2");
 void test(int argc, char* argv[]) asm ("test");
 void initPhysFS() asm ("initPhysFS");
 

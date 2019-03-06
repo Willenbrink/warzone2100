@@ -40,8 +40,8 @@
 /***************************************************************************/
 
 bool pie_SetVideoBufferDepth(UDWORD depth);
-bool pie_SetVideoBufferWidth(UDWORD width);
-bool pie_SetVideoBufferHeight(UDWORD height);
+bool pie_SetVideoBufferWidth(UDWORD width) asm ("pie_setVideoBufferWidth");
+bool pie_SetVideoBufferHeight(UDWORD height) asm ("pie_setVideoBufferHeight");
 int pie_GetVideoBufferDepth() WZ_DECL_PURE;
 int pie_GetVideoBufferWidth() WZ_DECL_PURE;
 int pie_GetVideoBufferHeight() WZ_DECL_PURE;
