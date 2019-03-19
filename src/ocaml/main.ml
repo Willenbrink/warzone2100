@@ -135,7 +135,6 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
   (renderReturn,newLastFlush, (renderBudget + (after - before) * 3),true)
 
 let rec loop sdlState mode gameLoopState =
-  let sdl = funer "SDLLoop" (void @-> returning bool) in
   let tmp = funer "inputNewFrame" vv in
   let frameUpdate = funer "frameUpdate" vv in
   let getGameMode () =
@@ -161,12 +160,7 @@ let rec loop sdlState mode gameLoopState =
   let closeLoadingScreen = funer "closeLoadingScreen" vv in
   let realTimeUpdate = funer "realTimeUpdate" vv in
 
-  (if false
-  then
-    (match sdl () with true -> raise Halt | false -> ())
-  else
-    Bsdl.loop sdlState
- );
+  Bsdl.loop sdlState;
   frameUpdate ();
   let newMode,newState = match getGameMode () with
    | Title -> (match titleLoop () |> getState with

@@ -791,11 +791,7 @@ void keyScanToString(KEY_CODE code, char *ascii, UDWORD maxStringSize)
 	else if (code == KEY_LMETA)
 	{
 		// shortcuts with modifier keys work with either key.
-#ifdef WZ_OS_MAC
 		strcpy(ascii, "Cmd");
-#else
-		strcpy(ascii, "Meta");
-#endif
 		return;
 	}
 
@@ -1092,39 +1088,6 @@ int getSymKey(int keysym)
   return vk;
 }
 
-/*!
- * Handle keyboard events
- */
-static void inputHandleKeyEvent(SDL_KeyboardEvent *keyEvent)
-{
-  int virtualKey = getSymKey(keyEvent->keysym.sym);
-	UDWORD code = sdlKeyToKeyCode(virtualKey);
-  if (code >= KEY_MAXSCAN)
-		{
-			return;
-		}
-  if(keyEvent->type == SDL_KEYDOWN)
-	{
-		if (aKeyState[code].state == KEY_UP ||
-		    aKeyState[code].state == KEY_RELEASED ||
-		    aKeyState[code].state == KEY_PRESSRELEASE)
-		{
-			// whether double key press or not
-			aKeyState[code].state = KEY_PRESSED;
-			aKeyState[code].lastdown = 0;
-		}
-  } else {
-		if (aKeyState[code].state == KEY_PRESSED)
-		{
-			aKeyState[code].state = KEY_PRESSRELEASE;
-		}
-		else if (aKeyState[code].state == KEY_DOWN)
-		{
-			aKeyState[code].state = KEY_RELEASED;
-		}
-	}
-}
-
 int getKey (int code)
 {
   return aKeyState[code].state;
@@ -1136,39 +1099,6 @@ void setKey (int code, int state)
   if (state == (int) KEY_PRESSED) {
     aKeyState[code].lastdown = 0;
   }
-}
-
-/*!
- * Handle text events (if we were to use SDL2)
-*/
-void inputhandleText(SDL_TextInputEvent *Tevent)
-{
-	size_t *newtextsize = nullptr;
-	int size = 	SDL_strlen(Tevent->text);
-  utf_32_char *utf8Buf;				// is like the old 'unicode' from SDL 1.x
-	if (size)
-	{
-		utf8Buf = UTF8toUTF32(Tevent->text, newtextsize);
-		debug(LOG_INPUT, "Keyboard: text input \"%s\"", Tevent->text);
-		inputAddBuffer(CurrentKey, *utf8Buf);
-	}
-}
-
-/*!
- * Handle mouse wheel events
- */
-static void inputHandleMouseWheelEvent(SDL_MouseWheelEvent *wheel)
-{
-	if (wheel->x > 0 || wheel->y > 0)
-	{
-		aMouseState[MOUSE_WUP].state = KEY_PRESSED;
-		aMouseState[MOUSE_WUP].lastdown = 0;
-	}
-	else if (wheel->x < 0 || wheel->y < 0)
-	{
-		aMouseState[MOUSE_WDN].state = KEY_PRESSED;
-		aMouseState[MOUSE_WDN].lastdown = 0;
-	}
 }
 
 int getMouse (int key)
@@ -1243,40 +1173,6 @@ void handleMouseTmp(MOUSE_KEY_CODE mouseKeyCode, int mouseXPos, int mouseYPos, b
 		}
 	}
 }
-
-/*!
- * Handle mouse button events (We can handle up to 5)
- */
-static void inputHandleMouseButtonEvent(SDL_MouseButtonEvent *buttonEvent)
-{
-	mouseXPos = (int)((float)buttonEvent->x / current_displayScaleFactor);
-	mouseYPos = (int)((float)buttonEvent->y / current_displayScaleFactor);
-
-	MOUSE_KEY_CODE mouseKeyCode;
-	switch (buttonEvent->button)
-	{
-	case SDL_BUTTON_LEFT:
-    mouseKeyCode = MOUSE_LMB;
-    break;
-	case SDL_BUTTON_MIDDLE:
-    mouseKeyCode = MOUSE_MMB;
-    break;
-	case SDL_BUTTON_RIGHT:
-    mouseKeyCode = MOUSE_RMB;
-    break;
-	case SDL_BUTTON_X1:
-    mouseKeyCode = MOUSE_X1;
-    break;
-	case SDL_BUTTON_X2:
-    mouseKeyCode = MOUSE_X2;
-    break;
-	default:
-    return;
- // Unknown button.
-	}
-  handleMouseTmp(mouseKeyCode, mouseXPos, mouseYPos, buttonEvent->type == SDL_MOUSEBUTTONDOWN);
-}
-
 
 void setMousePos (int code, bool press, Vector2i pos)
 {
@@ -1755,148 +1651,6 @@ bool wzIsWindowResizable()
 bool wzSupportsLiveResolutionChanges()
 {
 	return true;
-}
-
-/*!
- * Activation (focus change ... and) eventhandler.  Mainly for debugging.
- */
-static void handleActiveEvent(SDL_Event *event)
-{
-	if (event->type == SDL_WINDOWEVENT)
-	{
-		switch (event->window.event)
-		{
-		case SDL_WINDOWEVENT_SHOWN:
-			debug(LOG_WZ, "Window %d shown", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_HIDDEN:
-			debug(LOG_WZ, "Window %d hidden", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_EXPOSED:
-			debug(LOG_WZ, "Window %d exposed", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_MOVED:
-			debug(LOG_WZ, "Window %d moved to %d,%d", event->window.windowID, event->window.data1, event->window.data2);
-				// FIXME: Handle detecting which screen the window was moved to, and update saved war_SetScreen?
-			break;
-		case SDL_WINDOWEVENT_RESIZED:
-		case SDL_WINDOWEVENT_SIZE_CHANGED:
-			debug(LOG_WZ, "Window %d resized to %dx%d", event->window.windowID, event->window.data1, event->window.data2);
-			{
-				unsigned int oldWindowWidth = windowWidth;
-				unsigned int oldWindowHeight = windowHeight;
-
-				Uint32 windowFlags = SDL_GetWindowFlags(WZwindow);
-				debug(LOG_WZ, "Window resized to window flags: %u", windowFlags);
-
-				int newWindowWidth = 0, newWindowHeight = 0;
-				SDL_GetWindowSize(WZwindow, &newWindowWidth, &newWindowHeight);
-
-				if ((event->window.data1 != newWindowWidth) || (event->window.data2 != newWindowHeight))
-				{
-					// This can happen - so we use the values retrieved from SDL_GetWindowSize in any case - but
-					// log it for tracking down the SDL-related causes later.
-					debug(LOG_WARNING, "Received width and height (%d x %d) do not match those from GetWindowSize (%d x %d)", event->window.data1, event->window.data2, newWindowWidth, newWindowHeight);
-				}
-
-				handleWindowSizeChange(oldWindowWidth, oldWindowHeight, newWindowWidth, newWindowHeight);
-
-				// Store the new values (in case the user manually resized the window bounds)
-				war_SetWidth(newWindowWidth);
-				war_SetHeight(newWindowHeight);
-			}
-			break;
-		case SDL_WINDOWEVENT_MINIMIZED:
-			debug(LOG_WZ, "Window %d minimized", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_MAXIMIZED:
-			debug(LOG_WZ, "Window %d maximized", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_RESTORED:
-			debug(LOG_WZ, "Window %d restored", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_ENTER:
-			debug(LOG_WZ, "Mouse entered window %d", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_LEAVE:
-			debug(LOG_WZ, "Mouse left window %d", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_FOCUS_GAINED:
-			mouseInWindow = SDL_TRUE;
-			debug(LOG_WZ, "Window %d gained keyboard focus", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_FOCUS_LOST:
-			mouseInWindow = SDL_FALSE;
-			debug(LOG_WZ, "Window %d lost keyboard focus", event->window.windowID);
-			break;
-		case SDL_WINDOWEVENT_CLOSE:
-			debug(LOG_WZ, "Window %d closed", event->window.windowID);
-			break;
-		default:
-			debug(LOG_WZ, "Window %d got unknown event %d", event->window.windowID, event->window.event);
-			break;
-		}
-	}
-}
-
-// Actual mainloop
-bool wzMainEventLoop()
-{
-	SDL_Event event;
-  /* Deal with any windows messages */
-  while (SDL_PollEvent(&event))
-  {
-    printf("%i : Event\n", event.type);
-    switch (event.type)
-    {
-    case SDL_KEYUP:
-    case SDL_KEYDOWN:
-      inputHandleKeyEvent(&event.key);
-      break;
-    case SDL_MOUSEBUTTONUP:
-    case SDL_MOUSEBUTTONDOWN:
-      inputHandleMouseButtonEvent(&event.button);
-      break;
-    case SDL_MOUSEMOTION:
-      inputHandleMouseMotionEvent(event.motion.x, event.motion.y);
-      break;
-    case SDL_MOUSEWHEEL:
-      inputHandleMouseWheelEvent(&event.wheel);
-      break;
-    case SDL_WINDOWEVENT:
-      handleActiveEvent(&event);
-      break;
-    case SDL_TEXTINPUT:	// SDL now handles text input differently
-      inputhandleText(&event.text);
-      break;
-    case SDL_QUIT:
-      return true;
-    default:
-      // Custom WZ App Event
-      if(event.type == wzSDLAppEvent
-         && event.user.code == wzSDLAppEventCodes::MAINTHREADEXEC
-           && event.user.data1 != nullptr)
-      {
-        WZ_MAINTHREADEXEC * pExec = static_cast<WZ_MAINTHREADEXEC *>(event.user.data1);
-        pExec->doExecOnMainThread();
-        delete pExec;
-      }
-      break;
-    }
-  }
-  // Ideally, we don't want Qt processing events in addition to SDL - this causes
-  // all kinds of issues (crashes taking screenshots on Windows, freezing on
-  // macOS without a nasty workaround) - but without the following line the script
-  // debugger window won't display properly on Linux.
-  //
-  // Therefore, do not include it on Windows and macOS builds, which does not
-  // impact the script debugger's functionality, but include it (for now) on other
-  // builds until an alternative script debugger UI is available.
-  //
-  handleQt();
-  //mainLoop();				// WZ does its thing
-  //inputNewFrame();			// reset input states
-  return false;
 }
 
 void handleQt()

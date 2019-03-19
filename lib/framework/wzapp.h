@@ -75,7 +75,6 @@ void wzSetSwapInterval(int interval) asm ("setVsync");
 void pushResolution (int w, int h, int refresh_rate, int i) asm ("pushResolution");
 bool wzMainScreenSetup(int antialiasing = 0, bool fullscreen = false, bool vsync = true, bool highDPI = true) asm ("wzMainScreenSetup");
 void wzGetGameToRendererScaleFactor(float *horizScaleFactor, float *vertScaleFactor);
-bool wzMainEventLoop() asm ("SDLLoop");
 void handleQt() asm ("handleQt");
 void inputAddBuffer(UDWORD key, int unicode) asm ("inputAddBuffer"); // FIXME: int <-> utf_32_char
 int getKey (int code) asm ("getKey");
