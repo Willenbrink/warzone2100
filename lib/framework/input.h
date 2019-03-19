@@ -150,29 +150,25 @@ enum KEY_CODE
 enum MOUSE_KEY_CODE
 {
 	MOUSE_LMB = 1,
-	MOUSE_MMB,
-	MOUSE_RMB,
-	MOUSE_X1,	// mouse button 4
-	MOUSE_X2,	// mouse button 5
-	MOUSE_WUP,
-	MOUSE_WDN,
+	MOUSE_MMB = 2,
+	MOUSE_RMB = 3,
+	MOUSE_X1 = 4,	// mouse button 4
+	MOUSE_X2 = 5,	// mouse button 5
+	MOUSE_WUP = 6,
+	MOUSE_WDN = 7,
 	MOUSE_END	// end of our enum
 };
 
 struct MousePress
 {
-	enum Action {None, Press, Release};
+	enum Action {None = 0, Press = 1, Release = 2};
 
 	MousePress(Action action = None, MOUSE_KEY_CODE key = MOUSE_END) : action(action), key(key), pos(0,0) {}
-	bool empty() const
-	{
-		return action == None;
-	}
-
 	Action action;
 	MOUSE_KEY_CODE key;
 	Vector2i pos;
 };
+
 typedef std::vector<MousePress> MousePresses;
 
 /** Tell the input system that we have lost the focus. */

@@ -210,7 +210,7 @@ unsigned int wzGetCurrentDisplayScale()
 	return 100;
 }
 
-void wzGetWindowResolution(int *screen, unsigned int *width, unsigned int *height)
+void wzGetWindowResolution(unsigned int *width, unsigned int *height)
 {
 	WzMainWindow * _mainWindowPtr = mainWindowPtr.load();
 	assert(_mainWindowPtr != nullptr);

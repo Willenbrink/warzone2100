@@ -62,7 +62,7 @@ void screenDoDumpToDiskIfRequired();
 void screen_enableMapPreview(int width, int height, Vector2i *playerpositions);
 void screen_disableMapPreview();
 
-void screen_updateGeometry();
+void screen_updateGeometry() asm ("screen_update_geometry");
 
 /// graphics performance measurement points
 enum PERF_POINT

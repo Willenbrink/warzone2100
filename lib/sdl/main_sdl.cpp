@@ -54,11 +54,6 @@
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)
 #endif
 
-#if defined(WZ_OS_MAC)
-#include "cocoa_sdl_helpers.h"
-#include "cocoa_wz_menus.h"
-#endif
-
 void mainLoop();
 // used in crash reports & version info
 const char *BACKEND = "SDL";
@@ -69,8 +64,6 @@ std::map<SDL_Keycode, KEY_CODE > SDLKey_to_KEY_CODE;
 // At this time, we only have 1 window and 1 GL context.
 static SDL_Window *WZwindow = nullptr;
 
-// The screen that the game window is on.
-int screenIndex = 0;
 // The logical resolution of the game in the game's coordinate system (points).
 unsigned int screenWidth = 0;
 unsigned int screenHeight = 0;
@@ -85,12 +78,7 @@ static std::vector<screeninfo> displaylist;	// holds all our possible display li
 
 QCoreApplication *appPtr;				// Needed for qtscript
 
-#if defined(WZ_OS_MAC)
-// on macOS, SDL_WINDOW_FULLSCREEN_DESKTOP *must* be used (or high-DPI fullscreen toggling breaks)
-const SDL_WindowFlags WZ_SDL_FULLSCREEN_MODE = SDL_WINDOW_FULLSCREEN_DESKTOP;
-#else
 const SDL_WindowFlags WZ_SDL_FULLSCREEN_MODE = SDL_WINDOW_FULLSCREEN;
-#endif
 
 std::atomic<Uint32> wzSDLAppEvent((Uint32)-1);
 enum wzSDLAppEventCodes
@@ -101,13 +89,13 @@ enum wzSDLAppEventCodes
 /* The possible states for keys */
 enum KEY_STATE
 {
-	KEY_UP,
-	KEY_PRESSED,
-	KEY_DOWN,
-	KEY_RELEASED,
-	KEY_PRESSRELEASE,	// When a key goes up and down in a frame
-	KEY_DOUBLECLICK,	// Only used by mouse keys
-	KEY_DRAG			// Only used by mouse keys
+ KEY_UP = 0,
+	KEY_PRESSED = 1,
+	KEY_DOWN = 2,
+	KEY_RELEASED = 3,
+	KEY_PRESSRELEASE = 4,	// When a key goes up and down in a frame
+	KEY_DOUBLECLICK = 5,	// Only used by mouse keys
+	KEY_DRAG = 6			// Only used by mouse keys
 };
 
 struct INPUT_STATE
@@ -176,7 +164,6 @@ struct InputKey
 
 static InputKey	pInputBuffer[INPUT_MAXSTR];
 static InputKey	*pStartBuffer, *pEndBuffer;
-static utf_32_char *utf8Buf;				// is like the old 'unicode' from SDL 1.x
 static unsigned int CurrentKey = 0;			// Our Current keypress
 bool GetTextEvents = false;
 /**************************/
@@ -734,11 +721,11 @@ static inline void initKeycodes()
 	}
 }
 
-static inline KEY_CODE sdlKeyToKeyCode(SDL_Keycode key)
+int sdlKeyToKeyCode(int key)
 {
 	std::map<SDL_Keycode, KEY_CODE >::iterator it;
 
-	it = SDLKey_to_KEY_CODE.find(key);
+	it = SDLKey_to_KEY_CODE.find((SDL_Keycode) key);
 	if (it != SDLKey_to_KEY_CODE.end())
 	{
 		return it->second;
@@ -765,7 +752,7 @@ static InputKey *inputPointerNext(InputKey *p)
 }
 
 /* add count copies of the characater code to the input buffer */
-static void inputAddBuffer(UDWORD key, utf_32_char unicode)
+void inputAddBuffer(UDWORD key, int unicode)
 {
 	/* Calculate what pEndBuffer will be set to next */
 	InputKey	*pNext = inputPointerNext(pEndBuffer);
@@ -777,7 +764,7 @@ static void inputAddBuffer(UDWORD key, utf_32_char unicode)
 
 	// Add key to buffer.
 	pEndBuffer->key = key;
-	pEndBuffer->unicode = unicode;
+	pEndBuffer->unicode = (utf_32_char) unicode;
 	pEndBuffer = pNext;
 }
 
@@ -978,6 +965,11 @@ Uint16 mouseY(void)
 	return mouseYPos;
 }
 
+void setMouseInWindow(bool x)
+{
+  mouseInWindow = x;
+}
+
 bool wzMouseInWindow()
 {
 	return mouseInWindow;
@@ -1040,18 +1032,12 @@ bool mouseDrag(MOUSE_KEY_CODE code, UDWORD *px, UDWORD *py)
 	return false;
 }
 
-/*!
- * Handle keyboard events
- */
-static void inputHandleKeyEvent(SDL_KeyboardEvent *keyEvent)
+int getSymKey(int keysym)
 {
-	UDWORD code = 0, vk = 0;
-	switch (keyEvent->type)
-	{
-	case SDL_KEYDOWN:
-		switch (keyEvent->keysym.sym)
+  int vk = 0;
+  switch (keysym)
 		{
-		// our "editing" keys for text
+      // our "editing" keys for text
 		case SDLK_LEFT:
 			vk = INPBUF_LEFT;
 			break;
@@ -1095,29 +1081,30 @@ static void inputHandleKeyEvent(SDL_KeyboardEvent *keyEvent)
 			vk = INPBUF_ESC;
 			break;
 		default:
+      vk = keysym;
 			break;
 		}
-		// Keycodes without character representations are determined by their scancode bitwise OR-ed with 1<<30 (0x40000000).
-		CurrentKey = keyEvent->keysym.sym;
-		if (vk)
-		{
-			// Take care of 'editing' keys that were pressed
-			inputAddBuffer(vk, 0);
-			debug(LOG_INPUT, "Editing key: 0x%x, %d SDLkey=[%s] pressed", vk, vk, SDL_GetKeyName(CurrentKey));
-		}
-		else
-		{
-			// add everything else
-			inputAddBuffer(CurrentKey, 0);
-		}
+  // Keycodes without character representations are determined by their scancode bitwise OR-ed with 1<<30 (0x40000000).
+  CurrentKey = vk; //FIXME Sideffect!
 
-		debug(LOG_INPUT, "Key Code (pressed): 0x%x, %d, [%c] SDLkey=[%s]", CurrentKey, CurrentKey, (CurrentKey < 128) && (CurrentKey > 31) ? (char)CurrentKey : '?', SDL_GetKeyName(CurrentKey));
+  // Take care of 'editing' keys that were pressed
+  inputAddBuffer(vk, 0);
+  return vk;
+}
 
-		code = sdlKeyToKeyCode(CurrentKey);
-		if (code >= KEY_MAXSCAN)
+/*!
+ * Handle keyboard events
+ */
+static void inputHandleKeyEvent(SDL_KeyboardEvent *keyEvent)
+{
+  int virtualKey = getSymKey(keyEvent->keysym.sym);
+	UDWORD code = sdlKeyToKeyCode(virtualKey);
+  if (code >= KEY_MAXSCAN)
 		{
-			break;
+			return;
 		}
+  if(keyEvent->type == SDL_KEYDOWN)
+	{
 		if (aKeyState[code].state == KEY_UP ||
 		    aKeyState[code].state == KEY_RELEASED ||
 		    aKeyState[code].state == KEY_PRESSRELEASE)
@@ -1126,16 +1113,7 @@ static void inputHandleKeyEvent(SDL_KeyboardEvent *keyEvent)
 			aKeyState[code].state = KEY_PRESSED;
 			aKeyState[code].lastdown = 0;
 		}
-		break;
-
-	case SDL_KEYUP:
-		code = keyEvent->keysym.sym;
-		debug(LOG_INPUT, "Key Code (*Depressed*): 0x%x, %d, [%c] SDLkey=[%s]", code, code, (code < 128) && (code > 31) ? (char)code : '?', SDL_GetKeyName(code));
-		code = sdlKeyToKeyCode(keyEvent->keysym.sym);
-		if (code >= KEY_MAXSCAN)
-		{
-			break;
-		}
+  } else {
 		if (aKeyState[code].state == KEY_PRESSED)
 		{
 			aKeyState[code].state = KEY_PRESSRELEASE;
@@ -1144,10 +1122,20 @@ static void inputHandleKeyEvent(SDL_KeyboardEvent *keyEvent)
 		{
 			aKeyState[code].state = KEY_RELEASED;
 		}
-		break;
-	default:
-		break;
 	}
+}
+
+int getKey (int code)
+{
+  return aKeyState[code].state;
+}
+
+void setKey (int code, int state)
+{
+  aKeyState[code].state = (KEY_STATE) state;
+  if (state == (int) KEY_PRESSED) {
+    aKeyState[code].lastdown = 0;
+  }
 }
 
 /*!
@@ -1157,14 +1145,9 @@ void inputhandleText(SDL_TextInputEvent *Tevent)
 {
 	size_t *newtextsize = nullptr;
 	int size = 	SDL_strlen(Tevent->text);
+  utf_32_char *utf8Buf;				// is like the old 'unicode' from SDL 1.x
 	if (size)
 	{
-		if (utf8Buf)
-		{
-			// clean up memory from last use.
-			free(utf8Buf);
-			utf8Buf = nullptr;
-		}
 		utf8Buf = UTF8toUTF32(Tevent->text, newtextsize);
 		debug(LOG_INPUT, "Keyboard: text input \"%s\"", Tevent->text);
 		inputAddBuffer(CurrentKey, *utf8Buf);
@@ -1188,32 +1171,48 @@ static void inputHandleMouseWheelEvent(SDL_MouseWheelEvent *wheel)
 	}
 }
 
-/*!
- * Handle mouse button events (We can handle up to 5)
- */
-static void inputHandleMouseButtonEvent(SDL_MouseButtonEvent *buttonEvent)
+int getMouse (int key)
 {
-	mouseXPos = (int)((float)buttonEvent->x / current_displayScaleFactor);
-	mouseYPos = (int)((float)buttonEvent->y / current_displayScaleFactor);
+  return aMouseState[key].state;
+}
 
-	MOUSE_KEY_CODE mouseKeyCode;
-	switch (buttonEvent->button)
-	{
-	case SDL_BUTTON_LEFT: mouseKeyCode = MOUSE_LMB; break;
-	case SDL_BUTTON_MIDDLE: mouseKeyCode = MOUSE_MMB; break;
-	case SDL_BUTTON_RIGHT: mouseKeyCode = MOUSE_RMB; break;
-	case SDL_BUTTON_X1: mouseKeyCode = MOUSE_X1; break;
-	case SDL_BUTTON_X2: mouseKeyCode = MOUSE_X2; break;
-	default: return;  // Unknown button.
-	}
+void setMouse (int key, int state)
+{
+  aMouseState[key].state = (KEY_STATE) state;
+}
 
+void setKeyDown (int code)
+{
+  MOUSE_KEY_CODE mouseKeyCode = (MOUSE_KEY_CODE) code;
+  // whether double click or not
+  if (realTime - aMouseState[mouseKeyCode].lastdown < DOUBLE_CLICK_INTERVAL)
+    {
+      aMouseState[mouseKeyCode].state = KEY_DOUBLECLICK;
+      aMouseState[mouseKeyCode].lastdown = 0;
+    }
+  else
+    {
+      aMouseState[mouseKeyCode].state = KEY_PRESSED;
+      aMouseState[mouseKeyCode].lastdown = realTime;
+    }
+
+  if (mouseKeyCode < MOUSE_X1) // Assume they are draggin' with either LMB|RMB|MMB
+    {
+      dragKey = mouseKeyCode;
+      dragX = mouseXPos;
+      dragY = mouseYPos;
+    }
+}
+
+void handleMouseTmp(MOUSE_KEY_CODE mouseKeyCode, int mouseXPos, int mouseYPos, bool down)
+{
+  printf("handleMouseTmp: %i %i %i %i\n", (int) mouseKeyCode, mouseXPos, mouseYPos, down);
 	MousePress mousePress;
 	mousePress.key = mouseKeyCode;
 	mousePress.pos = Vector2i(mouseXPos, mouseYPos);
 
-	switch (buttonEvent->type)
+	if(down)
 	{
-	case SDL_MOUSEBUTTONDOWN:
 		mousePress.action = MousePress::Press;
 		mousePresses.push_back(mousePress);
 
@@ -1223,27 +1222,10 @@ static void inputHandleMouseButtonEvent(SDL_MouseButtonEvent *buttonEvent)
 		    || aMouseState[mouseKeyCode].state == KEY_RELEASED
 		    || aMouseState[mouseKeyCode].state == KEY_PRESSRELEASE)
 		{
-			// whether double click or not
-			if (realTime - aMouseState[mouseKeyCode].lastdown < DOUBLE_CLICK_INTERVAL)
-			{
-				aMouseState[mouseKeyCode].state = KEY_DOUBLECLICK;
-				aMouseState[mouseKeyCode].lastdown = 0;
-			}
-			else
-			{
-				aMouseState[mouseKeyCode].state = KEY_PRESSED;
-				aMouseState[mouseKeyCode].lastdown = realTime;
-			}
-
-			if (mouseKeyCode < MOUSE_X1) // Assume they are draggin' with either LMB|RMB|MMB
-			{
-				dragKey = mouseKeyCode;
-				dragX = mouseXPos;
-				dragY = mouseYPos;
-			}
+      setKeyDown(mouseKeyCode);
 		}
-		break;
-	case SDL_MOUSEBUTTONUP:
+  }
+  else {
 		mousePress.action = MousePress::Release;
 		mousePresses.push_back(mousePress);
 
@@ -1259,36 +1241,100 @@ static void inputHandleMouseButtonEvent(SDL_MouseButtonEvent *buttonEvent)
 		{
 			aMouseState[mouseKeyCode].state = KEY_RELEASED;
 		}
-		break;
-	default:
-		break;
 	}
+}
+
+/*!
+ * Handle mouse button events (We can handle up to 5)
+ */
+static void inputHandleMouseButtonEvent(SDL_MouseButtonEvent *buttonEvent)
+{
+	mouseXPos = (int)((float)buttonEvent->x / current_displayScaleFactor);
+	mouseYPos = (int)((float)buttonEvent->y / current_displayScaleFactor);
+
+	MOUSE_KEY_CODE mouseKeyCode;
+	switch (buttonEvent->button)
+	{
+	case SDL_BUTTON_LEFT:
+    mouseKeyCode = MOUSE_LMB;
+    break;
+	case SDL_BUTTON_MIDDLE:
+    mouseKeyCode = MOUSE_MMB;
+    break;
+	case SDL_BUTTON_RIGHT:
+    mouseKeyCode = MOUSE_RMB;
+    break;
+	case SDL_BUTTON_X1:
+    mouseKeyCode = MOUSE_X1;
+    break;
+	case SDL_BUTTON_X2:
+    mouseKeyCode = MOUSE_X2;
+    break;
+	default:
+    return;
+ // Unknown button.
+	}
+  handleMouseTmp(mouseKeyCode, mouseXPos, mouseYPos, buttonEvent->type == SDL_MOUSEBUTTONDOWN);
+}
+
+
+void setMousePos (int code, bool press, Vector2i pos)
+{
+  if (press) {
+    aMouseState[code].pressPos.x = pos.x;
+    aMouseState[code].pressPos.y = pos.y;
+  }
+  else {
+    aMouseState[code].releasePos.x = pos.x;
+    aMouseState[code].releasePos.y = pos.y;
+  }
+}
+
+void pushMouses (MousePress mp)
+{
+  mousePresses.push_back(mp);
 }
 
 /*!
  * Handle mousemotion events
  */
-static void inputHandleMouseMotionEvent(SDL_MouseMotionEvent *motionEvent)
+void inputHandleMouseMotionEvent(int x, int y)
 {
-	switch (motionEvent->type)
-	{
-	case SDL_MOUSEMOTION:
-		/* store the current mouse position */
-		mouseXPos = (int)((float)motionEvent->x / current_displayScaleFactor);
-		mouseYPos = (int)((float)motionEvent->y / current_displayScaleFactor);
+  /* store the current mouse position */
+  mouseXPos = (int)((float)x / current_displayScaleFactor);
+  mouseYPos = (int)((float)y / current_displayScaleFactor);
 
-		/* now see if a drag has started */
-		if ((aMouseState[dragKey].state == KEY_PRESSED ||
-		     aMouseState[dragKey].state == KEY_DOWN) &&
-		    (ABSDIF(dragX, mouseXPos) > DRAG_THRESHOLD ||
-		     ABSDIF(dragY, mouseYPos) > DRAG_THRESHOLD))
-		{
+  /* now see if a drag has started */
+  if ((aMouseState[dragKey].state == KEY_PRESSED ||
+       aMouseState[dragKey].state == KEY_DOWN) &&
+      (ABSDIF(dragX, mouseXPos) > DRAG_THRESHOLD ||
+       ABSDIF(dragY, mouseYPos) > DRAG_THRESHOLD))
 			aMouseState[dragKey].state = KEY_DRAG;
-		}
-		break;
-	default:
-		break;
-	}
+}
+
+void setMouseX (int x)
+{
+  mouseXPos = x;
+}
+
+void setMouseY (int y)
+{
+  mouseYPos = y;
+}
+
+int getDragKey()
+{
+  return dragKey;
+}
+
+int getx()
+{
+  return dragX;
+}
+
+int gety()
+{
+  return dragY;
 }
 
 static int copied_argc = 0;
@@ -1330,6 +1376,8 @@ void handleGameScreenSizeChange(unsigned int oldWidth, unsigned int oldHeight, u
 
 void handleWindowSizeChange(unsigned int oldWidth, unsigned int oldHeight, unsigned int newWidth, unsigned int newHeight)
 {
+  oldWidth = windowWidth;
+  oldHeight = windowHeight;
 	windowWidth = newWidth;
 	windowHeight = newHeight;
 
@@ -1343,7 +1391,12 @@ void handleWindowSizeChange(unsigned int oldWidth, unsigned int oldHeight, unsig
 
 	handleGameScreenSizeChange(oldScreenWidth, oldScreenHeight, newScreenWidth, newScreenHeight);
 
-	// Update the viewport to use the new *drawable* size (which may be greater than the new window size
+  glUpdate();
+	}
+
+void glUpdate()
+{
+  // Update the viewport to use the new *drawable* size (which may be greater than the new window size
 	// if SDL's built-in high-DPI support is enabled and functioning).
 	int drawableWidth = 0, drawableHeight = 0;
 	SDL_GL_GetDrawableSize(WZwindow, &drawableWidth, &drawableHeight);
@@ -1558,21 +1611,12 @@ bool wzChangeWindowResolution(int screen, unsigned int width, unsigned int heigh
 		}
 		return false;
 	}
-
-	// Store the updated screenIndex
-	screenIndex = screen;
-
 	return true;
 }
 
 // Returns the current window screen, width, and height
-void wzGetWindowResolution(int *screen, unsigned int *width, unsigned int *height)
+void wzGetWindowResolution(unsigned int *width, unsigned int *height)
 {
-	if (screen != nullptr)
-	{
-		*screen = screenIndex;
-	}
-
 	int currentWidth = 0, currentHeight = 0;
 	SDL_GetWindowSize(WZwindow, &currentWidth, &currentHeight);
 	assert(currentWidth >= 0);
@@ -1601,203 +1645,6 @@ void pushResolution (int w, int h, int refresh_rate, int i)
   screenlist.refresh_rate = refresh_rate;
   screenlist.screen = i;		// which monitor this belongs to
   displaylist.push_back(screenlist);
-}
-
-// This stage, we handle display mode setting
-bool wzMainScreenSetup(int antialiasing, bool fullscreen, bool vsync, bool highDPI)
-{
-	// populate with the saved values (if we had any)
-	// NOTE: Prior to wzMainScreenSetup being run, the display system is populated with the window width + height
-	// (i.e. not taking into account the game display scale). This function later sets the display system
-	// to the *game screen* width and height (taking into account the display scale).
-	int width = pie_GetVideoBufferWidth();
-	int height = pie_GetVideoBufferHeight();
-
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
-	{
-		debug(LOG_ERROR, "Error: Could not initialise SDL (%s).", SDL_GetError());
-		return false;
-	}
-
-	wzSDLAppEvent = SDL_RegisterEvents(1);
-	if (wzSDLAppEvent == ((Uint32)-1)) {
-		// Failed to register app-defined event with SDL
-		debug(LOG_ERROR, "Error: Failed to register app-defined SDL event (%s).", SDL_GetError());
-		return false;
-	}
-
-	// Set the double buffer OpenGL attribute.
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-	// Enable stencil buffer, needed for shadows to work.
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-	if (antialiasing)
-	{
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, antialiasing);
-	}
-
-	// Populated our resolution list (does all displays now)
-	for (int i = 0; i < SDL_GetNumVideoDisplays(); ++i)		// How many monitors we got
-	{
-		int numdisplaymodes = SDL_GetNumDisplayModes(i);	// Get the number of display modes on this monitor
-		for (int j = 0; j < numdisplaymodes; j++)
-		{
-      SDL_DisplayMode	displaymode;
-			displaymode.format = displaymode.w = displaymode.h = displaymode.refresh_rate = 0;
-			displaymode.driverdata = 0;
-			if (SDL_GetDisplayMode(i, j, &displaymode) < 0)
-			{
-				debug(LOG_FATAL, "SDL_LOG_CATEGORY_APPLICATION error:%s", SDL_GetError());
-				SDL_Quit();
-				exit(EXIT_FAILURE);
-			}
-
-			debug(LOG_WZ, "Monitor [%d] %dx%d %d %s", i, displaymode.w, displaymode.h, displaymode.refresh_rate, SDL_GetPixelFormatName(displaymode.format));
-			if ((displaymode.w < MIN_WZ_GAMESCREEN_WIDTH) || (displaymode.h < MIN_WZ_GAMESCREEN_HEIGHT))
-			{
-				debug(LOG_WZ, "Monitor mode resolution < %d x %d -- discarding entry", MIN_WZ_GAMESCREEN_WIDTH, MIN_WZ_GAMESCREEN_HEIGHT);
-			}
-			else if (displaymode.refresh_rate < 59)
-			{
-				debug(LOG_WZ, "Monitor mode refresh rate < 59 -- discarding entry");
-				// only store 60Hz & higher modes, some display report 59 on Linux
-			}
-			else
-			{
-        pushResolution(displaymode.w, displaymode.h, displaymode.refresh_rate, i);
-			}
-		}
-	}
-
-	SDL_DisplayMode current = { 0, 0, 0, 0, 0 };
-	for (int i = 0; i < SDL_GetNumVideoDisplays(); ++i)
-	{
-		int display = SDL_GetCurrentDisplayMode(i, &current);
-		if (display != 0)
-		{
-			debug(LOG_FATAL, "Can't get the current display mode, because: %s", SDL_GetError());
-			SDL_Quit();
-			exit(EXIT_FAILURE);
-		}
-		debug(LOG_WZ, "Monitor [%d] %dx%d %d", i, current.w, current.h, current.refresh_rate);
-	}
-
-	if (width == 0 || height == 0)
-	{
-		width = windowWidth = current.w;
-		height = windowHeight = current.h;
-	}
-	else
-	{
-		windowWidth = width;
-		windowHeight = height;
-	}
-
-	setDisplayScale(war_GetDisplayScale());
-
-	// Calculate the minimum window size given the current display scale
-	unsigned int minWindowWidth = 0, minWindowHeight = 0;
-	wzGetMinimumWindowSizeForDisplayScaleFactor(&minWindowWidth, &minWindowHeight);
-
-	if ((windowWidth < minWindowWidth) || (windowHeight < minWindowHeight))
-	{
-		// The current window width and/or height is lower than the required minimum for the current display scale.
-		//
-		// Reset the display scale to 100%, and recalculate the required minimum window size.
-		setDisplayScale(100);
-		war_SetDisplayScale(100); // save the new display scale configuration
-		wzGetMinimumWindowSizeForDisplayScaleFactor(&minWindowWidth, &minWindowHeight);
-	}
-
-	windowWidth = MAX(windowWidth, minWindowWidth);
-	windowHeight = MAX(windowHeight, minWindowHeight);
-
-	//// The flags to pass to SDL_CreateWindow
-	int video_flags  = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
-
-	if (fullscreen)
-	{
-		video_flags |= WZ_SDL_FULLSCREEN_MODE;
-	}
-	else
-	{
-		// Allow the window to be manually resized, if not fullscreen
-		video_flags |= SDL_WINDOW_RESIZABLE;
-	}
-
-	screenIndex = war_GetScreen();
-	const int currentNumDisplays = SDL_GetNumVideoDisplays();
-	if (currentNumDisplays < 1)
-	{
-		debug(LOG_FATAL, "SDL_GetNumVideoDisplays returned: %d, with error: %s", currentNumDisplays, SDL_GetError());
-		SDL_Quit();
-		exit(EXIT_FAILURE);
-	}
-	if (screenIndex > currentNumDisplays)
-	{
-		debug(LOG_WARNING, "Invalid screen [%d] defined in configuration; there are only %d displays; falling back to display 0", screenIndex, currentNumDisplays);
-		screenIndex = 0;
-		war_SetScreen(0);
-	}
-	WZwindow = SDL_CreateWindow(PACKAGE_NAME, SDL_WINDOWPOS_CENTERED_DISPLAY(screenIndex), SDL_WINDOWPOS_CENTERED_DISPLAY(screenIndex), windowWidth, windowHeight, video_flags);
-
-	if (!WZwindow)
-	{
-		debug(LOG_FATAL, "Can't create a window, because: %s", SDL_GetError());
-		SDL_Quit();
-		exit(EXIT_FAILURE);
-	}
-
-	// Check that the actual window size matches the desired window size
-	int resultingWidth, resultingHeight = 0;
-	SDL_GetWindowSize(WZwindow, &resultingWidth, &resultingHeight);
-	if (resultingWidth != windowWidth || resultingHeight != windowHeight) {
-		// Failed to create window at desired size (This can happen for a number of reasons)
-		debug(LOG_ERROR, "Failed to create window at desired resolution: [%d] %d x %d; instead, received window of resolution: [%d] %d x %d; Reverting to default resolution of %d x %d", war_GetScreen(), windowWidth, windowHeight, war_GetScreen(), resultingWidth, resultingHeight, minWindowWidth, minWindowHeight);
-
-		// Default to base resolution
-		SDL_SetWindowSize(WZwindow, minWindowWidth, minWindowHeight);
-		windowWidth = minWindowWidth;
-		windowHeight = minWindowHeight;
-
-		// Center window on screen
-		SDL_SetWindowPosition(WZwindow, SDL_WINDOWPOS_CENTERED_DISPLAY(screenIndex), SDL_WINDOWPOS_CENTERED_DISPLAY(screenIndex));
-	}
-
-	// Calculate the game screen's logical dimensions
-	screenWidth = windowWidth;
-	screenHeight = windowHeight;
-	if (current_displayScaleFactor > 1.0f)
-	{
-		screenWidth = windowWidth / current_displayScaleFactor;
-		screenHeight = windowHeight / current_displayScaleFactor;
-	}
-	pie_SetVideoBufferWidth(screenWidth);
-	pie_SetVideoBufferHeight(screenHeight);
-
-	// Set the minimum window size
-	SDL_SetWindowMinimumSize(WZwindow, minWindowWidth, minWindowHeight);
-
-	SDL_GLContext WZglcontext = SDL_GL_CreateContext(WZwindow);
-	if (!WZglcontext)
-	{
-		debug(LOG_ERROR, "Failed to create a openGL context! [%s]", SDL_GetError());
-		return false;
-	}
-
-	// Enable/disable vsync if requested by the user
-	wzSetSwapInterval(vsync);
-
-	SDL_SetWindowTitle(WZwindow, PACKAGE_NAME);
-
-	/* initialise all cursors */
-  sdlInitCursors();
-
-	// FIXME: aspect ratio
-  initGL(width, height);
-	return true;
 }
 
 void setWindow (void *ptr)
@@ -1999,6 +1846,7 @@ bool wzMainEventLoop()
   /* Deal with any windows messages */
   while (SDL_PollEvent(&event))
   {
+    printf("%i : Event\n", event.type);
     switch (event.type)
     {
     case SDL_KEYUP:
@@ -2010,7 +1858,7 @@ bool wzMainEventLoop()
       inputHandleMouseButtonEvent(&event.button);
       break;
     case SDL_MOUSEMOTION:
-      inputHandleMouseMotionEvent(&event.motion);
+      inputHandleMouseMotionEvent(event.motion.x, event.motion.y);
       break;
     case SDL_MOUSEWHEEL:
       inputHandleMouseWheelEvent(&event.wheel);
@@ -2045,11 +1893,16 @@ bool wzMainEventLoop()
   // impact the script debugger's functionality, but include it (for now) on other
   // builds until an alternative script debugger UI is available.
   //
-  appPtr->processEvents();		// Qt needs to do its stuff
-  processScreenSizeChangeNotificationIfNeeded();
+  handleQt();
   //mainLoop();				// WZ does its thing
   //inputNewFrame();			// reset input states
   return false;
+}
+
+void handleQt()
+{
+  appPtr->processEvents();		// Qt needs to do its stuff
+  processScreenSizeChangeNotificationIfNeeded();
 }
 
 void wzShutdown()

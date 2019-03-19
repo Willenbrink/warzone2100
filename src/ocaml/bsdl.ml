@@ -1,4 +1,5 @@
-(*Broad SDL Bindings*)
+(*Bindings for SDL*)
+(*TODO The SDL code was in a horrible state and rewriting some part worsened it perhaps. Works good enough anyway*)
 
 open Interface
 open Tsdl
@@ -74,4 +75,34 @@ let init () =
   funer "sdlInitCursors" (void @-> returning void) ();
   funer "initGL" (int @-> int @-> returning void) x y;
 
+  window
   (*TODO Displayscale / High DPI*)
+
+let rec loop window =
+  let handleEvent event =
+    let event_typ = Sdl.Event.get event Sdl.Event.typ |> Sdl.Event.enum in
+    print_int (Sdl.Event.get event Sdl.Event.typ); print_endline " Event";
+    match event_typ with
+    | `Key_down -> Input.handleKeyPress event
+    | `Key_up -> Input.handleKeyRelease event
+    | `Mouse_button_down -> Input.handleMousePress event
+    | `Mouse_button_up -> Input.handleMouseRelease event
+    | `Mouse_motion -> Input.handleMouseMotion event
+    | `Mouse_wheel -> Input.handleMouseWheel event
+    | `Window_event -> Input.handleWindow window event
+    | `Text_input -> Input.handleText event
+    | `Quit -> raise Exit
+    | _ ->
+      print_string "!" (*TODO pass event to some mainexec thread?*)
+      ;raise Not_found
+  in
+  let event_opt = Some (Sdl.Event.create ()) in
+  match Sdl.poll_event event_opt with
+  | false -> funer "handleQt" (void @-> returning void) ()
+  | true ->
+    match event_opt with
+    | None -> raise Not_found
+    | Some event ->
+      handleEvent event;
+      loop window
+

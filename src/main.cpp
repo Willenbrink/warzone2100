@@ -664,7 +664,7 @@ void init2 ()
 	pie_LoadShaders();
 
 	unsigned int windowWidth = 0, windowHeight = 0;
-	wzGetWindowResolution(nullptr, &windowWidth, &windowHeight);
+	wzGetWindowResolution(&windowWidth, &windowHeight);
 	war_SetWidth(windowWidth);
 	war_SetHeight(windowHeight);
 

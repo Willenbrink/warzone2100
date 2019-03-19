@@ -8,24 +8,15 @@ let init () =
   let initPhysFS = funer "initPhysFS" vv in
   let wzMain = funer "wzMain" vv in
   let initMain1 = funer "init" vv in
-  let sdl_init = funer "wzMainScreenSetup" (int @-> bool @-> bool @-> bool @-> returning bool) in
   let initMain2 = funer "init2" vv in
   debug_init ();
   i18n_init ();
   initPhysFS();
   initMain1();
-  let getaa = funer "getAntialiasing" (void @-> returning int) in
-  let getfs = funer "getFullscreen" (void @-> returning bool) in
-  let getvs = funer "getVsync" (void @-> returning bool) in
-  (*
-  (match sdl_init (getaa ()) (getfs ()) (getvs ()) false (*TODO High DPI*) with
-  | true -> ()
-  | false -> raise Not_found);
-     *)
-  Bsdl.init ();
+  let state = Bsdl.init () in
   initMain2();
   wzMain();
-  ()
+  state
 
 exception Halt
 
@@ -143,7 +134,7 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
   let after = wzGetTicks () in
   (renderReturn,newLastFlush, (renderBudget + (after - before) * 3),true)
 
-let rec loop mode gameLoopState =
+let rec loop sdlState mode gameLoopState =
   let sdl = funer "SDLLoop" (void @-> returning bool) in
   let tmp = funer "inputNewFrame" vv in
   let frameUpdate = funer "frameUpdate" vv in
@@ -170,7 +161,12 @@ let rec loop mode gameLoopState =
   let closeLoadingScreen = funer "closeLoadingScreen" vv in
   let realTimeUpdate = funer "realTimeUpdate" vv in
 
-  (match sdl () with true -> raise Halt | false -> ());
+  (if false
+  then
+    (match sdl () with true -> raise Halt | false -> ())
+  else
+    Bsdl.loop sdlState
+ );
   frameUpdate ();
   let newMode,newState = match getGameMode () with
    | Title -> (match titleLoop () |> getState with
@@ -193,13 +189,13 @@ let rec loop mode gameLoopState =
   realTimeUpdate ();
   tmp ();
   setGameMode newMode;
-  loop newMode newState
+  loop sdlState newMode newState
 
 let () =
   let state = (0,0,false) in
   Arg.parse Parser.specList (fun _ -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments";
-  init ();
+  let sdlState = init () in
   try
-    loop Title state
-  with Halt -> funer "halt" vv ()
+    loop sdlState Title state
+  with e -> funer "halt" vv (); raise e
 

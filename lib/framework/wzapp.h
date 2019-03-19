@@ -25,6 +25,8 @@
 #include "wzstring.h"
 #include <vector>
 #include <functional>
+#include "input.h"
+#include "vector.h"
 
 struct WZ_THREAD;
 struct WZ_MUTEX;
@@ -74,6 +76,27 @@ void pushResolution (int w, int h, int refresh_rate, int i) asm ("pushResolution
 bool wzMainScreenSetup(int antialiasing = 0, bool fullscreen = false, bool vsync = true, bool highDPI = true) asm ("wzMainScreenSetup");
 void wzGetGameToRendererScaleFactor(float *horizScaleFactor, float *vertScaleFactor);
 bool wzMainEventLoop() asm ("SDLLoop");
+void handleQt() asm ("handleQt");
+void inputAddBuffer(UDWORD key, int unicode) asm ("inputAddBuffer"); // FIXME: int <-> utf_32_char
+int getKey (int code) asm ("getKey");
+void setKey (int code, int state) asm ("setKey");
+void setMouse (int key, int state) asm ("setMouse");
+int getMouse (int key) asm ("getMouse");
+int getDragKey() asm ("getDragKey");
+int getx() asm ("getx");
+int gety() asm ("gety");
+void pushMouses (MousePress mp) asm ("pushMouses");
+void setKeyDown (int mouseKeyCode) asm ("setKeyDown");
+void setMouseInWindow(bool x) asm ("setMouseInWindow");
+void setMousePos (int code, bool, Vector2i pos) asm ("setMousePos");
+void glUpdate() asm ("glUpdate");
+void handleWindowSizeChange(unsigned int oldWidth, unsigned int oldHeight, unsigned int newWidth, unsigned int newHeight) asm ("handleTmp");
+void inputHandleMouseMotionEvent(int x, int y) asm ("handleMotionTmp");
+void setMouseX (int x) asm ("setMouseX");
+void setMouseY (int y) asm ("setMouseY");
+int sdlKeyToKeyCode(int key) asm ("sdlToKeyCode");
+int getSymKey(int keysym) asm ("getSymKeySE");
+void handleMouseTmp(MOUSE_KEY_CODE mouseKeyCode, int mouseXPos, int mouseYPos, bool down) asm ("handleMouseTmp");
 void wzQuit();              ///< Quit game
 void wzShutdown();
 void wzToggleFullscreen();
@@ -85,7 +108,7 @@ bool wzChangeDisplayScale(unsigned int displayScale);
 bool wzChangeWindowResolution(int screen, unsigned int width, unsigned int height);
 unsigned int wzGetMaximumDisplayScaleForWindowSize(unsigned int windowWidth, unsigned int windowHeight);
 unsigned int wzGetCurrentDisplayScale();
-void wzGetWindowResolution(int *screen, unsigned int *width, unsigned int *height);
+void wzGetWindowResolution(unsigned int *width, unsigned int *height);
 void wzSetCursor(CURSOR index);
 void wzScreenFlip();	///< Swap the graphics buffers
 void wzShowMouse(bool visible); ///< Show the Mouse?
