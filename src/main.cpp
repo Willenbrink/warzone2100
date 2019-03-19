@@ -75,13 +75,6 @@
 #  define WZ_DATADIR "data"
 #endif
 
-
-enum FOCUS_STATE
-{
-	FOCUS_OUT,		// Window does not have the focus
-	FOCUS_IN,		// Window has got the focus
-};
-
 bool customDebugfile = false;		// Default false: user has NOT specified where to store the stdout/err file.
 
 char datadir[PATH_MAX] = ""; // Global that src/clparse.c:ParseCommandLine can write to, so it can override the default datadir on runtime. Needs to be empty on startup for ParseCommandLine to work!
@@ -339,7 +332,6 @@ static void make_dir(char *dest, const char *dirname, const char *subdir)
 	}
 }
 
-
 /*!
  * Preparations before entering the title (mainmenu) loop
  * Would start the timer in an event based mainloop
@@ -359,7 +351,6 @@ void startTitleLoop()
 	closeLoadingScreen();
 }
 
-
 /*!
  * Shutdown/cleanup after the title (mainmenu) loop
  * Would stop the timer
@@ -372,7 +363,6 @@ void stopTitleLoop()
 		exit(EXIT_FAILURE);
 	}
 }
-
 
 /*!
  * Preparations before entering the game loop
@@ -511,15 +501,6 @@ bool initSaveGameLoad()
 // for backend detection
 extern const char *BACKEND;
 
-void test(int argc, char *argv[])
-{
-  fprintf(stderr, "Succesfully working!\n");
-  for(int i = 0; i < argc; i++)
-  {
-    fprintf(stderr, "%s\n", argv[i]);
-  }
-}
-
 void initPhysFS()
 {
   //NOTE: Apparently passing NULL on Linux is bad but it seems to work...
@@ -614,25 +595,24 @@ void init()
   //TODO move somewhere appropriate
   setlocale(LC_NUMERIC, "C");
 	memset(rulesettag, 0, sizeof(rulesettag)); // stores tag property of ruleset.json files
-  if (!customDebugfile)
-    {
-      // there was no custom debug file specified  (--debug-file=blah)
-      // so we use our write directory to store our logs.
-      time_t aclock;
-      struct tm *newtime;
-      char buf[PATH_MAX];
+  if (!customDebugfile) {
+    // there was no custom debug file specified  (--debug-file=blah)
+    // so we use our write directory to store our logs.
+    time_t aclock;
+    struct tm *newtime;
+    char buf[PATH_MAX];
 
-      time(&aclock);					// Get time in seconds
-      newtime = localtime(&aclock);		// Convert time to struct
-      // Note: We are using fopen(), and not physfs routines to open the file
-      // log name is logs/(or \)WZlog-MMDD_HHMMSS.txt
-      snprintf(buf, sizeof(buf), "%slogs%sWZlog-%02d%02d_%02d%02d%02d.txt", PHYSFS_getWriteDir(), PHYSFS_getDirSeparator(),
-               newtime->tm_mon + 1, newtime->tm_mday, newtime->tm_hour, newtime->tm_min, newtime->tm_sec);
-      WzString debug_filename = buf;
-      debug_register_callback(debug_callback_file, debug_callback_file_init, debug_callback_file_exit, &debug_filename); // note: by the time this function returns, all use of debug_filename has completed
+    time(&aclock);					// Get time in seconds
+    newtime = localtime(&aclock);		// Convert time to struct
+    // Note: We are using fopen(), and not physfs routines to open the file
+    // log name is logs/(or \)WZlog-MMDD_HHMMSS.txt
+    snprintf(buf, sizeof(buf), "%slogs%sWZlog-%02d%02d_%02d%02d%02d.txt", PHYSFS_getWriteDir(), PHYSFS_getDirSeparator(),
+             newtime->tm_mon + 1, newtime->tm_mday, newtime->tm_hour, newtime->tm_min, newtime->tm_sec);
+    WzString debug_filename = buf;
+    debug_register_callback(debug_callback_file, debug_callback_file_init, debug_callback_file_exit, &debug_filename); // note: by the time this function returns, all use of debug_filename has completed
 
-      debug(LOG_WZ, "Using %s debug file", buf);
-    }
+    debug(LOG_WZ, "Using %s debug file", buf);
+  }
 
 	/* Put in the writedir root */
 	sstrcpy(KeyMapPath, "keymap.json");
