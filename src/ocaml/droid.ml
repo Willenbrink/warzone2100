@@ -91,3 +91,9 @@ let apply f =
 let map f = apply (List.map f)
 let iter f = apply (List.iter f)
 let fold f acc = apply (List.fold_left f acc)
+
+let update {pointer; _} =
+  funer "droidUpdate" (ptr void @-> returning void) pointer
+
+let update_mission {pointer; _} =
+  funer "missionDroidUpdate" (ptr void @-> returning void) pointer

@@ -74,8 +74,6 @@ bool fpathInitialise();
  */
 void fpathShutdown();
 
-void fpathUpdate();
-
 /** Find a route for a droid to a location.
  */
 FPATH_RETVAL fpathDroidRoute(DROID *psDroid, SDWORD targetX, SDWORD targetY, FPATH_MOVETYPE moveType);

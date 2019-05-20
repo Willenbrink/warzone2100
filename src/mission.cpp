@@ -3001,23 +3001,23 @@ void missionGetTransporterExit(SDWORD iPlayer, UDWORD *iX, UDWORD *iY)
 void missionTimerUpdate()
 {
 	//don't bother with the time check if have 'cheated'
-	if (!mission.cheatTime)
-	{
-		//Want a mission timer on all types of missions now - AB 26/01/99
-		//only interested in off world missions (so far!) and if timer has been set
-		if (mission.time >= 0)  //&& (
-			//mission.type == LDS_MKEEP || mission.type == LDS_MKEEP_LIMBO ||
-			//mission.type == LDS_MCLEAR || mission.type == LDS_BETWEEN))
+	if (mission.cheatTime)
+    return;
+
+  //Want a mission timer on all types of missions now - AB 26/01/99
+  //only interested in off world missions (so far!) and if timer has been set
+  if (mission.time >= 0)  //&& (
+    //mission.type == LDS_MKEEP || mission.type == LDS_MKEEP_LIMBO ||
+    //mission.type == LDS_MCLEAR || mission.type == LDS_BETWEEN))
 		{
 			//check if time is up
 			if ((SDWORD)(gameTime - mission.startTime) > mission.time)
-			{
-				//the script can call the end game cos have failed!
-				eventFireCallbackTrigger((TRIGGER_TYPE)CALL_MISSION_TIME);
-				triggerEvent(TRIGGER_MISSION_TIMEOUT);
-			}
+        {
+          //the script can call the end game cos have failed!
+          eventFireCallbackTrigger((TRIGGER_TYPE)CALL_MISSION_TIME);
+          triggerEvent(TRIGGER_MISSION_TIMEOUT);
+        }
 		}
-	}
 }
 
 

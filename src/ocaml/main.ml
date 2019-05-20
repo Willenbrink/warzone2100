@@ -97,13 +97,18 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
   let setDeltaGameTime = funer "setDeltaGameTime" (int @-> returning void) in
   let gameStatePreUpdate = funer "gameStatePreUpdate" vv in
   let gameStateUpdate () =
-      Droid.iterAssoc (function ((1,_),droids) -> List.iter (fun ({pointer; _} : Droid.t ) -> funer "droidUpdate" (ptr void @-> returning void) pointer) droids | _ -> ());
-      Droid.iterAssoc (function ((2,_),droids) -> List.iter (fun ({pointer; _} : Droid.t ) -> funer "missionDroidUpdate" (ptr void @-> returning void) pointer) droids | _ -> ());
-      Building.iterAssoc (function ((l,_),buildings) -> List.iter (fun ({pointer; _} : Building.t ) -> funer "structureUpdate" (ptr void @-> bool @-> returning void) pointer (l = 2)) buildings);
+    Droid.iterAssoc (function
+        | ((1,_),droids) -> List.iter (fun droid -> Droid.update droid) droids
+        | _ -> ());
+    Droid.iterAssoc (function
+        | ((2,_),droids) -> List.iter (fun droid -> Droid.update_mission droid) droids
+        | _ -> ());
+    Building.iterAssoc (function
+        | ((l,_),buildings) -> List.iter (fun building -> Building.update building (l = 2)) buildings);
   in
   let gameStatePostUpdate = funer "gameStatePostUpdate" vv in
 
-  let updatePower id = (*FIXME TODO this does check all buildings, also those offworld*)
+  let updatePower id = (*FIXME this does check all buildings, also those offworld*)
     let updateCurrentPower = funer "updateCurrentPower" (ptr void @-> int @-> int @-> returning void) in
     let buildings = Building.getList id 1 in
     List.iter (fun ({typ; status; pointer; _} : Building.t) -> match typ,status with
@@ -137,17 +142,11 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) =
 let rec loop sdlState mode gameLoopState =
   let tmp = funer "inputNewFrame" vv in
   let frameUpdate = funer "frameUpdate" vv in
-  let getGameMode () =
-    match funer "getGameMode" (void @-> returning int) () with
-    | 1 -> Title
-    | 2 -> Game
-    | _ -> raise Not_found
-  in
-  let setGameMode newMode =
-    let worker = funer "setGameMode" (int @-> returning void) in
+  let setRunning newMode =
+    let worker = funer "setRunning" (bool @-> returning void) in
     match newMode with
-    | Title -> worker 1
-    | Game -> worker 2
+    | Title -> worker true
+    | Game -> worker false
     | _ -> todo ()
   in
   let startTitleLoop = funer "startTitleLoop" vv in
@@ -162,7 +161,7 @@ let rec loop sdlState mode gameLoopState =
 
   Bsdl.loop sdlState;
   frameUpdate ();
-  let newMode,newState = match getGameMode () with
+  let newMode,newState = match mode with
    | Title -> (match titleLoop () |> getState with
        | Running -> Title,gameLoopState
        | Quitting -> stopTitleLoop (); raise Halt
@@ -182,7 +181,7 @@ let rec loop sdlState mode gameLoopState =
   in
   realTimeUpdate ();
   tmp ();
-  setGameMode newMode;
+  setRunning newMode;
   loop sdlState newMode newState
 
 let () =
@@ -192,4 +191,3 @@ let () =
   try
     loop sdlState Title state
   with e -> funer "halt" vv (); raise e
-

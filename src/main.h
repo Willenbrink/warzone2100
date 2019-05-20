@@ -23,20 +23,13 @@
 
 #include "lib/framework/frame.h"
 
-enum GS_GAMEMODE
-{
-	GS_TITLE_SCREEN = 1,
-	GS_NORMAL = 2,
-	GS_SAVEGAMELOAD = 3
-};
-
 //flag to indicate when initialisation is complete
 extern bool gameInitialised;
 extern bool customDebugfile;
 
 int getMaxPlayers() asm ("getMaxPlayers");
-GS_GAMEMODE getGameMode() asm ("getGameMode");
-void setGameMode(GS_GAMEMODE status) asm ("setGameMode");
+void setRunning(bool) asm ("setRunning");
+bool isRunning() asm ("isRunning");
 void mainLoop() asm ("WZLoop");
 void runGameLoop() asm ("runGameLoop");
 void startTitleLoop() asm ("startTitleLoop");

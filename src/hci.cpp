@@ -574,7 +574,7 @@ bool intInitialise()
 
 	psWScreen = new W_SCREEN;
 
-	if (getGameMode() == GS_NORMAL)
+	if (isRunning())
 	{
 		if (!intAddPower())
 		{
@@ -4598,7 +4598,7 @@ void addIntelScreen()
 	intShowPowerBar();
 
 	// Only do this in main game.
-	if ((getGameMode() == GS_NORMAL) && !bMultiPlayer)
+	if (isRunning() && !bMultiPlayer)
 	{
 		radOnScreen = radarOnScreen;
 

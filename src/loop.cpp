@@ -485,9 +485,6 @@ void gameStatePreUpdate()
 	// Update the map.
 	mapUpdate();
 
-	//update the findpath system
-	fpathUpdate();
-
 	// update the command droids
 	cmdDroidUpdate();
 

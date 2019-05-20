@@ -421,7 +421,7 @@ bool loadWeaponStats(WzConfig &ini)
 		psStats->pIMD = statsGetIMD(ini, psStats, "model");
 		psStats->pMountGraphic = statsGetIMD(ini, psStats, "mountModel");
 
-		if (getGameMode() == GS_NORMAL)
+		if (isRunning())
 		{
 			psStats->pMuzzleGraphic = statsGetIMD(ini, psStats, "muzzleGfx");
 			psStats->pInFlightGraphic = statsGetIMD(ini, psStats, "flightGfx");

@@ -112,3 +112,6 @@ let apply f =
 let map f = apply (List.map f)
 let iter f = apply (List.iter f)
 let fold f acc = apply (List.fold_left f acc)
+
+let update {pointer; _} is_mission =
+  funer "structureUpdate" (ptr void @-> bool @-> returning void) pointer is_mission

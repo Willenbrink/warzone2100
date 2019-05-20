@@ -144,17 +144,6 @@ void fpathShutdown()
 	fpathHardTableReset();
 }
 
-
-/**
- *	Updates the pathfinding system.
- *	@ingroup pathfinding
- */
-void fpathUpdate()
-{
-	// Nothing now
-}
-
-
 bool fpathIsEquivalentBlocking(PROPULSION_TYPE propulsion1, int player1, FPATH_MOVETYPE moveType1,
                                PROPULSION_TYPE propulsion2, int player2, FPATH_MOVETYPE moveType2)
 {

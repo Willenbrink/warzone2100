@@ -59,8 +59,6 @@ let handleText event =
 
 let getMouse key =
   let res = funer "getMouse" (int @-> returning int) key in
-  print_int key; print_string " - ";
-  print_int res; print_endline " getMouse";
   List.assoc res stateAssoc
 
 let setMouse key state =

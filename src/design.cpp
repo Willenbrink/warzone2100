@@ -349,7 +349,7 @@ bool intAddDesign(bool bShowCentreScreen)
 	//set which states are to be paused while design screen is up
 	setDesignPauseState();
 
-	if (getGameMode() == GS_NORMAL && !bMultiPlayer)
+	if (isRunning() && !bMultiPlayer)
 	{
 		bool radOnScreen = radarOnScreen;
 		bRender3DOnly = true;
