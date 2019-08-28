@@ -90,18 +90,20 @@ let handleMouseMotion event =
   | _ -> ()
 (*funer "handleMotionTmp" (int @-> int @-> returning void) x y*)
 
-type vector2i
-  let vector2i : vector2i structure typ = structure "Vector2i"
+type _vector2i
+let vector2i : _vector2i structure typ = structure "Vector2i"
 let x = field vector2i "x" int
 let y = field vector2i "y" int
 let () = seal vector2i
+type vector2i = _vector2i structure
 
-type mousePress
-let mousePress : mousePress structure typ = structure "MousePress"
-let key = field mousePress "key" int
+type _mousePress
+let mousePress : _mousePress structure typ = structure "MousePress"
 let action = field mousePress "action" int
+let key = field mousePress "key" int
 let pos = field mousePress "pos" vector2i
 let () = seal mousePress
+type mousePress = _mousePress structure
 
 let setMousePos mouse b pos =
   funer "setMousePos" (int @-> bool @-> vector2i @-> returning void) mouse b pos
@@ -109,7 +111,7 @@ let setMousePos mouse b pos =
 let pushMouses mousepress =
   funer "pushMouses" (mousePress @-> returning void) mousepress
 
-let getMouseEvent event =
+let getMouseEvent event : (int (*Keycode*) * vector2i * mousePress) =
   let mouse = get event mouse_button_button in
   let xp,yp = get event mouse_button_x, get event mouse_button_y in
   let p = make vector2i in
@@ -122,7 +124,6 @@ let getMouseEvent event =
 
 let handleMousePress event =
   let mouse,p,mp = getMouseEvent event in
-  (*
   setf mp action 1;
   pushMouses mp;
   setMousePos mouse true p;
@@ -130,12 +131,9 @@ let handleMousePress event =
   match getMouse mouse with
   | Up | Released | PressRelease -> funer "setKeyDown" (int @-> returning void) mouse
   | _ -> ()
-     *)
-  funer "handleMouseTmp" (int @-> int @-> int @-> bool @-> returning void) mouse (getf p x) (getf p y) true
 
 let handleMouseRelease event =
   let mouse,p,mp = getMouseEvent event in
-  (*
   setf mp action 2;
   pushMouses mp;
   setMousePos mouse false p;
@@ -144,8 +142,6 @@ let handleMouseRelease event =
   | Pressed -> setMouse mouse PressRelease
   | Down | Drag | Doubleclick -> setMouse mouse Released
   | PressRelease | Up | Released -> ()
-     *)
-  funer "handleMouseTmp" (int @-> int @-> int @-> bool @-> returning void) mouse (getf p x) (getf p y) false
 
 let handleWindow window event =
   let setMouse = funer "setMouseInWindow" (bool @-> returning void) in

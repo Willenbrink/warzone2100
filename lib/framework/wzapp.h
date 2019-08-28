@@ -95,7 +95,6 @@ void setMouseX (int x) asm ("setMouseX");
 void setMouseY (int y) asm ("setMouseY");
 int sdlKeyToKeyCode(int key) asm ("sdlToKeyCode");
 int getSymKey(int keysym) asm ("getSymKeySE");
-void handleMouseTmp(MOUSE_KEY_CODE mouseKeyCode, int mouseXPos, int mouseYPos, bool down) asm ("handleMouseTmp");
 void wzQuit();              ///< Quit game
 void wzShutdown();
 void wzToggleFullscreen();

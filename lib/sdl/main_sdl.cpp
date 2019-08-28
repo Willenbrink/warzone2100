@@ -1134,44 +1134,9 @@ void setKeyDown (int code)
     }
 }
 
-void handleMouseTmp(MOUSE_KEY_CODE mouseKeyCode, int mouseXPos, int mouseYPos, bool down)
+void pushMouses (MousePress mp)
 {
-  printf("handleMouseTmp: %i %i %i %i\n", (int) mouseKeyCode, mouseXPos, mouseYPos, down);
-	MousePress mousePress;
-	mousePress.key = mouseKeyCode;
-	mousePress.pos = Vector2i(mouseXPos, mouseYPos);
-
-	if(down)
-	{
-		mousePress.action = MousePress::Press;
-		mousePresses.push_back(mousePress);
-
-		aMouseState[mouseKeyCode].pressPos.x = mouseXPos;
-		aMouseState[mouseKeyCode].pressPos.y = mouseYPos;
-		if (aMouseState[mouseKeyCode].state == KEY_UP
-		    || aMouseState[mouseKeyCode].state == KEY_RELEASED
-		    || aMouseState[mouseKeyCode].state == KEY_PRESSRELEASE)
-		{
-      setKeyDown(mouseKeyCode);
-		}
-  }
-  else {
-		mousePress.action = MousePress::Release;
-		mousePresses.push_back(mousePress);
-
-		aMouseState[mouseKeyCode].releasePos.x = mouseXPos;
-		aMouseState[mouseKeyCode].releasePos.y = mouseYPos;
-		if (aMouseState[mouseKeyCode].state == KEY_PRESSED)
-		{
-			aMouseState[mouseKeyCode].state = KEY_PRESSRELEASE;
-		}
-		else if (aMouseState[mouseKeyCode].state == KEY_DOWN
-		         || aMouseState[mouseKeyCode].state == KEY_DRAG
-		         || aMouseState[mouseKeyCode].state == KEY_DOUBLECLICK)
-		{
-			aMouseState[mouseKeyCode].state = KEY_RELEASED;
-		}
-	}
+  mousePresses.push_back(mp);
 }
 
 void setMousePos (int code, bool press, Vector2i pos)
@@ -1186,10 +1151,6 @@ void setMousePos (int code, bool press, Vector2i pos)
   }
 }
 
-void pushMouses (MousePress mp)
-{
-  mousePresses.push_back(mp);
-}
 
 /*!
  * Handle mousemotion events
