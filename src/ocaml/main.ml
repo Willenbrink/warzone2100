@@ -2,6 +2,8 @@ open Interface
 
 let todo _ = failwith "TODO"
 
+exception Halt
+
 let init () =
   let debug_init = funer "debug_init" vv in
   let i18n_init = funer "initI18n" vv in
@@ -9,16 +11,16 @@ let init () =
   let wzMain = funer "wzMain" vv in
   let initMain1 = funer "init" vv in
   let initMain2 = funer "init2" vv in
+  let init_frontend () = funer "frontendInitialise" (string @-> returning bool) "wrf/frontend.wrf" in
   debug_init ();
   i18n_init ();
   initPhysFS();
   initMain1();
   let state = Bsdl.init () in
   initMain2();
+  (match init_frontend () with false -> raise Halt | true -> ());
   wzMain();
   state
-
-exception Halt
 
 type gamemode =
   | Title
@@ -149,7 +151,11 @@ let rec loop sdlState mode gameLoopState =
     | Game -> worker false
     | _ -> todo ()
   in
-  let startTitleLoop = funer "startTitleLoop" vv in
+  let init_frontend () =
+    match funer "frontendInitialise" (string @-> returning bool) "wrf/frontend.wrf" with
+    | false -> raise Halt
+    | true -> ()
+  in
   let titleLoop = funer "titleLoop" (void @-> returning int) in
   let stopTitleLoop = funer "stopTitleLoop" vv in
   let startGameLoop = funer "startGameLoop" vv in
@@ -158,6 +164,12 @@ let rec loop sdlState mode gameLoopState =
   let initLoadingScreen = funer "initLoadingScreen" (bool @-> returning void) in
   let closeLoadingScreen = funer "closeLoadingScreen" vv in
   let realTimeUpdate = funer "realTimeUpdate" vv in
+  let wrapLoad f = fun x ->
+    initLoadingScreen true;
+    let ret = f x in
+    closeLoadingScreen ();
+    ret
+  in
 
   Bsdl.loop sdlState;
   frameUpdate ();
@@ -165,15 +177,15 @@ let rec loop sdlState mode gameLoopState =
    | Title -> (match titleLoop () |> getState with
        | Running -> Title,gameLoopState
        | Quitting -> stopTitleLoop (); raise Halt
-       | Loading -> initLoadingScreen true; stopTitleLoop (); initSaveGameLoad (); closeLoadingScreen (); Game,gameLoopState
-       | NewLevel -> initLoadingScreen true; stopTitleLoop (); startGameLoop (); closeLoadingScreen (); Game,gameLoopState
+       | Loading -> wrapLoad (fun () -> stopTitleLoop (); initSaveGameLoad ()) (); Game,gameLoopState
+       | NewLevel -> wrapLoad (fun () -> stopTitleLoop (); startGameLoop ()) (); Game,gameLoopState
        | Viewing -> todo ())
   | Game -> (
       let (state,lastFlush,renderBudget,lastUpdateRender) =
         gameLoop gameLoopState in
       match getState state with
        | Running | Viewing -> Game,(lastFlush,renderBudget,lastUpdateRender)
-       | Quitting -> stopGameLoop (); startTitleLoop (); Title,(lastFlush,renderBudget,lastUpdateRender)
+       | Quitting -> stopGameLoop (); wrapLoad init_frontend (); Title,(lastFlush,renderBudget,lastUpdateRender)
        | Loading -> stopGameLoop (); initSaveGameLoad (); Game,(lastFlush,renderBudget,lastUpdateRender)
        | NewLevel -> stopGameLoop (); startGameLoop (); Game,(lastFlush,renderBudget,lastUpdateRender)
      )
@@ -184,9 +196,9 @@ let rec loop sdlState mode gameLoopState =
   setRunning newMode;
   loop sdlState newMode newState
 
-let () =
+let () = (* Entry point *)
   let state = (0,0,false) in
-  Arg.parse Parser.specList (fun _ -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments";
+  Parser.parse ();
   let sdlState = init () in
   try
     loop sdlState Title state

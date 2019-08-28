@@ -34,6 +34,12 @@ public:
 	}
 	static WzUniCodepoint fromASCII(unsigned char charLiteral);
 
+  WzUniCodepoint(const WzUniCodepoint &original) :
+    _codepoint(original._codepoint)
+  {
+    ;
+  }
+
 	uint32_t UTF32() const { return _codepoint; }
 
 	bool isNull() const { return _codepoint == 0; }
@@ -41,8 +47,16 @@ public:
 	std::vector<WzUniCodepoint> caseFolded() const;
 
 public:
-	WzUniCodepoint& operator=(const WzUniCodepoint& ch) { _codepoint = ch._codepoint; return *this; }
-	bool operator==(const WzUniCodepoint& ch) const { return _codepoint == ch._codepoint; }
+	WzUniCodepoint& operator=(const WzUniCodepoint& ch)
+  {
+   _codepoint = ch._codepoint;
+   return *this;
+  }
+
+	bool operator==(const WzUniCodepoint& ch) const
+  {
+   return _codepoint == ch._codepoint;
+  }
 
 protected:
 	WzUniCodepoint(uint32_t utf_32_codepoint)

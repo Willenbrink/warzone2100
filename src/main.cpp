@@ -660,8 +660,6 @@ void init2 ()
 
 	//set all the pause states to false
 	setAllPauseStates(false);
-
-  startTitleLoop();
 }
 
 void halt()

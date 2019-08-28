@@ -37,3 +37,4 @@ let specList =
     ("-skirmish", Unit todo, "Start skirmish game with given settings file");
   ]
 
+let parse () = Arg.parse specList (fun _ -> Printf.fprintf stderr "Invalid argument") "Warzone2100:\nArguments"

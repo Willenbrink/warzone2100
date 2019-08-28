@@ -3,7 +3,7 @@ open Foreign
 
 let libOpener str = Dl.dlopen ~flags:[Dl.RTLD_LAZY] ~filename:("/opt/warzone2100/src/" ^ str)
 
-let libwar = libOpener "/warzone2100"
+let libwar = libOpener "warzone2100"
 
 let funer name params =
   foreign ~from:libwar

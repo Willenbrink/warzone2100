@@ -33,7 +33,7 @@ extern char fileLoadBuffer[];
 
 bool systemInitialise(float horizScaleFactor, float vertScaleFactor);
 void systemShutdown();
-bool frontendInitialise(const char *ResourceFile);
+bool frontendInitialise(const char *ResourceFile) asm ("frontendInitialise");
 bool frontendShutdown();
 bool stageOneInitialise();
 bool stageOneShutDown();
