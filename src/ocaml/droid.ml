@@ -18,7 +18,10 @@ type typ =
   | Any
 and t = {id : int; typ : typ; pointer : (unit Ctypes_static.ptr)}
 
-(* list * player -> droid list*)
+(* Used in the assoc list:
+   key: list * player
+   value: droid list
+   with list being either 1: currently active droids 2: mission droids 3: limbo droids (?) *)
 type entry = (int * int) * t list
 
 
@@ -93,6 +96,7 @@ let iter f = apply (List.iter f)
 let fold f acc = apply (List.fold_left f acc)
 
 let update {pointer; _} =
+  funer "syncDebugDroid" (ptr void @-> char @-> returning void) pointer '<';
   funer "droidUpdate" (ptr void @-> returning void) pointer
 
 let update_mission {pointer; _} =

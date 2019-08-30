@@ -712,6 +712,11 @@ void _syncDebugDroid(const char *function, DROID const *psDroid, char ch)
 	_syncDebugIntList(function, "%c droid%d = p%d;pos(%d,%d,%d),rot(%d,%d,%d),order%d(%d,%d)^%d,action%d,secondaryOrder%X,body%d,sMove(status%d,speed%d,moveDir%d,path%d/%d,src(%d,%d),target(%d,%d),destination(%d,%d),bump(%d,%d,%d,%d,(%d,%d),%d)),exp%u", list, ARRAY_SIZE(list));
 }
 
+void syncDebugDroidOcaml(DROID const *psDroid, char ch)
+{
+  syncDebugDroid(psDroid, ch);
+}
+
 /* The main update routine for all droids */
 void droidUpdate(DROID *psDroid)
 {
@@ -719,31 +724,6 @@ void droidUpdate(DROID *psDroid)
 	UDWORD          percentDamage, emissionInterval;
 	BASE_OBJECT     *psBeingTargetted = nullptr;
 	unsigned        i;
-
-	CHECK_DROID(psDroid);
-
-#ifdef DEBUG
-
-	// Check that we are (still) in the sensor list
-	if (psDroid->droidType == DROID_SENSOR)
-	{
-		BASE_OBJECT	*psSensor;
-
-		for (psSensor = apsSensorList[0]; psSensor; psSensor = psSensor->psNextFunc)
-		{
-			if (psSensor == (BASE_OBJECT *)psDroid)
-			{
-				break;
-			}
-		}
-
-		ASSERT(psSensor == (BASE_OBJECT *)psDroid, "%s(%p) not in sensor list!",
-		       droidGetName(psDroid), static_cast<void *>(psDroid));
-	}
-
-#endif
-
-	syncDebugDroid(psDroid, '<');
 
 	if (psDroid->flags.test(OBJECT_FLAG_DIRTY))
 	{

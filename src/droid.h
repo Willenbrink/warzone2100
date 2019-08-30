@@ -442,6 +442,8 @@ void cancelBuild(DROID *psDroid);
 
 #define syncDebugDroid(psDroid, ch) _syncDebugDroid(__FUNCTION__, psDroid, ch)
 void _syncDebugDroid(const char *function, DROID const *psDroid, char ch);
+void syncDebugDroidOcaml(DROID const *psDroid, char ch) asm ("syncDebugDroid");
+
 
 
 // True iff object is a droid.

@@ -111,7 +111,7 @@ struct BASE_OBJECT : public SIMPLE_OBJECT
 	BASE_OBJECT(OBJECT_TYPE type, uint32_t id, unsigned player);
 
 	SCREEN_DISP_DATA    sDisplay;                   ///< screen coordinate details
-	//FIXME why group = 0? it should be -1 or else it would end up in ctrl+0?
+	//FIXME why group = 0? it should be -1 or else it would end up in ctrl+0? or is ctrl+0 = 10?
 	int               group = 0;                  ///< Which group selection is the droid currently in?
 	uint               selected;                   ///< Whether the object is selected (might want this elsewhere)
 	uint               visible[MAX_PLAYERS];       ///< Whether object is visible to specific player
