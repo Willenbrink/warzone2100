@@ -48,7 +48,7 @@ let updateCounts () =
   ()
 
 (* Renderbudget represents the balance between gamelogic and rendering. Every gameworldupdate reduces the budget until empty and every render increases it.*)
-let gameLoop (lastFlush,renderBudget,lastUpdateRender) : int * int * int * bool =
+let gameLoop (lastFlush) : int * int =
   let recvMessage = funer "recvMessage" vv in
   let gameTimeUpdate = funer "gameTimeUpdate" (bool @-> returning void) in
   let renderLoop = funer "renderLoop" (void @-> returning int) in
@@ -77,27 +77,19 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) : int * int * int * bool 
         | _,_ -> ()) buildings
   in
 
-  let rec worldUpdate (renderBudget,lastUpdateRender) =
-    let remainingBudget = ref renderBudget in
+  let worldUpdate () =
     recvMessage ();
-    gameTimeUpdate (!remainingBudget > 0 || lastUpdateRender);
-    while getDeltaGameTime () != 0 do
-      let before = Time.currentTime () in
-      gameStatePreUpdate ();
-      updateCounts ();
-      Player.iter updatePower;
-      gameStateUpdate ();
-      gameStatePostUpdate ();
-      let after = Time.currentTime () in
-      remainingBudget := !remainingBudget - (after - before);
-      recvMessage ();
-      gameTimeUpdate (!remainingBudget > 0);
-      ()
-    done;
-    !remainingBudget
+    gameTimeUpdate true;
+    gameStatePreUpdate ();
+    updateCounts ();
+    Player.iter updatePower;
+    gameStateUpdate ();
+    gameStatePostUpdate ();
+    gameTimeUpdate false;
+    recvMessage ()
   in
 
-  let renderBudget = worldUpdate (renderBudget, lastUpdateRender) in
+  worldUpdate ();
   let newLastFlush = (* Flush at least every 400 ms *)
     if Time.currentTime () - lastFlush >= 400
     then begin
@@ -106,10 +98,8 @@ let gameLoop (lastFlush,renderBudget,lastUpdateRender) : int * int * int * bool 
     end
     else lastFlush
   in
-  let before = Time.currentTime () in
   let renderReturn = renderLoop () in
-  let after = Time.currentTime () in
-  (renderReturn,newLastFlush, (renderBudget + (after - before)),true)
+  (renderReturn,newLastFlush)
 
 type gamemode =
   | Title
@@ -169,7 +159,7 @@ let rec loop sdlState =
   in
 
   let mode = ref Title in
-  let gameLoopState = ref (0,0,false) in
+  let gameLoopState = ref (0) in
   (* This is the main-loop. This should never be exited unless we exit the game *)
   while true do
     Bsdl.handleEvents sdlState;
@@ -186,23 +176,23 @@ let rec loop sdlState =
             Game,!gameLoopState
           | Viewing -> todo ())
       | Game -> (
-          let (state,lastFlush,renderBudget,lastUpdateRender) =
+          let (state,lastFlush) =
             gameLoop !gameLoopState
           in
           match getState state with
-          | Running | Viewing -> Game,(lastFlush,renderBudget,lastUpdateRender)
+          | Running | Viewing -> Game,lastFlush
           | Quitting ->
             stopGameLoop ();
             wrapLoad init_frontend ();
-            Title,(lastFlush,renderBudget,lastUpdateRender)
+            Title,lastFlush
           | Loading ->
             stopGameLoop ();
             initSaveGameLoad ();
-            Game,(lastFlush,renderBudget,lastUpdateRender)
+            Game,lastFlush
           | NewLevel ->
             stopGameLoop ();
             startGameLoop ();
-            Game,(lastFlush,renderBudget,lastUpdateRender)
+            Game,lastFlush
         )
       | _ -> raise Not_found
     in
