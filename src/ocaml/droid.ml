@@ -18,11 +18,21 @@ type typ =
   | Any
 and t = {id : int; typ : typ; pointer : (unit Ctypes_static.ptr)}
 
+type listType =
+  | Main
+  | Mission
+  | Limbo
+
+let mapListTypes : listType -> int = function
+  | Main -> 1
+  | Mission -> 2
+  | Limbo -> 3
+
 (* Used in the assoc list:
    key: list * player
    value: droid list
    with list being either 1: currently active droids 2: mission droids 3: limbo droids (?) *)
-type entry = (int * int) * t list
+type entry = (listType * int) * t list
 
 
 let rec getGroup t =
@@ -53,14 +63,16 @@ and getDroid t =
   let typ = getType t in
   {id; typ; pointer = t}
 
-let getList list id =
+let getList lists id =
   let getList = funer "getDroidList" (int @-> int @-> returning (ptr_opt void)) in
   let rec f l =
     match getList id l with
     | Some x -> getDroid x :: f 0
     | None -> []
   in
-  f list
+  List.map mapListTypes lists
+  |> List.map f
+  |> List.flatten
 
 let getAssoc () : entry list =
   let worker (acc : t list) (droid : t) =
@@ -70,11 +82,9 @@ let getAssoc () : entry list =
     in
     nextEntry @ acc
   in
-  Player.map (fun id -> (1,id), getList 1 id)
-  :: Player.map (fun id -> (2,id), getList 2 id)
-  :: Player.map (fun id -> (3,id), getList 3 id)
-  :: []
-  |> List.flatten
+  Player.map (fun id -> (Main,id), getList [Main] id)
+  @ Player.map (fun id -> (Mission,id), getList [Mission] id)
+  @ Player.map (fun id -> (Limbo,id), getList [Limbo] id)
   |> List.map (fun (key,droids) -> key,List.fold_left worker [] droids)
 
 let applyAssoc (f : entry list -> 'a) =

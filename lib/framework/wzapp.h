@@ -68,6 +68,7 @@ struct screeninfo
 	int screen;
 };
 
+void handleGameScreenSizeChange(unsigned int oldWidth, unsigned int oldHeight, unsigned int newWidth, unsigned int newHeight) asm ("handleGameScreenSizeChange");
 void wzMain() asm ("wzMain");
 void initGL(int width, int height) asm ("initGL");
 void setWindow (void *ptr) asm ("setWindow");

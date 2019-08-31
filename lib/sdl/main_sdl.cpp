@@ -1247,8 +1247,6 @@ void handleWindowSizeChange(unsigned int oldWidth, unsigned int oldHeight, unsig
 	unsigned int newScreenHeight = newHeight / current_displayScaleFactor;
 
 	handleGameScreenSizeChange(oldScreenWidth, oldScreenHeight, newScreenWidth, newScreenHeight);
-
-  glUpdate();
 	}
 
 void glUpdate()

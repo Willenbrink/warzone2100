@@ -30,11 +30,11 @@
 struct NETQUEUE;
 struct Rational;
 
-/// The number of time units per second of the game clock.
+/// The number of time units per second of the game clock. A time unit is equal to 1 ms
 #define GAME_TICKS_PER_SEC 1000
 /// The number of game state updates per second of the game clock.
-#define GAME_UPDATES_PER_SEC 10
-/// The number of time units per game tick.
+#define GAME_UPDATES_PER_SEC 5
+/// How many ms per update
 #define GAME_TICKS_PER_UPDATE (GAME_TICKS_PER_SEC/GAME_UPDATES_PER_SEC)
 
 /** The maximum time for one frame (stops the clock running away when debugging)

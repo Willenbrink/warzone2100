@@ -673,7 +673,7 @@ void kf_ToggleOrders()	// Displays orders & action of currently selected unit.
 void	kf_FrameRate()
 {
 	CONPRINTF(ConsoleString, (ConsoleString, "FPS %d; PIEs %d; polys %d",
-	                          frameRate(), loopPieCount, loopPolyCount));
+	                          getFrameRate(), loopPieCount, loopPolyCount));
 
 	if (runningMultiplayer())
 	{

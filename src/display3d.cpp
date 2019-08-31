@@ -840,7 +840,7 @@ void draw3DScene()
 	if (showFPS)
 	{
 		char *fps;
-		sasprintf(&fps, "FPS: %d", frameRate());
+		sasprintf(&fps, "FPS: %d", getFrameRate());
 		txtShowFPS.setText(fps, font_regular);
 		const unsigned width = txtShowFPS.width() + 10;
 		const unsigned height = txtShowFPS.height();

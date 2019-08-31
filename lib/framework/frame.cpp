@@ -46,29 +46,29 @@ uint32_t realSelectedPlayer = 0;
 
 /* Global variables for the frame rate stuff */
 static int frameCount = 0;
-static uint64_t curFrames = 0; // Number of frames elapsed since start
+static uint64_t elapsedFrames = 0; // Number of frames elapsed since start
 static uint64_t lastFrames = 0;
-static uint32_t curTicks = 0; // Number of ticks since execution started
+static uint32_t elapsedTicks = 0; // Number of ticks since execution started
 static uint32_t lastTicks = 0;
 
 /* InitFrameStuff - needs to be called once before frame loop commences */
-static void InitFrameStuff()
+static void initFrame()
 {
 	frameCount = 0;
-	curFrames = 0;
+	elapsedFrames = 0;
 	lastFrames = 0;
-	curTicks = 0;
+	elapsedTicks = 0;
 	lastTicks = 0;
 }
 
-int frameRate()
+int getFrameRate()
 {
 	return frameCount;
 }
 
 UDWORD	frameGetFrameNumber()
 {
-	return curFrames;
+	return elapsedFrames;
 }
 
 /*
@@ -88,7 +88,7 @@ bool frameInitialise()
 	inputInitialise();
 
 	/* Initialise the frame rate stuff */
-	InitFrameStuff();
+	initFrame();
 
 	// Initialise the resource stuff
 	if (!resInitialise())
@@ -100,20 +100,17 @@ bool frameInitialise()
 }
 
 
-/*!
- * Call this each cycle to do general house keeping.
- */
-void frameUpdate()
+void countFps()
 {
-	curTicks = wzGetTicks();
-	curFrames++;
+	elapsedTicks = wzGetTicks();
+	elapsedFrames++;
 
 	// Update the framerate only once per second
-	if (curTicks >= lastTicks + 1000)
+	if (elapsedTicks >= lastTicks + 1000)
 	{
-		frameCount = curFrames - lastFrames;
-		lastTicks = curTicks;
-		lastFrames = curFrames;
+		frameCount = elapsedFrames - lastFrames;
+		lastTicks = elapsedTicks;
+		lastFrames = elapsedFrames;
 	}
 }
 

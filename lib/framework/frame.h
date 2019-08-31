@@ -113,16 +113,13 @@ void setFramerateLimit(int fpsLimit);
  */
 int getFramerateLimit();
 
-/** Call this each cycle to allow the framework to deal with
- * windows messages, and do general house keeping.
- */
-void frameUpdate() asm ("frameUpdate");
+void countFps() asm ("countFps");
 
 /** Returns the current frame we're on - used to establish whats on screen. */
 UDWORD frameGetFrameNumber();
 
 /** Return framerate of the last second. */
-int frameRate();
+int getFrameRate();
 
 static inline WZ_DECL_CONST const char *bool2string(bool var)
 {

@@ -78,10 +78,10 @@ let init () =
   window
   (*TODO Displayscale / High DPI*)
 
-let rec loop window =
-  let handleEvent event =
+let handleEvents window =
+  let handle event =
     let event_typ = Sdl.Event.get event Sdl.Event.typ |> Sdl.Event.enum in
-    print_int (Sdl.Event.get event Sdl.Event.typ); print_endline " Event";
+    (*print_int (Sdl.Event.get event Sdl.Event.typ); print_endline " Event";*)
     match event_typ with
     | `Key_down -> Input.handleKeyPress event
     | `Key_up -> Input.handleKeyRelease event
@@ -97,12 +97,9 @@ let rec loop window =
       ;raise Not_found
   in
   let event_opt = Some (Sdl.Event.create ()) in
-  match Sdl.poll_event event_opt with
-  | false -> funer "handleQt" (void @-> returning void) ()
-  | true ->
+  while Sdl.poll_event event_opt do (* Poll all events and handle them *)
     match event_opt with
     | None -> raise Not_found
-    | Some event ->
-      handleEvent event;
-      loop window
-
+    | Some event -> handle event
+  done;
+  funer "handleQt" vv ()

@@ -155,16 +155,16 @@ let handleWindow window event =
       funer "war_set_height" (int @-> returning void) y;
     in
 
-    (*
     print_int sizex; print_endline "";
+    (*
     funer "pie_setVideoBufferWidth" (int @-> returning void) sizex;
     funer "pie_setVideoBufferHeight" (int @-> returning void) sizey;
     funer "pie_update_surface_geometry" vv ();
     funer "screen_update_geometry" vv ();
-    funer "glUpdate" vv ();
 
        *)
     funer "handleTmp" (int @-> int @-> int @-> int @-> returning void) sizex sizey sizex sizey;
+    funer "glUpdate" vv ();
     setWarSize (sizex,sizey)
   | _ -> ()
 

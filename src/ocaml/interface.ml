@@ -13,3 +13,6 @@ let funer name params =
 
 let vv = void @-> returning void
 let sv = string @-> returning void
+
+let todo _ = failwith "TODO"
+exception Halt
