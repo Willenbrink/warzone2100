@@ -21,7 +21,7 @@
 #ifndef __INCLUDED_SRC_KEYEDIT_H__
 #define __INCLUDED_SRC_KEYEDIT_H__
 
-bool runKeyMapEditor();
+bool runKeyMapEditor() asm ("runKeyMapEditor");
 bool startKeyMapEditor(bool first);
 bool saveKeyMap();
 bool loadKeyMap();

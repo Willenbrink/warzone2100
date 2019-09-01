@@ -38,7 +38,10 @@ enum TITLECODE
 extern int hostlaunch;
 
 bool frontendInitVars();
-TITLECODE titleLoop() asm ("titleLoop");
+void beforeHandleMenu() asm ("beforeHandleMenu");
+void afterHandleMenu() asm ("afterHandleMenu");
+TITLECODE handleMenu() asm ("handleMenu");
+void showIntro() asm ("showIntro");
 
 void initLoadingScreen(bool drawbdrop) asm ("initLoadingScreen");
 void closeLoadingScreen() asm ("closeLoadingScreen");

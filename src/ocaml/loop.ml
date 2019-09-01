@@ -106,28 +106,6 @@ type gamemode =
   | Game
   | SaveLoad
 
-type loopState =
-  | Running
-  | Quitting
-  | Loading
-  | NewLevel (*TODO remove this probably*)
-  | Viewing
-
-let getState = function
-  | 1 -> Running
-  | 2 -> Quitting
-  | 3 -> Loading
-  | 4 -> NewLevel
-  | 5 -> Viewing
-  | _ -> raise Not_found
-
-let setState = function
-  | Running -> 1
-  | Quitting -> 2
-  | Loading -> 3
-  | NewLevel -> 4
-  | Viewing -> 5
-
 let rec loop sdlState =
   let tmp = funer "inputNewFrame" vv in
   let countFps = funer "countFps" vv in
@@ -143,7 +121,6 @@ let rec loop sdlState =
     | false -> raise Halt
     | true -> ()
   in
-  let titleLoop = funer "titleLoop" (void @-> returning int) in
   let stopTitleLoop = funer "stopTitleLoop" vv in
   let startGameLoop = funer "startGameLoop" vv in
   let stopGameLoop = funer "stopGameLoop" vv in
@@ -164,8 +141,8 @@ let rec loop sdlState =
   while true do
     Bsdl.handleEvents sdlState;
 
-    let newMode,newState = match !mode with
-      | Title -> (match titleLoop () |> getState with
+    let (newMode : gamemode),newState = match !mode with
+      | Title -> Menu.(match handleMenu () with
           | Running -> Title,!gameLoopState
           | Quitting -> stopTitleLoop (); raise Halt
           | Loading ->
@@ -179,7 +156,7 @@ let rec loop sdlState =
           let (state,lastFlush) =
             gameLoop !gameLoopState
           in
-          match getState state with
+          Menu.(match getState state with
           | Running | Viewing -> Game,lastFlush
           | Quitting ->
             stopGameLoop ();
@@ -192,7 +169,7 @@ let rec loop sdlState =
           | NewLevel ->
             stopGameLoop ();
             startGameLoop ();
-            Game,lastFlush
+            Game,lastFlush)
         )
       | _ -> raise Not_found
     in

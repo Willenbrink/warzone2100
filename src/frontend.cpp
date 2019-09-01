@@ -2249,6 +2249,11 @@ void addFESlider(UDWORD id, UDWORD parent, UDWORD x, UDWORD y, UDWORD stops, UDW
 	widgAddSlider(psWScreen, &sSldInit);
 }
 
+int getTitleMode()
+{
+  return (int) titleMode;
+}
+
 // ////////////////////////////////////////////////////////////////////////////
 // Change Mode
 void changeTitleMode(tMode mode)

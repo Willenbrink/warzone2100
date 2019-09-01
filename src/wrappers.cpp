@@ -116,157 +116,30 @@ bool frontendInitVars()
 	return true;
 }
 
-// ///////////////// /////////////////////////////////////////////////
-// Main Front end game loop.
-TITLECODE titleLoop()
+void beforeHandleMenu()
 {
-	TITLECODE RetCode = TITLECODE_CONTINUE;
-
 	pie_SetDepthBufferStatus(DEPTH_CMP_ALWAYS_WRT_ON);
 	pie_SetFogStatus(false);
 	screen_RestartBackDrop();
 	wzShowMouse(true);
 
-	// When we first init the game, firstcall is true.
-	if (firstcall)
-	{
-		firstcall = false;
+  if (firstcall)
+    {
+      firstcall = false;
+      changeTitleMode(TITLE);			// normal game, run main title screen.
 
-		// First check to see if --host was given as a command line option, if not,
-		// then check --join and if neither, run the normal game menu.
-		if (hostlaunch)
-		{
-			if (hostlaunch == 2)
-			{
-				SPinit();
-			}
-			else // single player
-			{
-				NetPlay.bComms = true; // use network = true
-				NetPlay.isUPNP_CONFIGURED = false;
-				NetPlay.isUPNP_ERROR = false;
-				bMultiMessages = true;
-				NETinit(true);
-				NETdiscoverUPnPDevices();
-			}
-
-			bMultiPlayer = true;
-			ingame.bHostSetup = true;
-			game.type = SKIRMISH;
-			changeTitleMode(MULTIOPTION);
-		}
-		else if (strlen(iptoconnect))
-		{
-			NetPlay.bComms = true; // use network = true
-			NETinit(true);
-			joinGame(iptoconnect, 0);
-		}
-		else
-		{
-			changeTitleMode(TITLE);			// normal game, run main title screen.
-		}
-
-		// Using software cursors (when on) for these menus due to a bug in SDL's SDL_ShowCursor()
-		wzSetCursor(CURSOR_DEFAULT);
-	}
+      // Using software cursors (when on) for these menus due to a bug in SDL's SDL_ShowCursor()
+      wzSetCursor(CURSOR_DEFAULT);
+    }
 
 	if (titleMode != MULTIOPTION && titleMode != MULTILIMIT && titleMode != STARTGAME)
-	{
-		screen_disableMapPreview();
+    {
+      screen_disableMapPreview();
 	}
+}
 
-	switch (titleMode) // run relevant title screen code.
-	{
-		// MULTIPLAYER screens
-		case PROTOCOL:
-			runConnectionScreen(); // multiplayer connection screen.
-			break;
-
-		case MULTIOPTION:
-			runMultiOptions();
-			break;
-
-		case GAMEFIND:
-			runGameFind();
-			break;
-
-		case MULTI:
-			runMultiPlayerMenu();
-			break;
-
-		case MULTILIMIT:
-			runLimitScreen();
-			break;
-
-		case KEYMAP:
-			runKeyMapEditor();
-			break;
-
-		case TITLE:
-			runTitleMenu();
-			break;
-
-		case CAMPAIGNS:
-			runCampaignSelector();
-			break;
-
-		case SINGLE:
-			runSinglePlayerMenu();
-			break;
-
-		case TUTORIAL:
-			runTutorialMenu();
-			break;
-
-		case CREDITS:
-			runCreditsScreen();
-			break;
-
-		case OPTIONS:
-			runOptionsMenu();
-			break;
-
-		case GAME:
-			runGameOptionsMenu();
-			break;
-
-		case GRAPHICS_OPTIONS:
-			runGraphicsOptionsMenu();
-			break;
-
-		case AUDIO_AND_ZOOM_OPTIONS:
-			runAudioAndZoomOptionsMenu();
-			break;
-
-		case VIDEO_OPTIONS:
-			runVideoOptionsMenu();
-			break;
-
-		case MOUSE_OPTIONS:
-			runMouseOptionsMenu();
-			break;
-
-		case QUIT:
-			RetCode = TITLECODE_QUITGAME;
-			break;
-
-		case STARTGAME:
-      return TITLECODE_STARTGAME;
-		case LOADSAVEGAME:
-      return TITLECODE_SAVEGAMELOAD;
-
-		case SHOWINTRO:
-			pie_SetFogStatus(false);
-			pie_ScreenFlip(CLEAR_BLACK);
-			changeTitleMode(TITLE);
-			RetCode = TITLECODE_SHOWINTRO;
-			break;
-
-		default:
-			debug(LOG_FATAL, "unknown title screen mode");
-			abort();
-	}
-
+void afterHandleMenu()
+{
 	NETflush();  // Send any pending network data.
 
 	audio_Update();
@@ -275,12 +148,16 @@ TITLECODE titleLoop()
 	pie_ScreenFlip(CLEAR_BLACK);//title loop
 
 	if ((keyDown(KEY_LALT) || keyDown(KEY_RALT)) && keyPressed(KEY_RETURN))
-	{
-		war_setFullscreen(!war_getFullscreen());
-		wzToggleFullscreen();
-	}
+    {
+      war_setFullscreen(!war_getFullscreen());
+      wzToggleFullscreen();
+    }
+}
 
-	return RetCode;
+void showIntro()
+{
+  pie_SetFogStatus(false);
+  pie_ScreenFlip(CLEAR_BLACK);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

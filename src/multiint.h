@@ -102,16 +102,16 @@ int getNextAIAssignment(const char *name);
 LOBBY_ERROR_TYPES getLobbyError();
 void setLobbyError(LOBBY_ERROR_TYPES error_type);
 
-void runConnectionScreen();
+void runConnectionScreen() asm ("runConnectionScreen");
 bool startConnectionScreen();
 void intProcessConnection(UDWORD id);
 
-void runGameFind();
+void runGameFind() asm ("runGameFind");
 void startGameFind();
 
 void updateLimitFlags();
 
-void runMultiOptions();
+void runMultiOptions() asm ("runMultiOptions");
 bool startMultiOptions(bool bReenter);
 void frontendMultiMessages();
 

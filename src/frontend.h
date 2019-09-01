@@ -53,6 +53,9 @@ enum tMode
 extern tMode titleMode;					// the global case
 extern tMode lastTitleMode;
 
+int getTitleMode() asm ("getTitleMode");
+
+
 #define MAX_LEVEL_NAME_SIZE	(256)
 
 extern char	aLevelName[MAX_LEVEL_NAME_SIZE + 1];	//256];			// vital! the wrf file to use.
@@ -61,17 +64,17 @@ extern bool	bLimiterLoaded;
 
 
 void changeTitleMode(tMode mode);
-bool runTitleMenu();
-bool runSinglePlayerMenu();
-bool runCampaignSelector();
-bool runMultiPlayerMenu();
-bool runGameOptionsMenu();
-bool runOptionsMenu();
-bool runGraphicsOptionsMenu();
-bool runAudioAndZoomOptionsMenu();
-bool runVideoOptionsMenu();
-bool runMouseOptionsMenu();
-bool runTutorialMenu();
+bool runTitleMenu() asm ("runTitleMenu");
+bool runSinglePlayerMenu() asm ("runSinglePlayerMenu");
+bool runCampaignSelector() asm ("runCampaignSelector");
+bool runMultiPlayerMenu() asm ("runMultiPlayerMenu");
+bool runGameOptionsMenu() asm ("runGameOptionsMenu");
+bool runOptionsMenu() asm ("runOptionsMenu");
+bool runGraphicsOptionsMenu() asm ("runGraphicsOptionsMenu");
+bool runAudioAndZoomOptionsMenu() asm ("runAudioAndZoomOptionsMenu");
+bool runVideoOptionsMenu() asm ("runVideoOptionsMenu");
+bool runMouseOptionsMenu() asm ("runMouseOptionsMenu");
+bool runTutorialMenu() asm ("runTutorialMenu");
 
 void addTopForm();
 void addBottomForm();
