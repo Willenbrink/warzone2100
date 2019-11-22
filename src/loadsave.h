@@ -57,6 +57,7 @@ extern bool		bRequestLoad;
  */
 /***************************************************************************/
 
+char* getSaveGameName() asm ("getSaveGameName");
 void drawBlueBox(UDWORD x, UDWORD y, UDWORD w, UDWORD h);
 
 bool addLoadSave(LOADSAVE_MODE mode, const char *title);

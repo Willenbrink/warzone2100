@@ -38,7 +38,7 @@
 
 /* See header file for documentation */
 UDWORD gameTime = 0, deltaGameTime = 0, graphicsTime = 0, deltaGraphicsTime = 0, realTime = 0, deltaRealTime = 0;
-float graphicsTimeFraction = 0.0, realTimeFraction = 0.0;
+float graphicsTimeFraction = 0.0;
 
 /** The current clock modifier. Set to speed up the game. */
 static Rational modifier;
@@ -98,7 +98,6 @@ void gameTimeInit(void)
 	realTime = wzGetTicks();
 	deltaRealTime = 0;
 	prevRealTime = realTime;
-	realTimeFraction = 0.f;
 
 	modifier = 1;
 
@@ -144,11 +143,6 @@ UDWORD getModularScaledGraphicsTime(UDWORD timePeriod, UDWORD requiredRange)
 UDWORD getModularScaledRealTime(UDWORD timePeriod, UDWORD requiredRange)
 {
 	return realTime % MAX(1, timePeriod) * requiredRange / MAX(1, timePeriod);
-}
-
-int getRealTime()
-{
-  return realTime;
 }
 
 int getDeltaGameTime()
@@ -261,13 +255,16 @@ void realTimeUpdate(void)
 	// now update realTime which does not pause
 	// Store the real time
 	deltaRealTime = currTime - realTime;
-	realTime += deltaRealTime;
+	realTime = currTime;
 
 	deltaRealTime = MIN(deltaRealTime, GTIME_MAXFRAME);  // Don't scroll across the map suddenly, if computer freezes for a moment.
-
-	// Pre-calculate fraction used in timeAdjustedIncrement
-	realTimeFraction = (float)deltaRealTime / (float)GAME_TICKS_PER_SEC;
 }
+
+float getFrameLengthInSeconds()
+{
+  return (float) deltaRealTime / (float) GAME_TICKS_PER_SEC;
+}
+
 
 // reset the game time modifiers
 void gameTimeResetMod(void)

@@ -49,7 +49,6 @@ extern UDWORD gameTime;
 extern UDWORD graphicsTime;
 /// The current time in the real world - never stops, and not reset between games.
 extern UDWORD realTime;
-int getRealTime() asm ("getRealTime");
 
 /// The difference between the previous and current gameTime.
 extern UDWORD deltaGameTime;
@@ -166,11 +165,7 @@ static inline float graphicsTimeAdjustedIncrement(float value)
 	return value * graphicsTimeFraction;
 }
 
-/// Returns the value times deltaGraphicsTime, converted to seconds, as a float.
-static inline float realTimeAdjustedIncrement(float value)
-{
-	return value * realTimeFraction;
-}
+float getFrameLengthInSeconds();
 /// Returns the value times deltaRealTime, converted to seconds. The return value is rounded up or down to the nearest integer, such that it is exactly right on average.
 static inline int32_t realTimeAdjustedAverage(int value)
 {

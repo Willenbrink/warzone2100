@@ -18,12 +18,12 @@ type typ =
   | Any
 and t = {id : int; typ : typ; pointer : (unit Ctypes_static.ptr)}
 
-type listType =
+type list_type =
   | Main
   | Mission
   | Limbo
 
-let mapListTypes : listType -> int = function
+let map_list_types : list_type -> int = function
   | Main -> 1
   | Mission -> 2
   | Limbo -> 3
@@ -32,14 +32,14 @@ let mapListTypes : listType -> int = function
    key: list * player
    value: droid list
    with list being either 1: currently active droids 2: mission droids 3: limbo droids (?) *)
-type entry = (listType * int) * t list
+type entry = (list_type * int) * t list
 
 
-let rec getGroup t =
+let rec get_group t =
   match funer "getDroidGroup" (ptr void @-> returning (ptr_opt void)) t with
-  | Some x -> getDroid x :: getGroup (from_voidp void null)
+  | Some x -> get_droid x :: get_group (from_voidp void null)
   | None -> []
-and getType t =
+and get_type t =
   let f = funer "getDroidType" (ptr void @-> returning int) in
   match f t with
   | 0 -> Weapon
@@ -48,55 +48,55 @@ and getType t =
   | 3 -> Construct
   | 4 -> Person
   | 5 -> Cyborg
-  | 6 -> Transporter (getGroup t)
+  | 6 -> Transporter (get_group t)
   | 7 -> Command
   | 8 -> Repair
   | 9 -> Default
   | 10 -> CyborgConstruct
   | 11 -> CyborgRepair
   | 12 -> CyborgSuper
-  | 13 -> Supertransporter (getGroup t)
+  | 13 -> Supertransporter (get_group t)
   | 14 -> Any
   | _ -> raise Not_found
-and getDroid t =
+and get_droid t =
   let id = funer "getDroidId" (ptr void @-> returning int) t in
-  let typ = getType t in
+  let typ = get_type t in
   {id; typ; pointer = t}
 
-let getList lists id =
-  let getList = funer "getDroidList" (int @-> int @-> returning (ptr_opt void)) in
+let get_list lists id =
+  let get_list = funer "getDroidList" (int @-> int @-> returning (ptr_opt void)) in
   let rec f l =
-    match getList id l with
-    | Some x -> getDroid x :: f 0
+    match get_list id l with
+    | Some x -> get_droid x :: f 0
     | None -> []
   in
-  List.map mapListTypes lists
+  List.map map_list_types lists
   |> List.map f
   |> List.flatten
 
-let getAssoc () : entry list =
+let get_assoc () : entry list =
   let worker (acc : t list) (droid : t) =
-    let nextEntry = match droid with
+    let next_entry = match droid with
       | {typ = Transporter x; _} | {typ = Supertransporter x; _} -> droid::x
       | _ -> [droid]
     in
-    nextEntry @ acc
+    next_entry @ acc
   in
-  Player.map (fun id -> (Main,id), getList [Main] id)
-  @ Player.map (fun id -> (Mission,id), getList [Mission] id)
-  @ Player.map (fun id -> (Limbo,id), getList [Limbo] id)
+  Player.map (fun id -> (Main,id), get_list [Main] id)
+  @ Player.map (fun id -> (Mission,id), get_list [Mission] id)
+  @ Player.map (fun id -> (Limbo,id), get_list [Limbo] id)
   |> List.map (fun (key,droids) -> key,List.fold_left worker [] droids)
 
-let applyAssoc (f : entry list -> 'a) =
-  getAssoc ()
+let apply_assoc (f : entry list -> 'a) =
+  get_assoc ()
   |> f
 
-let mapAssoc f = applyAssoc (List.map f)
-let iterAssoc f = applyAssoc (List.iter f)
-let foldAssoc f acc = applyAssoc (List.fold_left f acc)
+let map_assoc f = apply_assoc (List.map f)
+let iter_assoc f = apply_assoc (List.iter f)
+let fold_assoc f acc = apply_assoc (List.fold_left f acc)
 
 let apply f =
-  getAssoc ()
+  get_assoc ()
   |> List.map (fun (_,droids) -> droids)
   |> List.flatten
   |> f

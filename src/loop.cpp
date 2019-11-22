@@ -134,6 +134,153 @@ LOOP_MISSION_STATE		loopMissionState = LMS_NORMAL;
 // this is set by scrStartMission to say what type of new level is to be started
 LEVEL_TYPE nextMissionType = LDS_NONE;
 
+INT_RETVAL renderNotPaused(CURSOR *cursor)
+{
+  INT_RETVAL intRetVal = INT_NONE;
+  /* Run the in game interface and see if it grabbed any mouse clicks */
+  if (!rotActive && getWidgetsStatus() && dragBox3D.status != DRAG_DRAGGING && wallDrag.status != DRAG_DRAGGING)
+	{
+    intRetVal = intRunWidgets();
+    // Send droid orders, if any. (Should do between intRunWidgets() calls, to avoid droid orders getting mixed up, in the case of multiple orders given while the game freezes due to net lag.)
+    sendQueuedDroidInfo();
+	}
+
+  //don't process the object lists if paused or about to quit to the front end
+  if (!gameUpdatePaused() && intRetVal != INT_QUIT)
+	{
+		if (dragBox3D.status != DRAG_DRAGGING && wallDrag.status != DRAG_DRAGGING
+        && (intRetVal == INT_INTERCEPT
+        || (radarOnScreen && CoordInRadar(mouseX(), mouseY()) && radarPermitted)))
+    {
+      // Using software cursors (when on) for these menus due to a bug in SDL's SDL_ShowCursor()
+      wzSetCursor(CURSOR_DEFAULT);
+    }
+
+#ifdef DEBUG
+			// check all flag positions for duplicate delivery points
+    checkFactoryFlags();
+#endif
+
+    //handles callbacks for positioning of DP's
+    process3DBuilding();
+    processDeliveryRepos();
+    
+    //ajl. get the incoming netgame messages and process them.
+    // FIXME Previous comment is deprecated. multiPlayerLoop does some other weird stuff, but not that anymore.
+    if (bMultiPlayer)
+      {
+        multiPlayerLoop();
+      }
+    
+    for (unsigned i = 0; i < MAX_PLAYERS; i++)
+      {
+        for (DROID *psCurr = apsDroidLists[i]; psCurr; psCurr = psCurr->psNext)
+          {
+            // Don't copy the next pointer - if droids somehow get destroyed in the graphics rendering loop, who cares if we crash.
+            calcDroidIllumination(psCurr);
+          }
+      }
+  }
+  
+  if (!consolePaused())
+		{
+			/* Process all the console messages */
+			updateConsoleMessages();
+		}
+
+  if (!scrollPaused() && dragBox3D.status != DRAG_DRAGGING && intMode != INT_INGAMEOP)
+		{
+			*cursor = scroll();
+			zoom();
+		}
+  return intRetVal;
+}
+
+INT_RETVAL renderPaused(CURSOR *cursor)
+{
+  INT_RETVAL intRetVal = INT_NONE;
+  // Using software cursors (when on) for these menus due to a bug in SDL's SDL_ShowCursor()
+  wzSetCursor(CURSOR_DEFAULT);
+
+  if (dragBox3D.status != DRAG_DRAGGING)
+		{
+			*cursor = scroll();
+			zoom();
+		}
+
+  if (InGameOpUp || isInGamePopupUp)		// ingame options menu up, run it!
+		{
+			WidgetTriggers const &triggers = widgRunScreen(psWScreen);
+			unsigned widgval = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
+
+			intProcessInGameOptions(widgval);
+
+			if (widgval == INTINGAMEOP_QUIT_CONFIRM || widgval == INTINGAMEOP_POPUP_QUIT)
+        {
+          if (gamePaused())
+            {
+              kf_TogglePauseMode();
+            }
+
+          intRetVal = INT_QUIT;
+        }
+		}
+
+  if (bLoadSaveUp && runLoadSave(true) && strlen(sRequestResult))
+		{
+			debug(LOG_NEVER, "Returned %s", sRequestResult);
+
+			if (bRequestLoad)
+        {
+          loopMissionState = LMS_LOADGAME;
+          NET_InitPlayers();			// otherwise alliances were not cleared
+          sstrcpy(saveGameName, sRequestResult);
+        }
+			else
+        {
+          char msgbuffer[256] = {'\0'};
+
+          if (saveInMissionRes())
+            {
+              if (saveGame(sRequestResult, GTYPE_SAVE_START))
+                {
+                  sstrcpy(msgbuffer, _("GAME SAVED: "));
+                  sstrcat(msgbuffer, sRequestResult);
+                  addConsoleMessage(msgbuffer, LEFT_JUSTIFY, NOTIFY_MESSAGE);
+                }
+              else
+                {
+                  ASSERT(false, "Mission Results: saveGame Failed");
+                  sstrcpy(msgbuffer, _("Could not save game!"));
+                  addConsoleMessage(msgbuffer, LEFT_JUSTIFY, NOTIFY_MESSAGE);
+                  deleteSaveGame(sRequestResult);
+                }
+            }
+          else if (bMultiPlayer || saveMidMission())
+            {
+              if (saveGame(sRequestResult, GTYPE_SAVE_MIDMISSION)) //mid mission from [esc] menu
+                {
+                  sstrcpy(msgbuffer, _("GAME SAVED: "));
+                  sstrcat(msgbuffer, sRequestResult);
+                  addConsoleMessage(msgbuffer, LEFT_JUSTIFY, NOTIFY_MESSAGE);
+                }
+              else
+                {
+                  ASSERT(!"saveGame(sRequestResult, GTYPE_SAVE_MIDMISSION) failed", "Mid Mission: saveGame Failed");
+                  sstrcpy(msgbuffer, _("Could not save game!"));
+                  addConsoleMessage(msgbuffer, LEFT_JUSTIFY, NOTIFY_MESSAGE);
+                  deleteSaveGame(sRequestResult);
+                }
+            }
+          else
+            {
+              ASSERT(false, "Attempt to save game with incorrect load/save mode");
+            }
+        }
+		}
+  return intRetVal;
+}
+
 GAMECODE renderLoop()
 {
 	if (bMultiPlayer && !NetPlay.isHostAlive && NetPlay.bComms && !NetPlay.isHost)
@@ -145,150 +292,13 @@ GAMECODE renderLoop()
 
 	wzShowMouse(true);
 
-	INT_RETVAL intRetVal = INT_NONE;
 	CURSOR cursor = CURSOR_DEFAULT;
 
+	INT_RETVAL intRetVal = INT_NONE;
 	if (!paused)
-	{
-		/* Run the in game interface and see if it grabbed any mouse clicks */
-		if (!rotActive && getWidgetsStatus() && dragBox3D.status != DRAG_DRAGGING && wallDrag.status != DRAG_DRAGGING)
-		{
-			intRetVal = intRunWidgets();
-			// Send droid orders, if any. (Should do between intRunWidgets() calls, to avoid droid orders getting mixed up, in the case of multiple orders given while the game freezes due to net lag.)
-			sendQueuedDroidInfo();
-		}
-
-		//don't process the object lists if paused or about to quit to the front end
-		if (!gameUpdatePaused() && intRetVal != INT_QUIT)
-		{
-			if (dragBox3D.status != DRAG_DRAGGING && wallDrag.status != DRAG_DRAGGING
-			        && (intRetVal == INT_INTERCEPT
-			            || (radarOnScreen && CoordInRadar(mouseX(), mouseY()) && radarPermitted)))
-			{
-				// Using software cursors (when on) for these menus due to a bug in SDL's SDL_ShowCursor()
-				wzSetCursor(CURSOR_DEFAULT);
-			}
-
-#ifdef DEBUG
-			// check all flag positions for duplicate delivery points
-			checkFactoryFlags();
-#endif
-
-			//handles callbacks for positioning of DP's
-			process3DBuilding();
-			processDeliveryRepos();
-
-			//ajl. get the incoming netgame messages and process them.
-			// FIXME Previous comment is deprecated. multiPlayerLoop does some other weird stuff, but not that anymore.
-			if (bMultiPlayer)
-			{
-				multiPlayerLoop();
-			}
-
-			for (unsigned i = 0; i < MAX_PLAYERS; i++)
-			{
-				for (DROID *psCurr = apsDroidLists[i]; psCurr; psCurr = psCurr->psNext)
-				{
-					// Don't copy the next pointer - if droids somehow get destroyed in the graphics rendering loop, who cares if we crash.
-					calcDroidIllumination(psCurr);
-				}
-			}
-		}
-
-		if (!consolePaused())
-		{
-			/* Process all the console messages */
-			updateConsoleMessages();
-		}
-
-		if (!scrollPaused() && dragBox3D.status != DRAG_DRAGGING && intMode != INT_INGAMEOP)
-		{
-			cursor = scroll();
-			zoom();
-		}
-	}
-	else  // paused
-	{
-		// Using software cursors (when on) for these menus due to a bug in SDL's SDL_ShowCursor()
-		wzSetCursor(CURSOR_DEFAULT);
-
-		if (dragBox3D.status != DRAG_DRAGGING)
-		{
-			cursor = scroll();
-			zoom();
-		}
-
-		if (InGameOpUp || isInGamePopupUp)		// ingame options menu up, run it!
-		{
-			WidgetTriggers const &triggers = widgRunScreen(psWScreen);
-			unsigned widgval = triggers.empty() ? 0 : triggers.front().widget->id; // Just use first click here, since the next click could be on another menu.
-
-			intProcessInGameOptions(widgval);
-
-			if (widgval == INTINGAMEOP_QUIT_CONFIRM || widgval == INTINGAMEOP_POPUP_QUIT)
-			{
-				if (gamePaused())
-				{
-					kf_TogglePauseMode();
-				}
-
-				intRetVal = INT_QUIT;
-			}
-		}
-
-		if (bLoadSaveUp && runLoadSave(true) && strlen(sRequestResult))
-		{
-			debug(LOG_NEVER, "Returned %s", sRequestResult);
-
-			if (bRequestLoad)
-			{
-				loopMissionState = LMS_LOADGAME;
-				NET_InitPlayers();			// otherwise alliances were not cleared
-				sstrcpy(saveGameName, sRequestResult);
-			}
-			else
-			{
-				char msgbuffer[256] = {'\0'};
-
-				if (saveInMissionRes())
-				{
-					if (saveGame(sRequestResult, GTYPE_SAVE_START))
-					{
-						sstrcpy(msgbuffer, _("GAME SAVED: "));
-						sstrcat(msgbuffer, sRequestResult);
-						addConsoleMessage(msgbuffer, LEFT_JUSTIFY, NOTIFY_MESSAGE);
-					}
-					else
-					{
-						ASSERT(false, "Mission Results: saveGame Failed");
-						sstrcpy(msgbuffer, _("Could not save game!"));
-						addConsoleMessage(msgbuffer, LEFT_JUSTIFY, NOTIFY_MESSAGE);
-						deleteSaveGame(sRequestResult);
-					}
-				}
-				else if (bMultiPlayer || saveMidMission())
-				{
-					if (saveGame(sRequestResult, GTYPE_SAVE_MIDMISSION)) //mid mission from [esc] menu
-					{
-						sstrcpy(msgbuffer, _("GAME SAVED: "));
-						sstrcat(msgbuffer, sRequestResult);
-						addConsoleMessage(msgbuffer, LEFT_JUSTIFY, NOTIFY_MESSAGE);
-					}
-					else
-					{
-						ASSERT(!"saveGame(sRequestResult, GTYPE_SAVE_MIDMISSION) failed", "Mid Mission: saveGame Failed");
-						sstrcpy(msgbuffer, _("Could not save game!"));
-						addConsoleMessage(msgbuffer, LEFT_JUSTIFY, NOTIFY_MESSAGE);
-						deleteSaveGame(sRequestResult);
-					}
-				}
-				else
-				{
-					ASSERT(false, "Attempt to save game with incorrect load/save mode");
-				}
-			}
-		}
-	}
+    intRetVal = renderNotPaused(&cursor);
+	else
+    intRetVal = renderPaused(&cursor);
 
 	/* Check for quit */
 	bool quitting = intRetVal == INT_QUIT && !loop_GetVideoStatus();

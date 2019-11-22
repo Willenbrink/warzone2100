@@ -127,7 +127,7 @@ void intRemoveTransporterTimer();
 void missionTimerUpdate();
 
 /** Checks the time has been set and then adds the timer if not already on the display. */
-void addMissionTimerInterface();
+void addMissionTimerInterface() asm ("addMissionTimerInterface");
 
 void intRemoveMissionTimer();
 

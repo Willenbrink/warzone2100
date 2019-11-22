@@ -46,9 +46,9 @@ extern unsigned screenHeight;
 void screen_SetRandomBackdrop(const char *dirname,
                               const char *basename);
 void screen_SetBackDropFromFile(const char *filename);
-void screen_StopBackDrop();
-void screen_RestartBackDrop();
-bool screen_GetBackDrop();
+void screen_StopBackDrop() asm ("stopBackDrop");
+void screen_RestartBackDrop() asm ("restartBackDrop");
+bool screen_GetBackDrop() asm ("getBackDrop");
 void screen_Upload(const char *newBackDropBmp);
 void screen_Display();
 

@@ -923,11 +923,11 @@ void	kf_ZoomOut()
 {
 	if (getDebugMappingStatus())
 	{
-		setViewDistance(getViewDistance() + realTimeAdjustedIncrement(war_GetMapZoomRate()));
+		setViewDistance(getViewDistance() + getFrameLengthInSeconds() * (war_GetMapZoomRate()));
 	}
 	else
 	{
-		setViewDistance(std::min<int>(getViewDistance() + realTimeAdjustedIncrement(war_GetMapZoomRate()), MAXDISTANCE));
+		setViewDistance(std::min<int>(getViewDistance() + getFrameLengthInSeconds() * (war_GetMapZoomRate()), MAXDISTANCE));
 	}
 
 	UpdateFogDistance(getViewDistance());
@@ -980,11 +980,11 @@ void	kf_ZoomIn()
 {
 	if (getDebugMappingStatus())
 	{
-		setViewDistance(getViewDistance() - realTimeAdjustedIncrement(war_GetMapZoomRate()));
+		setViewDistance(getViewDistance() - getFrameLengthInSeconds() * (war_GetMapZoomRate()));
 	}
 	else
 	{
-		setViewDistance(std::max<int>(getViewDistance() - realTimeAdjustedIncrement(war_GetMapZoomRate()), MINDISTANCE));
+		setViewDistance(std::max<int>(getViewDistance() - getFrameLengthInSeconds() * (war_GetMapZoomRate()), MINDISTANCE));
 	}
 
 	UpdateFogDistance(getViewDistance());
@@ -1053,7 +1053,7 @@ void	kf_ExpandScreen( void )
 /* Spins the world round left */
 void	kf_RotateLeft()
 {
-	float rotAmount = realTimeAdjustedIncrement(MAP_SPIN_RATE);
+	float rotAmount = getFrameLengthInSeconds() * (MAP_SPIN_RATE);
 
 	player.r.y += rotAmount;
 }
@@ -1062,7 +1062,7 @@ void	kf_RotateLeft()
 /* Spins the world right */
 void	kf_RotateRight()
 {
-	float rotAmount = realTimeAdjustedIncrement(MAP_SPIN_RATE);
+	float rotAmount = getFrameLengthInSeconds() * (MAP_SPIN_RATE);
 
 	player.r.y -= rotAmount;
 
@@ -1076,7 +1076,7 @@ void	kf_RotateRight()
 /* Pitches camera back */
 void	kf_PitchBack()
 {
-	float pitchAmount = realTimeAdjustedIncrement(MAP_PITCH_RATE);
+	float pitchAmount = getFrameLengthInSeconds() * (MAP_PITCH_RATE);
 
 	player.r.x += pitchAmount;
 
@@ -1092,7 +1092,7 @@ void	kf_PitchBack()
 /* Pitches camera forward */
 void	kf_PitchForward()
 {
-	float pitchAmount = realTimeAdjustedIncrement(MAP_PITCH_RATE);
+	float pitchAmount = getFrameLengthInSeconds() * (MAP_PITCH_RATE);
 
 	player.r.x -= pitchAmount;
 

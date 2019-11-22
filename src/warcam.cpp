@@ -720,17 +720,17 @@ static void updateCameraVelocity(UBYTE update)
 {
 	if (update & X_UPDATE)
 	{
-		trackingCamera.velocity.x += realTimeAdjustedIncrement(trackingCamera.acceleration.x);
+		trackingCamera.velocity.x += getFrameLengthInSeconds() * (trackingCamera.acceleration.x);
 	}
 
 	if (update & Y_UPDATE)
 	{
-		trackingCamera.velocity.y += realTimeAdjustedIncrement(trackingCamera.acceleration.y);
+		trackingCamera.velocity.y += getFrameLengthInSeconds() * (trackingCamera.acceleration.y);
 	}
 
 	if (update & Z_UPDATE)
 	{
-		trackingCamera.velocity.z += realTimeAdjustedIncrement(trackingCamera.acceleration.z);
+		trackingCamera.velocity.z += getFrameLengthInSeconds() * (trackingCamera.acceleration.z);
 	}
 }
 
@@ -741,19 +741,19 @@ static void	updateCameraPosition(UBYTE update)
 	if (update & X_UPDATE)
 	{
 		/* Need to update position along x axis */
-		trackingCamera.position.x += realTimeAdjustedIncrement(trackingCamera.velocity.x);
+		trackingCamera.position.x += getFrameLengthInSeconds() * (trackingCamera.velocity.x);
 	}
 
 	if (update & Y_UPDATE)
 	{
 		/* Need to update position along y axis */
-		trackingCamera.position.y += realTimeAdjustedIncrement(trackingCamera.velocity.y);
+		trackingCamera.position.y += getFrameLengthInSeconds() * (trackingCamera.velocity.y);
 	}
 
 	if (update & Z_UPDATE)
 	{
 		/* Need to update position along z axis */
-		trackingCamera.position.z += realTimeAdjustedIncrement(trackingCamera.velocity.z);
+		trackingCamera.position.z += getFrameLengthInSeconds() * (trackingCamera.velocity.z);
 	}
 }
 
@@ -896,17 +896,17 @@ static void updateCameraRotationVelocity(UBYTE update)
 {
 	if (update & Y_UPDATE)
 	{
-		trackingCamera.rotVel.y += realTimeAdjustedIncrement(trackingCamera.rotAccel.y);
+		trackingCamera.rotVel.y += getFrameLengthInSeconds() * (trackingCamera.rotAccel.y);
 	}
 
 	if (update & X_UPDATE)
 	{
-		trackingCamera.rotVel.x += realTimeAdjustedIncrement(trackingCamera.rotAccel.x);
+		trackingCamera.rotVel.x += getFrameLengthInSeconds() * (trackingCamera.rotAccel.x);
 	}
 
 	if (update & Z_UPDATE)
 	{
-		trackingCamera.rotVel.z += realTimeAdjustedIncrement(trackingCamera.rotAccel.z);
+		trackingCamera.rotVel.z += getFrameLengthInSeconds() * (trackingCamera.rotAccel.z);
 	}
 }
 
@@ -916,17 +916,17 @@ static void updateCameraRotationPosition(UBYTE update)
 {
 	if (update & Y_UPDATE)
 	{
-		trackingCamera.rotation.y += realTimeAdjustedIncrement(trackingCamera.rotVel.y);
+		trackingCamera.rotation.y += getFrameLengthInSeconds() * (trackingCamera.rotVel.y);
 	}
 
 	if (update & X_UPDATE)
 	{
-		trackingCamera.rotation.x += realTimeAdjustedIncrement(trackingCamera.rotVel.x);
+		trackingCamera.rotation.x += getFrameLengthInSeconds() * (trackingCamera.rotVel.x);
 	}
 
 	if (update & Z_UPDATE)
 	{
-		trackingCamera.rotation.z += realTimeAdjustedIncrement(trackingCamera.rotVel.z);
+		trackingCamera.rotation.z += getFrameLengthInSeconds() * (trackingCamera.rotVel.z);
 	}
 }
 

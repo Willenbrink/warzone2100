@@ -96,6 +96,7 @@ let handleEvents window =
       print_string "!" (*TODO pass event to some mainexec thread?*)
       ;raise Not_found
   in
+  funer "inputNewFrame" vv (); (* Reset all pressed keys *)
   let event_opt = Some (Sdl.Event.create ()) in
   while Sdl.poll_event event_opt do (* Poll all events and handle them *)
     match event_opt with

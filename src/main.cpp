@@ -97,16 +97,14 @@ int getMaxPlayers()
   return MAX_PLAYERS;
 }
 
-static bool running = false;
-
 bool isRunning()
 {
-  return running;
+  return gameInitialised;
 }
 
 void setRunning(bool value)
 {
-	running = value;
+	gameInitialised = value;
 }
 
 static bool wz_autogame = false;
@@ -334,38 +332,6 @@ static void make_dir(char *dest, const char *dirname, const char *subdir)
 }
 
 /*!
- * Preparations before entering the title (mainmenu) loop
- * Would start the timer in an event based mainloop
- */
-void startTitleLoop()
-{
-  setRunning(false);
-
-	initLoadingScreen(true);
-
-	if (!frontendInitialise("wrf/frontend.wrf"))
-	{
-		debug(LOG_FATAL, "Shutting down after failure");
-		exit(EXIT_FAILURE);
-	}
-
-	closeLoadingScreen();
-}
-
-/*!
- * Shutdown/cleanup after the title (mainmenu) loop
- * Would stop the timer
- */
-void stopTitleLoop()
-{
-	if (!frontendShutdown())
-	{
-		debug(LOG_FATAL, "Shutting down after failure");
-		exit(EXIT_FAILURE);
-	}
-}
-
-/*!
  * Preparations before entering the game loop
  * Would start the timer in an event based mainloop
  */
@@ -396,9 +362,6 @@ void startGameLoop()
 		// FIXME: Figure out a workaround?
 		wzSetWindowIsResizable(false);
 	}
-
-	// set a flag for the trigger/event system to indicate initialisation is complete
-	gameInitialised = true;
 
 	if (challengeActive)
 	{
@@ -453,48 +416,6 @@ void stopGameLoop()
 		// FIXME: This is required because of the disabling in startGameLoop()
 		wzSetWindowIsResizable(true);
 	}
-
-	gameInitialised = false;
-}
-
-
-/*!
- * Load a savegame and start into the game loop
- * Game data should be initialised afterwards, so that startGameLoop is not necessary anymore.
- */
-bool initSaveGameLoad()
-{
-	setRunning(true);
-	screen_RestartBackDrop();
-
-	// load up a save game
-	if (!loadGameInit(saveGameName))
-	{
-		// FIXME: we really should throw up a error window, but we can't (easily) so I won't.
-		debug(LOG_ERROR, "Trying to load Game %s failed!", saveGameName);
-		debug(LOG_POPUP, "Failed to load a save game! It is either corrupted or a unsupported format.\n\nRestarting main menu.");
-		// FIXME: If we bomb out on a in game load, then we would crash if we don't do the next two calls
-		// Doesn't seem to be a way to tell where we are in game loop to determine if/when we should do the two calls.
-		stopGameLoop();
-		startTitleLoop(); // Restart into titleloop
-		return false;
-	}
-
-	screen_StopBackDrop();
-	closeLoadingScreen();
-
-	// Trap the cursor if cursor snapping is enabled
-	if (war_GetTrapCursor())
-	{
-		wzGrabMouse();
-	}
-
-	if (challengeActive)
-	{
-		addMissionTimerInterface();
-	}
-
-	return true;
 }
 
 // for backend detection

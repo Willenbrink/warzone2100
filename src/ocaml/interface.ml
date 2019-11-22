@@ -16,6 +16,11 @@ let funer name params =
 
 let vv = void @-> returning void
 let sv = string @-> returning void
+let vb = void @-> returning bool
+
+let critical f x =
+  match f x with
+  | false -> raise Exit
+  | true -> ()
 
 let todo _ = failwith "TODO"
-exception Halt

@@ -439,3 +439,8 @@ bool displayChallenges()
 	widgDisplayScreen(psRequestScreen);	// display widgets.
 	return true;
 }
+
+bool getChallengeActive()
+{
+  return challengeActive;
+}

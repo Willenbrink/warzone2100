@@ -106,6 +106,11 @@ LOADSAVE_MODE		bLoadSaveMode;
 
 static const char *sExt = ".gam";
 
+char* getSaveGameName()
+{
+  return saveGameName;
+}
+
 // ////////////////////////////////////////////////////////////////////////////
 // return whether the save screen was displayed in the mission results screen
 bool saveInMissionRes()

@@ -60,7 +60,7 @@ bool war_getFullscreen() asm ("getFullscreen");
 void war_setAntialiasing(int);
 int war_getAntialiasing() asm ("getAntialiasing");
 void war_SetTrapCursor(bool b);
-bool war_GetTrapCursor();
+bool war_GetTrapCursor() asm ("getTrapCursor");
 bool war_GetColouredCursor();
 void war_SetColouredCursor(bool enabled);
 void war_SetVsync(bool b);
