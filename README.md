@@ -1,3 +1,6 @@
+Currently in hiatus.
+In order to make significant progress it is necessary to downsize the game, i.e. remove every movable unit or something so it's a tower defense game
+
 Warzone 2100
 ============
 
